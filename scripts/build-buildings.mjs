@@ -1,4 +1,4 @@
-// 건축물대장 원본 CSV → src/data/buildings.json 변환 스크립트
+// 건축물대장 원본 CSV → lib/mock/registry.json 변환 스크립트
 // 실행: npm run data:buildings
 // 원본은 상위 폴더(../)에 있고 저장소에 올리지 않는다. 결과 JSON만 커밋한다.
 
@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const INPUT = resolve(here, '../../건축물대장_PNU변환.csv')
-const OUTPUT = resolve(here, '../src/data/buildings.json')
+const OUTPUT = resolve(here, '../lib/mock/registry.json')
 
 /** 따옴표("...")로 감싼 칸과 칸 안의 쉼표를 처리하는 간단한 CSV 파서 */
 function parseCsv(text) {

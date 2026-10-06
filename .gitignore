@@ -1,14 +1,30 @@
+# 패키지
 node_modules/
+
+# 빌드 결과
+.next/
+out/
+build/
 dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# 테스트
+coverage/
+
+# 환경변수 (API 키) — 커밋 금지
 .env
 .env.*
 !.env.example
+
+# 배포
 .vercel/
+
+# 기타
 ~$*
 *.log
+*.pem
 .DS_Store
-dist-ssr
-*.local
 .vscode/*
 !.vscode/extensions.json
 .idea
