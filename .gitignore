@@ -7,3 +7,8 @@ dist/
 ~$*
 *.log
 .DS_Store
+dist-ssr
+*.local
+.vscode/*
+!.vscode/extensions.json
+.idea

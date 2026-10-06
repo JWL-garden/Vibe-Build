@@ -1,0 +1,40 @@
+import { textOrEmpty, withUnit } from '../../lib/format'
+import type { BuildingRecord } from '../../services/types'
+
+interface Props {
+  building: BuildingRecord
+}
+
+/** 대상 건축물 정보 카드 (건축물대장 표제부 항목) */
+export default function BuildingInfo({ building: b }: Props) {
+  const items: { label: string; value: string }[] = [
+    { label: '대지위치', value: b.address },
+    { label: '대지면적', value: withUnit(b.siteAreaM2, '㎡') },
+    { label: '건축면적', value: withUnit(b.buildingAreaM2, '㎡') },
+    { label: '건폐율', value: withUnit(b.bcrPercent, '%') },
+    { label: '연면적', value: withUnit(b.totalFloorAreaM2, '㎡') },
+    { label: '용적률산정연면적', value: withUnit(b.farFloorAreaM2, '㎡') },
+    { label: '용적률', value: withUnit(b.farPercent, '%') },
+    { label: '주용도', value: b.mainUse },
+    { label: '기타용도', value: textOrEmpty(b.etcUse) },
+    { label: '세대수', value: withUnit(b.households, '세대', 0) },
+    { label: '높이', value: withUnit(b.heightM, 'm') },
+    { label: '지상층수', value: withUnit(b.floorsAbove, '층', 0) },
+    { label: '지하층수', value: withUnit(b.floorsBelow, '층', 0) },
+    { label: '사용승인일', value: textOrEmpty(b.approvalDate) },
+  ]
+
+  return (
+    <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:grid-cols-2">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className={`bg-white px-4 py-3 ${item.label === '대지위치' ? 'sm:col-span-2' : ''}`}
+        >
+          <dt className="text-xs font-medium text-slate-500">{item.label}</dt>
+          <dd className="mt-1 font-semibold text-slate-800">{item.value}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
