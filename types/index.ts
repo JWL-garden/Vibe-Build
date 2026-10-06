@@ -451,6 +451,8 @@ export interface AnalysisResult {
   financeScenarioId: FinanceScenarioId
   /** 규모: 완화 전(BASE) / 완화 후(선택 시나리오) */
   expansion: { before: ExpansionResult; after: ExpansionResult }
+  /** 규모: 법규 시나리오 4개 각각 (보고서 2장 비교표) */
+  expansionByScenario: Record<ScenarioId, ExpansionResult>
   /** 수익: 완화 전 / 완화 후 */
   finance: { before: FinanceResult; after: FinanceResult }
   /** 보수/기준/낙관 각각의 완화 후 수익 */
@@ -494,6 +496,26 @@ export interface ScheduleStep {
   costNote: string | null
 }
 
+/** 증축 계획안의 층 하나 (3장) */
+export interface PlanFloor {
+  /** 층 번호 */
+  floor: number
+  /** 바닥면적 (㎡) */
+  areaM2: number
+  /** 증축층이면 true */
+  isAdded: boolean
+  /** 용도 (기존 용도 또는 제안 용도) */
+  use: string
+}
+
+/** 다음 단계 제안 한 단계 (10장) */
+export interface NextStep {
+  /** 단계 번호 (1부터) */
+  step: number
+  title: string
+  description: string
+}
+
 /** 협업 전문가 (9장) */
 export interface Partner {
   role: string
@@ -529,6 +551,14 @@ export interface ReportData {
   }
   /** 1장: 현황 */
   building: TargetBuilding
+  /** 3장: 증축 계획안 */
+  plan: {
+    floors: PlanFloor[]
+    /** 증축층 용도 제안 */
+    useProposal: string
+    /** 공사 방식 */
+    constructionMethod: string
+  }
   owner: OwnerInfo | null
   /** 2~6장: 계산 결과 (runAll 결과 그대로) */
   analysis: AnalysisResult
@@ -540,9 +570,21 @@ export interface ReportData {
   schedule: ScheduleStep[]
   /** 9장 */
   partners: Partner[]
+  /** 10장 */
+  nextSteps: NextStep[]
+  /** 10장: 지금 결정할 한 가지 */
+  decisionNow: string
   /** 부록: 가정값과 출처 */
   appendix: {
+    /** 적용한 법규 시나리오 목록 (완화 가정 표) */
+    scenarios: Scenario[]
+    /** 수익 시나리오 정의 (보수/기준/낙관 조건) */
+    financeScenarios: FinanceScenario[]
     assumptionSources: Partial<Record<keyof FinanceAssumptions, AssumptionSource>>
+    /** 계산식 요약 */
+    formulas: string[]
+    /** 데이터 출처 */
+    dataSources: string[]
     disclaimer: string
   }
 }

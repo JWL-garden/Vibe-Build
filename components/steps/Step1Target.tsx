@@ -26,14 +26,14 @@ export default function Step1Target({ building: b }: Props) {
   ]
 
   return (
-    <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:grid-cols-2">
-      {items.map((item) => (
+    <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2">
+      {items.map((item, i) => (
         <div
           key={item.label}
-          className={`bg-white px-4 py-3 ${item.label === '대지위치' ? 'sm:col-span-2' : ''}`}
+          className={`bg-paper px-5 py-4 ${i === 0 || (i === items.length - 1 && i % 2 === 1) ? 'sm:col-span-2' : ''}`}
         >
-          <dt className="text-xs font-medium text-slate-500">{item.label}</dt>
-          <dd className="mt-1 font-semibold text-slate-800">{item.value}</dd>
+          <dt className="text-xs font-medium text-ink-faint">{item.label}</dt>
+          <dd className="mt-1 font-medium text-ink">{item.value}</dd>
         </div>
       ))}
     </dl>

@@ -1,0 +1,1555 @@
+{
+  "meta": {
+    "title": "샘플빌딩 증축 사업 타당성 검토 보고서",
+    "address": "서울특별시 ○○구 샘플로 12",
+    "createdAt": "2026-10-06",
+    "author": "Vibe Build 증축 검토 서비스",
+    "scenarioName": "AB 복합 완화 (프로젝트 가정)",
+    "financeScenarioName": "기준",
+    "source": "sample"
+  },
+  "notExpandable": false,
+  "summary": {
+    "kpis": [
+      {
+        "label": "증축 규모",
+        "value": "+4층 · +660㎡",
+        "caption": "4층 → 8층"
+      },
+      {
+        "label": "총사업비",
+        "value": "20.9억원",
+        "caption": "자기자본 9.1억 · 대출 11.8억"
+      },
+      {
+        "label": "ROI",
+        "value": "6.6%",
+        "caption": "연 순수익 +1.38억원"
+      },
+      {
+        "label": "투자회수기간",
+        "value": "15.1년",
+        "caption": "순자산가치 +9.8억원"
+      }
+    ],
+    "conclusion": "본 건물은 복합 완화(AB) 적용 시 최대 +4개층(+660㎡) 증축이 가능하며, 총사업비 약 20.9억원 투입 시 연 1.38억원의 순수익 증가로 약 15.1년 내 투자비 회수가 예상됩니다.",
+    "nextStep": "준공 31년 경과 건물이므로 구조안전진단을 먼저 받아 증축 가능 하중을 확인하는 것을 권장합니다.",
+    "images": null
+  },
+  "building": {
+    "id": "S1",
+    "source": "sample",
+    "address": {
+      "roadAddress": "서울특별시 ○○구 샘플로 12",
+      "jibunAddress": "서울특별시 ○○구 샘플동 123-4",
+      "pnu": "1100000001101230004",
+      "sigunguCode": "11000",
+      "bjdongCode": "00011",
+      "bun": "0123",
+      "ji": "0004",
+      "lat": null,
+      "lng": null
+    },
+    "buildingName": "샘플빌딩",
+    "zone": "제2종일반주거지역",
+    "siteAreaM2": 550,
+    "buildingAreaM2": 165,
+    "totalFloorAreaM2": 660,
+    "farFloorAreaM2": 660,
+    "typicalFloorAreaM2": 165,
+    "floorsAbove": 4,
+    "floorsBelow": 0,
+    "heightM": 15,
+    "mainUse": "제2종근린생활시설",
+    "etcUse": "근린생활시설(1층 상가, 2~4층 사무소)",
+    "households": 0,
+    "structure": "철근콘크리트구조",
+    "approvalDate": "1995-05-20",
+    "northSetbackM": 9.5,
+    "siteBoundary": null,
+    "footprint": null
+  },
+  "owner": {
+    "sampleId": "S1",
+    "ownerName": "김○○",
+    "monthlyRentWon": 15000000,
+    "depositWon": 300000000,
+    "vacancyRate": 0,
+    "availableEquityWon": 1000000000,
+    "note": "가상 건축주 데이터 (샘플)"
+  },
+  "plan": {
+    "floors": [
+      {
+        "floor": 8,
+        "areaM2": 165,
+        "isAdded": true,
+        "use": "소형 사무실(제안)"
+      },
+      {
+        "floor": 7,
+        "areaM2": 165,
+        "isAdded": true,
+        "use": "소형 사무실(제안)"
+      },
+      {
+        "floor": 6,
+        "areaM2": 165,
+        "isAdded": true,
+        "use": "소형 사무실(제안)"
+      },
+      {
+        "floor": 5,
+        "areaM2": 165,
+        "isAdded": true,
+        "use": "소형 사무실(제안)"
+      },
+      {
+        "floor": 4,
+        "areaM2": 165,
+        "isAdded": false,
+        "use": "사무소"
+      },
+      {
+        "floor": 3,
+        "areaM2": 165,
+        "isAdded": false,
+        "use": "사무소"
+      },
+      {
+        "floor": 2,
+        "areaM2": 165,
+        "isAdded": false,
+        "use": "사무소"
+      },
+      {
+        "floor": 1,
+        "areaM2": 165,
+        "isAdded": false,
+        "use": "근린생활시설(상가)"
+      }
+    ],
+    "useProposal": "주변 업무 수요를 고려해 증축층은 전용 30~40㎡ 단위로 나눈 소형 사무실로 계획합니다. 기존 2~4층 사무소와 같은 용도라 용도변경 부담이 적습니다.",
+    "constructionMethod": "기존 임차인이 영업을 이어가는 상태에서 상부에 경량 철골조로 수직증축하고, 기초·기둥은 구조진단 결과에 따라 보강합니다. 승강기를 신설해 증축층 접근성을 확보합니다."
+  },
+  "analysis": {
+    "scenarioId": "AB",
+    "financeScenarioId": "BASE",
+    "expansion": {
+      "before": {
+        "scenarioId": "BASE",
+        "rules": {
+          "sunlight": {
+            "applies": true,
+            "lowHeightM": 10,
+            "lowSetbackM": 1.5,
+            "ratio": 0.5
+          },
+          "farLimitByZone": {
+            "제2종일반주거지역": 200,
+            "제3종일반주거지역": 250,
+            "일반상업지역": 800
+          },
+          "farMultiplier": 1.0,
+          "maxAddFloors": null,
+          "floorHeightM": 3.3
+        },
+        "currentFarPercent": 120.0,
+        "farLimitPercent": 200.0,
+        "maxFloorAreaM2": 1100.0,
+        "remainingFloorAreaM2": 440.0,
+        "currentBcrPercent": 30.0,
+        "allowedHeightM": 19.0,
+        "floorsByFar": 2,
+        "floorsBySun": 1,
+        "floorsByOther": null,
+        "addFloors": 1,
+        "addFloorAreaM2": 165,
+        "newTotalFloors": 5,
+        "newHeightM": 18.3,
+        "newFarPercent": 150.0,
+        "limitingFactor": "sunlight",
+        "reasons": [
+          "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
+          "허용 용적률 200.0% → 허용 연면적 1100.0㎡, 잔여 440.0㎡ ÷ 층당 165㎡ = 2개층",
+          "정북 이격 9.5m ÷ 사선 비율 0.5 → 허용 높이 19.0m, (허용 19.0m − 현재 15m) ÷ 층고 3.3m = 1개층",
+          "최종 증축 1개층 (+165㎡), 제한요인: 일조권"
+        ]
+      },
+      "after": {
+        "scenarioId": "AB",
+        "rules": {
+          "sunlight": {
+            "applies": true,
+            "lowHeightM": 10,
+            "lowSetbackM": 1.5,
+            "ratio": 0.25
+          },
+          "farLimitByZone": {
+            "제2종일반주거지역": 200,
+            "제3종일반주거지역": 250,
+            "일반상업지역": 800
+          },
+          "farMultiplier": 1.2,
+          "maxAddFloors": null,
+          "floorHeightM": 3.3
+        },
+        "currentFarPercent": 120.0,
+        "farLimitPercent": 240.0,
+        "maxFloorAreaM2": 1320.0,
+        "remainingFloorAreaM2": 660.0,
+        "currentBcrPercent": 30.0,
+        "allowedHeightM": 38.0,
+        "floorsByFar": 4,
+        "floorsBySun": 6,
+        "floorsByOther": null,
+        "addFloors": 4,
+        "addFloorAreaM2": 660,
+        "newTotalFloors": 8,
+        "newHeightM": 28.2,
+        "newFarPercent": 240.0,
+        "limitingFactor": "far",
+        "reasons": [
+          "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
+          "허용 용적률 240.0% → 허용 연면적 1320.0㎡, 잔여 660.0㎡ ÷ 층당 165㎡ = 4개층",
+          "정북 이격 9.5m ÷ 사선 비율 0.25 → 허용 높이 38.0m, (허용 38.0m − 현재 15m) ÷ 층고 3.3m = 6개층",
+          "최종 증축 4개층 (+660㎡), 제한요인: 용적률"
+        ]
+      }
+    },
+    "expansionByScenario": {
+      "BASE": {
+        "scenarioId": "BASE",
+        "rules": {
+          "sunlight": {
+            "applies": true,
+            "lowHeightM": 10,
+            "lowSetbackM": 1.5,
+            "ratio": 0.5
+          },
+          "farLimitByZone": {
+            "제2종일반주거지역": 200,
+            "제3종일반주거지역": 250,
+            "일반상업지역": 800
+          },
+          "farMultiplier": 1.0,
+          "maxAddFloors": null,
+          "floorHeightM": 3.3
+        },
+        "currentFarPercent": 120.0,
+        "farLimitPercent": 200.0,
+        "maxFloorAreaM2": 1100.0,
+        "remainingFloorAreaM2": 440.0,
+        "currentBcrPercent": 30.0,
+        "allowedHeightM": 19.0,
+        "floorsByFar": 2,
+        "floorsBySun": 1,
+        "floorsByOther": null,
+        "addFloors": 1,
+        "addFloorAreaM2": 165,
+        "newTotalFloors": 5,
+        "newHeightM": 18.3,
+        "newFarPercent": 150.0,
+        "limitingFactor": "sunlight",
+        "reasons": [
+          "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
+          "허용 용적률 200.0% → 허용 연면적 1100.0㎡, 잔여 440.0㎡ ÷ 층당 165㎡ = 2개층",
+          "정북 이격 9.5m ÷ 사선 비율 0.5 → 허용 높이 19.0m, (허용 19.0m − 현재 15m) ÷ 층고 3.3m = 1개층",
+          "최종 증축 1개층 (+165㎡), 제한요인: 일조권"
+        ]
+      },
+      "A": {
+        "scenarioId": "A",
+        "rules": {
+          "sunlight": {
+            "applies": true,
+            "lowHeightM": 10,
+            "lowSetbackM": 1.5,
+            "ratio": 0.25
+          },
+          "farLimitByZone": {
+            "제2종일반주거지역": 200,
+            "제3종일반주거지역": 250,
+            "일반상업지역": 800
+          },
+          "farMultiplier": 1.0,
+          "maxAddFloors": null,
+          "floorHeightM": 3.3
+        },
+        "currentFarPercent": 120.0,
+        "farLimitPercent": 200.0,
+        "maxFloorAreaM2": 1100.0,
+        "remainingFloorAreaM2": 440.0,
+        "currentBcrPercent": 30.0,
+        "allowedHeightM": 38.0,
+        "floorsByFar": 2,
+        "floorsBySun": 6,
+        "floorsByOther": null,
+        "addFloors": 2,
+        "addFloorAreaM2": 330,
+        "newTotalFloors": 6,
+        "newHeightM": 21.6,
+        "newFarPercent": 180.0,
+        "limitingFactor": "far",
+        "reasons": [
+          "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
+          "허용 용적률 200.0% → 허용 연면적 1100.0㎡, 잔여 440.0㎡ ÷ 층당 165㎡ = 2개층",
+          "정북 이격 9.5m ÷ 사선 비율 0.25 → 허용 높이 38.0m, (허용 38.0m − 현재 15m) ÷ 층고 3.3m = 6개층",
+          "최종 증축 2개층 (+330㎡), 제한요인: 용적률"
+        ]
+      },
+      "B": {
+        "scenarioId": "B",
+        "rules": {
+          "sunlight": {
+            "applies": true,
+            "lowHeightM": 10,
+            "lowSetbackM": 1.5,
+            "ratio": 0.5
+          },
+          "farLimitByZone": {
+            "제2종일반주거지역": 200,
+            "제3종일반주거지역": 250,
+            "일반상업지역": 800
+          },
+          "farMultiplier": 1.2,
+          "maxAddFloors": null,
+          "floorHeightM": 3.3
+        },
+        "currentFarPercent": 120.0,
+        "farLimitPercent": 240.0,
+        "maxFloorAreaM2": 1320.0,
+        "remainingFloorAreaM2": 660.0,
+        "currentBcrPercent": 30.0,
+        "allowedHeightM": 19.0,
+        "floorsByFar": 4,
+        "floorsBySun": 1,
+        "floorsByOther": null,
+        "addFloors": 1,
+        "addFloorAreaM2": 165,
+        "newTotalFloors": 5,
+        "newHeightM": 18.3,
+        "newFarPercent": 150.0,
+        "limitingFactor": "sunlight",
+        "reasons": [
+          "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
+          "허용 용적률 240.0% → 허용 연면적 1320.0㎡, 잔여 660.0㎡ ÷ 층당 165㎡ = 4개층",
+          "정북 이격 9.5m ÷ 사선 비율 0.5 → 허용 높이 19.0m, (허용 19.0m − 현재 15m) ÷ 층고 3.3m = 1개층",
+          "최종 증축 1개층 (+165㎡), 제한요인: 일조권"
+        ]
+      },
+      "AB": {
+        "scenarioId": "AB",
+        "rules": {
+          "sunlight": {
+            "applies": true,
+            "lowHeightM": 10,
+            "lowSetbackM": 1.5,
+            "ratio": 0.25
+          },
+          "farLimitByZone": {
+            "제2종일반주거지역": 200,
+            "제3종일반주거지역": 250,
+            "일반상업지역": 800
+          },
+          "farMultiplier": 1.2,
+          "maxAddFloors": null,
+          "floorHeightM": 3.3
+        },
+        "currentFarPercent": 120.0,
+        "farLimitPercent": 240.0,
+        "maxFloorAreaM2": 1320.0,
+        "remainingFloorAreaM2": 660.0,
+        "currentBcrPercent": 30.0,
+        "allowedHeightM": 38.0,
+        "floorsByFar": 4,
+        "floorsBySun": 6,
+        "floorsByOther": null,
+        "addFloors": 4,
+        "addFloorAreaM2": 660,
+        "newTotalFloors": 8,
+        "newHeightM": 28.2,
+        "newFarPercent": 240.0,
+        "limitingFactor": "far",
+        "reasons": [
+          "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
+          "허용 용적률 240.0% → 허용 연면적 1320.0㎡, 잔여 660.0㎡ ÷ 층당 165㎡ = 4개층",
+          "정북 이격 9.5m ÷ 사선 비율 0.25 → 허용 높이 38.0m, (허용 38.0m − 현재 15m) ÷ 층고 3.3m = 6개층",
+          "최종 증축 4개층 (+660㎡), 제한요인: 용적률"
+        ]
+      }
+    },
+    "finance": {
+      "before": {
+        "status": "ok",
+        "assumptions": {
+          "unitCostWon": 2200000,
+          "structuralCostWon": 150000000,
+          "equipmentCostWon": 100000000,
+          "designRate": 0.08,
+          "permitCostWon": 20000000,
+          "taxRate": 0.0316,
+          "constructionLossRate": 0.5,
+          "contingencyRate": 0.05,
+          "loanRate": 0.6,
+          "interestRate": 0.05,
+          "designPermitMonths": 6,
+          "constructionMonths": 8,
+          "leasableRate": 0.8,
+          "rentPerM2Won": 25000,
+          "depositMultiple": 10,
+          "depositYieldRate": 0.02,
+          "vacancyRate": 0.05,
+          "opexRate": 0.1,
+          "capRate": 0.045,
+          "rentGrowthRate": 0.02,
+          "discountRate": 0.06,
+          "analysisYears": 10
+        },
+        "costBreakdown": [
+          {
+            "key": "construction",
+            "label": "공사비",
+            "amountWon": 613000000,
+            "formula": "165㎡ × 220만원 + 구조보강 1.5억 + 승강기·설비 1.0억"
+          },
+          {
+            "key": "design",
+            "label": "설계·감리비",
+            "amountWon": 49040000,
+            "formula": "공사비 × 8%"
+          },
+          {
+            "key": "permit",
+            "label": "인허가·부담금",
+            "amountWon": 20000000,
+            "formula": "가정 금액"
+          },
+          {
+            "key": "tax",
+            "label": "취득세 등 세금",
+            "amountWon": 19370800,
+            "formula": "공사비 × 3.16%"
+          },
+          {
+            "key": "constructionLoss",
+            "label": "공사 중 임대 손실",
+            "amountWon": 60000000,
+            "formula": "월 임대료 1,500만원 × 50% × 8개월"
+          },
+          {
+            "key": "financing",
+            "label": "금융비용",
+            "amountWon": 7614108,
+            "formula": "대출 4.57억원 × 금리 5.0% × 8/12 × 0.5"
+          },
+          {
+            "key": "contingency",
+            "label": "예비비",
+            "amountWon": 38451245,
+            "formula": "소계 × 5%"
+          }
+        ],
+        "totalCostWon": 807476153,
+        "equityWon": 350629673,
+        "loanWon": 456846480,
+        "annualRentWon": 37620000,
+        "depositIncomeWon": 660000,
+        "opexWon": 3762000,
+        "noiWon": 34518000,
+        "annualInterestWon": 22842324,
+        "roiRate": 0.0427,
+        "roeRate": 0.0333,
+        "paybackYears": 23.4,
+        "valueIncreaseWon": 767066667,
+        "netValueIncreaseWon": -40409487,
+        "cashflow": [
+          {
+            "year": 1,
+            "noiWon": 34518000,
+            "interestWon": 22842324,
+            "netWon": 11675676,
+            "cumulativeWithWon": -176953997,
+            "cumulativeWithoutWon": 162000000
+          },
+          {
+            "year": 2,
+            "noiWon": 35208360,
+            "interestWon": 22842324,
+            "netWon": 12366036,
+            "cumulativeWithWon": 652039,
+            "cumulativeWithoutWon": 327240000
+          },
+          {
+            "year": 3,
+            "noiWon": 35912527,
+            "interestWon": 22842324,
+            "netWon": 13070203,
+            "cumulativeWithWon": 182267042,
+            "cumulativeWithoutWon": 495784800
+          },
+          {
+            "year": 4,
+            "noiWon": 36630778,
+            "interestWon": 22842324,
+            "netWon": 13788454,
+            "cumulativeWithWon": 367971192,
+            "cumulativeWithoutWon": 667700496
+          },
+          {
+            "year": 5,
+            "noiWon": 37363393,
+            "interestWon": 22842324,
+            "netWon": 14521069,
+            "cumulativeWithWon": 557846271,
+            "cumulativeWithoutWon": 843054506
+          },
+          {
+            "year": 6,
+            "noiWon": 38110661,
+            "interestWon": 22842324,
+            "netWon": 15268337,
+            "cumulativeWithWon": 751975698,
+            "cumulativeWithoutWon": 1021915596
+          },
+          {
+            "year": 7,
+            "noiWon": 38872874,
+            "interestWon": 22842324,
+            "netWon": 16030550,
+            "cumulativeWithWon": 950444560,
+            "cumulativeWithoutWon": 1204353908
+          },
+          {
+            "year": 8,
+            "noiWon": 39650332,
+            "interestWon": 22842324,
+            "netWon": 16808008,
+            "cumulativeWithWon": 1153339646,
+            "cumulativeWithoutWon": 1390440986
+          },
+          {
+            "year": 9,
+            "noiWon": 40443339,
+            "interestWon": 22842324,
+            "netWon": 17601015,
+            "cumulativeWithWon": 1360749481,
+            "cumulativeWithoutWon": 1580249806
+          },
+          {
+            "year": 10,
+            "noiWon": 41252205,
+            "interestWon": 22842324,
+            "netWon": 18409881,
+            "cumulativeWithWon": 1572764358,
+            "cumulativeWithoutWon": 1773854802
+          }
+        ],
+        "npvWon": 23832267,
+        "irrRate": 0.0681,
+        "reasons": [
+          "총사업비 8.07억원 = 공사비·설계·인허가·세금·공사중손실·금융비용 소계 + 예비비",
+          "연 NOI 증가 0.35억원 = 임대수입 0.38억원 + 보증금 운용 0.01억원 − 운영비 0.04억원",
+          "ROI 4.3% = NOI ÷ 총사업비, 회수기간 23.4년",
+          "자산가치 증가 7.67억원 = NOI ÷ 환원율 4.5%",
+          "NPV·IRR은 10년 운영 순수익과 10년 말 매각(자산가치 − 대출 상환)을 포함"
+        ]
+      },
+      "after": {
+        "status": "ok",
+        "assumptions": {
+          "unitCostWon": 2200000,
+          "structuralCostWon": 150000000,
+          "equipmentCostWon": 100000000,
+          "designRate": 0.08,
+          "permitCostWon": 20000000,
+          "taxRate": 0.0316,
+          "constructionLossRate": 0.5,
+          "contingencyRate": 0.05,
+          "loanRate": 0.6,
+          "interestRate": 0.05,
+          "designPermitMonths": 6,
+          "constructionMonths": 8,
+          "leasableRate": 0.8,
+          "rentPerM2Won": 25000,
+          "depositMultiple": 10,
+          "depositYieldRate": 0.02,
+          "vacancyRate": 0.05,
+          "opexRate": 0.1,
+          "capRate": 0.045,
+          "rentGrowthRate": 0.02,
+          "discountRate": 0.06,
+          "analysisYears": 10
+        },
+        "costBreakdown": [
+          {
+            "key": "construction",
+            "label": "공사비",
+            "amountWon": 1702000000,
+            "formula": "660㎡ × 220만원 + 구조보강 1.5억 + 승강기·설비 1.0억"
+          },
+          {
+            "key": "design",
+            "label": "설계·감리비",
+            "amountWon": 136160000,
+            "formula": "공사비 × 8%"
+          },
+          {
+            "key": "permit",
+            "label": "인허가·부담금",
+            "amountWon": 20000000,
+            "formula": "가정 금액"
+          },
+          {
+            "key": "tax",
+            "label": "취득세 등 세금",
+            "amountWon": 53783200,
+            "formula": "공사비 × 3.16%"
+          },
+          {
+            "key": "constructionLoss",
+            "label": "공사 중 임대 손실",
+            "amountWon": 60000000,
+            "formula": "월 임대료 1,500만원 × 50% × 8개월"
+          },
+          {
+            "key": "financing",
+            "label": "금융비용",
+            "amountWon": 19719432,
+            "formula": "대출 11.83억원 × 금리 5.0% × 8/12 × 0.5"
+          },
+          {
+            "key": "contingency",
+            "label": "예비비",
+            "amountWon": 99583132,
+            "formula": "소계 × 5%"
+          }
+        ],
+        "totalCostWon": 2091245764,
+        "equityWon": 908079844,
+        "loanWon": 1183165920,
+        "annualRentWon": 150480000,
+        "depositIncomeWon": 2640000,
+        "opexWon": 15048000,
+        "noiWon": 138072000,
+        "annualInterestWon": 59158296,
+        "roiRate": 0.066,
+        "roeRate": 0.0869,
+        "paybackYears": 15.1,
+        "valueIncreaseWon": 3068266667,
+        "netValueIncreaseWon": 977020903,
+        "cashflow": [
+          {
+            "year": 1,
+            "noiWon": 138072000,
+            "interestWon": 59158296,
+            "netWon": 78913704,
+            "cumulativeWithWon": -667166140,
+            "cumulativeWithoutWon": 162000000
+          },
+          {
+            "year": 2,
+            "noiWon": 140833440,
+            "interestWon": 59158296,
+            "netWon": 81675144,
+            "cumulativeWithWon": -420250996,
+            "cumulativeWithoutWon": 327240000
+          },
+          {
+            "year": 3,
+            "noiWon": 143650109,
+            "interestWon": 59158296,
+            "netWon": 84491813,
+            "cumulativeWithWon": -167214383,
+            "cumulativeWithoutWon": 495784800
+          },
+          {
+            "year": 4,
+            "noiWon": 146523111,
+            "interestWon": 59158296,
+            "netWon": 87364815,
+            "cumulativeWithWon": 92066128,
+            "cumulativeWithoutWon": 667700496
+          },
+          {
+            "year": 5,
+            "noiWon": 149453573,
+            "interestWon": 59158296,
+            "netWon": 90295277,
+            "cumulativeWithWon": 357715415,
+            "cumulativeWithoutWon": 843054506
+          },
+          {
+            "year": 6,
+            "noiWon": 152442645,
+            "interestWon": 59158296,
+            "netWon": 93284349,
+            "cumulativeWithWon": 629860854,
+            "cumulativeWithoutWon": 1021915596
+          },
+          {
+            "year": 7,
+            "noiWon": 155491498,
+            "interestWon": 59158296,
+            "netWon": 96333202,
+            "cumulativeWithWon": 908632368,
+            "cumulativeWithoutWon": 1204353908
+          },
+          {
+            "year": 8,
+            "noiWon": 158601328,
+            "interestWon": 59158296,
+            "netWon": 99443032,
+            "cumulativeWithWon": 1194162477,
+            "cumulativeWithoutWon": 1390440986
+          },
+          {
+            "year": 9,
+            "noiWon": 161773354,
+            "interestWon": 59158296,
+            "netWon": 102615058,
+            "cumulativeWithWon": 1486586355,
+            "cumulativeWithoutWon": 1580249806
+          },
+          {
+            "year": 10,
+            "noiWon": 165008821,
+            "interestWon": 59158296,
+            "netWon": 105850525,
+            "cumulativeWithWon": 1786041876,
+            "cumulativeWithoutWon": 1773854802
+          }
+        ],
+        "npvWon": 1186572764,
+        "irrRate": 0.1759,
+        "reasons": [
+          "총사업비 20.91억원 = 공사비·설계·인허가·세금·공사중손실·금융비용 소계 + 예비비",
+          "연 NOI 증가 1.38억원 = 임대수입 1.50억원 + 보증금 운용 0.03억원 − 운영비 0.15억원",
+          "ROI 6.6% = NOI ÷ 총사업비, 회수기간 15.1년",
+          "자산가치 증가 30.68억원 = NOI ÷ 환원율 4.5%",
+          "NPV·IRR은 10년 운영 순수익과 10년 말 매각(자산가치 − 대출 상환)을 포함"
+        ]
+      }
+    },
+    "financeByScenario": {
+      "CONSERVATIVE": {
+        "status": "ok",
+        "assumptions": {
+          "unitCostWon": 2420000.0,
+          "structuralCostWon": 150000000,
+          "equipmentCostWon": 100000000,
+          "designRate": 0.08,
+          "permitCostWon": 20000000,
+          "taxRate": 0.0316,
+          "constructionLossRate": 0.5,
+          "contingencyRate": 0.05,
+          "loanRate": 0.6,
+          "interestRate": 0.05,
+          "designPermitMonths": 6,
+          "constructionMonths": 8,
+          "leasableRate": 0.8,
+          "rentPerM2Won": 22500.0,
+          "depositMultiple": 10,
+          "depositYieldRate": 0.02,
+          "vacancyRate": 0.1,
+          "opexRate": 0.1,
+          "capRate": 0.045,
+          "rentGrowthRate": 0.02,
+          "discountRate": 0.06,
+          "analysisYears": 10
+        },
+        "costBreakdown": [
+          {
+            "key": "construction",
+            "label": "공사비",
+            "amountWon": 1847200000,
+            "formula": "660㎡ × 242만원 + 구조보강 1.5억 + 승강기·설비 1.0억"
+          },
+          {
+            "key": "design",
+            "label": "설계·감리비",
+            "amountWon": 147776000,
+            "formula": "공사비 × 8%"
+          },
+          {
+            "key": "permit",
+            "label": "인허가·부담금",
+            "amountWon": 20000000,
+            "formula": "가정 금액"
+          },
+          {
+            "key": "tax",
+            "label": "취득세 등 세금",
+            "amountWon": 58371520,
+            "formula": "공사비 × 3.16%"
+          },
+          {
+            "key": "constructionLoss",
+            "label": "공사 중 임대 손실",
+            "amountWon": 60000000,
+            "formula": "월 임대료 1,500만원 × 50% × 8개월"
+          },
+          {
+            "key": "financing",
+            "label": "금융비용",
+            "amountWon": 21333475,
+            "formula": "대출 12.80억원 × 금리 5.0% × 8/12 × 0.5"
+          },
+          {
+            "key": "contingency",
+            "label": "예비비",
+            "amountWon": 107734050,
+            "formula": "소계 × 5%"
+          }
+        ],
+        "totalCostWon": 2262415045,
+        "equityWon": 982406533,
+        "loanWon": 1280008512,
+        "annualRentWon": 128304000,
+        "depositIncomeWon": 2376000,
+        "opexWon": 12830400,
+        "noiWon": 117849600,
+        "annualInterestWon": 64000426,
+        "roiRate": 0.0521,
+        "roeRate": 0.0548,
+        "paybackYears": 19.2,
+        "valueIncreaseWon": 2618880000,
+        "netValueIncreaseWon": 356464955,
+        "cashflow": [
+          {
+            "year": 1,
+            "noiWon": 117849600,
+            "interestWon": 64000426,
+            "netWon": 53849174,
+            "cumulativeWithWon": -766557359,
+            "cumulativeWithoutWon": 162000000
+          },
+          {
+            "year": 2,
+            "noiWon": 120206592,
+            "interestWon": 64000426,
+            "netWon": 56206166,
+            "cumulativeWithWon": -545111192,
+            "cumulativeWithoutWon": 327240000
+          },
+          {
+            "year": 3,
+            "noiWon": 122610724,
+            "interestWon": 64000426,
+            "netWon": 58610298,
+            "cumulativeWithWon": -317956094,
+            "cumulativeWithoutWon": 495784800
+          },
+          {
+            "year": 4,
+            "noiWon": 125062938,
+            "interestWon": 64000426,
+            "netWon": 61062513,
+            "cumulativeWithWon": -84977885,
+            "cumulativeWithoutWon": 667700496
+          },
+          {
+            "year": 5,
+            "noiWon": 127564197,
+            "interestWon": 64000426,
+            "netWon": 63563771,
+            "cumulativeWithWon": 153939896,
+            "cumulativeWithoutWon": 843054506
+          },
+          {
+            "year": 6,
+            "noiWon": 130115481,
+            "interestWon": 64000426,
+            "netWon": 66115055,
+            "cumulativeWithWon": 398916042,
+            "cumulativeWithoutWon": 1021915596
+          },
+          {
+            "year": 7,
+            "noiWon": 132717791,
+            "interestWon": 64000426,
+            "netWon": 68717365,
+            "cumulativeWithWon": 650071719,
+            "cumulativeWithoutWon": 1204353908
+          },
+          {
+            "year": 8,
+            "noiWon": 135372146,
+            "interestWon": 64000426,
+            "netWon": 71371721,
+            "cumulativeWithWon": 907530518,
+            "cumulativeWithoutWon": 1390440986
+          },
+          {
+            "year": 9,
+            "noiWon": 138079589,
+            "interestWon": 64000426,
+            "netWon": 74079164,
+            "cumulativeWithWon": 1171418501,
+            "cumulativeWithoutWon": 1580249806
+          },
+          {
+            "year": 10,
+            "noiWon": 140841181,
+            "interestWon": 64000426,
+            "netWon": 76840756,
+            "cumulativeWithWon": 1441864253,
+            "cumulativeWithoutWon": 1773854802
+          }
+        ],
+        "npvWon": 555207253,
+        "irrRate": 0.1183,
+        "reasons": [
+          "총사업비 22.62억원 = 공사비·설계·인허가·세금·공사중손실·금융비용 소계 + 예비비",
+          "연 NOI 증가 1.18억원 = 임대수입 1.28억원 + 보증금 운용 0.02억원 − 운영비 0.13억원",
+          "ROI 5.2% = NOI ÷ 총사업비, 회수기간 19.2년",
+          "자산가치 증가 26.19억원 = NOI ÷ 환원율 4.5%",
+          "NPV·IRR은 10년 운영 순수익과 10년 말 매각(자산가치 − 대출 상환)을 포함"
+        ]
+      },
+      "BASE": {
+        "status": "ok",
+        "assumptions": {
+          "unitCostWon": 2200000,
+          "structuralCostWon": 150000000,
+          "equipmentCostWon": 100000000,
+          "designRate": 0.08,
+          "permitCostWon": 20000000,
+          "taxRate": 0.0316,
+          "constructionLossRate": 0.5,
+          "contingencyRate": 0.05,
+          "loanRate": 0.6,
+          "interestRate": 0.05,
+          "designPermitMonths": 6,
+          "constructionMonths": 8,
+          "leasableRate": 0.8,
+          "rentPerM2Won": 25000,
+          "depositMultiple": 10,
+          "depositYieldRate": 0.02,
+          "vacancyRate": 0.05,
+          "opexRate": 0.1,
+          "capRate": 0.045,
+          "rentGrowthRate": 0.02,
+          "discountRate": 0.06,
+          "analysisYears": 10
+        },
+        "costBreakdown": [
+          {
+            "key": "construction",
+            "label": "공사비",
+            "amountWon": 1702000000,
+            "formula": "660㎡ × 220만원 + 구조보강 1.5억 + 승강기·설비 1.0억"
+          },
+          {
+            "key": "design",
+            "label": "설계·감리비",
+            "amountWon": 136160000,
+            "formula": "공사비 × 8%"
+          },
+          {
+            "key": "permit",
+            "label": "인허가·부담금",
+            "amountWon": 20000000,
+            "formula": "가정 금액"
+          },
+          {
+            "key": "tax",
+            "label": "취득세 등 세금",
+            "amountWon": 53783200,
+            "formula": "공사비 × 3.16%"
+          },
+          {
+            "key": "constructionLoss",
+            "label": "공사 중 임대 손실",
+            "amountWon": 60000000,
+            "formula": "월 임대료 1,500만원 × 50% × 8개월"
+          },
+          {
+            "key": "financing",
+            "label": "금융비용",
+            "amountWon": 19719432,
+            "formula": "대출 11.83억원 × 금리 5.0% × 8/12 × 0.5"
+          },
+          {
+            "key": "contingency",
+            "label": "예비비",
+            "amountWon": 99583132,
+            "formula": "소계 × 5%"
+          }
+        ],
+        "totalCostWon": 2091245764,
+        "equityWon": 908079844,
+        "loanWon": 1183165920,
+        "annualRentWon": 150480000,
+        "depositIncomeWon": 2640000,
+        "opexWon": 15048000,
+        "noiWon": 138072000,
+        "annualInterestWon": 59158296,
+        "roiRate": 0.066,
+        "roeRate": 0.0869,
+        "paybackYears": 15.1,
+        "valueIncreaseWon": 3068266667,
+        "netValueIncreaseWon": 977020903,
+        "cashflow": [
+          {
+            "year": 1,
+            "noiWon": 138072000,
+            "interestWon": 59158296,
+            "netWon": 78913704,
+            "cumulativeWithWon": -667166140,
+            "cumulativeWithoutWon": 162000000
+          },
+          {
+            "year": 2,
+            "noiWon": 140833440,
+            "interestWon": 59158296,
+            "netWon": 81675144,
+            "cumulativeWithWon": -420250996,
+            "cumulativeWithoutWon": 327240000
+          },
+          {
+            "year": 3,
+            "noiWon": 143650109,
+            "interestWon": 59158296,
+            "netWon": 84491813,
+            "cumulativeWithWon": -167214383,
+            "cumulativeWithoutWon": 495784800
+          },
+          {
+            "year": 4,
+            "noiWon": 146523111,
+            "interestWon": 59158296,
+            "netWon": 87364815,
+            "cumulativeWithWon": 92066128,
+            "cumulativeWithoutWon": 667700496
+          },
+          {
+            "year": 5,
+            "noiWon": 149453573,
+            "interestWon": 59158296,
+            "netWon": 90295277,
+            "cumulativeWithWon": 357715415,
+            "cumulativeWithoutWon": 843054506
+          },
+          {
+            "year": 6,
+            "noiWon": 152442645,
+            "interestWon": 59158296,
+            "netWon": 93284349,
+            "cumulativeWithWon": 629860854,
+            "cumulativeWithoutWon": 1021915596
+          },
+          {
+            "year": 7,
+            "noiWon": 155491498,
+            "interestWon": 59158296,
+            "netWon": 96333202,
+            "cumulativeWithWon": 908632368,
+            "cumulativeWithoutWon": 1204353908
+          },
+          {
+            "year": 8,
+            "noiWon": 158601328,
+            "interestWon": 59158296,
+            "netWon": 99443032,
+            "cumulativeWithWon": 1194162477,
+            "cumulativeWithoutWon": 1390440986
+          },
+          {
+            "year": 9,
+            "noiWon": 161773354,
+            "interestWon": 59158296,
+            "netWon": 102615058,
+            "cumulativeWithWon": 1486586355,
+            "cumulativeWithoutWon": 1580249806
+          },
+          {
+            "year": 10,
+            "noiWon": 165008821,
+            "interestWon": 59158296,
+            "netWon": 105850525,
+            "cumulativeWithWon": 1786041876,
+            "cumulativeWithoutWon": 1773854802
+          }
+        ],
+        "npvWon": 1186572764,
+        "irrRate": 0.1759,
+        "reasons": [
+          "총사업비 20.91억원 = 공사비·설계·인허가·세금·공사중손실·금융비용 소계 + 예비비",
+          "연 NOI 증가 1.38억원 = 임대수입 1.50억원 + 보증금 운용 0.03억원 − 운영비 0.15억원",
+          "ROI 6.6% = NOI ÷ 총사업비, 회수기간 15.1년",
+          "자산가치 증가 30.68억원 = NOI ÷ 환원율 4.5%",
+          "NPV·IRR은 10년 운영 순수익과 10년 말 매각(자산가치 − 대출 상환)을 포함"
+        ]
+      },
+      "OPTIMISTIC": {
+        "status": "ok",
+        "assumptions": {
+          "unitCostWon": 2090000.0,
+          "structuralCostWon": 150000000,
+          "equipmentCostWon": 100000000,
+          "designRate": 0.08,
+          "permitCostWon": 20000000,
+          "taxRate": 0.0316,
+          "constructionLossRate": 0.5,
+          "contingencyRate": 0.05,
+          "loanRate": 0.6,
+          "interestRate": 0.05,
+          "designPermitMonths": 6,
+          "constructionMonths": 8,
+          "leasableRate": 0.8,
+          "rentPerM2Won": 27500.000000000004,
+          "depositMultiple": 10,
+          "depositYieldRate": 0.02,
+          "vacancyRate": 0.030000000000000002,
+          "opexRate": 0.1,
+          "capRate": 0.045,
+          "rentGrowthRate": 0.02,
+          "discountRate": 0.06,
+          "analysisYears": 10
+        },
+        "costBreakdown": [
+          {
+            "key": "construction",
+            "label": "공사비",
+            "amountWon": 1629400000,
+            "formula": "660㎡ × 209만원 + 구조보강 1.5억 + 승강기·설비 1.0억"
+          },
+          {
+            "key": "design",
+            "label": "설계·감리비",
+            "amountWon": 130352000,
+            "formula": "공사비 × 8%"
+          },
+          {
+            "key": "permit",
+            "label": "인허가·부담금",
+            "amountWon": 20000000,
+            "formula": "가정 금액"
+          },
+          {
+            "key": "tax",
+            "label": "취득세 등 세금",
+            "amountWon": 51489040,
+            "formula": "공사비 × 3.16%"
+          },
+          {
+            "key": "constructionLoss",
+            "label": "공사 중 임대 손실",
+            "amountWon": 60000000,
+            "formula": "월 임대료 1,500만원 × 50% × 8개월"
+          },
+          {
+            "key": "financing",
+            "label": "금융비용",
+            "amountWon": 18912410,
+            "formula": "대출 11.35억원 × 금리 5.0% × 8/12 × 0.5"
+          },
+          {
+            "key": "contingency",
+            "label": "예비비",
+            "amountWon": 95507673,
+            "formula": "소계 × 5%"
+          }
+        ],
+        "totalCostWon": 2005661123,
+        "equityWon": 870916499,
+        "loanWon": 1134744624,
+        "annualRentWon": 169012800,
+        "depositIncomeWon": 2904000,
+        "opexWon": 16901280,
+        "noiWon": 155015520,
+        "annualInterestWon": 56737231,
+        "roiRate": 0.0773,
+        "roeRate": 0.1128,
+        "paybackYears": 12.9,
+        "valueIncreaseWon": 3444789333,
+        "netValueIncreaseWon": 1439128210,
+        "cashflow": [
+          {
+            "year": 1,
+            "noiWon": 155015520,
+            "interestWon": 56737231,
+            "netWon": 98278289,
+            "cumulativeWithWon": -610638210,
+            "cumulativeWithoutWon": 162000000
+          },
+          {
+            "year": 2,
+            "noiWon": 158115830,
+            "interestWon": 56737231,
+            "netWon": 101378599,
+            "cumulativeWithWon": -344019611,
+            "cumulativeWithoutWon": 327240000
+          },
+          {
+            "year": 3,
+            "noiWon": 161278147,
+            "interestWon": 56737231,
+            "netWon": 104540916,
+            "cumulativeWithWon": -70933895,
+            "cumulativeWithoutWon": 495784800
+          },
+          {
+            "year": 4,
+            "noiWon": 164503710,
+            "interestWon": 56737231,
+            "netWon": 107766479,
+            "cumulativeWithWon": 208748280,
+            "cumulativeWithoutWon": 667700496
+          },
+          {
+            "year": 5,
+            "noiWon": 167793784,
+            "interestWon": 56737231,
+            "netWon": 111056553,
+            "cumulativeWithWon": 495158843,
+            "cumulativeWithoutWon": 843054506
+          },
+          {
+            "year": 6,
+            "noiWon": 171149660,
+            "interestWon": 56737231,
+            "netWon": 114412429,
+            "cumulativeWithWon": 788432361,
+            "cumulativeWithoutWon": 1021915596
+          },
+          {
+            "year": 7,
+            "noiWon": 174572653,
+            "interestWon": 56737231,
+            "netWon": 117835422,
+            "cumulativeWithWon": 1088706095,
+            "cumulativeWithoutWon": 1204353908
+          },
+          {
+            "year": 8,
+            "noiWon": 178064106,
+            "interestWon": 56737231,
+            "netWon": 121326875,
+            "cumulativeWithWon": 1396120048,
+            "cumulativeWithoutWon": 1390440986
+          },
+          {
+            "year": 9,
+            "noiWon": 181625388,
+            "interestWon": 56737231,
+            "netWon": 124888157,
+            "cumulativeWithWon": 1710817025,
+            "cumulativeWithoutWon": 1580249806
+          },
+          {
+            "year": 10,
+            "noiWon": 185257896,
+            "interestWon": 56737231,
+            "netWon": 128520665,
+            "cumulativeWithWon": 2032942686,
+            "cumulativeWithoutWon": 1773854802
+          }
+        ],
+        "npvWon": 1660145118,
+        "irrRate": 0.2143,
+        "reasons": [
+          "총사업비 20.06억원 = 공사비·설계·인허가·세금·공사중손실·금융비용 소계 + 예비비",
+          "연 NOI 증가 1.55억원 = 임대수입 1.69억원 + 보증금 운용 0.03억원 − 운영비 0.17억원",
+          "ROI 7.7% = NOI ÷ 총사업비, 회수기간 12.9년",
+          "자산가치 증가 34.45억원 = NOI ÷ 환원율 4.5%",
+          "NPV·IRR은 10년 운영 순수익과 10년 말 매각(자산가치 − 대출 상환)을 포함"
+        ]
+      }
+    },
+    "sensitivity": [
+      {
+        "label": "㎡당 임대료",
+        "rangeLabel": "±10%",
+        "lowRoiRate": 0.0594,
+        "highRoiRate": 0.0726
+      },
+      {
+        "label": "공사비 단가",
+        "rangeLabel": "±10%",
+        "lowRoiRate": 0.061,
+        "highRoiRate": 0.0719
+      },
+      {
+        "label": "공실률",
+        "rangeLabel": "±5%p",
+        "lowRoiRate": 0.0626,
+        "highRoiRate": 0.0694
+      },
+      {
+        "label": "대출 금리",
+        "rangeLabel": "±1%p",
+        "lowRoiRate": 0.0659,
+        "highRoiRate": 0.0662
+      }
+    ]
+  },
+  "checkItems": [
+    "주차장: 증축 연면적에 따른 부설주차장 추가 설치 대수 확인 (서울시 주차장 조례)",
+    "지구단위계획: 대상지가 지구단위계획구역에 포함되는지, 높이·용도 지정 여부",
+    "가로구역별 최고높이: 증축 후 높이 28.2m가 해당 가로구역 높이 제한 이내인지",
+    "구조안전: 1995년 준공 건물의 내진 성능과 증축 하중 수용 가능 여부 (구조기술사 진단)",
+    "소방·피난: 8층 증축 시 직통계단·피난 설비 기준 충족 여부"
+  ],
+  "risks": [
+    {
+      "title": "구조안전",
+      "level": "높음",
+      "description": "준공 31년 경과 건물로, 4개층 증축 하중을 기존 구조가 감당하지 못할 수 있습니다.",
+      "mitigation": "설계 전 구조안전진단을 받고, 보강비를 사업비에 반영합니다. 진단 결과에 따라 증축 층수를 조정합니다."
+    },
+    {
+      "title": "제도 미시행",
+      "level": "높음",
+      "description": "이 결과는 프로젝트에서 가정한 완화안(AB)을 전제로 합니다. 현행 법규(BASE)로는 +1층, ROI 4.3%에 그칩니다.",
+      "mitigation": "현행 법규 결과를 함께 검토하고, 완화 제도 시행 여부를 확인한 뒤 설계 계약을 진행합니다."
+    },
+    {
+      "title": "임차인",
+      "level": "중간",
+      "description": "공사 기간 8개월 동안 약 0.6억원의 임대 손실이 예상됩니다.",
+      "mitigation": "임차인과 공사 일정·임대료 조정을 사전에 협의하고, 소음 작업 시간을 조정합니다."
+    },
+    {
+      "title": "임대 수요",
+      "level": "중간",
+      "description": "보수 시나리오(임대료 −10%, 공사비 +10%, 공실 +5%p)에서는 ROI가 5.2%, 회수기간이 19.2년으로 늘어납니다.",
+      "mitigation": "착공 전 주변 중개사를 통해 임대 수요와 시세를 다시 확인하고, 사전 임차 협의를 추진합니다."
+    }
+  ],
+  "schedule": [
+    {
+      "name": "사전 검토",
+      "startMonth": 0,
+      "durationMonths": 1,
+      "ownerDecision": "사업 검토 착수 여부",
+      "costNote": null
+    },
+    {
+      "name": "구조안전진단",
+      "startMonth": 1,
+      "durationMonths": 2,
+      "ownerDecision": "진단 결과에 따른 증축 층수 확정",
+      "costNote": "진단 용역비"
+    },
+    {
+      "name": "기본설계",
+      "startMonth": 3,
+      "durationMonths": 2,
+      "ownerDecision": "설계안·용도 확정",
+      "costNote": "설계비 일부"
+    },
+    {
+      "name": "인허가",
+      "startMonth": 5,
+      "durationMonths": 3,
+      "ownerDecision": null,
+      "costNote": "인허가·부담금"
+    },
+    {
+      "name": "실시설계",
+      "startMonth": 6,
+      "durationMonths": 2,
+      "ownerDecision": "시공사 선정",
+      "costNote": "설계비 잔금"
+    },
+    {
+      "name": "시공",
+      "startMonth": 8,
+      "durationMonths": 8,
+      "ownerDecision": "대출 실행",
+      "costNote": "공사비·감리비"
+    },
+    {
+      "name": "준공·임대",
+      "startMonth": 16,
+      "durationMonths": 2,
+      "ownerDecision": "임대 조건 확정",
+      "costNote": "취득세"
+    }
+  ],
+  "partners": [
+    {
+      "role": "설계사무소",
+      "task": "증축 가능 규모 확정, 설계·인허가 대행",
+      "timing": "사전 검토 ~ 준공"
+    },
+    {
+      "role": "구조기술사",
+      "task": "구조안전진단, 보강 설계",
+      "timing": "기본설계 전"
+    },
+    {
+      "role": "시공사",
+      "task": "공사비 견적, 거주 중 공사 계획",
+      "timing": "실시설계 단계"
+    },
+    {
+      "role": "세무·회계",
+      "task": "취득세·부가세·임대소득세 검토",
+      "timing": "사업 결정 전"
+    },
+    {
+      "role": "감정평가·부동산",
+      "task": "임대 시세·공실률·자산가치 확인",
+      "timing": "사업 결정 전"
+    },
+    {
+      "role": "금융기관",
+      "task": "대출 한도·금리 확정",
+      "timing": "시공사 선정 후"
+    }
+  ],
+  "nextSteps": [
+    {
+      "step": 1,
+      "title": "무료 상담",
+      "description": "본 보고서 내용을 설명드리고 건축주의 목표(수익·자산·상속 등)와 자금 계획을 확인합니다."
+    },
+    {
+      "step": 2,
+      "title": "정밀 타당성 검토",
+      "description": "구조안전진단, 실측, 시공사 개략 견적, 임대 시세 조사로 숫자를 실제 값으로 바꿉니다."
+    },
+    {
+      "step": 3,
+      "title": "설계 계약",
+      "description": "확정된 규모와 사업비로 설계·인허가를 시작합니다."
+    }
+  ],
+  "decisionNow": "구조안전진단 의뢰 여부 — 준공 31년 건물이라 모든 판단의 전제가 됩니다.",
+  "appendix": {
+    "scenarios": [
+      {
+        "id": "BASE",
+        "name": "현행 법규",
+        "rationale": "현행 건축법·서울시 도시계획조례 기준",
+        "isAssumption": false,
+        "overrides": {}
+      },
+      {
+        "id": "A",
+        "name": "일조 사선 완화",
+        "rationale": "노후 저층 주거지 수직증축 활성화를 위해 정북 사선 비율을 1/2 → 1/4로 완화한다고 가정",
+        "isAssumption": true,
+        "overrides": {
+          "sunlight": {
+            "ratio": 0.25
+          }
+        }
+      },
+      {
+        "id": "B",
+        "name": "용적률 인센티브",
+        "rationale": "리모델링·에너지 성능 개선 시 용적률 상한의 1.2배를 허용한다고 가정",
+        "isAssumption": true,
+        "overrides": {
+          "farMultiplier": 1.2
+        }
+      },
+      {
+        "id": "AB",
+        "name": "복합 완화",
+        "rationale": "A(일조 사선 완화)와 B(용적률 인센티브)를 동시에 적용한다고 가정",
+        "isAssumption": true,
+        "overrides": {
+          "sunlight": {
+            "ratio": 0.25
+          },
+          "farMultiplier": 1.2
+        }
+      }
+    ],
+    "assumptionSources": {
+      "unitCostWon": "default",
+      "structuralCostWon": "default",
+      "equipmentCostWon": "default",
+      "designRate": "default",
+      "permitCostWon": "default",
+      "taxRate": "default",
+      "constructionLossRate": "default",
+      "contingencyRate": "default",
+      "loanRate": "default",
+      "interestRate": "default",
+      "designPermitMonths": "default",
+      "constructionMonths": "default",
+      "leasableRate": "default",
+      "rentPerM2Won": "market",
+      "depositMultiple": "market",
+      "depositYieldRate": "default",
+      "vacancyRate": "market",
+      "opexRate": "default",
+      "capRate": "market",
+      "rentGrowthRate": "default",
+      "discountRate": "default",
+      "analysisYears": "default"
+    },
+    "financeScenarios": [
+      {
+        "id": "CONSERVATIVE",
+        "name": "보수",
+        "adjustments": [
+          {
+            "field": "rentPerM2Won",
+            "op": "multiply",
+            "value": 0.9
+          },
+          {
+            "field": "unitCostWon",
+            "op": "multiply",
+            "value": 1.1
+          },
+          {
+            "field": "vacancyRate",
+            "op": "add",
+            "value": 0.05
+          }
+        ]
+      },
+      {
+        "id": "BASE",
+        "name": "기준",
+        "adjustments": []
+      },
+      {
+        "id": "OPTIMISTIC",
+        "name": "낙관",
+        "adjustments": [
+          {
+            "field": "rentPerM2Won",
+            "op": "multiply",
+            "value": 1.1
+          },
+          {
+            "field": "unitCostWon",
+            "op": "multiply",
+            "value": 0.95
+          },
+          {
+            "field": "vacancyRate",
+            "op": "add",
+            "value": -0.02
+          }
+        ]
+      }
+    ],
+    "formulas": [
+      "현재 용적률 = 용적률산정 연면적 ÷ 대지면적 × 100",
+      "허용 연면적 = 대지면적 × 용적률 상한 × 용적률 배수 ÷ 100, 잔여 연면적 = 허용 − 현재",
+      "일조 허용 높이 = 정북 이격 1.5m 미만이면 0, 그 이상이면 max(10m, 이격거리 ÷ 사선 비율)",
+      "증축 층수 = min(잔여 연면적 ÷ 층당 면적, (허용 높이 − 현재 높이) ÷ 층고, 기타 제한)",
+      "총사업비 = (공사비 + 설계·감리 + 인허가 + 세금 + 공사중손실 + 금융비용) × (1 + 예비비율)",
+      "연 NOI = 임대가능면적 × ㎡당 임대료 × 12 × (1 − 공실률) + 보증금 운용수익 − 운영비",
+      "ROI = NOI ÷ 총사업비, ROE = (NOI − 이자) ÷ 자기자본, 회수기간 = 총사업비 ÷ NOI",
+      "자산가치 증가 = NOI ÷ 환원율, 순자산가치 증가 = 자산가치 증가 − 총사업비"
+    ],
+    "dataSources": [
+      "대상 건축물·건축주·시세: 가상 샘플 데이터 (S1)",
+      "일조 기준: 건축법 제61조, 시행령 제86조 (2023년 개정, 10m 기준)",
+      "용적률 상한: 국토계획법 시행령, 서울특별시 도시계획조례",
+      "법규 완화 시나리오 A·B·AB: 프로젝트 가정 (현행법 아님)"
+    ],
+    "disclaimer": "본 보고서는 예시 가정값 기반의 개략 검토이며 투자 권유가 아닙니다. 실제 사업성은 정밀 조사와 세무·법률·감정평가 전문가 검토에 따라 달라질 수 있습니다."
+  }
+}

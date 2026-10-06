@@ -3,10 +3,13 @@
 
 import registryJson from '@/lib/mock/registry.json'
 import examplesJson from '@/lib/mock/examples.json'
-import type { BuildingRecord, ExampleAddress, SiteCandidate } from '@/types'
+import sampleReportS1 from '@/lib/mock/sampleReport.S1.json'
+import type { BuildingRecord, ExampleAddress, ReportData, SampleId, SiteCandidate } from '@/types'
 
 const registry = registryJson as BuildingRecord[]
 const examples = examplesJson as ExampleAddress[]
+/** 샘플 보고서 데이터 (손계산 예시값, 계산 엔진 완성 후 runAll 결과로 교체) */
+const sampleReports: Partial<Record<SampleId, ReportData>> = { S1: sampleReportS1 as ReportData }
 
 /** 검색 비교용으로 주소를 정리: 공백·'번지'·시/구 이름·괄호 부분 제거 */
 function normalizeAddress(text: string): string {
@@ -56,4 +59,9 @@ export async function getBuildingsByPnu(pnu: string): Promise<BuildingRecord[]> 
 /** 첫 화면 예시 주소 버튼 목록 */
 export async function getExampleAddresses(): Promise<ExampleAddress[]> {
   return examples
+}
+
+/** 샘플 보고서 데이터. 없으면 null */
+export async function getSampleReport(id: string): Promise<ReportData | null> {
+  return sampleReports[id as SampleId] ?? null
 }

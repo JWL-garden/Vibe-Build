@@ -2,7 +2,7 @@
 // NEXT_PUBLIC_USE_MOCK=false 이면 실제 API(apiService), 그 외에는 Mock(mockService)을 쓴다.
 // 실제 API가 실패하면 Mock으로 대체한다.
 
-import type { BuildingRecord, ExampleAddress, SiteCandidate } from '@/types'
+import type { BuildingRecord, ExampleAddress, ReportData, SiteCandidate } from '@/types'
 import * as apiService from './apiService'
 import * as mockService from './mockService'
 
@@ -29,4 +29,9 @@ export function getBuildingsByPnu(pnu: string): Promise<BuildingRecord[]> {
 
 export function getExampleAddresses(): Promise<ExampleAddress[]> {
   return withFallback('getExampleAddresses', apiService.getExampleAddresses, mockService.getExampleAddresses)
+}
+
+/** 샘플 보고서는 항상 Mock에서 읽는다 (가상 데이터) */
+export function getSampleReport(id: string): Promise<ReportData | null> {
+  return mockService.getSampleReport(id)
 }

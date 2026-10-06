@@ -1,9 +1,18 @@
-/** 건축주 제출용 보고서 (A4, 인쇄/PDF)
- * TODO [6-2]: 보고서 페이지 구현 */
-export default function ReportPage() {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">
-      보고서 페이지는 준비 중입니다.
-    </main>
-  )
+import { redirect } from 'next/navigation'
+import ReportView from './ReportView'
+import SampleReportView from './SampleReportView'
+
+/** ③ 보고서
+ *  /report?sample=S1          → 샘플 보고서 (가상 건물, 전체 장)
+ *  /report?pnu=필지번호&b=건물id → 실제 주소 보고서 (계산 엔진 연결 전: 표지·1장) */
+export default async function ReportRoute({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const { pnu, b, sample } = await searchParams
+  if (typeof sample === 'string' && sample !== '') return <SampleReportView sampleId={sample} />
+  if (typeof pnu !== 'string' || pnu === '') redirect('/')
+
+  return <ReportView pnu={pnu} buildingId={typeof b === 'string' ? b : null} />
 }

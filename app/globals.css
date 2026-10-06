@@ -1,5 +1,40 @@
 @import "tailwindcss";
 
+/* 디자인 토큰 — 흰 배경 + 거의 검정 글자 + 얇은 연회색 선 + 포인트 주황 한 가지 */
+@theme {
+  --color-ink: #151717;        /* 본문·제목 글자 */
+  --color-ink-soft: #5c6161;   /* 보조 글자 */
+  --color-ink-faint: #9a9f9f;  /* 흐린 글자, 캡션 */
+  --color-line: #ededed;       /* 카드 테두리, 구분선 */
+  --color-paper: #ffffff;      /* 기본 배경 */
+  --color-mist: #f6f6f4;       /* 옅은 배경 (섹션·자리표시) */
+  --color-accent: #e0621b;     /* 증축(포인트) */
+  --color-accent-soft: #fdf0e8;
+  --color-existing: #8d9494;   /* 기존 건물 */
+
+  --font-serif: var(--font-noto-serif), 'Noto Serif KR', serif;
+  --font-sans: var(--font-noto-sans), 'Pretendard', 'Malgun Gothic', system-ui, sans-serif;
+
+  --radius-card: 1.25rem;
+}
+
 body {
-  font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  word-break: keep-all; /* 한글을 단어 단위로 줄바꿈 */
+}
+
+/* 보고서 인쇄: A4, 장마다 페이지 나눔 */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
