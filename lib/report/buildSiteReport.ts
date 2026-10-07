@@ -342,7 +342,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     sourceRows,
     policyRows: policyNotes.map((p) => [p.title, p.detail, p.usage]),
     policySource: [...new Set(policyNotes.map((p) => p.source))].join(', '),
-    sourceFile: `${data.source.file} (기준일 ${data.source.date}) — 원본 시트(건축물대장_원본 등)는 사용하지 않음`,
+    sourceFile: `${data.source.file} (버전 ${data.source.version}, 기준일 ${data.source.date}) — 원본 시트(건축물대장_원본 등)는 사용하지 않음`,
     excelNotes: data.excelNotes,
     formulas: [
       '허용 연면적 = 대지면적 × 용적률 상한 ÷ 100, 잔여 연면적 = 허용 − 현재 용적률산정 연면적, 잔여 전용 = 잔여 × 전용률',

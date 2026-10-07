@@ -1016,10 +1016,10 @@ export interface SiteData {
   review: ParkingReviewRow
   /** 수기 입력값 (없으면 null) */
   siteInput: SiteInput | null
-  /** 화면·보고서 출처 표기 (예: '기준 엑셀(2026-10-07)') */
+  /** 화면·보고서 출처 표기 (예: '기준 엑셀(261007-a · 2026-10-07)') */
   sourceLabel: string
-  /** 기준 엑셀 파일 이름과 기준일 */
-  source: { file: string; date: string }
+  /** 기준 엑셀 파일 이름·버전·기준일 (lib/data/source.json → 변환 JSON의 meta) */
+  source: { file: string; version: string; date: string }
   /** 기준 엑셀 '용적률완화_주차검토' 시트 하단의 산정 근거·가정 문장 */
   excelNotes: string[]
 }

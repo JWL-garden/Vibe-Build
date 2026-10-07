@@ -1,0 +1,437 @@
+{
+  "_comment": [
+    "기준 엑셀 '시트 → lib/data/*.json' 매핑. 시트를 추가하면 sheets에 한 줄을 추가한다.",
+    "enabled: 변환 여부 / required: 엑셀에 반드시 있어야 하는 시트인지 (data:check)",
+    "builder: 'generic' = columns의 field·type대로 행을 그대로 옮김 (새 시트는 보통 이것) / 'sites'·'units'·'parkingReview' = 시트 여러 개를 합치는 전용 코드 (scripts/build-excel-data.mjs)",
+    "output이 같은 시트들은 하나의 JSON으로 합쳐진다 (전용 builder만 가능)",
+    "key: 행을 구분하는 열 / unique: true면 key 중복을 data:check에서 오류 처리",
+    "columns: { 엑셀열: { field, type, min, max, values, targetRequired } } — 여기 적힌 열은 모두 필수 컬럼",
+    "  field·type은 generic builder에서만 사용 (type: str | num | numOrNull | date | pnu)",
+    "  min·max: 단위 이상값 경고 범위 / values: 허용값 목록 / targetRequired: T1·T2 행에서 비어 있으면 오류",
+    "PNU 열이 19자리 숫자가 아닌 행(시트 하단 '[근거]' 설명 줄 등)은 데이터 행으로 보지 않는다"
+  ],
+  "sheets": [
+    {
+      "sheet": "건축물대장_2단계",
+      "output": "sites.json",
+      "builder": "sites",
+      "purpose": "대상 건축물 표제부 (대지·건축·연면적, 용적률, 높이, 층수, 구조, 사용승인일, 승강기, 실제 주차대수)",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "관리건축물대장PK"
+      ],
+      "unique": true,
+      "columns": {
+        "PNU": {
+          "targetRequired": true
+        },
+        "관리건축물대장PK": {
+          "targetRequired": true
+        },
+        "대지위치": {
+          "targetRequired": true
+        },
+        "도로명대지위치": {},
+        "건물명": {},
+        "동명칭": {},
+        "대장종류코드명": {
+          "targetRequired": true
+        },
+        "외필지수": {
+          "min": 0,
+          "max": 50
+        },
+        "대지면적(㎡)": {
+          "min": 0,
+          "max": 100000,
+          "targetRequired": true
+        },
+        "건축면적(㎡)": {
+          "min": 0,
+          "max": 100000,
+          "targetRequired": true
+        },
+        "건폐율(%)": {
+          "min": 0,
+          "max": 100,
+          "targetRequired": true
+        },
+        "연면적(㎡)": {
+          "min": 0,
+          "max": 500000,
+          "targetRequired": true
+        },
+        "용적률산정연면적(㎡)": {
+          "min": 0,
+          "max": 500000,
+          "targetRequired": true
+        },
+        "용적률(%)": {
+          "min": 0,
+          "max": 1500,
+          "targetRequired": true
+        },
+        "구조코드명": {
+          "targetRequired": true
+        },
+        "주용도코드명": {
+          "targetRequired": true
+        },
+        "기타용도": {},
+        "세대수(세대)": {
+          "min": 0,
+          "max": 2000
+        },
+        "가구수(가구)": {
+          "min": 0,
+          "max": 2000
+        },
+        "호수(호)": {
+          "min": 0,
+          "max": 2000
+        },
+        "높이(m)": {
+          "min": 0,
+          "max": 300,
+          "targetRequired": true
+        },
+        "지상층수": {
+          "min": 0,
+          "max": 100,
+          "targetRequired": true
+        },
+        "지하층수": {
+          "min": 0,
+          "max": 20
+        },
+        "승용승강기수": {
+          "min": 0,
+          "max": 50
+        },
+        "비상용승강기수": {
+          "min": 0,
+          "max": 50
+        },
+        "옥내기계식대수(대)": {
+          "min": 0,
+          "max": 1000
+        },
+        "옥외기계식대수(대)": {
+          "min": 0,
+          "max": 1000
+        },
+        "옥내자주식대수(대)": {
+          "min": 0,
+          "max": 1000
+        },
+        "옥외자주식대수(대)": {
+          "min": 0,
+          "max": 1000
+        },
+        "사용승인일": {
+          "targetRequired": true
+        },
+        "내진설계적용여부": {},
+        "내진능력": {}
+      }
+    },
+    {
+      "sheet": "지역지구구역_2단계",
+      "output": "sites.json",
+      "builder": "sites",
+      "purpose": "용도지역 → sites.json의 zone",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "PNU"
+      ],
+      "unique": false,
+      "columns": {
+        "PNU": {
+          "targetRequired": true
+        },
+        "지역지구구역코드명": {
+          "targetRequired": true
+        }
+      }
+    },
+    {
+      "sheet": "전유공용면적_2단계",
+      "output": "units.json",
+      "builder": "units",
+      "purpose": "층별·호별 전유/공용 면적 → 층별 용도, 주택 층수, 주택 연면적",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "PNU",
+        "호명칭"
+      ],
+      "unique": false,
+      "columns": {
+        "PNU": {
+          "targetRequired": true
+        },
+        "호명칭": {
+          "targetRequired": true
+        },
+        "주용도코드명": {
+          "targetRequired": true
+        },
+        "기타용도": {},
+        "전유공용구분코드명": {
+          "values": [
+            "전유",
+            "공용"
+          ],
+          "targetRequired": true
+        },
+        "층구분코드명": {},
+        "층번호": {
+          "min": -10,
+          "max": 100
+        },
+        "층번호명": {},
+        "면적(㎡)": {
+          "min": 0,
+          "max": 10000,
+          "targetRequired": true
+        }
+      }
+    },
+    {
+      "sheet": "주차대수_세대별",
+      "output": "units.json",
+      "builder": "units",
+      "purpose": "호별 주차 산정 기준(제5호/제3호/제4호)과 대수 → units.json의 parking",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "PNU",
+        "호명칭"
+      ],
+      "unique": true,
+      "columns": {
+        "PNU": {
+          "targetRequired": true
+        },
+        "호명칭": {
+          "targetRequired": true
+        },
+        "주용도": {
+          "targetRequired": true
+        },
+        "전용면적": {
+          "min": 0,
+          "max": 10000
+        },
+        "시설면적": {
+          "min": 0,
+          "max": 10000
+        },
+        "적용기준": {
+          "targetRequired": true
+        },
+        "세대기준대수": {
+          "min": 0,
+          "max": 10
+        },
+        "주택법대수": {
+          "min": 0,
+          "max": 10
+        },
+        "근생대수": {
+          "min": 0,
+          "max": 100
+        },
+        "업무대수": {
+          "min": 0,
+          "max": 100
+        }
+      }
+    },
+    {
+      "sheet": "용적률완화_주차검토",
+      "output": "parkingReview.json",
+      "builder": "parkingReview",
+      "purpose": "완화 후 허용연면적·추가가능 면적·주차 여유·판정 (엑셀 대조 테스트 정답표)",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "PNU"
+      ],
+      "unique": true,
+      "columns": {
+        "PNU": {
+          "targetRequired": true
+        },
+        "대지위치": {},
+        "건물명": {},
+        "용도지역": {
+          "targetRequired": true
+        },
+        "산정구분": {
+          "targetRequired": true
+        },
+        "주용도": {},
+        "기타용도": {},
+        "세대수_주거": {
+          "min": 0,
+          "max": 2000
+        },
+        "대지면적": {
+          "min": 0,
+          "max": 100000,
+          "targetRequired": true
+        },
+        "기준용적률": {
+          "min": 0,
+          "max": 1500,
+          "targetRequired": true
+        },
+        "완화용적률": {
+          "min": 0,
+          "max": 1500,
+          "targetRequired": true
+        },
+        "현재용적률산정연면적": {
+          "min": 0,
+          "max": 500000,
+          "targetRequired": true
+        },
+        "완화후허용연면적": {
+          "min": 0,
+          "max": 1000000,
+          "targetRequired": true
+        },
+        "추가가능연면적": {
+          "min": 0,
+          "max": 1000000,
+          "targetRequired": true
+        },
+        "전용률": {
+          "min": 0,
+          "max": 1,
+          "targetRequired": true
+        },
+        "추가가능전용면적": {
+          "min": 0,
+          "max": 1000000,
+          "targetRequired": true
+        },
+        "실제주차대수": {
+          "min": 0,
+          "max": 1000,
+          "targetRequired": true
+        },
+        "현재법정_제5호세대기준": {
+          "min": 0,
+          "max": 1000
+        },
+        "현재법정_제5호주택법": {
+          "min": 0,
+          "max": 1000
+        },
+        "현재법정_제4호단독": {
+          "min": 0,
+          "max": 1000
+        },
+        "현재법정_근생": {
+          "min": 0,
+          "max": 1000
+        },
+        "현재법정_업무": {
+          "min": 0,
+          "max": 1000
+        },
+        "현재법정대수": {
+          "min": 0,
+          "max": 1000,
+          "targetRequired": true
+        },
+        "기존여유대수": {
+          "min": -1000,
+          "max": 1000,
+          "targetRequired": true
+        },
+        "주차여유내_최대추가세대": {
+          "min": 0,
+          "max": 1000,
+          "targetRequired": true
+        },
+        "세대당최대전용": {},
+        "증가법정대수": {},
+        "추가후법정대수": {},
+        "필요추가주차_1세대": {
+          "min": 0,
+          "max": 1000
+        },
+        "면적최대세대수": {},
+        "필요추가주차_면적최대": {},
+        "판정": {
+          "targetRequired": true
+        },
+        "비고": {}
+      }
+    },
+    {
+      "sheet": "주차대수_비교",
+      "output": null,
+      "builder": null,
+      "purpose": "현재 법정대수 vs 실제 대수 — 검증용, 변환 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU"
+      ],
+      "unique": true,
+      "columns": {}
+    },
+    {
+      "sheet": "주차장_추가확보필요",
+      "output": null,
+      "builder": null,
+      "purpose": "주차 추가 확보가 필요한 필지 목록 — 검증용, 변환 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU"
+      ],
+      "unique": true,
+      "columns": {}
+    },
+    {
+      "sheet": "건축물대장_원본",
+      "output": null,
+      "builder": null,
+      "purpose": "원본 — 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "지역지구구역_원본",
+      "output": null,
+      "builder": null,
+      "purpose": "원본 — 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "전유공용면적_원본",
+      "output": null,
+      "builder": null,
+      "purpose": "원본 — 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [],
+      "unique": false,
+      "columns": {}
+    }
+  ]
+}

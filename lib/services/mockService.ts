@@ -95,8 +95,8 @@ export async function getSiteData(pnu: string): Promise<SiteData | null> {
     units: (unitsJson.items as ExcelUnit[]).filter((u) => u.pnu === pnu),
     review,
     siteInput: (siteInputsJson.items as SiteInput[]).find((s) => s.pnu === pnu) ?? null,
-    sourceLabel: `기준 엑셀(${sitesJson.source.date})`,
-    source: { file: sitesJson.source.file, date: sitesJson.source.date },
+    sourceLabel: `기준 엑셀(${sitesJson.meta.version} · ${sitesJson.meta.sourceDate})`,
+    source: { file: sitesJson.meta.file, version: sitesJson.meta.version, date: sitesJson.meta.sourceDate },
     excelNotes: parkingReviewJson.notes,
   }
 }
