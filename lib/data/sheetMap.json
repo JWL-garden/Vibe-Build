@@ -375,6 +375,81 @@
       }
     },
     {
+      "sheet": "개별공시지가_2단계",
+      "output": "landPrice.json",
+      "builder": "generic",
+      "purpose": "개별공시지가 (원/㎡) — 수익성 단계에서 사용",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "PNU"
+      ],
+      "unique": true,
+      "columns": {
+        "PNU": {
+          "field": "pnu",
+          "type": "pnu",
+          "targetRequired": true
+        },
+        "pblntfPclnd": {
+          "field": "pricePerM2",
+          "type": "num",
+          "min": 0,
+          "max": 100000000,
+          "targetRequired": true
+        },
+        "stdrYear": {
+          "field": "baseYear",
+          "type": "str",
+          "targetRequired": true
+        },
+        "stdrMt": {
+          "field": "baseMonth",
+          "type": "str"
+        },
+        "pblntfDe": {
+          "field": "announcedDate",
+          "type": "str",
+          "targetRequired": true
+        }
+      }
+    },
+    {
+      "sheet": "토지임야목록_2단계",
+      "output": "landLots.json",
+      "builder": "generic",
+      "purpose": "토지대장 지목·면적·소유구분 — 필지 면적 검증용 (계산은 건축물대장 대지면적 사용)",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "PNU"
+      ],
+      "unique": true,
+      "columns": {
+        "PNU": {
+          "field": "pnu",
+          "type": "pnu",
+          "targetRequired": true
+        },
+        "lndcgrCodeNm": {
+          "field": "landCategory",
+          "type": "str",
+          "targetRequired": true
+        },
+        "lndpclAr": {
+          "field": "lotAreaM2",
+          "type": "num",
+          "min": 0,
+          "max": 100000,
+          "targetRequired": true
+        },
+        "posesnSeCodeNm": {
+          "field": "ownership",
+          "type": "str"
+        }
+      }
+    },
+    {
       "sheet": "주차대수_비교",
       "output": null,
       "builder": null,
@@ -424,6 +499,42 @@
     },
     {
       "sheet": "전유공용면적_원본",
+      "output": null,
+      "builder": null,
+      "purpose": "원본 — 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "빈땅_신축시나리오",
+      "output": null,
+      "builder": null,
+      "purpose": "추후 신축 시나리오용 — 등록만, 사용 안 함 (필지당 다세대·다가구 2행)",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU",
+        "건축유형"
+      ],
+      "unique": true,
+      "columns": {}
+    },
+    {
+      "sheet": "토지임야목록_원본",
+      "output": null,
+      "builder": null,
+      "purpose": "원본 — 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "개별공시지가_원본",
       "output": null,
       "builder": null,
       "purpose": "원본 — 사용 안 함",

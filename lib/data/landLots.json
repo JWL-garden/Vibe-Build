@@ -1,0 +1,336 @@
+{
+  "meta": {
+    "file": "261007_데이터 통합_토지 공시지가 추가.xlsx",
+    "version": "261007-b",
+    "sourceDate": "2026-10-07",
+    "fileHash": "93c743a98f711d21",
+    "convertedAt": "2026-10-07T07:04:03.126Z",
+    "sheets": [
+      {
+        "name": "토지임야목록_2단계",
+        "rows": 53
+      }
+    ],
+    "itemCount": 53
+  },
+  "items": [
+    {
+      "pnu": "1156011600000010000",
+      "landCategory": "대",
+      "lotAreaM2": 143,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000010002",
+      "landCategory": "대",
+      "lotAreaM2": 139.9,
+      "ownership": "법인"
+    },
+    {
+      "pnu": "1156011600000010003",
+      "landCategory": "대",
+      "lotAreaM2": 183.5,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000020001",
+      "landCategory": "대",
+      "lotAreaM2": 206,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000030001",
+      "landCategory": "대",
+      "lotAreaM2": 133.9,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000030004",
+      "landCategory": "대",
+      "lotAreaM2": 99.5,
+      "ownership": "법인"
+    },
+    {
+      "pnu": "1156011600000030005",
+      "landCategory": "대",
+      "lotAreaM2": 143.4,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000050000",
+      "landCategory": "대",
+      "lotAreaM2": 335.5,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000060000",
+      "landCategory": "대",
+      "lotAreaM2": 925.6,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000090001",
+      "landCategory": "대",
+      "lotAreaM2": 132.2,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000100013",
+      "landCategory": "대",
+      "lotAreaM2": 93.6,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000100015",
+      "landCategory": "대",
+      "lotAreaM2": 75.2,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000100016",
+      "landCategory": "대",
+      "lotAreaM2": 105.8,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600000100018",
+      "landCategory": "대",
+      "lotAreaM2": 109.1,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040003",
+      "landCategory": "대",
+      "lotAreaM2": 407,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040010",
+      "landCategory": "대",
+      "lotAreaM2": 223,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040033",
+      "landCategory": "대",
+      "lotAreaM2": 113,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040040",
+      "landCategory": "대",
+      "lotAreaM2": 179,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040046",
+      "landCategory": "대",
+      "lotAreaM2": 132,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040048",
+      "landCategory": "대",
+      "lotAreaM2": 93,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040059",
+      "landCategory": "대",
+      "lotAreaM2": 90,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040063",
+      "landCategory": "대",
+      "lotAreaM2": 162,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040107",
+      "landCategory": "대",
+      "lotAreaM2": 149,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001040112",
+      "landCategory": "대",
+      "lotAreaM2": 123,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001050001",
+      "landCategory": "대",
+      "lotAreaM2": 188,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001050003",
+      "landCategory": "대",
+      "lotAreaM2": 112,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001060001",
+      "landCategory": "대",
+      "lotAreaM2": 165,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100002",
+      "landCategory": "대",
+      "lotAreaM2": 106,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100003",
+      "landCategory": "대",
+      "lotAreaM2": 56,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100007",
+      "landCategory": "대",
+      "lotAreaM2": 86,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100019",
+      "landCategory": "대",
+      "lotAreaM2": 255,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100023",
+      "landCategory": "대",
+      "lotAreaM2": 139,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100033",
+      "landCategory": "대",
+      "lotAreaM2": 142,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100038",
+      "landCategory": "대",
+      "lotAreaM2": 96,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100051",
+      "landCategory": "대",
+      "lotAreaM2": 149,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100054",
+      "landCategory": "대",
+      "lotAreaM2": 76,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100066",
+      "landCategory": "대",
+      "lotAreaM2": 301,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100082",
+      "landCategory": "대",
+      "lotAreaM2": 152,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100084",
+      "landCategory": "대",
+      "lotAreaM2": 126,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600001100085",
+      "landCategory": "대",
+      "lotAreaM2": 145,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003260002",
+      "landCategory": "대",
+      "lotAreaM2": 180.8,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003260009",
+      "landCategory": "대",
+      "lotAreaM2": 142.1,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003280001",
+      "landCategory": "대",
+      "lotAreaM2": 580.2,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003280004",
+      "landCategory": "대",
+      "lotAreaM2": 353.7,
+      "ownership": "법인"
+    },
+    {
+      "pnu": "1156011600003280005",
+      "landCategory": "대",
+      "lotAreaM2": 200.7,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003290004",
+      "landCategory": "대",
+      "lotAreaM2": 157.4,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003300001",
+      "landCategory": "대",
+      "lotAreaM2": 488.9,
+      "ownership": "법인"
+    },
+    {
+      "pnu": "1156011600003300004",
+      "landCategory": "대",
+      "lotAreaM2": 140.8,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003500007",
+      "landCategory": "대",
+      "lotAreaM2": 413.8,
+      "ownership": "법인"
+    },
+    {
+      "pnu": "1156011600003500008",
+      "landCategory": "대",
+      "lotAreaM2": 437,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003510002",
+      "landCategory": "대",
+      "lotAreaM2": 405.6,
+      "ownership": "개인"
+    },
+    {
+      "pnu": "1156011600003510005",
+      "landCategory": "대",
+      "lotAreaM2": 730.1,
+      "ownership": "법인"
+    },
+    {
+      "pnu": "1156011600003530007",
+      "landCategory": "대",
+      "lotAreaM2": 150.1,
+      "ownership": "개인"
+    }
+  ]
+}

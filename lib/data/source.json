@@ -1,7 +1,7 @@
 {
   "_comment": "기준 데이터 파일 경로·버전은 이 파일 한 곳에서만 관리한다. 엑셀을 바꾸면 excelPath·version·sourceDate·note를 고치고 npm run data:excel → docs/data-changelog.md 기록.",
-  "excelPath": "../261007_데이터 통합_사무소 업무시설 분리 및 복합용도 비고4 적용.xlsx",
-  "version": "261007-a",
+  "excelPath": "../261007_데이터 통합_토지 공시지가 추가.xlsx",
+  "version": "261007-b",
   "sourceDate": "2026-10-07",
-  "note": "사무소(업무시설) 분리 + 복합용도 주차 산정 비고4 적용"
+  "note": "261007-a + 토지임야목록·개별공시지가·빈땅_신축시나리오 시트 추가 (기존 시트 값 변경 없음)"
 }

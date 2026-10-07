@@ -1,0 +1,389 @@
+{
+  "meta": {
+    "file": "261007_데이터 통합_토지 공시지가 추가.xlsx",
+    "version": "261007-b",
+    "sourceDate": "2026-10-07",
+    "fileHash": "93c743a98f711d21",
+    "convertedAt": "2026-10-07T07:04:03.126Z",
+    "sheets": [
+      {
+        "name": "개별공시지가_2단계",
+        "rows": 53
+      }
+    ],
+    "itemCount": 53
+  },
+  "items": [
+    {
+      "pnu": "1156011600000010000",
+      "pricePerM2": 10520000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000010002",
+      "pricePerM2": 9555000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000010003",
+      "pricePerM2": 8604000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000020001",
+      "pricePerM2": 5760000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000030001",
+      "pricePerM2": 4609000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000030004",
+      "pricePerM2": 4609000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000030005",
+      "pricePerM2": 9685000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000050000",
+      "pricePerM2": 10030000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000060000",
+      "pricePerM2": 5947000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000090001",
+      "pricePerM2": 4907000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-01-23"
+    },
+    {
+      "pnu": "1156011600000100013",
+      "pricePerM2": 4907000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000100015",
+      "pricePerM2": 4907000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000100016",
+      "pricePerM2": 4946000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600000100018",
+      "pricePerM2": 5947000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001040003",
+      "pricePerM2": 4764000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001040010",
+      "pricePerM2": 4764000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001040033",
+      "pricePerM2": 4695000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001040040",
+      "pricePerM2": 4388000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-01-23"
+    },
+    {
+      "pnu": "1156011600001040046",
+      "pricePerM2": 4530000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001040048",
+      "pricePerM2": 4764000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001040059",
+      "pricePerM2": 4256000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001040063",
+      "pricePerM2": 4764000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-01-23"
+    },
+    {
+      "pnu": "1156011600001040107",
+      "pricePerM2": 4256000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001040112",
+      "pricePerM2": 4345000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001050001",
+      "pricePerM2": 4764000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001050003",
+      "pricePerM2": 5300000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001060001",
+      "pricePerM2": 4764000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100002",
+      "pricePerM2": 4594000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100003",
+      "pricePerM2": 4594000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100007",
+      "pricePerM2": 5300000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100019",
+      "pricePerM2": 4763000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100023",
+      "pricePerM2": 4907000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100033",
+      "pricePerM2": 4731000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100038",
+      "pricePerM2": 4594000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100051",
+      "pricePerM2": 4907000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100054",
+      "pricePerM2": 4594000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100066",
+      "pricePerM2": 4759000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100082",
+      "pricePerM2": 4915000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100084",
+      "pricePerM2": 4915000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600001100085",
+      "pricePerM2": 4915000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003260002",
+      "pricePerM2": 5701000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-01-23"
+    },
+    {
+      "pnu": "1156011600003260009",
+      "pricePerM2": 5643000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003280001",
+      "pricePerM2": 5336000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003280004",
+      "pricePerM2": 5643000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003280005",
+      "pricePerM2": 5643000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003290004",
+      "pricePerM2": 5336000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-01-23"
+    },
+    {
+      "pnu": "1156011600003300001",
+      "pricePerM2": 5321000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003300004",
+      "pricePerM2": 5643000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003500007",
+      "pricePerM2": 5321000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003500008",
+      "pricePerM2": 5544000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003510002",
+      "pricePerM2": 5321000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003510005",
+      "pricePerM2": 5321000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    },
+    {
+      "pnu": "1156011600003530007",
+      "pricePerM2": 5490000,
+      "baseYear": "2026",
+      "baseMonth": "01",
+      "announcedDate": "2026-04-30"
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "meta": {
-    "file": "261007_데이터 통합_사무소 업무시설 분리 및 복합용도 비고4 적용.xlsx",
-    "version": "261007-a",
+    "file": "261007_데이터 통합_토지 공시지가 추가.xlsx",
+    "version": "261007-b",
     "sourceDate": "2026-10-07",
-    "fileHash": "199ef65b9fd7f9e8",
-    "convertedAt": "2026-10-07T06:49:19.496Z",
+    "fileHash": "93c743a98f711d21",
+    "convertedAt": "2026-10-07T07:04:03.126Z",
     "sheets": [
       {
         "name": "용적률완화_주차검토",
