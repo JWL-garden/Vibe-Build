@@ -22,10 +22,12 @@ interface Props {
   afterCaption: string
   expandability: Expandability
   reportHref: string
+  /** 아래쪽 상세 분석 단계 (⑤ 완화, ⑥ 증축 산정 …). 없으면 표시 안 함 */
+  steps?: { title: string; caption: string; content: React.ReactNode }[]
 }
 
-/** ② 분석 화면 공통 틀: 건축물 정보 + 3D 증축 전/후 자리 + 증축 가능 판정 + 보고서 이동
- * TODO [4-3]: 아래쪽에 일조권·용적률·완화·수익성 단계 추가 */
+/** ② 분석 화면 공통 틀: 건축물 정보 + 3D 증축 전/후 자리 + 증축 가능 판정 + 보고서 이동 + 상세 분석 단계
+ * TODO [4-3]: 일조권·용적률·수익성 단계 추가 */
 export default function AnalysisLayout(p: Props) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -56,6 +58,13 @@ export default function AnalysisLayout(p: Props) {
       </section>
 
       <ReportCta expandability={p.expandability} reportHref={p.reportHref} />
+
+      {p.steps?.map((step) => (
+        <section key={step.title} className="mt-14">
+          <SectionTitle title={step.title} caption={step.caption} />
+          {step.content}
+        </section>
+      ))}
     </main>
   )
 }

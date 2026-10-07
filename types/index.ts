@@ -962,6 +962,8 @@ export interface ExpansionPlan {
 /** 증축 산정 결과 (lib/calc/expansion.ts) */
 export interface SiteExpansionResult {
   scenarioId: ScenarioId
+  /** 이 시나리오에서 적용한 규칙 (화면·보고서의 현행→완화 표에 그대로 사용) */
+  rules: Rules
   far: FarResult
   parking: ParkingResult
   housing: HousingSummary & { limit: HousingLimitResult }
