@@ -945,6 +945,11 @@ export interface SiteInput {
   floorPlateM2: number | null
   /** 1층이 필로티(주차 전용)인지 */
   pilotiFloor1: boolean
+  /**
+   * 대지를 이루는 필지 PNU 목록 (대표 필지 포함). 토지가액 = Σ(필지 면적 × 공시지가).
+   * 없으면(null) 외필지수 0일 때 대표 필지 하나로 보고, 외필지가 있으면 '추정'으로 계산한다.
+   */
+  lots?: string[] | null
   source: '수기입력' | '확인필요'
 }
 
@@ -1022,6 +1027,10 @@ export interface SiteData {
   source: { file: string; version: string; date: string }
   /** 기준 엑셀 '용적률완화_주차검토' 시트 하단의 산정 근거·가정 문장 */
   excelNotes: string[]
+  /** 대표 필지 + 구성 필지의 개별공시지가 (기준 엑셀 '개별공시지가_2단계' → landPrice.json) */
+  landPrices: LandPriceRow[]
+  /** 대표 필지 + 구성 필지의 토지대장 (기준 엑셀 '토지임야목록_2단계' → landLots.json) */
+  landLots: LandLotRow[]
 }
 
 /** runAll 결과 — 화면·보고서는 이 값만 쓴다 */
@@ -1033,6 +1042,111 @@ export interface SiteAnalysis {
   byScenario: Record<ScenarioId, SiteExpansionResult>
   /** byScenario[scenarioId] */
   selected: SiteExpansionResult
+  /** 토지가액 (공시지가 기준, 시나리오와 무관) */
+  land: LandValueResult
+  /** 선택 시나리오의 증축 전·후 자산가치 (원가 기준, 참고) */
+  asset: AssetValueResult
+}
+
+// ═════════════════════════════════════════════
+// 토지가액·자산가치 (설계서 5-4 [0], [C'])
+// ═════════════════════════════════════════════
+
+/** 개별공시지가 한 필지 (lib/data/landPrice.json) */
+export interface LandPriceRow {
+  pnu: string
+  /** 개별공시지가 (원/㎡) — 시세 아님 */
+  pricePerM2: number
+  /** 기준연도 (예: '2026') */
+  baseYear: string
+  /** 기준월 (예: '01') */
+  baseMonth: string | null
+  /** 공시일 (예: '2026-04-30') */
+  announcedDate: string
+}
+
+/** 토지대장 한 필지 (lib/data/landLots.json) */
+export interface LandLotRow {
+  pnu: string
+  /** 지목 (예: '대') */
+  landCategory: string
+  /** 토지대장 면적 (㎡) */
+  lotAreaM2: number
+  /** 소유구분 (예: '개인') */
+  ownership: string | null
+}
+
+/**
+ * 토지가액 산정 방식
+ * sum = 구성 필지 Σ(면적 × 공시지가), 면적 합이 대장 대지면적과 일치
+ * mismatch = 구성 필지 Σ로 계산했지만 면적 합 ≠ 대장 대지면적 → '면적 확인 필요'
+ * estimated = 외필지 자료 없음 → 대표 필지 공시지가 × 대장 대지면적 → '추정'
+ * none = 공시지가 또는 대지면적이 없어 계산 불가
+ */
+export type LandValueBasis = 'sum' | 'mismatch' | 'estimated' | 'none'
+
+/** 토지가액 계산에 쓴 필지 한 줄 */
+export interface LandValueLot {
+  pnu: string
+  /** 계산에 쓴 면적 (㎡) — sum·mismatch는 토지대장 면적, estimated는 대장 대지면적 */
+  areaM2: number
+  pricePerM2: number
+  valueWon: number
+}
+
+/** 토지가액 결과 (공시지가 기준, 시세 아님) */
+export interface LandValueResult {
+  basis: LandValueBasis
+  /** 토지가액 (원). basis = none 이면 null */
+  valueWon: number | null
+  lots: LandValueLot[]
+  /** 계산에 쓴 면적 합 (㎡) */
+  areaUsedM2: number
+  /** 건축물대장 대지면적 (㎡) */
+  siteAreaM2: number | null
+  /** 면적 차이 = 계산 면적 − 대장 대지면적 (㎡) */
+  areaDiffM2: number | null
+  /** 공시 기준 (대표 필지) */
+  priceBasis: { baseYear: string; baseMonth: string | null; announcedDate: string } | null
+  /** 근거 문장 */
+  reasons: string[]
+}
+
+/** 증축 전·후 자산가치 (원가 기준 참고값 = 토지가액 + 건물가치) */
+export interface AssetValueResult {
+  land: LandValueResult
+  existingBuilding: {
+    /** 연면적 (㎡) */
+    gfaM2: number
+    /** 재조달단가 (원/㎡, 예시 가정값) */
+    unitCostWon: number
+    /** 경과연수 (년, 기준일까지 만 연수). 사용승인일 없으면 null */
+    ageYears: number | null
+    usefulLifeYears: number
+    /** 잔가율 (소수) = max(최저잔가율, 1 − 경과연수 ÷ 내용연수) */
+    residualRate: number
+    valueWon: number
+  }
+  addBuilding: {
+    /** 증축 연면적 (㎡) — 선택 시나리오에서 채택된 증축안, 없으면 0 */
+    gfaM2: number
+    valueWon: number
+  }
+  /** 증축 전 자산가치 (원). 토지가액이 없으면 null */
+  beforeWon: number | null
+  /** 증축 후 자산가치 (원). 토지가액이 없으면 null */
+  afterWon: number | null
+  /** 기준일 (경과연수 계산) */
+  baseDate: string
+  reasons: string[]
+}
+
+/** 토지 포함(보유 자산 전체) 수익률 — NOI는 수익성 엔진에서 받는다 */
+export interface LandInclusiveYield {
+  /** 증축 전 = 기존 NOI ÷ 자산가치(전) */
+  beforeRate: number
+  /** 증축 후 = (기존 NOI + NOI 증가) ÷ (자산가치(전) + 총사업비) */
+  afterRate: number
 }
 
 // ═════════════════════════════════════════════
@@ -1070,6 +1184,31 @@ export interface SitePlanSection {
   alternatives: string[]
 }
 
+/** 1장 토지가액 (공시지가 기준) */
+export interface SiteLandSection {
+  /** 배지 문구: '공시지가 기준' | '면적 확인 필요' | '추정' | '계산 불가' */
+  badge: string
+  tone: 'accent' | 'danger' | 'neutral'
+  /** 예: '10.6억원' */
+  valueText: string
+  /** 예: '1,062,372,000원' */
+  exactText: string
+  /** 예: '개별공시지가 기준 (시세 아님) · 2026년 1월 1일 기준 · 2026-04-30 공시' */
+  basisNote: string
+  /** [필지, 면적, 공시지가, 금액] */
+  rows: ReportRow[]
+  notes: string[]
+}
+
+/** 3장 증축 전·후 자산가치 (원가 기준 참고) */
+export interface SiteAssetSection {
+  /** [항목, 증축 전, 증축 후, 근거] */
+  rows: ReportRow[]
+  /** 토지 포함 수익률 안내 */
+  yieldNote: string
+  notes: string[]
+}
+
 export interface SiteReport {
   meta: {
     title: string
@@ -1093,6 +1232,8 @@ export interface SiteReport {
     sharedCommonM2: number
     stats: Kpi[]
     notes: string[]
+    /** 토지가액 (공시지가 기준) */
+    land: SiteLandSection
   }
   /** 2장 법규 검토 */
   regulation: {
@@ -1107,6 +1248,8 @@ export interface SiteReport {
   }
   /** 3장 증축 계획안 */
   plan: SitePlanSection
+  /** 3장 증축 전·후 자산가치 */
+  asset: SiteAssetSection
   /** 데이터 검증: 기준 엑셀 대조 + 추가로 확인·수정할 데이터 */
   verification: {
     /** [항목, 엑셀값, 계산값, 결과] */

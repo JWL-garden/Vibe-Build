@@ -4,6 +4,8 @@
 import registryJson from '@/lib/mock/registry.json'
 import examplesJson from '@/lib/mock/examples.json'
 import sampleReportS1 from '@/lib/mock/sampleReport.S1.json'
+import landLotsJson from '@/lib/data/landLots.json'
+import landPriceJson from '@/lib/data/landPrice.json'
 import parkingReviewJson from '@/lib/data/parkingReview.json'
 import siteInputsJson from '@/lib/data/siteInputs.json'
 import sitesJson from '@/lib/data/sites.json'
@@ -13,6 +15,8 @@ import type {
   ExampleAddress,
   ExcelSite,
   ExcelUnit,
+  LandLotRow,
+  LandPriceRow,
   ParkingReviewRow,
   ReportData,
   SampleId,
@@ -89,14 +93,19 @@ export async function getSiteData(pnu: string): Promise<SiteData | null> {
   const site = (sitesJson.items as ExcelSite[]).find((s) => s.pnu === pnu)
   const review = (parkingReviewJson.items as ParkingReviewRow[]).find((r) => r.pnu === pnu)
   if (!site || !review || review.verdict === '미산정' || review.netRatio === null) return null
+  const siteInput = (siteInputsJson.items as SiteInput[]).find((s) => s.pnu === pnu) ?? null
+  // 토지가액 계산에 쓸 필지: 대표 필지 + 수기 입력한 구성 필지
+  const lotPnus = new Set([pnu, ...(siteInput?.lots ?? [])])
   return {
     pnu,
     site,
     units: (unitsJson.items as ExcelUnit[]).filter((u) => u.pnu === pnu),
     review,
-    siteInput: (siteInputsJson.items as SiteInput[]).find((s) => s.pnu === pnu) ?? null,
+    siteInput,
     sourceLabel: `기준 엑셀(${sitesJson.meta.version} · ${sitesJson.meta.sourceDate})`,
     source: { file: sitesJson.meta.file, version: sitesJson.meta.version, date: sitesJson.meta.sourceDate },
     excelNotes: parkingReviewJson.notes,
+    landPrices: (landPriceJson.items as LandPriceRow[]).filter((p) => lotPnus.has(p.pnu)),
+    landLots: (landLotsJson.items as LandLotRow[]).filter((l) => lotPnus.has(l.pnu)),
   }
 }

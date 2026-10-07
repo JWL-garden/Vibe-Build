@@ -248,8 +248,13 @@ CLAUDE.md
 | 금융 | 대출 비율, 금리 | % | 가정 → 금융기관 |
 | 일정 | 설계·인허가 기간, 공사기간 | 개월 | 가정 |
 | 운영 | 운영비 비율, 임대료 상승률, 할인율 | % | 가정 |
+| 토지 | 개별공시지가 (+ 기준연월, 공시일) | 원/㎡ | 기준 엑셀 '개별공시지가_2단계' → `lib/data/landPrice.json` (브이월드 개별공시지가, 2026.1.1 기준) |
+| 토지 | 토지대장 지목·면적·소유구분 | ㎡ | 기준 엑셀 '토지임야목록_2단계' → `lib/data/landLots.json` (필지 면적 검증·토지가액) |
+| 토지 | 토지가액 구성 필지 (대표 + 외필지 PNU) | — | 수기 입력 `lib/data/siteInputs.json → lots` (없으면 외필지 0 → 대표 필지, 외필지 있음 → 추정) |
+| 건물가치 | 재조달단가, 구조별 내용연수, 최저 잔가율 | 원/㎡, 년, % | 가정(`financeDefaults.buildingValueRule`) → 감정평가 |
 
 > 프로토타입의 모든 비용·시세 값은 "예시 가정값"으로 표시하고, 보고서 부록에 표로 자동 출력합니다.
+> 토지가액은 **개별공시지가 기준(시세 아님)** 이며, 화면·보고서에 기준연월·공시일과 산정 상태 배지(공시지가 기준 / 면적 확인 필요 / 추정)를 반드시 함께 표기한다. 건축물대장 대지면적과 토지대장 면적은 다를 수 있다(2026-10-07 기준 45필지 중 30필지). 용적률·증축 계산은 계속 건축물대장 대지면적을 쓴다.
 
 ---
 
@@ -351,7 +356,19 @@ d ≥ 5m           → 2 × d
 ### 5-4. 사업비·수익성 모듈 `finance.ts`
 
 ```
-입력: expansion 결과(addGFA, addFloors), building, owner, market, financeAssumptions
+입력: expansion 결과(addGFA, addFloors), building, owner, market, financeAssumptions,
+      (2026-10-07) landPrices·landLots(대표+구성 필지), siteInputs.lots, financeDefaults.landValueRule·buildingValueRule
+
+[0. 토지가액]  calcLandValue — 개별공시지가 기준(시세 아님), 시나리오와 무관
+  구성필지 = siteInputs.lots ?? (외필지수 = 0 ? [대표필지] : 없음)
+  구성필지가 모두 토지대장·공시지가에 있으면:
+      토지가액 = Σ(필지 토지대장 면적 × 필지 공시지가)
+      |Σ면적 − 건축물대장 대지면적| ≤ areaToleranceM2(1㎡) → basis = sum        "공시지가 기준"
+                                       그 외               → basis = mismatch   "면적 확인 필요"
+  아니면 (외필지 목록·면적 없음):
+      토지가액 = 대표필지 공시지가 × 건축물대장 대지면적  → basis = estimated  "추정"
+  공시지가·대지면적이 없으면 basis = none (계산 불가)
+  표기: "개별공시지가 기준 (시세 아님) · {기준연도}년 {기준월}월 1일 기준 · {공시일} 공시" + basis 배지
 
 [A. 사업비]
   공사비        = addGFA × 공사비단가 + 구조보강비 + 승강기·설비비
@@ -381,13 +398,35 @@ d ≥ 5m           → 2 × d
   순자산가치 증가      = 자산가치 증가 − 총사업비
   (P1) 10년 현금흐름: 연차별 NOI(임대료 상승률 반영) − 이자 → 누적, NPV(할인율), IRR(반복계산)
 
+[C'. 증축 전·후 자산가치]  calcAssetValue — 원가 기준 참고값 (예시 가정값, 감정평가 아님)
+  경과연수      = 기준 데이터 기준일(source.json sourceDate) − 사용승인일 (만 연수)
+  잔가율        = max(최저잔가율, 1 − 경과연수 / 구조별 내용연수)       (사용승인일 없으면 최저잔가율)
+  기존건물가치  = 연면적 × 재조달단가 × 잔가율
+  증축건물가치  = 채택 증축안 addGFA × 재조달단가                      (채택 증축안 = 3장과 같음: 기존 주차안 → 주차 추가 확보안 → 없으면 0)
+  자산가치(전)  = 토지가액 + 기존건물가치
+  자산가치(후)  = 자산가치(전) + 증축건물가치
+  ※ [C]의 "자산가치 증가 = NOI 증가 / 환원율"(수익 기준)은 이미 토지 몫을 포함하므로 토지가액과 더하지 않고 따로 표시
+
+[C''. 토지 포함 수익률]  calcLandInclusiveYield — 보유 자산 전체 기준 참고 지표
+  보유자산수익률(전) = 기존 NOI / 자산가치(전)
+  보유자산수익률(후) = (기존 NOI + 연 NOI 증가) / (자산가치(전) + 총사업비)
+  ※ 증축 판단의 핵심 지표는 [C]의 단순 ROI(토지는 이미 보유한 자산이므로 투자비에 넣지 않음). 이 값은 보조 표시
+  ※ 기존 NOI·NOI 증가·총사업비는 [A]·[B] 구현 후 연결 (그 전에는 보고서에 "수익성 단계 입력 후 계산" 표시)
+
 [D. 비교]
   "증축 안 함" vs "증축함" 10년 누적 순수익
   완화 전(BASE) vs 완화 후(선택 시나리오) 각각 finance 계산
 
 출력: costBreakdown[], totalCost, equity, loan, noi, roi, roe, paybackYears,
-      valueIncrease, netValueIncrease, cashflow10y[], npv, irr, 근거 문장
+      valueIncrease, netValueIncrease, cashflow10y[], npv, irr, 근거 문장,
+      (2026-10-07) land{basis, valueWon, lots[], areaUsedM2, siteAreaM2, areaDiffM2, priceBasis},
+      asset{existingBuilding, addBuilding, beforeWon, afterWon}, landInclusiveYield{beforeRate, afterRate}
 ```
+
+> (2026-10-07) 구현 상태: [0]·[C']는 `lib/calc/finance.ts`에 구현되어 `runAll` 결과(`land`, `asset`)로 보고서 1장(토지가액)·3장(증축 전·후 자산가치)에 표시. [C'']는 수식 함수만 구현(NOI 연결 대기). [A]·[B]·[C]·[D]는 미구현([3-2]~[3-4]).
+> 손계산 검증값(Vitest `finance.test.ts`, 기준일 2026-10-07, 재조달단가 200만원/㎡·RC 50년·최저잔가율 10%):
+> T1 104-10 토지 223㎡ × 4,764,000 = **1,062,372,000원 (면적 확인 필요, 대장 199.5㎡)**, 기존건물 378.24 × 200만 × 0.64 = 484,147,200, 자산가치 전 1,546,519,200 → ALL(+99.27㎡) 후 1,745,059,200 /
+> T2 110-19 토지 373.1㎡ × 4,763,000 = **1,777,075,300원 (추정, 외필지 3)**, 기존건물 722.02 × 200만 × 0.84 = 1,212,993,600, 자산가치 전 2,990,068,900 → ALL(+36.2527㎡) 후 3,062,574,214
 
 ### 5-5. 민감도 모듈 `sensitivity.ts` (P1)
 

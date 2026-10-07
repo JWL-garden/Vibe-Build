@@ -4,7 +4,8 @@
 
 import { judgeSite, LIMIT_LABEL } from '@/lib/calc'
 import { compareWithExcel, PARITY_TOLERANCE } from '@/lib/calc/excelParity'
-import { formatNumber, textOrEmpty, withUnit } from '@/lib/format'
+import { formatNumber, formatRate, formatWon, textOrEmpty, withUnit } from '@/lib/format'
+import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
 import { policyNotes } from '@/lib/rules/policies'
 import { getScenario, scenarios } from '@/lib/rules/scenarios'
 import { describeOverrides } from './describeOverrides'
@@ -16,8 +17,11 @@ import type {
   Kpi,
   LimitingFactor,
   ReportRow,
+  LandValueResult,
   SiteAnalysis,
+  SiteAssetSection,
   SiteData,
+  SiteLandSection,
   SiteExpansionResult,
   SitePlanSection,
   SiteReport,
@@ -212,6 +216,75 @@ function planSection(e: SiteExpansionResult): SitePlanSection {
   }
 }
 
+const LAND_BADGE: Record<LandValueResult['basis'], { badge: string; tone: SiteLandSection['tone'] }> = {
+  sum: { badge: '공시지가 기준', tone: 'accent' },
+  mismatch: { badge: '면적 확인 필요', tone: 'danger' },
+  estimated: { badge: '추정', tone: 'neutral' },
+  none: { badge: '계산 불가', tone: 'danger' },
+}
+
+/** 공시 기준 문구 — 토지가액을 보여주는 모든 곳에 붙인다 */
+function landBasisNote(land: LandValueResult): string {
+  const pb = land.priceBasis
+  if (!pb) return landValueRule.label
+  const month = pb.baseMonth ? ` ${Number(pb.baseMonth)}월 1일` : ''
+  return `${landValueRule.label} · ${pb.baseYear}년${month} 기준 · ${pb.announcedDate} 공시`
+}
+
+/** 1장 토지가액 (runAll의 analysis.land를 표시용으로만 바꾼다) */
+function landSection(land: LandValueResult): SiteLandSection {
+  const won = (v: number) => `${f(v, 0)}원`
+  const areaSource = land.basis === 'estimated' ? '대장 대지면적' : '토지대장'
+  const rows: ReportRow[] = land.lots.map((l) => [l.pnu, `${f(l.areaM2)}㎡ (${areaSource})`, `${f(l.pricePerM2, 0)}원/㎡`, won(l.valueWon)])
+  if (land.lots.length > 1) rows.push(['합계', `${f(land.areaUsedM2)}㎡`, '', won(land.valueWon!)])
+  const notes = [...land.reasons]
+  if (land.siteAreaM2 !== null && land.basis !== 'estimated') {
+    notes.push(`건축물대장 대지면적: ${f(land.siteAreaM2)}㎡ (용적률·증축 계산에 사용)`)
+  }
+  notes.push('공시지가는 세금·부담금 산정용 공적 가격으로 시세와 다릅니다. 매매·담보 가치는 감정평가로 확인해야 합니다.')
+  return {
+    ...LAND_BADGE[land.basis],
+    valueText: formatWon(land.valueWon),
+    exactText: land.valueWon === null ? '정보 없음' : won(land.valueWon),
+    basisNote: landBasisNote(land),
+    rows,
+    notes,
+  }
+}
+
+/** 3장 증축 전·후 자산가치 (원가 기준 참고값, runAll의 analysis.asset) */
+function assetSection(analysis: SiteAnalysis): SiteAssetSection {
+  const a = analysis.asset
+  const b = a.existingBuilding
+  const cost = `재조달단가 ${f(b.unitCostWon / 1e4, 0)}만원/㎡`
+  const rows: ReportRow[] = [
+    ['토지가액', formatWon(a.land.valueWon), formatWon(a.land.valueWon), `${landBasisNote(a.land)} [${LAND_BADGE[a.land.basis].badge}]`],
+    [
+      '기존 건물가치',
+      formatWon(b.valueWon),
+      formatWon(b.valueWon),
+      `연면적 ${f(b.gfaM2)}㎡ × ${cost} × 잔가율 ${formatRate(b.residualRate)} (경과 ${b.ageYears ?? '–'}년 / 내용연수 ${b.usefulLifeYears}년)`,
+    ],
+    [
+      '증축 건물가치',
+      '–',
+      formatWon(a.addBuilding.valueWon),
+      a.addBuilding.gfaM2 > 0 ? `증축 ${f(a.addBuilding.gfaM2)}㎡ × ${cost} (신축)` : '증축안 없음',
+    ],
+    ['자산가치 합계', formatWon(a.beforeWon), formatWon(a.afterWon), '토지가액 + 건물가치 (원가 기준 참고값)'],
+  ]
+  return {
+    rows,
+    yieldNote:
+      '토지 포함 수익률 = (기존 NOI + 증축 NOI 증가) ÷ (증축 전 자산가치 + 총사업비) — 임대료·사업비(수익성 단계) 입력 후 계산됩니다. 증축 판단의 핵심 지표는 ROI(NOI 증가 ÷ 총사업비)입니다.',
+    notes: [
+      ...a.reasons,
+      `${buildingValueRule.note}. 수익 기준 가치(NOI ÷ 환원율)와 더하면 토지를 두 번 세게 되므로 따로 봅니다.`,
+      `경과연수 기준일: ${a.baseDate} (기준 데이터 기준일)`,
+    ],
+  }
+}
+
 /** 데이터 검증: 엑셀 '용적률완화_주차검토' 행 대조(시나리오 B) + 수기입력·가정 데이터 목록 */
 function buildVerification(data: SiteData, analysis: SiteAnalysis, floorUses: FloorUseRow[]): SiteReport['verification'] {
   const parity = compareWithExcel(data.review, analysis.byScenario.B)
@@ -252,6 +325,18 @@ function buildVerification(data: SiteData, analysis: SiteAnalysis, floorUses: Fl
   if (data.site.outsideParcels > 1) {
     todoRows.push([`외필지 ${data.site.outsideParcels}개`, '대지 범위 미확인', '확인 필요', '토지대장·지적도 확인 후 기준 엑셀 반영'])
   }
+  const land = analysis.land
+  if (land.basis === 'estimated') {
+    todoRows.push(['토지가액 구성 필지', '외필지 목록 없음 — 대표 필지 공시지가 × 대장 대지면적', '추정', 'lib/data/siteInputs.json → lots'])
+  } else if (land.basis === 'mismatch') {
+    todoRows.push(['토지대장 면적 ↔ 대장 대지면적', `${f(land.areaUsedM2)}㎡ ↔ ${f(land.siteAreaM2 ?? 0)}㎡`, '면적 확인 필요', '토지대장·건축물대장 확인'])
+  }
+  todoRows.push([
+    '건물가치 가정 (재조달단가·내용연수·잔가율)',
+    `${f(buildingValueRule.replacementCostPerM2Won / 1e4, 0)}만원/㎡ · ${analysis.asset.existingBuilding.usefulLifeYears}년 · 최저 ${formatRate(buildingValueRule.minResidualRate, 0)}`,
+    '예시 가정값',
+    'lib/rules/financeDefaults.ts → buildingValueRule',
+  ])
   return {
     parityRows: parity.map((p) => [p.name, show(p.excel), show(p.calc), p.match ? '일치' : '불일치']),
     allMatch: parity.every((p) => p.match),
@@ -316,6 +401,16 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       input?.floorPlateM2 != null ? inputText(input.floorPlateM2, '㎡') : `건축면적 ${f(data.site.buildingAreaM2)}㎡로 가정 — 확인 필요`,
       '최상층 도면 확인 필요',
     ],
+    [
+      '토지가액',
+      `Σ(구성 필지 토지대장 면적 × 개별공시지가), 외필지 자료가 없으면 대표 필지 공시지가 × 대장 대지면적(추정), 면적 차이 허용 ${landValueRule.areaToleranceM2}㎡`,
+      '공시지가 기준 — 시세 아님',
+    ],
+    [
+      '건물가치 (원가 기준)',
+      `재조달단가 ${f(buildingValueRule.replacementCostPerM2Won / 1e4, 0)}만원/㎡, 내용연수 ${analysis.asset.existingBuilding.usefulLifeYears}년, 최저 잔가율 ${formatRate(buildingValueRule.minResidualRate, 0)}`,
+      '예시 가정값 — 감정평가 아님',
+    ],
   ]
 
   const sheet = (name: string) => `'${name}' 시트`
@@ -325,6 +420,13 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ['층별·호별 전유/공용 면적, 주택 층수·면적', sheet('전유공용면적_2단계'), '기준 엑셀'],
     ['호별 주차 산정 기준 (제5호·제4호·제3호·제2-1호)', sheet('주차대수_세대별'), '기준 엑셀'],
     ['전용률, 완화 후 허용연면적·주차 검토 (엑셀 대조 정답표)', sheet('용적률완화_주차검토'), '계산 엔진과 자동 대조 (±0.01)'],
+    ['개별공시지가 (원/㎡, 기준연월·공시일)', sheet('개별공시지가_2단계'), landBasisNote(analysis.land)],
+    ['토지대장 지목·면적·소유구분', sheet('토지임야목록_2단계'), '필지 면적 검증·토지가액'],
+    [
+      '토지가액 구성 필지',
+      'lib/data/siteInputs.json → lots',
+      input?.lots?.length ? `${input.lots.length}필지 (수기입력)` : '미입력 — 외필지 없으면 대표 필지',
+    ],
     ['정북 이격거리', 'lib/data/siteInputs.json', inputText(input?.northSetbackM ?? null, 'm')],
     ['증축층 바닥면적', 'lib/data/siteInputs.json', inputText(input?.floorPlateM2 ?? null, '㎡')],
     ['1층 필로티 여부', 'lib/data/siteInputs.json', input?.pilotiFloor1 ? '필로티(가정)' : '필로티 아님'],
@@ -351,12 +453,15 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       `주차 기준 최대 연면적 = 여유 주차 안에서 추가 전용이 최대가 되는 세대 조합(${s1.maxNetM2}㎡ ${s1.spaces}대 / ${s2.maxNetM2}㎡ ${s2.spaces}대 / 그 이상 ${s3.spaces}대)의 전용 합 ÷ 전용률`,
       '증축 연면적 = min(주차 기준, 용적률 잔여, 주택 연면적 잔여) → 증축 층수 = 올림(연면적 ÷ 증축층 바닥면적) → 일조 높이·주택 층수 검토',
       `정북 필요 이격 = 높이 ${sun.lowHeightM}m 이하 ${sun.lowSetbackM}m, 초과 시 높이 × 사선 비율`,
+      '토지가액 = Σ(구성 필지 면적 × 개별공시지가) — 외필지 자료가 없으면 대표 필지 공시지가 × 대장 대지면적 (추정)',
+      '자산가치(원가 기준) = 토지가액 + 연면적 × 재조달단가 × 잔가율, 잔가율 = max(최저 잔가율, 1 − 경과연수 ÷ 내용연수), 증축분 = 증축 연면적 × 재조달단가',
     ],
     disclaimer: [
       '본 보고서는 기준 엑셀 자료와 예시 가정값 기반의 개략 검토이며 투자 권유가 아닙니다. 실제 사업성은 정밀 조사와 세무·법률·감정평가 전문가 검토에 따라 달라질 수 있습니다.',
       '법규 완화 시나리오(A·B·C·ALL)는 프로젝트에서 가정한 정책안이며 현행법이 아닙니다.',
       '주차 기준 증축 면적은 기존 주차 여유 범위의 개략 산정이며, 주차 추가 확보 안은 대지 내 배치 가능 여부를 별도로 확인해야 합니다.',
       '실제 증축 가능성은 지구단위계획, 가로구역 높이제한, 고도지구, 주차장 기준, 구조안전 등에 따라 달라집니다.',
+      '토지가액은 개별공시지가 기준(시세 아님)이고, 건물가치는 예시 가정값 기반 원가 추정으로 감정평가가 아닙니다.',
     ],
   }
 }
@@ -495,7 +600,14 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
       sourceLabel: `${data.sourceLabel} · 개략 검토 · 완화 시나리오는 프로젝트 가정 · 투자 권유 아님`,
     },
     summary: { kpis, conclusion: judge.reason, addFloors: p?.addFloors ?? 0, floorsAbove: site.floorsAbove },
-    status: { infoRows: rowsFromExcelSite(site), floorUses: floor.rows, sharedCommonM2: floor.sharedCommonM2, stats, notes },
+    status: {
+      infoRows: rowsFromExcelSite(site),
+      floorUses: floor.rows,
+      sharedCommonM2: floor.sharedCommonM2,
+      stats,
+      notes,
+      land: landSection(analysis.land),
+    },
     regulation: {
       relaxRows,
       parkingRows,
@@ -506,6 +618,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
       checkItems,
     },
     plan,
+    asset: assetSection(analysis),
     verification: buildVerification(data, analysis, floor.rows),
     appendix: buildAppendix(data, analysis),
     analysis,

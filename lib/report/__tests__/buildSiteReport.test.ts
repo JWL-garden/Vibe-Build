@@ -186,3 +186,30 @@ describe('부록 2: 데이터 검증', () => {
     expect(todo.some((r) => r[0] === '외필지 3개')).toBe(true)
   })
 })
+
+describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (설계서 5-4 [0], [C\'])', () => {
+  it('T1: 면적 확인 필요 배지 + 시세 아님·기준연월·공시일 표기', async () => {
+    const land = (await build(T1)).status.land
+    expect(land.badge).toBe('면적 확인 필요')
+    expect(land.exactText).toBe('1,062,372,000원')
+    expect(land.basisNote).toBe('개별공시지가 기준 (시세 아님) · 2026년 1월 1일 기준 · 2026-04-30 공시')
+    expect(land.notes.join(' ')).toContain('건축물대장 대지면적: 199.5㎡')
+  })
+
+  it('T2: 추정 배지 + 구성 필지 확인 항목', async () => {
+    const r = await build(T2)
+    expect(r.status.land.badge).toBe('추정')
+    expect(r.status.land.exactText).toBe('1,777,075,300원')
+    expect(r.verification.todoRows.some((row) => row[0] === '토지가액 구성 필지' && row[2] === '추정')).toBe(true)
+  })
+
+  it('3장 자산가치 표: 토지가액 행에 공시 기준, 합계 = runAll asset 값', async () => {
+    const r = await build(T1)
+    const [landRow, , addRow, totalRow] = r.asset.rows
+    expect(landRow[3]).toContain('시세 아님')
+    expect(landRow[3]).toContain('[면적 확인 필요]')
+    expect(addRow[2]).toBe('2억원') // 198,540,000원
+    expect(totalRow.slice(1, 3)).toEqual(['15.5억원', '17.5억원'])
+    expect(r.asset.yieldNote).toContain('수익성 단계')
+  })
+})

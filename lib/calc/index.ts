@@ -1,10 +1,12 @@
 // 계산 통합 함수 (설계서 5-6)
-// TODO [3-4]: analyzeFinance(수익성) 구현 후 runAll 결과에 추가
+// TODO [3-4]: analyzeFinance(사업비·수익) 구현 후 runAll 결과에 추가 (토지가액·자산가치는 반영됨)
 
 import { formatNumber } from '@/lib/format'
+import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
 import { getEffectiveRules, getScenario, scenarios } from '@/lib/rules/scenarios'
 import type { BuildingRecord, Expandability, ExpansionResult, ScenarioId, SiteAnalysis, SiteData } from '@/types'
 import { calcExpansion } from './expansion'
+import { calcAssetValue, calcLandValue } from './finance'
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from './labels'
 
 export { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL }
@@ -29,7 +31,39 @@ export function runAll(data: SiteData, scenarioId: ScenarioId): SiteAnalysis {
       ),
     ]),
   ) as Record<ScenarioId, SiteAnalysis['selected']>
-  return { pnu: data.pnu, scenarioId, byScenario, selected: byScenario[scenarioId] }
+  const selected = byScenario[scenarioId]
+
+  const land = calcLandValue(
+    {
+      pnu: data.pnu,
+      siteAreaM2: data.site.siteAreaM2,
+      outsideParcels: data.site.outsideParcels,
+      lotPnus: data.siteInput?.lots ?? null,
+      landLots: data.landLots,
+      landPrices: data.landPrices,
+    },
+    landValueRule,
+  )
+  // 증축 후 자산가치는 보고서 3장과 같은 증축안(기존 주차 → 주차 추가 확보 조건 순)을 쓴다
+  const adopted =
+    selected.plan.verdict === 'possible'
+      ? selected.plan
+      : selected.parkingOption?.verdict === 'possible'
+        ? selected.parkingOption
+        : null
+  const asset = calcAssetValue(
+    {
+      land,
+      gfaM2: data.site.totalFloorAreaM2,
+      structure: data.site.structure,
+      approvalDate: data.site.approvalDate,
+      // 경과연수 기준일 = 기준 데이터 기준일 (같은 데이터면 언제 열어도 같은 결과)
+      baseDate: data.source.date,
+      addGfaM2: adopted?.addGfaM2 ?? 0,
+    },
+    buildingValueRule,
+  )
+  return { pnu: data.pnu, scenarioId, byScenario, selected, land, asset }
 }
 
 /** runAll 결과(선택 시나리오)로 증축 가능 여부 판정 — 화면 배지·보고서 버튼에 사용 */

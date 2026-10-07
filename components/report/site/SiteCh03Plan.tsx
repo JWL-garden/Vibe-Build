@@ -36,6 +36,7 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
         </ul>
         <SubTitle>검토 항목</SubTitle>
         <Checks checks={e.plan.checks} />
+        <AssetValue asset={report.asset} />
       </div>
     )
   }
@@ -95,6 +96,7 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
 
       <SubTitle>검토 항목</SubTitle>
       <Checks checks={p.checks} />
+      <AssetValue asset={report.asset} />
     </div>
   )
 }
@@ -112,5 +114,21 @@ function Checks({ checks }: { checks: ExpansionCheck[] }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+/** 증축 전·후 자산가치 (원가 기준 참고값) — 토지 포함 수익률은 수익성 단계 입력 후 */
+function AssetValue({ asset }: { asset: SiteReport['asset'] }) {
+  return (
+    <div className="break-inside-avoid">
+      <SubTitle>증축 전·후 자산가치 (참고)</SubTitle>
+      <DataTable head={['항목', '증축 전', '증축 후', '근거']} numeric={[1, 2]} rows={asset.rows} />
+      <p className="mt-2 text-xs text-ink-soft">{asset.yieldNote}</p>
+      <ul className="mt-2 space-y-1 text-xs text-ink-faint">
+        {asset.notes.map((n) => (
+          <li key={n}>· {n}</li>
+        ))}
+      </ul>
+    </div>
   )
 }
