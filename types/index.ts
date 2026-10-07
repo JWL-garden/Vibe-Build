@@ -174,13 +174,48 @@ export interface SunlightRule {
   ratio: number
 }
 
+/** 주택 층수·연면적 한도를 적용하는 주택 유형 (건축법 시행령 별표1) */
+export type HousingType = '다세대' | '다가구' | '다중주택'
+
+/** 주택 층수·연면적 한도 (설계서 5-3b) */
+export interface HousingRule {
+  /** 주택으로 쓰는 층수 한도 (개층) — 현행 3, 완화 4 */
+  maxFloors: Record<HousingType, number>
+  /** 주택 바닥면적 합계 한도 (㎡) — 현행 660, 완화 1,000 */
+  maxAreaM2: Record<HousingType, number>
+  /** true면 1층 필로티(주차 전용)를 주택 층수에서 제외 */
+  excludePilotiFloor: boolean
+}
+
+/** 세대 전용면적 구간별 주차 기준 (제5호 세대기준) */
+export interface ParkingPerUnitStep {
+  /** 이 구간의 전용면적 상한 (㎡, 이하). null = 상한 없음 */
+  maxNetM2: number | null
+  /** 세대당 주차대수 (대) */
+  spaces: number
+}
+
+/** 주차 기준 (서울시 주차장 조례 별표2, 기준 엑셀과 동일 — 설계서 5-3a) */
+export interface ParkingRule {
+  /** 주택(제5호) 세대당 기준 — 전용 30㎡ 이하 0.5 / 60㎡ 이하 0.8 / 초과 1.0 */
+  perUnit: ParkingPerUnitStep[]
+  /** 근린생활시설(제3호): 시설면적 이 값(㎡)당 1대 — 134 */
+  neighborhoodM2PerSpace: number
+  /** 일반업무시설(제2-1호): 시설면적 이 값(㎡)당 1대 — 100 (기타용도가 '사무소'로만 표기된 호) */
+  officeM2PerSpace: number
+  /** 비주택 용도별 대수를 남길 소수 자릿수 (그 아래는 절사, 비고4) — 1 */
+  nonHousingDecimals: number
+  /** 추가 세대의 최소 전용면적 (㎡) — 15 미만이면 추가 불가 */
+  minUnitNetM2: number
+}
+
 /** 계산에 넣는 규칙 (baseRules + 시나리오 overrides 를 합친 결과) */
 export interface Rules {
   sunlight: SunlightRule
-  /** 용도지역별 용적률 상한 (%) */
+  /** 용도지역별 용적률 상한 (%) — 완화 시나리오는 배수가 아니라 이 값을 교체한다 (v3) */
   farLimitByZone: Partial<Record<ZoneName, number>>
-  /** 용적률 상한에 곱하는 배수 (1.0 = 현행, 1.2 = 20% 인센티브) */
-  farMultiplier: number
+  housing: HousingRule
+  parking: ParkingRule
   /** 기타 제한에 의한 최대 증축 층수 (없으면 null) */
   maxAddFloors: number | null
   /** 증축 층고 (m) — 기본 3.3 */
@@ -191,7 +226,7 @@ export interface Rules {
 export type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] }
 
 /** 법규 시나리오 id */
-export type ScenarioId = 'BASE' | 'A' | 'B' | 'AB'
+export type ScenarioId = 'BASE' | 'A' | 'B' | 'C' | 'ALL'
 
 /** 법규 완화 시나리오 */
 export interface Scenario {
@@ -207,7 +242,7 @@ export interface Scenario {
 }
 
 /** 증축을 멈추게 한 조건 */
-export type LimitingFactor = 'far' | 'sunlight' | 'other'
+export type LimitingFactor = 'parking' | 'far' | 'housingArea' | 'housingFloors' | 'sunlight' | 'other'
 
 /** 증축 산정 결과 (설계서 5-1 ~ 5-3) */
 export interface ExpansionResult {
@@ -217,7 +252,7 @@ export interface ExpansionResult {
   rules: Rules
   /** 현재 용적률 (%) */
   currentFarPercent: number
-  /** 적용 용적률 상한 (%) = 지역 상한 × farMultiplier */
+  /** 적용 용적률 상한 (%) = 시나리오 적용 후 farLimitByZone[용도지역] */
   farLimitPercent: number
   /** 허용 연면적 (㎡) */
   maxFloorAreaM2: number

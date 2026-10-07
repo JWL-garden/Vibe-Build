@@ -18,7 +18,7 @@ interface Props {
   floorsAbove: number
   /** 증축 층수 (모르면 null → 그림에 '?') */
   addFloors: number | null
-  /** 증축 후 패널 설명 (예: '복합 완화(AB) 적용 시 +4층') */
+  /** 증축 후 패널 설명 (예: '복합 완화(ALL) 적용 시 +4층') */
   afterCaption: string
   expandability: Expandability
   reportHref: string

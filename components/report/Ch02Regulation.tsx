@@ -1,10 +1,10 @@
+import { LIMIT_LABEL } from '@/lib/calc'
 import { formatNumber } from '@/lib/format'
-import type { LimitingFactor, ReportData, ScenarioId } from '@/types'
+import type { ReportData, ScenarioId } from '@/types'
 import { Badge, DataTable, Lead, SubTitle } from './ReportParts'
 import SunlightSection from './SunlightSection'
 
-export const LIMIT_LABEL: Record<LimitingFactor, string> = { far: '용적률', sunlight: '일조권', other: '기타 제한' }
-const ORDER: ScenarioId[] = ['BASE', 'A', 'B', 'AB']
+const ORDER: ScenarioId[] = ['BASE', 'A', 'B', 'C', 'ALL']
 
 /** 2장: 법규 검토 — 현행 vs 완화, 제한요인, 정북 단면, 추가 확인 항목 */
 export default function Ch02Regulation({ data }: { data: ReportData }) {
@@ -16,7 +16,7 @@ export default function Ch02Regulation({ data }: { data: ReportData }) {
   return (
     <div>
       <Lead>
-        정북방향 일조 사선(건축법 시행령 제86조)과 용적률 상한을 함께 검토했습니다. A·B·AB는 프로젝트에서 가정한
+        정북방향 일조 사선(건축법 시행령 제86조)과 용적률 상한을 함께 검토했습니다. A·B·C·ALL은 프로젝트에서 가정한
         완화안이며 현행법이 아닙니다.
       </Lead>
 
@@ -44,7 +44,7 @@ export default function Ch02Regulation({ data }: { data: ReportData }) {
       />
       <p className="mt-3 text-sm leading-relaxed text-ink-soft">
         현행 법규에서는 <b className="text-ink">{LIMIT_LABEL[before.limitingFactor]}</b> 때문에 +{before.addFloors}층에
-        그칩니다. 일조 완화(A)나 용적률 인센티브(B) 하나만으로는 다른 조건에 막히고, 둘을 함께 적용한{' '}
+        그칩니다. 일조 완화(A)나 용적률 상향(B) 하나만으로는 다른 조건에 막히고, 둘을 함께 적용한{' '}
         {scenarioName(scenarioId)}에서 +{after.addFloors}층까지 가능합니다.
       </p>
 

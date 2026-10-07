@@ -4,7 +4,7 @@
     "address": "서울특별시 ○○구 샘플로 12",
     "createdAt": "2026-10-06",
     "author": "Vibe Build 증축 검토 서비스",
-    "scenarioName": "AB 복합 완화 (프로젝트 가정)",
+    "scenarioName": "ALL 복합 완화 (프로젝트 가정)",
     "financeScenarioName": "기준",
     "source": "sample"
   },
@@ -32,7 +32,7 @@
         "caption": "순자산가치 +9.8억원"
       }
     ],
-    "conclusion": "본 건물은 복합 완화(AB) 적용 시 최대 +4개층(+660㎡) 증축이 가능하며, 총사업비 약 20.9억원 투입 시 연 1.38억원의 순수익 증가로 약 15.1년 내 투자비 회수가 예상됩니다.",
+    "conclusion": "본 건물은 복합 완화(ALL) 적용 시 최대 +4개층(+660㎡) 증축이 가능하며, 총사업비 약 20.9억원 투입 시 연 1.38억원의 순수익 증가로 약 15.1년 내 투자비 회수가 예상됩니다.",
     "nextStep": "준공 31년 경과 건물이므로 구조안전진단을 먼저 받아 증축 가능 하중을 확인하는 것을 권장합니다.",
     "images": null
   },
@@ -133,7 +133,7 @@
     "constructionMethod": "기존 임차인이 영업을 이어가는 상태에서 상부에 경량 철골조로 수직증축하고, 기초·기둥은 구조진단 결과에 따라 보강합니다. 승강기를 신설해 증축층 접근성을 확보합니다."
   },
   "analysis": {
-    "scenarioId": "AB",
+    "scenarioId": "ALL",
     "financeScenarioId": "BASE",
     "expansion": {
       "before": {
@@ -150,16 +150,48 @@
             "제3종일반주거지역": 250,
             "일반상업지역": 800
           },
-          "farMultiplier": 1.0,
+          "housing": {
+            "maxFloors": {
+              "다세대": 3,
+              "다가구": 3,
+              "다중주택": 3
+            },
+            "maxAreaM2": {
+              "다세대": 660,
+              "다가구": 660,
+              "다중주택": 660
+            },
+            "excludePilotiFloor": true
+          },
+          "parking": {
+            "perUnit": [
+              {
+                "maxNetM2": 30,
+                "spaces": 0.5
+              },
+              {
+                "maxNetM2": 60,
+                "spaces": 0.8
+              },
+              {
+                "maxNetM2": null,
+                "spaces": 1
+              }
+            ],
+            "neighborhoodM2PerSpace": 134,
+            "officeM2PerSpace": 100,
+            "nonHousingDecimals": 1,
+            "minUnitNetM2": 15
+          },
           "maxAddFloors": null,
           "floorHeightM": 3.3
         },
-        "currentFarPercent": 120.0,
-        "farLimitPercent": 200.0,
-        "maxFloorAreaM2": 1100.0,
-        "remainingFloorAreaM2": 440.0,
-        "currentBcrPercent": 30.0,
-        "allowedHeightM": 19.0,
+        "currentFarPercent": 120,
+        "farLimitPercent": 200,
+        "maxFloorAreaM2": 1100,
+        "remainingFloorAreaM2": 440,
+        "currentBcrPercent": 30,
+        "allowedHeightM": 19,
         "floorsByFar": 2,
         "floorsBySun": 1,
         "floorsByOther": null,
@@ -167,7 +199,7 @@
         "addFloorAreaM2": 165,
         "newTotalFloors": 5,
         "newHeightM": 18.3,
-        "newFarPercent": 150.0,
+        "newFarPercent": 150,
         "limitingFactor": "sunlight",
         "reasons": [
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
@@ -177,7 +209,7 @@
         ]
       },
       "after": {
-        "scenarioId": "AB",
+        "scenarioId": "ALL",
         "rules": {
           "sunlight": {
             "applies": true,
@@ -186,20 +218,52 @@
             "ratio": 0.25
           },
           "farLimitByZone": {
-            "제2종일반주거지역": 200,
-            "제3종일반주거지역": 250,
+            "제2종일반주거지역": 250,
+            "제3종일반주거지역": 300,
             "일반상업지역": 800
           },
-          "farMultiplier": 1.2,
+          "housing": {
+            "maxFloors": {
+              "다세대": 4,
+              "다가구": 4,
+              "다중주택": 4
+            },
+            "maxAreaM2": {
+              "다세대": 1000,
+              "다가구": 1000,
+              "다중주택": 1000
+            },
+            "excludePilotiFloor": true
+          },
+          "parking": {
+            "perUnit": [
+              {
+                "maxNetM2": 30,
+                "spaces": 0.5
+              },
+              {
+                "maxNetM2": 60,
+                "spaces": 0.8
+              },
+              {
+                "maxNetM2": null,
+                "spaces": 1
+              }
+            ],
+            "neighborhoodM2PerSpace": 134,
+            "officeM2PerSpace": 100,
+            "nonHousingDecimals": 1,
+            "minUnitNetM2": 15
+          },
           "maxAddFloors": null,
           "floorHeightM": 3.3
         },
-        "currentFarPercent": 120.0,
-        "farLimitPercent": 240.0,
-        "maxFloorAreaM2": 1320.0,
-        "remainingFloorAreaM2": 660.0,
-        "currentBcrPercent": 30.0,
-        "allowedHeightM": 38.0,
+        "currentFarPercent": 120,
+        "farLimitPercent": 250,
+        "maxFloorAreaM2": 1375,
+        "remainingFloorAreaM2": 715,
+        "currentBcrPercent": 30,
+        "allowedHeightM": 38,
         "floorsByFar": 4,
         "floorsBySun": 6,
         "floorsByOther": null,
@@ -207,12 +271,13 @@
         "addFloorAreaM2": 660,
         "newTotalFloors": 8,
         "newHeightM": 28.2,
-        "newFarPercent": 240.0,
+        "newFarPercent": 240,
         "limitingFactor": "far",
         "reasons": [
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
-          "허용 용적률 240.0% → 허용 연면적 1320.0㎡, 잔여 660.0㎡ ÷ 층당 165㎡ = 4개층",
+          "허용 용적률 250.0% (제2종일반주거 완화 상한) → 허용 연면적 1375.0㎡, 잔여 715.0㎡ ÷ 층당 165㎡ = 4개층",
           "정북 이격 9.5m ÷ 사선 비율 0.25 → 허용 높이 38.0m, (허용 38.0m − 현재 15m) ÷ 층고 3.3m = 6개층",
+          "주택 층수·연면적 완화: 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
           "최종 증축 4개층 (+660㎡), 제한요인: 용적률"
         ]
       }
@@ -232,16 +297,48 @@
             "제3종일반주거지역": 250,
             "일반상업지역": 800
           },
-          "farMultiplier": 1.0,
+          "housing": {
+            "maxFloors": {
+              "다세대": 3,
+              "다가구": 3,
+              "다중주택": 3
+            },
+            "maxAreaM2": {
+              "다세대": 660,
+              "다가구": 660,
+              "다중주택": 660
+            },
+            "excludePilotiFloor": true
+          },
+          "parking": {
+            "perUnit": [
+              {
+                "maxNetM2": 30,
+                "spaces": 0.5
+              },
+              {
+                "maxNetM2": 60,
+                "spaces": 0.8
+              },
+              {
+                "maxNetM2": null,
+                "spaces": 1
+              }
+            ],
+            "neighborhoodM2PerSpace": 134,
+            "officeM2PerSpace": 100,
+            "nonHousingDecimals": 1,
+            "minUnitNetM2": 15
+          },
           "maxAddFloors": null,
           "floorHeightM": 3.3
         },
-        "currentFarPercent": 120.0,
-        "farLimitPercent": 200.0,
-        "maxFloorAreaM2": 1100.0,
-        "remainingFloorAreaM2": 440.0,
-        "currentBcrPercent": 30.0,
-        "allowedHeightM": 19.0,
+        "currentFarPercent": 120,
+        "farLimitPercent": 200,
+        "maxFloorAreaM2": 1100,
+        "remainingFloorAreaM2": 440,
+        "currentBcrPercent": 30,
+        "allowedHeightM": 19,
         "floorsByFar": 2,
         "floorsBySun": 1,
         "floorsByOther": null,
@@ -249,7 +346,7 @@
         "addFloorAreaM2": 165,
         "newTotalFloors": 5,
         "newHeightM": 18.3,
-        "newFarPercent": 150.0,
+        "newFarPercent": 150,
         "limitingFactor": "sunlight",
         "reasons": [
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
@@ -272,16 +369,48 @@
             "제3종일반주거지역": 250,
             "일반상업지역": 800
           },
-          "farMultiplier": 1.0,
+          "housing": {
+            "maxFloors": {
+              "다세대": 3,
+              "다가구": 3,
+              "다중주택": 3
+            },
+            "maxAreaM2": {
+              "다세대": 660,
+              "다가구": 660,
+              "다중주택": 660
+            },
+            "excludePilotiFloor": true
+          },
+          "parking": {
+            "perUnit": [
+              {
+                "maxNetM2": 30,
+                "spaces": 0.5
+              },
+              {
+                "maxNetM2": 60,
+                "spaces": 0.8
+              },
+              {
+                "maxNetM2": null,
+                "spaces": 1
+              }
+            ],
+            "neighborhoodM2PerSpace": 134,
+            "officeM2PerSpace": 100,
+            "nonHousingDecimals": 1,
+            "minUnitNetM2": 15
+          },
           "maxAddFloors": null,
           "floorHeightM": 3.3
         },
-        "currentFarPercent": 120.0,
-        "farLimitPercent": 200.0,
-        "maxFloorAreaM2": 1100.0,
-        "remainingFloorAreaM2": 440.0,
-        "currentBcrPercent": 30.0,
-        "allowedHeightM": 38.0,
+        "currentFarPercent": 120,
+        "farLimitPercent": 200,
+        "maxFloorAreaM2": 1100,
+        "remainingFloorAreaM2": 440,
+        "currentBcrPercent": 30,
+        "allowedHeightM": 38,
         "floorsByFar": 2,
         "floorsBySun": 6,
         "floorsByOther": null,
@@ -289,7 +418,7 @@
         "addFloorAreaM2": 330,
         "newTotalFloors": 6,
         "newHeightM": 21.6,
-        "newFarPercent": 180.0,
+        "newFarPercent": 180,
         "limitingFactor": "far",
         "reasons": [
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
@@ -308,20 +437,52 @@
             "ratio": 0.5
           },
           "farLimitByZone": {
-            "제2종일반주거지역": 200,
-            "제3종일반주거지역": 250,
+            "제2종일반주거지역": 250,
+            "제3종일반주거지역": 300,
             "일반상업지역": 800
           },
-          "farMultiplier": 1.2,
+          "housing": {
+            "maxFloors": {
+              "다세대": 3,
+              "다가구": 3,
+              "다중주택": 3
+            },
+            "maxAreaM2": {
+              "다세대": 660,
+              "다가구": 660,
+              "다중주택": 660
+            },
+            "excludePilotiFloor": true
+          },
+          "parking": {
+            "perUnit": [
+              {
+                "maxNetM2": 30,
+                "spaces": 0.5
+              },
+              {
+                "maxNetM2": 60,
+                "spaces": 0.8
+              },
+              {
+                "maxNetM2": null,
+                "spaces": 1
+              }
+            ],
+            "neighborhoodM2PerSpace": 134,
+            "officeM2PerSpace": 100,
+            "nonHousingDecimals": 1,
+            "minUnitNetM2": 15
+          },
           "maxAddFloors": null,
           "floorHeightM": 3.3
         },
-        "currentFarPercent": 120.0,
-        "farLimitPercent": 240.0,
-        "maxFloorAreaM2": 1320.0,
-        "remainingFloorAreaM2": 660.0,
-        "currentBcrPercent": 30.0,
-        "allowedHeightM": 19.0,
+        "currentFarPercent": 120,
+        "farLimitPercent": 250,
+        "maxFloorAreaM2": 1375,
+        "remainingFloorAreaM2": 715,
+        "currentBcrPercent": 30,
+        "allowedHeightM": 19,
         "floorsByFar": 4,
         "floorsBySun": 1,
         "floorsByOther": null,
@@ -329,17 +490,90 @@
         "addFloorAreaM2": 165,
         "newTotalFloors": 5,
         "newHeightM": 18.3,
-        "newFarPercent": 150.0,
+        "newFarPercent": 150,
         "limitingFactor": "sunlight",
         "reasons": [
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
-          "허용 용적률 240.0% → 허용 연면적 1320.0㎡, 잔여 660.0㎡ ÷ 층당 165㎡ = 4개층",
+          "허용 용적률 250.0% (제2종일반주거 완화 상한) → 허용 연면적 1375.0㎡, 잔여 715.0㎡ ÷ 층당 165㎡ = 4개층",
           "정북 이격 9.5m ÷ 사선 비율 0.5 → 허용 높이 19.0m, (허용 19.0m − 현재 15m) ÷ 층고 3.3m = 1개층",
           "최종 증축 1개층 (+165㎡), 제한요인: 일조권"
         ]
       },
-      "AB": {
-        "scenarioId": "AB",
+      "C": {
+        "scenarioId": "C",
+        "rules": {
+          "sunlight": {
+            "applies": true,
+            "lowHeightM": 10,
+            "lowSetbackM": 1.5,
+            "ratio": 0.5
+          },
+          "farLimitByZone": {
+            "제2종일반주거지역": 200,
+            "제3종일반주거지역": 250,
+            "일반상업지역": 800
+          },
+          "housing": {
+            "maxFloors": {
+              "다세대": 4,
+              "다가구": 4,
+              "다중주택": 4
+            },
+            "maxAreaM2": {
+              "다세대": 1000,
+              "다가구": 1000,
+              "다중주택": 1000
+            },
+            "excludePilotiFloor": true
+          },
+          "parking": {
+            "perUnit": [
+              {
+                "maxNetM2": 30,
+                "spaces": 0.5
+              },
+              {
+                "maxNetM2": 60,
+                "spaces": 0.8
+              },
+              {
+                "maxNetM2": null,
+                "spaces": 1
+              }
+            ],
+            "neighborhoodM2PerSpace": 134,
+            "officeM2PerSpace": 100,
+            "nonHousingDecimals": 1,
+            "minUnitNetM2": 15
+          },
+          "maxAddFloors": null,
+          "floorHeightM": 3.3
+        },
+        "currentFarPercent": 120,
+        "farLimitPercent": 200,
+        "maxFloorAreaM2": 1100,
+        "remainingFloorAreaM2": 440,
+        "currentBcrPercent": 30,
+        "allowedHeightM": 19,
+        "floorsByFar": 2,
+        "floorsBySun": 1,
+        "floorsByOther": null,
+        "addFloors": 1,
+        "addFloorAreaM2": 165,
+        "newTotalFloors": 5,
+        "newHeightM": 18.3,
+        "newFarPercent": 150,
+        "limitingFactor": "sunlight",
+        "reasons": [
+          "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
+          "허용 용적률 200.0% → 허용 연면적 1100.0㎡, 잔여 440.0㎡ ÷ 층당 165㎡ = 2개층",
+          "정북 이격 9.5m ÷ 사선 비율 0.5 → 허용 높이 19.0m, (허용 19.0m − 현재 15m) ÷ 층고 3.3m = 1개층",
+          "주택 층수·연면적 완화: 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
+          "최종 증축 1개층 (+165㎡), 제한요인: 일조권"
+        ]
+      },
+      "ALL": {
+        "scenarioId": "ALL",
         "rules": {
           "sunlight": {
             "applies": true,
@@ -348,20 +582,52 @@
             "ratio": 0.25
           },
           "farLimitByZone": {
-            "제2종일반주거지역": 200,
-            "제3종일반주거지역": 250,
+            "제2종일반주거지역": 250,
+            "제3종일반주거지역": 300,
             "일반상업지역": 800
           },
-          "farMultiplier": 1.2,
+          "housing": {
+            "maxFloors": {
+              "다세대": 4,
+              "다가구": 4,
+              "다중주택": 4
+            },
+            "maxAreaM2": {
+              "다세대": 1000,
+              "다가구": 1000,
+              "다중주택": 1000
+            },
+            "excludePilotiFloor": true
+          },
+          "parking": {
+            "perUnit": [
+              {
+                "maxNetM2": 30,
+                "spaces": 0.5
+              },
+              {
+                "maxNetM2": 60,
+                "spaces": 0.8
+              },
+              {
+                "maxNetM2": null,
+                "spaces": 1
+              }
+            ],
+            "neighborhoodM2PerSpace": 134,
+            "officeM2PerSpace": 100,
+            "nonHousingDecimals": 1,
+            "minUnitNetM2": 15
+          },
           "maxAddFloors": null,
           "floorHeightM": 3.3
         },
-        "currentFarPercent": 120.0,
-        "farLimitPercent": 240.0,
-        "maxFloorAreaM2": 1320.0,
-        "remainingFloorAreaM2": 660.0,
-        "currentBcrPercent": 30.0,
-        "allowedHeightM": 38.0,
+        "currentFarPercent": 120,
+        "farLimitPercent": 250,
+        "maxFloorAreaM2": 1375,
+        "remainingFloorAreaM2": 715,
+        "currentBcrPercent": 30,
+        "allowedHeightM": 38,
         "floorsByFar": 4,
         "floorsBySun": 6,
         "floorsByOther": null,
@@ -369,12 +635,13 @@
         "addFloorAreaM2": 660,
         "newTotalFloors": 8,
         "newHeightM": 28.2,
-        "newFarPercent": 240.0,
+        "newFarPercent": 240,
         "limitingFactor": "far",
         "reasons": [
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
-          "허용 용적률 240.0% → 허용 연면적 1320.0㎡, 잔여 660.0㎡ ÷ 층당 165㎡ = 4개층",
+          "허용 용적률 250.0% (제2종일반주거 완화 상한) → 허용 연면적 1375.0㎡, 잔여 715.0㎡ ÷ 층당 165㎡ = 4개층",
           "정북 이격 9.5m ÷ 사선 비율 0.25 → 허용 높이 38.0m, (허용 38.0m − 현재 15m) ÷ 층고 3.3m = 6개층",
+          "주택 층수·연면적 완화: 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
           "최종 증축 4개층 (+660㎡), 제한요인: 용적률"
         ]
       }
@@ -735,7 +1002,7 @@
       "CONSERVATIVE": {
         "status": "ok",
         "assumptions": {
-          "unitCostWon": 2420000.0,
+          "unitCostWon": 2420000,
           "structuralCostWon": 150000000,
           "equipmentCostWon": 100000000,
           "designRate": 0.08,
@@ -748,7 +1015,7 @@
           "designPermitMonths": 6,
           "constructionMonths": 8,
           "leasableRate": 0.8,
-          "rentPerM2Won": 22500.0,
+          "rentPerM2Won": 22500,
           "depositMultiple": 10,
           "depositYieldRate": 0.02,
           "vacancyRate": 0.1,
@@ -1085,7 +1352,7 @@
       "OPTIMISTIC": {
         "status": "ok",
         "assumptions": {
-          "unitCostWon": 2090000.0,
+          "unitCostWon": 2090000,
           "structuralCostWon": 150000000,
           "equipmentCostWon": 100000000,
           "designRate": 0.08,
@@ -1302,7 +1569,7 @@
     {
       "title": "제도 미시행",
       "level": "높음",
-      "description": "이 결과는 프로젝트에서 가정한 완화안(AB)을 전제로 합니다. 현행 법규(BASE)로는 +1층, ROI 4.3%에 그칩니다.",
+      "description": "이 결과는 프로젝트에서 가정한 완화안(ALL)을 전제로 합니다. 현행 법규(BASE)로는 +1층, ROI 4.3%에 그칩니다.",
       "mitigation": "현행 법규 결과를 함께 검토하고, 완화 제도 시행 여부를 확인한 뒤 설계 계약을 진행합니다."
     },
     {
@@ -1424,7 +1691,7 @@
       {
         "id": "BASE",
         "name": "현행 법규",
-        "rationale": "현행 건축법·서울시 도시계획조례 기준",
+        "rationale": "현행 건축법·서울시 조례 기준",
         "isAssumption": false,
         "overrides": {}
       },
@@ -1441,23 +1708,61 @@
       },
       {
         "id": "B",
-        "name": "용적률 인센티브",
-        "rationale": "리모델링·에너지 성능 개선 시 용적률 상한의 1.2배를 허용한다고 가정",
+        "name": "용적률 상향",
+        "rationale": "제2종일반주거 200→250%, 제3종일반주거 250→300% (배수 아님, 상한 교체)",
         "isAssumption": true,
         "overrides": {
-          "farMultiplier": 1.2
+          "farLimitByZone": {
+            "제2종일반주거지역": 250,
+            "제3종일반주거지역": 300
+          }
         }
       },
       {
-        "id": "AB",
+        "id": "C",
+        "name": "주택 층수·면적 완화",
+        "rationale": "다세대·다가구(다중주택 포함) 주택 층수 3층→4층 이하, 주택 연면적 660→1,000㎡",
+        "isAssumption": true,
+        "overrides": {
+          "housing": {
+            "maxFloors": {
+              "다세대": 4,
+              "다가구": 4,
+              "다중주택": 4
+            },
+            "maxAreaM2": {
+              "다세대": 1000,
+              "다가구": 1000,
+              "다중주택": 1000
+            }
+          }
+        }
+      },
+      {
+        "id": "ALL",
         "name": "복합 완화",
-        "rationale": "A(일조 사선 완화)와 B(용적률 인센티브)를 동시에 적용한다고 가정",
+        "rationale": "A(일조 사선)·B(용적률)·C(주택 층수·면적) 완화를 동시에 적용한다고 가정",
         "isAssumption": true,
         "overrides": {
           "sunlight": {
             "ratio": 0.25
           },
-          "farMultiplier": 1.2
+          "farLimitByZone": {
+            "제2종일반주거지역": 250,
+            "제3종일반주거지역": 300
+          },
+          "housing": {
+            "maxFloors": {
+              "다세대": 4,
+              "다가구": 4,
+              "다중주택": 4
+            },
+            "maxAreaM2": {
+              "다세대": 1000,
+              "다가구": 1000,
+              "다중주택": 1000
+            }
+          }
         }
       }
     ],
@@ -1548,7 +1853,7 @@
       "대상 건축물·건축주·시세: 가상 샘플 데이터 (S1)",
       "일조 기준: 건축법 제61조, 시행령 제86조 (2023년 개정, 10m 기준)",
       "용적률 상한: 국토계획법 시행령, 서울특별시 도시계획조례",
-      "법규 완화 시나리오 A·B·AB: 프로젝트 가정 (현행법 아님)"
+      "법규 완화 시나리오 A·B·C·ALL: 프로젝트 가정 (현행법 아님)"
     ],
     "disclaimer": "본 보고서는 예시 가정값 기반의 개략 검토이며 투자 권유가 아닙니다. 실제 사업성은 정밀 조사와 세무·법률·감정평가 전문가 검토에 따라 달라질 수 있습니다."
   }

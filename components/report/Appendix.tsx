@@ -1,3 +1,4 @@
+import { withUnit } from '@/lib/format'
 import { ASSUMPTION_LABELS, SOURCE_LABELS, formatAssumption } from '@/lib/report/assumptionLabels'
 import type { DeepPartial, FinanceAssumptions, ReportData, Rules } from '@/types'
 import { Badge, DataTable, SubTitle } from './ReportParts'
@@ -7,7 +8,13 @@ function describeOverrides(o: DeepPartial<Rules>): string {
   const parts: string[] = []
   if (o.sunlight?.ratio !== undefined) parts.push(`일조 사선 비율 ${o.sunlight.ratio}`)
   if (o.sunlight?.lowHeightM !== undefined) parts.push(`일조 기준높이 ${o.sunlight.lowHeightM}m`)
-  if (o.farMultiplier !== undefined) parts.push(`용적률 배수 ×${o.farMultiplier}`)
+  for (const [zone, limit] of Object.entries(o.farLimitByZone ?? {})) {
+    parts.push(`${zone.replace('지역', '')} 용적률 상한 ${limit}%`)
+  }
+  const floors = o.housing?.maxFloors?.다세대
+  if (floors !== undefined) parts.push(`주택 층수 ${floors}개층 이하`)
+  const area = o.housing?.maxAreaM2?.다세대
+  if (area !== undefined) parts.push(`주택 연면적 ${withUnit(area, '㎡', 0)} 이하`)
   if (o.maxAddFloors !== undefined && o.maxAddFloors !== null) parts.push(`최대 증축 ${o.maxAddFloors}층`)
   return parts.length > 0 ? parts.join(', ') : '현행 기준 그대로'
 }
