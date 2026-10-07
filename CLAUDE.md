@@ -17,6 +17,7 @@ Next.js(App Router) + TypeScript + Tailwind CSS, Zustand, React Three Fiber + dr
 - 계층 분리: UI(app/, components/) / 보고서 조립(lib/report/) / 계산(lib/calc/) / 설정 데이터(lib/rules/) / 데이터 서비스(lib/services/)
 - 계산 함수는 순수 함수(입력 → 출력, 외부 호출·화면 접근 없음)로 작성하고 Vitest 테스트를 붙인다.
 - 법규·완화 시나리오·비용·시세 값은 코드에 하드코딩하지 않고 lib/rules/의 설정 데이터에서 읽는다.
+- 건축물 숫자(대지·연면적·용적률·층수·높이·호별 면적·주차대수)는 기준 엑셀(../261007_데이터 통합_사무소 업무시설 분리 및 복합용도 비고4 적용.xlsx → lib/data/*.json)이 정답이다. 다른 출처와 다르면 엑셀을 따르고, 계산 결과가 엑셀과 다르면 고치기 전에 먼저 보고한다 (설계서 12장).
 - 보고서와 화면의 모든 숫자는 lib/calc/index.ts의 runAll 결과만 사용한다. 화면에서 다시 계산하지 않는다.
 - 금액·면적·퍼센트 표시는 lib/format.ts 함수를 사용한다.
 - 3D 좌표 규칙: x=동쪽, -z=북쪽, y=높이. 대상 건물 중심이 (0,0). 단위 m.
