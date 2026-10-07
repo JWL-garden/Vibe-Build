@@ -79,7 +79,7 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
       addFloors={after.addFloors}
       afterCaption={after.caption}
       expandability={expandability}
-      reportHref={`/report?pnu=${pnu}&b=${building.id}`}
+      reportHref={`/report?pnu=${pnu}&b=${building.id}${analysis ? `&s=${analysis.scenarioId}` : ''}`}
       steps={
         siteData && analysis
           ? [

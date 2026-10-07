@@ -8,8 +8,8 @@ const BASE = getEffectiveRules('BASE')
 const B = getEffectiveRules('B')
 const ALL = getEffectiveRules('ALL')
 
-// 기준 엑셀 T1 당산동6가 104-48 (설계서 12-2)
-const T1 = { siteAreaM2: 200.07, farFloorAreaM2: 399.27, zone: ZONE2, netRatio: 0.743682220051594 }
+// 기준 엑셀 당산동6가 104-48 당산빌 (참고 — 2026-10-07 T1에서 제외, 엔진 회귀 테스트)
+const DANGSAN = { siteAreaM2: 200.07, farFloorAreaM2: 399.27, zone: ZONE2, netRatio: 0.743682220051594 }
 
 describe('far.ts 용적률 (설계서 5-1, 5-7)', () => {
   it('대지 300㎡, 연면적 450㎡, 상한 200% → 허용 600㎡, 잔여 150㎡', () => {
@@ -19,16 +19,16 @@ describe('far.ts 용적률 (설계서 5-1, 5-7)', () => {
     expect(r.remainingGfaM2).toBeCloseTo(150)
   })
 
-  it('T1 BASE(200%): 200.07㎡ → 허용 400.14㎡, 잔여 0.87㎡', () => {
-    const r = calcFar(T1, BASE)
+  it('104-48 BASE(200%): 200.07㎡ → 허용 400.14㎡, 잔여 0.87㎡', () => {
+    const r = calcFar(DANGSAN, BASE)
     expect(r.farLimitPercent).toBe(200)
     expect(r.maxGfaM2).toBeCloseTo(400.14, 2)
     expect(r.remainingGfaM2).toBeCloseTo(0.87, 2)
   })
 
-  it('T1 완화 B·ALL(250%): 200.07㎡ → 허용 500.175㎡ (×1.2 = 480.17이 나오면 실패)', () => {
+  it('104-48 완화 B·ALL(250%): 200.07㎡ → 허용 500.175㎡ (×1.2 = 480.17이 나오면 실패)', () => {
     for (const rules of [B, ALL]) {
-      const r = calcFar(T1, rules)
+      const r = calcFar(DANGSAN, rules)
       expect(r.farLimitPercent).toBe(250)
       expect(r.maxGfaM2).toBeCloseTo(500.175, 3)
       expect(Math.abs(r.maxGfaM2 - 200.07 * 2 * 1.2)).toBeGreaterThan(1) // 480.168 금지
@@ -57,11 +57,11 @@ describe('far.ts 용적률 (설계서 5-1, 5-7)', () => {
   })
 
   it('대지면적이 0이거나 상한 없는 용도지역이면 오류', () => {
-    expect(() => calcFar({ ...T1, siteAreaM2: 0 }, BASE)).toThrow()
-    expect(() => calcFar({ ...T1, zone: '없는지역' as ZoneName }, BASE)).toThrow()
+    expect(() => calcFar({ ...DANGSAN, siteAreaM2: 0 }, BASE)).toThrow()
+    expect(() => calcFar({ ...DANGSAN, zone: '없는지역' as ZoneName }, BASE)).toThrow()
   })
 
-  it('건폐율: T1 113.99 ÷ 200.07 = 56.98% (기준 엑셀 건폐율)', () => {
+  it('건폐율: 104-48 113.99 ÷ 200.07 = 56.98% (기준 엑셀 건폐율)', () => {
     expect(Math.abs(calcBcr(113.99, 200.07) - 56.98)).toBeLessThanOrEqual(0.01)
   })
 })

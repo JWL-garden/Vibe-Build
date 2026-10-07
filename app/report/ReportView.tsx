@@ -1,14 +1,17 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import Ch00Summary from '@/components/report/Ch00Summary'
 import { Lead } from '@/components/report/ReportParts'
 import ReportPage from '@/components/report/ReportPage'
 import ReportToolbar from '@/components/report/ReportToolbar'
+import SiteReportPages from '@/components/report/site/SiteReportPages'
+import { buildSiteReport } from '@/lib/report/buildSiteReport'
 import Step1Target from '@/components/steps/Step1Target'
 import { rowsFromRecord } from '@/lib/report/buildingRows'
 import { useAnalysisStore } from '@/store/analysisStore'
+import type { ScenarioId } from '@/types'
 
 /** 아직 계산 엔진이 없어 채울 수 없는 장 (설계서 11장) */
 const UPCOMING = [
@@ -26,14 +29,37 @@ const UPCOMING = [
 
 const SOURCE_LABEL = '실제 건축물대장 데이터(영등포구) · 개략 검토 · 투자 권유 아님'
 
-/** 실제 주소 보고서: 계산 엔진 연결 전이라 표지와 1장(현황)만 채운다
- * TODO [6-1]: buildReport(runAll 결과)로 ReportData를 만들어 FullReport로 교체 */
-export default function ReportView({ pnu, buildingId }: { pnu: string; buildingId: string | null }) {
-  const { buildings, selectedBuildingId, expandability, status, loadSite } = useAnalysisStore()
+/** 실제 주소 보고서.
+ * 기준 엑셀 필지(T1·T2 등): runAll 결과로 표지 + 1·2·3장 (buildSiteReport)
+ * 그 외 주소: 계산 엔진 대상이 아니라 표지와 1장(건축물대장)만 채운다
+ * TODO [6-1]: 수익성 엔진 연결 후 4~10장 추가 */
+export default function ReportView({
+  pnu,
+  buildingId,
+  scenario,
+}: {
+  pnu: string
+  buildingId: string | null
+  /** URL의 법규 시나리오 (없으면 분석 화면에서 고른 값) */
+  scenario: ScenarioId | null
+}) {
+  const { buildings, selectedBuildingId, expandability, status, loadSite, siteData, analysis, setScenario } =
+    useAnalysisStore()
 
   useEffect(() => {
     loadSite(pnu, buildingId)
   }, [pnu, buildingId, loadSite])
+
+  useEffect(() => {
+    if (scenario && status === 'ready' && analysis && analysis.scenarioId !== scenario) setScenario(scenario)
+  }, [scenario, status, analysis, setScenario])
+
+  // 작성일은 화면을 열 때 한 번만 정한다
+  const createdAt = useMemo(() => new Date().toLocaleDateString('sv-SE'), []) // YYYY-MM-DD
+  const siteReport = useMemo(
+    () => (siteData && analysis ? buildSiteReport(siteData, analysis, createdAt) : null),
+    [siteData, analysis, createdAt],
+  )
 
   const building = buildings.find((b) => b.id === selectedBuildingId)
   const backHref = `/analysis?pnu=${pnu}`
@@ -56,7 +82,17 @@ export default function ReportView({ pnu, buildingId }: { pnu: string; buildingI
     )
   }
 
-  const createdAt = new Date().toLocaleDateString('sv-SE') // YYYY-MM-DD
+  if (siteReport) {
+    return (
+      <main className="bg-mist pb-16 print:bg-paper print:pb-0">
+        <ReportToolbar backHref={backHref} backLabel="분석으로 돌아가기" info={`법규 시나리오: ${siteReport.meta.scenarioLabel}`} />
+        <div className="mt-6 flex flex-col gap-8 px-4 print:mt-0 print:gap-0 print:px-0">
+          <SiteReportPages report={siteReport} />
+        </div>
+      </main>
+    )
+  }
+
   const pageProps = { address: building.address, sourceLabel: SOURCE_LABEL }
   const name = building.buildingName ?? building.address.replace(/^서울특별시\s*/, '')
 

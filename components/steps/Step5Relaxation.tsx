@@ -1,4 +1,5 @@
 import { formatNumber } from '@/lib/format'
+import { relaxationRows } from '@/lib/report/buildSiteReport'
 import type { HousingType, Rules, Scenario, ScenarioId, SiteAnalysis, SiteExpansionResult } from '@/types'
 
 interface Props {
@@ -32,40 +33,7 @@ function ruleValues(e: SiteExpansionResult) {
 export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }: Props) {
   const { byScenario, scenarioId } = analysis
   const base = ruleValues(byScenario.BASE)
-  const relaxed = ruleValues(byScenario.ALL)
-  const selected = ruleValues(byScenario[scenarioId])
-  const housingType = analysis.selected.housing.housingType
-  const housingNote = housingType ? housingType : '이 건물은 미적용'
-
-  const rows: { label: string; note: string; base: string; relaxed: string; by: string; selected: string; changed: boolean }[] = [
-    {
-      label: '용적률 상한',
-      note: `${zone} — 상한 교체 (배수 아님)`,
-      base: `${formatNumber(base.far, 0)}%`,
-      relaxed: `${formatNumber(relaxed.far, 0)}%`,
-      by: 'B',
-      selected: `${formatNumber(selected.far, 0)}%`,
-      changed: selected.far !== base.far,
-    },
-    {
-      label: '주택 층수',
-      note: housingNote,
-      base: `${base.floors}개층 이하`,
-      relaxed: `${relaxed.floors}개층 이하`,
-      by: 'C',
-      selected: `${selected.floors}개층 이하`,
-      changed: selected.floors !== base.floors,
-    },
-    {
-      label: '주택 연면적',
-      note: housingNote,
-      base: `${formatNumber(base.area, 0)}㎡ 이하`,
-      relaxed: `${formatNumber(relaxed.area, 0)}㎡ 이하`,
-      by: 'C',
-      selected: `${formatNumber(selected.area, 0)}㎡ 이하`,
-      changed: selected.area !== base.area,
-    },
-  ]
+  const rows = relaxationRows(analysis, zone)
 
   return (
     <div>
@@ -143,7 +111,7 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
                 </td>
                 <td className="px-4 py-3 text-ink-soft">{r.base}</td>
                 <td className="px-4 py-3 font-medium text-accent">{r.relaxed}</td>
-                <td className="px-4 py-3 text-ink-soft">{r.by}, ALL</td>
+                <td className="px-4 py-3 text-ink-soft">{r.by}</td>
                 <td className={`px-4 py-3 font-medium ${r.changed ? 'text-accent' : 'text-ink'}`}>{r.selected}</td>
               </tr>
             ))}

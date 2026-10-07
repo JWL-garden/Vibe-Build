@@ -1,10 +1,11 @@
-// runAll — T1·T2 × BASE/A/B/C/ALL 결과가 설계서 12-3과 같은지
+// runAll — T1(104-10)·T2(110-19) × BASE/A/B/C/ALL 결과가 설계서 12-3과 같은지 (+ 104-48 참고 회귀 테스트)
 import { describe, expect, it } from 'vitest'
 import { getSiteData } from '@/lib/services/mockService'
 import type { ExpansionPlan, SiteAnalysis } from '@/types'
 import { judgeSite, runAll } from '../index'
 
-const T1 = '1156011600001040048'
+const T1 = '1156011600001040010'
+const DANGSAN = '1156011600001040048' // 104-48 당산빌: 2026-10-07 T1에서 제외, 주차 추가 확보 경로 회귀 테스트
 const T2 = '1156011600001100019'
 const load = async (pnu: string) => runAll((await getSiteData(pnu))!, 'ALL')
 const status = (p: ExpansionPlan, item: string) => p.checks.find((c) => c.item === item)?.status
@@ -12,7 +13,7 @@ const SCENARIOS = ['BASE', 'A', 'B', 'C', 'ALL'] as const
 
 describe('runAll 기본', () => {
   it('5개 시나리오를 모두 계산하고 selected = 선택 시나리오', async () => {
-    const r = await load(T1)
+    const r = await load(DANGSAN)
     expect(Object.keys(r.byScenario)).toEqual([...SCENARIOS])
     expect(r.selected).toBe(r.byScenario.ALL)
   })
@@ -23,10 +24,10 @@ describe('runAll 기본', () => {
   })
 })
 
-describe('1) T1: 기존 주차 0㎡, 주차 1대 추가 확보 안 약 100.9㎡', () => {
+describe('104-48 당산빌(참고): 기존 주차 0㎡, 주차 1대 추가 확보 안 약 100.9㎡', () => {
   let r: SiteAnalysis
   it('모든 시나리오에서 기존 주차로는 0㎡ — 200%(BASE·A·C)는 용적률, 250%(B·ALL)는 주차가 제한', async () => {
-    r = await load(T1)
+    r = await load(DANGSAN)
     for (const id of SCENARIOS) expect(r.byScenario[id].plan.addGfaM2).toBe(0)
     for (const id of ['BASE', 'A', 'C'] as const) {
       expect(r.byScenario[id].plan.limitingFactor).toBe('far')
@@ -42,6 +43,54 @@ describe('1) T1: 기존 주차 0㎡, 주차 1대 추가 확보 안 약 100.9㎡'
     expect(o.addGfaM2).toBeCloseTo(100.905, 2)
     expect(o.addFloors).toBe(1)
     expect(o.verdict).toBe('possible')
+  })
+})
+
+describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
+  it('주차: 법정 6.1대(세대기준), 실제 8대, 여유 1.9대', async () => {
+    const r = await load(T1)
+    expect(r.selected.parking.required.total).toBeCloseTo(6.1)
+    expect(r.selected.parking.actual).toBe(8)
+    expect(r.selected.parking.spare).toBeCloseTo(1.9)
+  })
+
+  it('용적률 250%(B·ALL): 기존 주차로 3세대, 전용 104.54㎡ = 연면적 120.51㎡ (용적률 잔여와 같음)', async () => {
+    const r = await load(T1)
+    for (const id of ['B', 'ALL'] as const) {
+      const e = r.byScenario[id]
+      expect(e.parking.plan.units).toHaveLength(3)
+      expect(e.parking.plan.netM2).toBeCloseTo(104.54, 2)
+      expect(e.parking.plan.gfaM2).toBeCloseTo(120.51, 2)
+      expect(e.far.remainingGfaM2).toBeCloseTo(120.51, 2)
+    }
+  })
+
+  it('용적률 200%(BASE·A·C): 잔여 20.76㎡ → 1세대(전용 18.01㎡)', async () => {
+    const r = await load(T1)
+    for (const id of ['BASE', 'A', 'C'] as const) {
+      expect(r.byScenario[id].parking.plan.units).toHaveLength(1)
+      expect(r.byScenario[id].parking.plan.gfaM2).toBeCloseTo(20.76, 2)
+    }
+  })
+
+  it('주택: 다세대 2~5층 4개층·378.24㎡ → B·ALL은 +2개층(6개층), C는 +1개층(5개층) 모두 한도 초과 → 확인 필요', async () => {
+    const r = await load(T1)
+    expect(r.selected.housing.housingFloors).toBe(4)
+    expect(r.selected.housing.housingAreaM2).toBeCloseTo(378.24, 2)
+    for (const id of SCENARIOS) {
+      const p = r.byScenario[id].plan
+      expect(status(p, 'housingFloors')).toBe('fail')
+      expect(p.verdict).toBe('check')
+      expect(p.limitingFactor).toBe('housingFloors')
+    }
+    expect(r.byScenario.ALL.plan.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+2개층 주택 시 6개층')
+    expect(r.byScenario.C.plan.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+1개층 주택 시 5개층')
+  })
+
+  it('배지: ALL = 확인 필요 (3세대 여유)', async () => {
+    const j = judgeSite(await load(T1))
+    expect(j.status).toBe('check')
+    expect(j.reason).toContain('3세대 여유')
   })
 })
 
@@ -89,7 +138,7 @@ describe('3) T2: 주택 5개층 > 4층 한도 → 확인 필요', () => {
 
 describe('4) 정북 이격거리가 비어 있으면 일조 검토 확인 필요', () => {
   it('T1·T2 모든 시나리오(증축 0이어도) 일조 = check, 필요 이격거리 안내', async () => {
-    for (const pnu of [T1, T2]) {
+    for (const pnu of [T1, T2, DANGSAN]) {
       const r = await load(pnu)
       expect(r.byScenario.BASE.allowedHeightM).toBeNull()
       for (const id of SCENARIOS) {
@@ -102,8 +151,8 @@ describe('4) 정북 이격거리가 비어 있으면 일조 검토 확인 필요
 })
 
 describe('judgeSite 증축 가능 여부 배지', () => {
-  it('T1: ALL = 조건부 가능(주차 +1대), BASE = 불가(용적률)', async () => {
-    const data = (await getSiteData(T1))!
+  it('104-48 당산빌(참고): ALL = 조건부 가능(주차 +1대), BASE = 불가(용적률)', async () => {
+    const data = (await getSiteData(DANGSAN))!
     const all = judgeSite(runAll(data, 'ALL'))
     expect(all.status).toBe('conditional')
     expect(all.reason).toContain('주차 1대 추가 확보')

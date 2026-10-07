@@ -995,6 +995,10 @@ export interface SiteData {
   siteInput: SiteInput | null
   /** 화면·보고서 출처 표기 (예: '기준 엑셀(2026-10-07)') */
   sourceLabel: string
+  /** 기준 엑셀 파일 이름과 기준일 */
+  source: { file: string; date: string }
+  /** 기준 엑셀 '용적률완화_주차검토' 시트 하단의 산정 근거·가정 문장 */
+  excelNotes: string[]
 }
 
 /** runAll 결과 — 화면·보고서는 이 값만 쓴다 */
@@ -1006,4 +1010,90 @@ export interface SiteAnalysis {
   byScenario: Record<ScenarioId, SiteExpansionResult>
   /** byScenario[scenarioId] */
   selected: SiteExpansionResult
+}
+
+// ═════════════════════════════════════════════
+// 기준 엑셀 필지 보고서 (lib/report/buildSiteReport.ts → components/report/site/*)
+// ═════════════════════════════════════════════
+
+/** 보고서 표 한 줄 (모든 칸은 표시용 문자열) */
+export type ReportRow = string[]
+
+/** 층별 용도·면적 한 줄 (1장) */
+export interface FloorUseRow {
+  /** 예: '3층', '지하1층' */
+  floorLabel: string
+  /** 예: '다중주택', '사무소' */
+  uses: string
+  /** 예: '301' 또는 '201~205 (5호)' */
+  units: string
+  /** 전유면적 합 (㎡) */
+  netM2: number
+  /** 그 층의 공용면적 합 (㎡) */
+  commonM2: number
+}
+
+/** 3장 증축 계획안 (증축안이 없으면 alternatives 로 대체) */
+export interface SitePlanSection {
+  /** 'existing' 기존 주차로 가능 / 'parkingOption' 주차 추가 확보 조건 / 'none' 증축안 없음 */
+  kind: 'existing' | 'parkingOption' | 'none'
+  /** 계획안 제목 (예: '주차 1대 추가 확보 조건 증축안') */
+  heading: string
+  /** 증축안 (kind = none 이면 null) */
+  plan: ExpansionPlan | null
+  /** 주차 추가 대수 (kind = parkingOption 일 때) */
+  addSpaces: number | null
+  /** 증축안이 없을 때 대안 검토 문장 */
+  alternatives: string[]
+}
+
+export interface SiteReport {
+  meta: {
+    title: string
+    /** 표지·머리글 주소 (도로명 우선) */
+    address: string
+    jibunAddress: string
+    createdAt: string
+    scenarioId: ScenarioId
+    /** 예: 'ALL 복합 완화 (프로젝트 가정)' */
+    scenarioLabel: string
+    /** 바닥글 출처 문구 */
+    sourceLabel: string
+  }
+  /** 0장 표지 */
+  summary: { kpis: Kpi[]; conclusion: string; addFloors: number; floorsAbove: number }
+  /** 1장 현황 */
+  status: {
+    infoRows: { label: string; value: string }[]
+    floorUses: FloorUseRow[]
+    /** 층이 정해지지 않은 공용면적 (계단실 등 '각층') ㎡ */
+    sharedCommonM2: number
+    stats: Kpi[]
+    notes: string[]
+  }
+  /** 2장 법규 검토 */
+  regulation: {
+    relaxRows: ReportRow[]
+    parkingRows: ReportRow[]
+    parkingNote: string
+    scenarioRows: ReportRow[]
+    /** scenarioRows 중 선택 시나리오 행 번호 */
+    selectedRow: number
+    sunlight: string[]
+    checkItems: string[]
+  }
+  /** 3장 증축 계획안 */
+  plan: SitePlanSection
+  /** 부록: 근거·가정·출처 */
+  appendix: {
+    scenarioRows: ReportRow[]
+    ruleRows: ReportRow[]
+    /** [항목, 시트(또는 파일), 비고] */
+    sourceRows: ReportRow[]
+    sourceFile: string
+    excelNotes: string[]
+    formulas: string[]
+    disclaimer: string[]
+  }
+  analysis: SiteAnalysis
 }

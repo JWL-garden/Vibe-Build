@@ -26,7 +26,7 @@ describe('sunlight.ts 정북 일조 사선 (설계서 5-2, 5-7)', () => {
     expect(maxBuildingHeight(4, BASE, true)).toBe(10)
   })
 
-  it('필요 이격거리: T1 15.65 + 3.3 = 18.95m → BASE 9.475m / A 4.7375m (설계서 12-3)', () => {
+  it('필요 이격거리: 104-48 15.65 + 3.3 = 18.95m → BASE 9.475m / A 4.7375m', () => {
     expect(requiredSetback(18.95, BASE)).toBeCloseTo(9.475)
     expect(requiredSetback(18.95, A)).toBeCloseTo(4.7375)
     expect(requiredSetback(20.3, BASE)).toBeCloseTo(10.15)

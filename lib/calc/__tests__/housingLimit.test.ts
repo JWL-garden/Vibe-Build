@@ -12,14 +12,21 @@ const C = getEffectiveRules('C')
 const ALL = getEffectiveRules('ALL')
 const summary = (pnu: string) => summarizeHousing(sites.find((s) => s.pnu === pnu)!, units)
 
-const T1 = summary('1156011600001040048')
+const DANGSAN = summary('1156011600001040048')
 const T2 = summary('1156011600001100019')
 
 describe('주택 현황 (설계서 12-2)', () => {
-  it('T1: 다중주택, 3~5층 = 3개층, 주택 면적 213.21㎡', () => {
-    expect(T1.housingType).toBe('다중주택')
-    expect(T1.housingFloors).toBe(3)
-    expect(T1.housingAreaM2).toBeCloseTo(213.21, 2)
+  it('104-48 당산빌(참고): 다중주택, 3~5층 = 3개층, 주택 면적 213.21㎡', () => {
+    expect(DANGSAN.housingType).toBe('다중주택')
+    expect(DANGSAN.housingFloors).toBe(3)
+    expect(DANGSAN.housingAreaM2).toBeCloseTo(213.21, 2)
+  })
+
+  it('T1 104-10: 다세대, 2~5층 = 4개층, 주택 면적 378.24㎡', () => {
+    const t1 = summary('1156011600001040010')
+    expect(t1.housingType).toBe('다세대')
+    expect(t1.housingFloors).toBe(4)
+    expect(t1.housingAreaM2).toBeCloseTo(378.24, 2)
   })
 
   it('T2: 다세대, 2~5층 = 4개층 (1층 필로티 제외), 주택 면적 633.59㎡', () => {
@@ -37,9 +44,9 @@ describe('주택 층수 한도 (설계서 5-7, 12-3)', () => {
     expect(calcHousingLimit(input, ALL).housingFloorsAfter).toBe(5)
   })
 
-  it('T1: 새 층 주택 시 4개층 → BASE(3) 불가, C(4) 통과', () => {
-    expect(calcHousingLimit({ ...T1, addHousingFloor: true }, BASE).floorOK).toBe(false)
-    expect(calcHousingLimit({ ...T1, addHousingFloor: true }, C).floorOK).toBe(true)
+  it('104-48 당산빌(참고): 새 층 주택 시 4개층 → BASE(3) 불가, C(4) 통과', () => {
+    expect(calcHousingLimit({ ...DANGSAN, addHousingFloor: true }, BASE).floorOK).toBe(false)
+    expect(calcHousingLimit({ ...DANGSAN, addHousingFloor: true }, C).floorOK).toBe(true)
   })
 
   it('T2: 새 층 주택 시 5개층 → BASE·C 모두 불가', () => {
@@ -55,8 +62,8 @@ describe('주택 층수 한도 (설계서 5-7, 12-3)', () => {
 })
 
 describe('주택 연면적 한도 (설계서 12-3)', () => {
-  it('T1: 213.21㎡ → BASE 남은 면적 446.79㎡ (증축 100.9㎡ 통과)', () => {
-    expect(calcHousingLimit({ ...T1, addHousingFloor: true }, BASE).areaGfaM2).toBeCloseTo(446.79, 2)
+  it('104-48 당산빌(참고): 213.21㎡ → BASE 남은 면적 446.79㎡ (증축 100.9㎡ 통과)', () => {
+    expect(calcHousingLimit({ ...DANGSAN, addHousingFloor: true }, BASE).areaGfaM2).toBeCloseTo(446.79, 2)
   })
 
   it('T2: 633.59㎡ → BASE 남은 26.41㎡ (36.25㎡ 증축 불가), C 남은 366.41㎡', () => {

@@ -12,7 +12,7 @@ const sites = sitesJson.items as ExcelSite[]
 const units = unitsJson.items as ExcelUnit[]
 const reviews = parkingReviewJson.items as ParkingReviewRow[]
 const siteInputs = siteInputsJson.items as SiteInput[]
-const T1 = '1156011600001040048'
+const DANGSAN = '1156011600001040048'
 const T2 = '1156011600001100019'
 
 function run(pnu: string, scenarioId: ScenarioId, siteInput?: Partial<SiteInput>) {
@@ -31,9 +31,9 @@ function run(pnu: string, scenarioId: ScenarioId, siteInput?: Partial<SiteInput>
 }
 const status = (checks: { item: string; status: string }[], item: string) => checks.find((c) => c.item === item)?.status
 
-describe('T1 당산동6가 104-48 (설계서 12-3)', () => {
+describe('당산동6가 104-48 당산빌 (참고 — 2026-10-07 T1에서 제외, 주차 추가 확보 경로 회귀 테스트)', () => {
   it('BASE: 용적률 잔여 0.87㎡(사실상 불가), 기존 주차 0세대 → 증축 불가 (제한: 용적률), 추가 확보 안 없음', () => {
-    const r = run(T1, 'BASE')
+    const r = run(DANGSAN, 'BASE')
     expect(r.far.remainingGfaM2).toBeCloseTo(0.87, 2)
     expect(r.plan.addGfaM2).toBe(0)
     expect(r.plan.limitingFactor).toBe('far')
@@ -41,7 +41,7 @@ describe('T1 당산동6가 104-48 (설계서 12-3)', () => {
   })
 
   it('B: 기존 주차 0세대. 주차 +1대 → L 75.04㎡지만 주택 4개층 > 3 → 불가', () => {
-    const r = run(T1, 'B')
+    const r = run(DANGSAN, 'B')
     expect(r.plan.addGfaM2).toBe(0)
     expect(r.parkingOption!.addSpaces).toBe(1)
     expect(r.parkingOption!.addGfaM2).toBe(0)
@@ -49,7 +49,7 @@ describe('T1 당산동6가 104-48 (설계서 12-3)', () => {
   })
 
   it('ALL + 주차 1대 추가: 1개층 약 100.9㎡ (전용 75.04㎡ 1세대), 일조는 이격거리 확인 필요', () => {
-    const o = run(T1, 'ALL').parkingOption!
+    const o = run(DANGSAN, 'ALL').parkingOption!
     expect(o.addUnits).toHaveLength(1)
     expect(o.addNetM2).toBeCloseTo(75.04, 2)
     expect(o.addGfaM2).toBeCloseTo(100.905, 2)
@@ -62,19 +62,19 @@ describe('T1 당산동6가 104-48 (설계서 12-3)', () => {
   })
 
   it('1개층 증축 시 필요 정북 이격: BASE 9.475m / A·ALL 4.7375m', () => {
-    expect(run(T1, 'BASE').requiredSetbackM).toBeCloseTo(9.475)
-    expect(run(T1, 'ALL').requiredSetbackM).toBeCloseTo(4.7375)
+    expect(run(DANGSAN, 'BASE').requiredSetbackM).toBeCloseTo(9.475)
+    expect(run(DANGSAN, 'ALL').requiredSetbackM).toBeCloseTo(4.7375)
   })
 
   it('이격거리를 입력하면 일조로 층수를 줄인다 (이격 4m, ALL → 허용 16m < 18.95m → 불가)', () => {
-    const o = run(T1, 'ALL', { northSetbackM: 4 }).parkingOption!
+    const o = run(DANGSAN, 'ALL', { northSetbackM: 4 }).parkingOption!
     expect(o.addGfaM2).toBe(0)
     expect(o.limitingFactor).toBe('sunlight')
     expect(status(o.checks, 'sunlight')).toBe('fail')
   })
 
   it('이격 5m, ALL → 허용 20m ≥ 18.95m → 통과', () => {
-    const o = run(T1, 'ALL', { northSetbackM: 5 }).parkingOption!
+    const o = run(DANGSAN, 'ALL', { northSetbackM: 5 }).parkingOption!
     expect(o.addFloors).toBe(1)
     expect(status(o.checks, 'sunlight')).toBe('pass')
   })

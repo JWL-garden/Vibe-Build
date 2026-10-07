@@ -1,7 +1,7 @@
 // 증축 산정 (설계서 5-3, v3) — 순수 함수
 // 증축 면적을 "주차 여유로 설치 가능한 최대 연면적"으로 정한 뒤 다른 제한으로 깎는다.
 //   1) 주차 기준 연면적  2) 용적률 잔여(완화 상한)  3) 주택 연면적 잔여  → 최솟값
-//   4) 층수 = ceil(연면적 ÷ 증축층 바닥면적)  5) 일조 허용높이로 층수 축소  6) 주택 층수 한도 초과면 0
+//   4) 층수 = ceil(연면적 ÷ 증축층 바닥면적)  5) 일조 허용높이로 층수 축소  6) 주택 층수(현재 + 증축 층수) 한도 초과면 0
 // 기존 주차로 0세대면, 주차를 추가 확보한 안(parkingOption)도 같은 순서로 계산한다.
 
 import { formatNumber } from '@/lib/format'
@@ -176,16 +176,18 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     }
     checks.push(sunCheck)
 
-    // 6) 주택 층수
-    if (housingLimit.applies && fitted.gfa > EPS && !housingLimit.floorOK) {
-      fitted = { gfa: 0, net: 0, units: [] }
-      addFloors = 0
-      limitingFactor = 'housingFloors'
+    // 6) 주택 층수 — 새 층(addFloors개)을 모두 주택으로 쓰면 주택 층수가 그만큼 늘어난다
+    const floorsAfter = housingSummary.housingFloors + addFloors
+    const floorLimit = housingLimit.floorLimit
+    if (housingLimit.applies && fitted.gfa > EPS && floorsAfter > floorLimit!) {
       checks.push({
         item: 'housingFloors',
         status: 'fail',
-        detail: `새 층 주택 시 ${housingLimit.housingFloorsAfter}개층 > 한도 ${housingLimit.floorLimit}개층 → 신규 층 주택 불가 (부분 증축·용도변경 대안 확인 필요)`,
+        detail: `+${addFloors}개층 주택 시 ${floorsAfter}개층 > 한도 ${floorLimit}개층 → 신규 층 주택 불가 (부분 증축·용도변경 대안 확인 필요)`,
       })
+      fitted = { gfa: 0, net: 0, units: [] }
+      addFloors = 0
+      limitingFactor = 'housingFloors'
     } else {
       checks.push({
         item: 'housingFloors',
@@ -193,7 +195,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
         detail: !housingLimit.applies
           ? '주택 층수 한도 미적용'
           : fitted.gfa > EPS
-            ? `새 층 주택 시 ${housingLimit.housingFloorsAfter}개층 ≤ 한도 ${housingLimit.floorLimit}개층`
+            ? `+${addFloors}개층 주택 시 ${floorsAfter}개층 ≤ 한도 ${floorLimit}개층`
             : '증축 없음',
       })
     }
