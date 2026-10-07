@@ -91,7 +91,7 @@ export default function AddressSearch() {
           <h2 className="font-serif text-2xl font-bold text-ink">예시 주소로 바로 보기</h2>
           <span className="text-sm text-ink-faint">발표용 샘플</span>
         </div>
-        <div className="mt-6 grid gap-5 sm:grid-cols-3">
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {examples.map((ex) => (
             <button
               key={ex.pnu}
@@ -99,15 +99,22 @@ export default function AddressSearch() {
               onClick={() => goToAnalysis(ex.pnu)}
               className="group overflow-hidden rounded-card border border-line bg-paper text-left transition hover:border-ink/30"
             >
-              <div className="flex h-44 items-end justify-center bg-mist px-6 pt-4">
+              <div className="relative flex h-44 items-end justify-center bg-mist px-6 pt-4">
+                {ex.tag && (
+                  <span className="absolute left-4 top-4 rounded-full bg-accent px-3 py-1 text-xs font-medium text-paper">
+                    {ex.tag}
+                  </span>
+                )}
                 <BuildingIllustration floors={ex.floorsAbove} showAddition className="h-40 w-full" />
               </div>
               <div className="flex items-center justify-between px-5 py-4">
-                <div>
+                <div className="min-w-0">
                   <div className="font-medium text-ink">{ex.label}</div>
                   <div className="mt-1 text-sm text-ink-soft">{ex.note}</div>
                 </div>
-                <span className="text-sm font-medium text-ink transition group-hover:translate-x-1">살펴보기 →</span>
+                <span className="shrink-0 pl-3 text-sm font-medium text-ink transition group-hover:translate-x-1">
+                  살펴보기 →
+                </span>
               </div>
             </button>
           ))}

@@ -705,6 +705,8 @@ export interface ExampleAddress {
   note: string
   /** 카드 일러스트용 지상 층수 */
   floorsAbove: number
+  /** 카드 위 강조 표시 (예: '우선 분석 · 기준 엑셀'). 없으면 표시 안 함 */
+  tag?: string
 }
 
 /** 증축 가능 여부 판정 — pending: 계산 엔진 연결 전(판정 대기) */

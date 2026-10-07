@@ -38,7 +38,8 @@ export default function Home() {
       </section>
 
       <p className="mx-auto max-w-6xl px-4 pb-16 text-xs text-ink-faint sm:px-6">
-        데이터: 서울 영등포구 건축물대장 표제부 (Mock 데이터) · 결과는 개략 검토용 참고 자료입니다.
+        데이터: T1·T2는 기준 엑셀(2026-10-07), 그 외 주소는 서울 영등포구 건축물대장 표제부 (샘플 데이터) · 결과는
+        개략 검토용 참고 자료입니다.
       </p>
     </main>
   )
