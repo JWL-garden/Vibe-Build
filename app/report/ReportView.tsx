@@ -7,6 +7,7 @@ import { Lead } from '@/components/report/ReportParts'
 import ReportPage from '@/components/report/ReportPage'
 import ReportToolbar from '@/components/report/ReportToolbar'
 import Step1Target from '@/components/steps/Step1Target'
+import { rowsFromRecord } from '@/lib/report/buildingRows'
 import { useAnalysisStore } from '@/store/analysisStore'
 
 /** 아직 계산 엔진이 없어 채울 수 없는 장 (설계서 11장) */
@@ -93,7 +94,7 @@ export default function ReportView({ pnu, buildingId }: { pnu: string; buildingI
         <ReportPage {...pageProps} chapter={{ no: '1장', title: '대상 건축물 현황' }} page={2}>
           <Lead>건축물대장 표제부 기준 대상 건축물의 현황입니다.</Lead>
           <div className="mt-6">
-            <Step1Target building={building} />
+            <Step1Target items={rowsFromRecord(building)} />
           </div>
         </ReportPage>
 

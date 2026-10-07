@@ -36,7 +36,7 @@ export default function SampleReportView({ sampleId }: { sampleId: string }) {
 
   return (
     <main className="bg-mist pb-16 print:bg-paper print:pb-0">
-      <ReportToolbar backHref="/" backLabel="메인으로" info={`샘플 ${sampleId} · ${data.meta.scenarioName}`} />
+      <ReportToolbar backHref={`/analysis?sample=${sampleId}`} backLabel="분석으로 돌아가기" info={`샘플 ${sampleId} · ${data.meta.scenarioName}`} />
       <p className="mx-auto mt-6 max-w-[210mm] rounded-card border border-line bg-paper px-5 py-3 text-sm text-ink-soft print:hidden">
         증축이 가능하다고 가정한 <b className="text-ink">가상 건물의 샘플 보고서</b>입니다. 주소·건축주·시세·비용은 모두
         예시값입니다.
