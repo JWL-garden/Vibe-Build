@@ -1,0 +1,2487 @@
+{
+  "source": {
+    "file": "261007_데이터 통합_사무소 업무시설 분리 및 복합용도 비고4 적용.xlsx",
+    "sheets": [
+      "건축물대장_2단계",
+      "지역지구구역_2단계"
+    ],
+    "date": "2026-10-07"
+  },
+  "items": [
+    {
+      "id": "102019781",
+      "pnu": "1156011600000010000",
+      "address": "서울특별시 영등포구 당산동6가 1번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 50 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 57.03,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 57.03,
+      "farFloorAreaM2": 57.03,
+      "farPercent": null,
+      "structure": "일반목구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제2종근린생활시설",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 1,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": null,
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100190414",
+      "pnu": "1156011600000010002",
+      "address": "서울특별시 영등포구 당산동6가 1-2번지",
+      "roadAddress": "서울특별시 영등포구 양평로 2 (당산동6가)",
+      "buildingName": "오픈놀",
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 139.9,
+      "buildingAreaM2": 82.38,
+      "bcrPercent": 58.88,
+      "totalFloorAreaM2": 596.34,
+      "farFloorAreaM2": 596.34,
+      "farPercent": 426.26,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제2종근린생활시설(사무소)",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 28.33,
+      "floorsAbove": 9,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 4,
+        "outdoorSelf": 0,
+        "total": 4
+      },
+      "approvalDate": "2009-06-23",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100255608",
+      "pnu": "1156011600000010003",
+      "address": "서울특별시 영등포구 당산동6가 1-3번지",
+      "roadAddress": "서울특별시 영등포구 양평로 4 (당산동6가)",
+      "buildingName": "위더스하임",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 1,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 272.4,
+      "buildingAreaM2": 159.152,
+      "bcrPercent": 58.43,
+      "totalFloorAreaM2": 1471.466,
+      "farFloorAreaM2": 1379.486,
+      "farPercent": 506.42,
+      "structure": "철근콘크리트구조",
+      "mainUse": "업무시설",
+      "etcUse": "업무시설 및 공동주택",
+      "households": 16,
+      "families": 0,
+      "unitCount": 19,
+      "heightM": 43.55,
+      "floorsAbove": 11,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 1,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 17,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 1,
+        "total": 18
+      },
+      "approvalDate": "2019-10-24",
+      "seismic": {
+        "applied": true,
+        "capacity": "VII-0.204g"
+      }
+    },
+    {
+      "id": "102019783",
+      "pnu": "1156011600000020001",
+      "address": "서울특별시 영등포구 당산동6가 2-1번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 50 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 206,
+      "buildingAreaM2": 100.17,
+      "bcrPercent": 48.63,
+      "totalFloorAreaM2": 189.43,
+      "farFloorAreaM2": 172.9,
+      "farPercent": 83.93,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제2종근린생활시설",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": 6.3,
+      "floorsAbove": 2,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1966-12-21",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019786",
+      "pnu": "1156011600000030001",
+      "address": "서울특별시 영등포구 당산동6가 3-1번지",
+      "roadAddress": "서울특별시 영등포구 당산로50가길 6 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 133.9,
+      "buildingAreaM2": 75.23,
+      "bcrPercent": 56.183719,
+      "totalFloorAreaM2": 260.7,
+      "farFloorAreaM2": 195.47,
+      "farPercent": 145.98207,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구용단독주택(6가구)",
+      "households": 0,
+      "families": 6,
+      "unitCount": 0,
+      "heightM": 12,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1992-07-27",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019788",
+      "pnu": "1156011600000030004",
+      "address": "서울특별시 영등포구 당산동6가 3-4번지",
+      "roadAddress": "서울특별시 영등포구 당산로50가길 10 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 94.85,
+      "buildingAreaM2": 56.88,
+      "bcrPercent": 59.96,
+      "totalFloorAreaM2": 199.08,
+      "farFloorAreaM2": 199.08,
+      "farPercent": 209.88,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "근린생활시설",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 13.3,
+      "floorsAbove": 4,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 1,
+        "outdoorSelf": 0,
+        "total": 1
+      },
+      "approvalDate": "2003-05-22",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100276108",
+      "pnu": "1156011600000030005",
+      "address": "서울특별시 영등포구 당산동6가 3-5번지",
+      "roadAddress": "서울특별시 영등포구 양평로 8 (당산동6가)",
+      "buildingName": "다빈치",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 3,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 646.1,
+      "buildingAreaM2": 387.192,
+      "bcrPercent": 59.93,
+      "totalFloorAreaM2": 3687.494,
+      "farFloorAreaM2": 3439.247,
+      "farPercent": 532.31,
+      "structure": "철근콘크리트구조",
+      "mainUse": "업무시설",
+      "etcUse": "도시형생활주택,단지형연립주택,오피스텔,근린생활시설",
+      "households": 21,
+      "families": 0,
+      "unitCount": 57,
+      "heightM": 53.8,
+      "floorsAbove": 14,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 1,
+        "emergency": 1
+      },
+      "parking": {
+        "indoorMechanical": 44,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 46
+      },
+      "approvalDate": "2021-10-22",
+      "seismic": {
+        "applied": true,
+        "capacity": "VII-0.204g"
+      }
+    },
+    {
+      "id": "102019796",
+      "pnu": "1156011600000050000",
+      "address": "서울특별시 영등포구 당산동6가 5번지",
+      "roadAddress": "서울특별시 영등포구 양평로 6 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 317.8,
+      "buildingAreaM2": 178.73,
+      "bcrPercent": 56.24,
+      "totalFloorAreaM2": 745.94,
+      "farFloorAreaM2": 586.27,
+      "farPercent": 184.48,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "근린생활시설",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 4,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1977-11-30",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100189514",
+      "pnu": "1156011600000060000",
+      "address": "서울특별시 영등포구 당산동6가 6번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 48 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 925.6,
+      "buildingAreaM2": 550.42,
+      "bcrPercent": 59.466292,
+      "totalFloorAreaM2": 1524.36,
+      "farFloorAreaM2": 1495.96,
+      "farPercent": 161.62057,
+      "structure": "일반철골구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제1,2종근린생활시설",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 12.4,
+      "floorsAbove": 3,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 14,
+        "total": 14
+      },
+      "approvalDate": "2009-02-17",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100198874",
+      "pnu": "1156011600000090001",
+      "address": "서울특별시 영등포구 당산동6가 9-1번지",
+      "roadAddress": "서울특별시 영등포구 당산로50가길 9 (당산동6가)",
+      "buildingName": "굿모닝빌",
+      "dongName": "굿모닝빌",
+      "registerType": "표제부",
+      "outsideParcels": 1,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 289.6,
+      "buildingAreaM2": 172.57,
+      "bcrPercent": 59.59,
+      "totalFloorAreaM2": 530.16,
+      "farFloorAreaM2": 530.16,
+      "farPercent": 183.07,
+      "structure": "철근콘크리트구조",
+      "mainUse": "공동주택",
+      "etcUse": "다세대주택",
+      "households": 18,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 13.4,
+      "floorsAbove": 5,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 9,
+        "outdoorSelf": 0,
+        "total": 9
+      },
+      "approvalDate": "2011-08-26",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100228423",
+      "pnu": "1156011600000100013",
+      "address": "서울특별시 영등포구 당산동6가 10-13번지",
+      "roadAddress": "서울특별시 영등포구 당산로46길 38 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 82.04,
+      "buildingAreaM2": 49.07,
+      "bcrPercent": 59.81,
+      "totalFloorAreaM2": 187.28,
+      "farFloorAreaM2": 138.33,
+      "farPercent": 168.61,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독주택",
+      "households": 1,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 11.7,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 1,
+        "total": 1
+      },
+      "approvalDate": "2016-05-27",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100224341",
+      "pnu": "1156011600000100015",
+      "address": "서울특별시 영등포구 당산동6가 10-15번지",
+      "roadAddress": "서울특별시 영등포구 당산로50가길 3-13 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 1,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 72.98,
+      "buildingAreaM2": 43.6,
+      "bcrPercent": 59.74,
+      "totalFloorAreaM2": 149.34,
+      "farFloorAreaM2": 117.78,
+      "farPercent": 161.39,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독주택",
+      "households": 1,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 10.1,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 1,
+        "total": 1
+      },
+      "approvalDate": "2015-09-18",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100193095",
+      "pnu": "1156011600000100016",
+      "address": "서울특별시 영등포구 당산동6가 10-16번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 40 (당산동6가)",
+      "buildingName": "강나루 빌",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 1,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 271.7,
+      "buildingAreaM2": 162.81,
+      "bcrPercent": 59.92,
+      "totalFloorAreaM2": 543.02,
+      "farFloorAreaM2": 543.02,
+      "farPercent": 199.86,
+      "structure": "철근콘크리트구조",
+      "mainUse": "공동주택",
+      "etcUse": "다세대주택 (8세대)",
+      "households": 8,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 14.9,
+      "floorsAbove": 5,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 6,
+        "outdoorSelf": 2,
+        "total": 8
+      },
+      "approvalDate": "2010-03-29",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100189955",
+      "pnu": "1156011600000100018",
+      "address": "서울특별시 영등포구 당산동6가 10-18번지",
+      "roadAddress": "서울특별시 영등포구 당산로50가길 3-17 (당산동6가)",
+      "buildingName": "르네상스빌",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 2,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 380.2,
+      "buildingAreaM2": 221.35,
+      "bcrPercent": 58.22,
+      "totalFloorAreaM2": 932.71,
+      "farFloorAreaM2": 659.6,
+      "farPercent": 172.7,
+      "structure": "철근콘크리트구조",
+      "mainUse": "공동주택",
+      "etcUse": "공동주택(다세대)",
+      "households": 10,
+      "families": 0,
+      "unitCount": 1,
+      "heightM": 12,
+      "floorsAbove": 4,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 8,
+        "outdoorSelf": 2,
+        "total": 10
+      },
+      "approvalDate": "2009-04-17",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100204296",
+      "pnu": "1156011600001040003",
+      "address": "서울특별시 영등포구 당산동6가 104-3번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 23 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 1,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 466,
+      "buildingAreaM2": 223.52,
+      "bcrPercent": 47.97,
+      "totalFloorAreaM2": 928.47,
+      "farFloorAreaM2": 928.47,
+      "farPercent": 199.24,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제2종근린생활시설,단독주택",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": 15.6,
+      "floorsAbove": 5,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 1,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 2,
+        "outdoorSelf": 5,
+        "total": 7
+      },
+      "approvalDate": "2012-09-17",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100187853",
+      "pnu": "1156011600001040010",
+      "address": "서울특별시 영등포구 당산동6가 104-10번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 22-1 (당산동6가)",
+      "buildingName": "렉스빌",
+      "dongName": "렉스빌",
+      "registerType": "표제부",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 199.5,
+      "buildingAreaM2": 99.27,
+      "bcrPercent": 49.76,
+      "totalFloorAreaM2": 378.24,
+      "farFloorAreaM2": 378.24,
+      "farPercent": 189.59,
+      "structure": "철근콘크리트구조",
+      "mainUse": "공동주택",
+      "etcUse": "다세대주택",
+      "households": 8,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 14.45,
+      "floorsAbove": 5,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 4,
+        "outdoorSelf": 4,
+        "total": 8
+      },
+      "approvalDate": "2008-08-12",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100268049",
+      "pnu": "1156011600001040033",
+      "address": "서울특별시 영등포구 당산동6가 104-33번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 16 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 2,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 140,
+      "buildingAreaM2": 70.27,
+      "bcrPercent": 50.19,
+      "totalFloorAreaM2": 216.79,
+      "farFloorAreaM2": 216.79,
+      "farPercent": 154.85,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독(다중)주택, 근린생활시설",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": 13.6,
+      "floorsAbove": 4,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 1,
+        "total": 1
+      },
+      "approvalDate": "2021-01-12",
+      "seismic": {
+        "applied": true,
+        "capacity": "Ⅶ - 0.1877g"
+      }
+    },
+    {
+      "id": "102019825",
+      "pnu": "1156011600001040040",
+      "address": "서울특별시 영등포구 당산동6가 104-40번지",
+      "roadAddress": "서울특별시 영등포구 당산로50길 11-7 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 151.18,
+      "buildingAreaM2": 90.47,
+      "bcrPercent": 59.84,
+      "totalFloorAreaM2": 290.83,
+      "farFloorAreaM2": 211.47,
+      "farPercent": 139.87,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구주택(6가구)",
+      "households": 0,
+      "families": 6,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 3,
+        "total": 3
+      },
+      "approvalDate": "1998-02-25",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019829",
+      "pnu": "1156011600001040046",
+      "address": "서울특별시 영등포구 당산동6가 104-46번지",
+      "roadAddress": "서울특별시 영등포구 당산로50길 9 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 132,
+      "buildingAreaM2": 79.06,
+      "bcrPercent": 59.89,
+      "totalFloorAreaM2": 308.14,
+      "farFloorAreaM2": 233.45,
+      "farPercent": 176.86,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구주택(7가구)",
+      "households": 0,
+      "families": 7,
+      "unitCount": 0,
+      "heightM": 11.7,
+      "floorsAbove": 4,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 2
+      },
+      "approvalDate": "1996-08-16",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100238347",
+      "pnu": "1156011600001040048",
+      "address": "서울특별시 영등포구 당산동6가 104-48번지",
+      "roadAddress": "서울특별시 영등포구 당산로50길 11 (당산동6가)",
+      "buildingName": "당산빌",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 1,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 200.07,
+      "buildingAreaM2": 113.99,
+      "bcrPercent": 56.98,
+      "totalFloorAreaM2": 399.27,
+      "farFloorAreaM2": 399.27,
+      "farPercent": 199.57,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독주택 및 제2종근린생활시설",
+      "households": 0,
+      "families": 0,
+      "unitCount": 5,
+      "heightM": 15.65,
+      "floorsAbove": 5,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 1,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 3,
+        "total": 3
+      },
+      "approvalDate": "2017-11-22",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019835",
+      "pnu": "1156011600001040059",
+      "address": "서울특별시 영등포구 당산동6가 104-59번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 22-7 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 90,
+      "buildingAreaM2": 37.86,
+      "bcrPercent": 42.07,
+      "totalFloorAreaM2": 134.67,
+      "farFloorAreaM2": 96.81,
+      "farPercent": 107.57,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독주택",
+      "households": 0,
+      "families": 4,
+      "unitCount": 0,
+      "heightM": 9.1,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1991-01-11",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019838",
+      "pnu": "1156011600001040063",
+      "address": "서울특별시 영등포구 당산동6가 104-63번지",
+      "roadAddress": "서울특별시 영등포구 당산로50길 19-1 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 156.06,
+      "buildingAreaM2": 87.06,
+      "bcrPercent": 55.79,
+      "totalFloorAreaM2": 256.33,
+      "farFloorAreaM2": 177.58,
+      "farPercent": 113.79,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구주택",
+      "households": 0,
+      "families": 6,
+      "unitCount": 0,
+      "heightM": 9.3,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 2
+      },
+      "approvalDate": "1994-11-19",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019854",
+      "pnu": "1156011600001040107",
+      "address": "서울특별시 영등포구 당산동6가 104-107번지",
+      "roadAddress": "서울특별시 영등포구 당산로50길 11-17 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 138.08,
+      "buildingAreaM2": 68.93,
+      "bcrPercent": 49.92,
+      "totalFloorAreaM2": 228.57,
+      "farFloorAreaM2": 159.64,
+      "farPercent": 115.61,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구주택(4가구)",
+      "households": 0,
+      "families": 4,
+      "unitCount": 0,
+      "heightM": 9.3,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1991-02-27",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019857",
+      "pnu": "1156011600001040112",
+      "address": "서울특별시 영등포구 당산동6가 104-112번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 12 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 118.5,
+      "buildingAreaM2": 49.1,
+      "bcrPercent": 41.43,
+      "totalFloorAreaM2": 182.5,
+      "farFloorAreaM2": 133.4,
+      "farPercent": 112.57,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독주택",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1991-12-24",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019860",
+      "pnu": "1156011600001050001",
+      "address": "서울특별시 영등포구 당산동6가 105-1번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 32 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 188,
+      "buildingAreaM2": 114.08,
+      "bcrPercent": 60.68,
+      "totalFloorAreaM2": 308.07,
+      "farFloorAreaM2": 216.09,
+      "farPercent": 114.94,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구용단독주택",
+      "households": 0,
+      "families": 8,
+      "unitCount": 0,
+      "heightM": 9.3,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 2
+      },
+      "approvalDate": "1993-07-01",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019862",
+      "pnu": "1156011600001050003",
+      "address": "서울특별시 영등포구 당산동6가 105-3번지",
+      "roadAddress": "서울특별시 영등포구 당산로50길 27 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 82.31,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 82.31,
+      "farFloorAreaM2": 82.31,
+      "farPercent": null,
+      "structure": "일반목구조",
+      "mainUse": "단독주택",
+      "etcUse": "근린생활시설, 주택",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 1,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1937-03-12",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100235107",
+      "pnu": "1156011600001060001",
+      "address": "서울특별시 영등포구 당산동6가 106-1번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 29 (당산동6가)",
+      "buildingName": "1",
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 135.424,
+      "buildingAreaM2": 81.19,
+      "bcrPercent": 59.95,
+      "totalFloorAreaM2": 297.3,
+      "farFloorAreaM2": 227.95,
+      "farPercent": 168.32,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "다중주택",
+      "households": 0,
+      "families": 0,
+      "unitCount": 13,
+      "heightM": 11.7,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 2
+      },
+      "approvalDate": "2017-07-17",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019867",
+      "pnu": "1156011600001100002",
+      "address": "서울특별시 영등포구 당산동6가 110-2번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 25-6 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 106,
+      "buildingAreaM2": 63.31,
+      "bcrPercent": 59.73,
+      "totalFloorAreaM2": 122.46,
+      "farFloorAreaM2": 122.46,
+      "farPercent": 115.53,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구주택(4가구)",
+      "households": 0,
+      "families": 4,
+      "unitCount": 0,
+      "heightM": 5.3,
+      "floorsAbove": 2,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "2007-01-25",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019868",
+      "pnu": "1156011600001100003",
+      "address": "서울특별시 영등포구 당산동6가 110-3번지",
+      "roadAddress": "서울특별시 영등포구 당산로52길 25-2 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 53.17,
+      "buildingAreaM2": 31.84,
+      "bcrPercent": 59.88,
+      "totalFloorAreaM2": 97.74,
+      "farFloorAreaM2": 65.9,
+      "farPercent": 123.94,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구용단독주택(4가구)",
+      "households": 0,
+      "families": 4,
+      "unitCount": 0,
+      "heightM": 10.6,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1995-05-18",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019872",
+      "pnu": "1156011600001100007",
+      "address": "서울특별시 영등포구 당산동6가 110-7번지",
+      "roadAddress": "서울특별시 영등포구 당산로50길 31-1 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 38.55,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 38.55,
+      "farFloorAreaM2": 38.55,
+      "farPercent": null,
+      "structure": "블록구조",
+      "mainUse": "단독주택",
+      "etcUse": "주택",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 1,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1963-12-20",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019871",
+      "pnu": "1156011600001100007",
+      "address": "서울특별시 영등포구 당산동6가 110-7번지",
+      "roadAddress": "서울특별시 영등포구 당산로50길 31-1 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 25.06,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 25.06,
+      "farFloorAreaM2": 25.06,
+      "farPercent": null,
+      "structure": "블록구조",
+      "mainUse": "단독주택",
+      "etcUse": "주택",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 1,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1962-12-20",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100244806",
+      "pnu": "1156011600001100019",
+      "address": "서울특별시 영등포구 당산동6가 110-19번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 36 (당산동6가)",
+      "buildingName": "더 채움 하우스",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 3,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 373.1,
+      "buildingAreaM2": 220.09,
+      "bcrPercent": 58.99,
+      "totalFloorAreaM2": 722.02,
+      "farFloorAreaM2": 722.02,
+      "farPercent": 193.52,
+      "structure": "철근콘크리트구조",
+      "mainUse": "공동주택",
+      "etcUse": "공동주택(다세대주택)",
+      "households": 18,
+      "families": 0,
+      "unitCount": 2,
+      "heightM": 17,
+      "floorsAbove": 6,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 1,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 8,
+        "outdoorSelf": 3,
+        "total": 11
+      },
+      "approvalDate": "2018-06-07",
+      "seismic": {
+        "applied": true,
+        "capacity": "Ⅶ-0.204g"
+      }
+    },
+    {
+      "id": "10201100188613",
+      "pnu": "1156011600001100023",
+      "address": "서울특별시 영등포구 당산동6가 110-23번지",
+      "roadAddress": "서울특별시 영등포구 당산로50가길 3-11 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 118.15,
+      "buildingAreaM2": 70.65,
+      "bcrPercent": 59.79,
+      "totalFloorAreaM2": 262.98,
+      "farFloorAreaM2": 196.27,
+      "farPercent": 166.11,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구",
+      "households": 0,
+      "families": 3,
+      "unitCount": 0,
+      "heightM": 10.3,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 3,
+        "outdoorSelf": 0,
+        "total": 3
+      },
+      "approvalDate": "2008-06-25",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100254428",
+      "pnu": "1156011600001100033",
+      "address": "서울특별시 영등포구 당산동6가 110-33번지",
+      "roadAddress": "서울특별시 영등포구 당산로46길 29-4 (당산동6가)",
+      "buildingName": "아이디주택",
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 122.7,
+      "buildingAreaM2": 70.76,
+      "bcrPercent": 57.67,
+      "totalFloorAreaM2": 301.05,
+      "farFloorAreaM2": 244.84,
+      "farPercent": 199.54,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독주택",
+      "households": 0,
+      "families": 0,
+      "unitCount": 14,
+      "heightM": 14.9,
+      "floorsAbove": 4,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 2
+      },
+      "approvalDate": "2019-07-25",
+      "seismic": {
+        "applied": true,
+        "capacity": "Ⅶ-0.214g"
+      }
+    },
+    {
+      "id": "102019888",
+      "pnu": "1156011600001100038",
+      "address": "서울특별시 영등포구 당산동6가 110-38번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 28-12 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 95.17,
+      "buildingAreaM2": 53.34,
+      "bcrPercent": 56.05,
+      "totalFloorAreaM2": 175.46,
+      "farFloorAreaM2": 122.12,
+      "farPercent": 128.32,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구용단독주택",
+      "households": 0,
+      "families": 4,
+      "unitCount": 0,
+      "heightM": 9.2,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1994-06-10",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019902",
+      "pnu": "1156011600001100051",
+      "address": "서울특별시 영등포구 당산동6가 110-51번지",
+      "roadAddress": "서울특별시 영등포구 당산로50가길 3 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 133.61,
+      "buildingAreaM2": 79.95,
+      "bcrPercent": 59.83,
+      "totalFloorAreaM2": 260.85,
+      "farFloorAreaM2": 180.9,
+      "farPercent": 135.39,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구주택(6가구)",
+      "households": 0,
+      "families": 6,
+      "unitCount": 0,
+      "heightM": 9.2,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 1,
+        "outdoorSelf": 0,
+        "total": 1
+      },
+      "approvalDate": "1991-07-20",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100236653",
+      "pnu": "1156011600001100054",
+      "address": "서울특별시 영등포구 당산동6가 110-54번지",
+      "roadAddress": "서울특별시 영등포구 당산로46길 28 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 67,
+      "buildingAreaM2": 39.73,
+      "bcrPercent": 59.3,
+      "totalFloorAreaM2": 131.36,
+      "farFloorAreaM2": 131.36,
+      "farPercent": 196.06,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독주택",
+      "households": 0,
+      "families": 4,
+      "unitCount": 0,
+      "heightM": 14.2,
+      "floorsAbove": 4,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 1,
+        "total": 1
+      },
+      "approvalDate": "2017-10-13",
+      "seismic": {
+        "applied": true,
+        "capacity": "0.22"
+      }
+    },
+    {
+      "id": "10201100190454",
+      "pnu": "1156011600001100066",
+      "address": "서울특별시 영등포구 당산동6가 110-66번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 34 (당산동6가)",
+      "buildingName": "당산타워빌",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 2,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 401,
+      "buildingAreaM2": 224.12,
+      "bcrPercent": 55.89,
+      "totalFloorAreaM2": 726.48,
+      "farFloorAreaM2": 726.48,
+      "farPercent": 181.17,
+      "structure": "철근콘크리트구조",
+      "mainUse": "공동주택",
+      "etcUse": "근린생활시설,다세대주택",
+      "households": 10,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 13.7,
+      "floorsAbove": 5,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 6,
+        "outdoorSelf": 2,
+        "total": 8
+      },
+      "approvalDate": "2009-07-06",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100199016",
+      "pnu": "1156011600001100082",
+      "address": "서울특별시 영등포구 당산동6가 110-82번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 28-4 (당산동6가)",
+      "buildingName": "골든빌",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 152,
+      "buildingAreaM2": 81.68,
+      "bcrPercent": 53.74,
+      "totalFloorAreaM2": 235.37,
+      "farFloorAreaM2": 235.37,
+      "farPercent": 154.85,
+      "structure": "철근콘크리트구조",
+      "mainUse": "공동주택",
+      "etcUse": "다세대주택",
+      "households": 10,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 10.6,
+      "floorsAbove": 4,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 5,
+        "outdoorSelf": 0,
+        "total": 5
+      },
+      "approvalDate": "2011-09-08",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100235147",
+      "pnu": "1156011600001100084",
+      "address": "서울특별시 영등포구 당산동6가 110-84번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 28-8 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 110.66,
+      "buildingAreaM2": 65.66,
+      "bcrPercent": 59.33,
+      "totalFloorAreaM2": 227.56,
+      "farFloorAreaM2": 180.47,
+      "farPercent": 163.09,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "단독주택",
+      "households": 0,
+      "families": 0,
+      "unitCount": 9,
+      "heightM": 11.7,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 2
+      },
+      "approvalDate": "2017-07-25",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "102019921",
+      "pnu": "1156011600001100085",
+      "address": "서울특별시 영등포구 당산동6가 110-85번지",
+      "roadAddress": "서울특별시 영등포구 당산로54길 28-10 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제2종일반주거지역",
+      "zones": [
+        "제2종일반주거지역"
+      ],
+      "siteAreaM2": 133.56,
+      "buildingAreaM2": 80.08,
+      "bcrPercent": 59.96,
+      "totalFloorAreaM2": 256.38,
+      "farFloorAreaM2": 190.83,
+      "farPercent": 142.88,
+      "structure": "벽돌구조",
+      "mainUse": "단독주택",
+      "etcUse": "다가구용단독주택(6가구)",
+      "households": 6,
+      "families": 6,
+      "unitCount": 0,
+      "heightM": 8.9,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 1,
+        "total": 1
+      },
+      "approvalDate": "1992-08-27",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "1020110077",
+      "pnu": "1156011600003260002",
+      "address": "서울특별시 영등포구 당산동6가 326-2번지",
+      "roadAddress": "서울특별시 영등포구 당산로49길 8 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": 180.8,
+      "buildingAreaM2": 101.34,
+      "bcrPercent": 56.05,
+      "totalFloorAreaM2": 348.16,
+      "farFloorAreaM2": 250.72,
+      "farPercent": 138.67,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제1종근린생활시설",
+      "etcUse": "근린생활시설, 주택",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 2
+      },
+      "approvalDate": "1984-12-31",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100189645",
+      "pnu": "1156011600003260009",
+      "address": "서울특별시 영등포구 당산동6가 326-9번지",
+      "roadAddress": "서울특별시 영등포구 당산로49길 12 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 1,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": 241.3,
+      "buildingAreaM2": 120,
+      "bcrPercent": 49.73,
+      "totalFloorAreaM2": 575.37,
+      "farFloorAreaM2": 575.37,
+      "farPercent": 238.45,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제2종근린생활시설",
+      "households": 0,
+      "families": 2,
+      "unitCount": 0,
+      "heightM": 18.8,
+      "floorsAbove": 6,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 1,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 5,
+        "total": 5
+      },
+      "approvalDate": "2009-02-27",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "1020110084",
+      "pnu": "1156011600003280001",
+      "address": "서울특별시 영등포구 당산동6가 328-1번지",
+      "roadAddress": "서울특별시 영등포구 당산로51길 11 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": 580.2,
+      "buildingAreaM2": 248.28,
+      "bcrPercent": 42.79,
+      "totalFloorAreaM2": 1993.13,
+      "farFloorAreaM2": 1737.14,
+      "farPercent": 299.4,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "근린생활시설",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 8,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 4,
+        "outdoorSelf": 5,
+        "total": 9
+      },
+      "approvalDate": "1991-09-16",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "1020110085",
+      "pnu": "1156011600003280004",
+      "address": "서울특별시 영등포구 당산동6가 328-4번지",
+      "roadAddress": "서울특별시 영등포구 당산로49길 14 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 154.8,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 660,
+      "farFloorAreaM2": 464.4,
+      "farPercent": null,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "근린생활시설",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1988-06-15",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100206096",
+      "pnu": "1156011600003280005",
+      "address": "서울특별시 영등포구 당산동6가 328-5번지",
+      "roadAddress": "서울특별시 영등포구 당산로49길 12-1 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 1,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": 352.1,
+      "buildingAreaM2": 173.08,
+      "bcrPercent": 49.16,
+      "totalFloorAreaM2": 423.96,
+      "farFloorAreaM2": 423.96,
+      "farPercent": 120.41,
+      "structure": "일반철골구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제2종근린생활시설  및 다가구주택",
+      "households": 0,
+      "families": 2,
+      "unitCount": 0,
+      "heightM": 11.05,
+      "floorsAbove": 3,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 5,
+        "total": 5
+      },
+      "approvalDate": "2012-12-26",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "1020110087",
+      "pnu": "1156011600003290004",
+      "address": "서울특별시 영등포구 당산동6가 329-4번지",
+      "roadAddress": "서울특별시 영등포구 당산로51길 13 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 76.21,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 360.05,
+      "farFloorAreaM2": 295.84,
+      "farPercent": null,
+      "structure": "철근콘크리트구조",
+      "mainUse": "단독주택",
+      "etcUse": "근린생활시설, 주택",
+      "households": 0,
+      "families": 1,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 4,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1991-09-20",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "1020110088",
+      "pnu": "1156011600003300001",
+      "address": "서울특별시 영등포구 당산동6가 330-1번지",
+      "roadAddress": "서울특별시 영등포구 양평로12길 22 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": 488.9,
+      "buildingAreaM2": 243,
+      "bcrPercent": 49.7,
+      "totalFloorAreaM2": 770.37,
+      "farFloorAreaM2": 720.56,
+      "farPercent": 147.38,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제2종근린생활시설",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 3,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1990-05-23",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "1020110091",
+      "pnu": "1156011600003300004",
+      "address": "서울특별시 영등포구 당산동6가 330-4번지",
+      "roadAddress": "서울특별시 영등포구 당산로49길 16 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 68.73,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 164.66,
+      "farFloorAreaM2": 110.48,
+      "farPercent": null,
+      "structure": "벽돌구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "근린생활시설(사무소,소매점)",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 2,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": "1974-12-16",
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "1020110175",
+      "pnu": "1156011600003500007",
+      "address": "서울특별시 영등포구 당산동6가 350-7번지",
+      "roadAddress": "서울특별시 영등포구 양평로12길 21 (당산동6가)",
+      "buildingName": "리큅센터빌딩",
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": 413.8,
+      "buildingAreaM2": 205.02,
+      "bcrPercent": 49.55,
+      "totalFloorAreaM2": 1451.48,
+      "farFloorAreaM2": 1140.32,
+      "farPercent": 275.57,
+      "structure": "철근콘크리트구조",
+      "mainUse": "교육연구시설",
+      "etcUse": "교육연구시설",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 24.35,
+      "floorsAbove": 6,
+      "floorsBelow": 1,
+      "elevators": {
+        "passenger": 1,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 4,
+        "outdoorSelf": 4,
+        "total": 8
+      },
+      "approvalDate": "2007-08-17",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100211078",
+      "pnu": "1156011600003500008",
+      "address": "서울특별시 영등포구 당산동6가 350-8번지",
+      "roadAddress": "서울특별시 영등포구 당산로49길 22 (당산동6가)",
+      "buildingName": "현대리버사이드",
+      "dongName": null,
+      "registerType": "표제부",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": 437,
+      "buildingAreaM2": 216.31,
+      "bcrPercent": 49.5,
+      "totalFloorAreaM2": 900.62,
+      "farFloorAreaM2": 900.62,
+      "farPercent": 206.09,
+      "structure": "철근콘크리트구조",
+      "mainUse": "공동주택",
+      "etcUse": "근린생활시설및도시형생활주택",
+      "households": 28,
+      "families": 0,
+      "unitCount": 2,
+      "heightM": 18.5,
+      "floorsAbove": 6,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 1,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 10,
+        "total": 10
+      },
+      "approvalDate": "2013-08-30",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    },
+    {
+      "id": "",
+      "pnu": "1156011600003500010",
+      "address": "서울특별시 영등포구 당산동6가 350-10번지",
+      "roadAddress": null,
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 0,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 0,
+      "farFloorAreaM2": 0,
+      "farPercent": null,
+      "structure": "",
+      "mainUse": "",
+      "etcUse": null,
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 0,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": null,
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "",
+      "pnu": "1156011600003510002",
+      "address": "서울특별시 영등포구 당산동6가 351-2번지",
+      "roadAddress": null,
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 0,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 0,
+      "farFloorAreaM2": 0,
+      "farPercent": null,
+      "structure": "",
+      "mainUse": "",
+      "etcUse": null,
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 0,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": null,
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "",
+      "pnu": "1156011600003510005",
+      "address": "서울특별시 영등포구 당산동6가 351-5번지",
+      "roadAddress": null,
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": null,
+      "buildingAreaM2": 0,
+      "bcrPercent": null,
+      "totalFloorAreaM2": 0,
+      "farFloorAreaM2": 0,
+      "farPercent": null,
+      "structure": "",
+      "mainUse": "",
+      "etcUse": null,
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": null,
+      "floorsAbove": 0,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 0,
+        "total": 0
+      },
+      "approvalDate": null,
+      "seismic": {
+        "applied": false,
+        "capacity": null
+      }
+    },
+    {
+      "id": "10201100212036",
+      "pnu": "1156011600003530007",
+      "address": "서울특별시 영등포구 당산동6가 353-7번지",
+      "roadAddress": "서울특별시 영등포구 당산로49길 28 (당산동6가)",
+      "buildingName": null,
+      "dongName": null,
+      "registerType": "일반건축물",
+      "outsideParcels": 0,
+      "zone": "제3종일반주거지역",
+      "zones": [
+        "제3종일반주거지역"
+      ],
+      "siteAreaM2": 150.1,
+      "buildingAreaM2": 74.75,
+      "bcrPercent": 49.8,
+      "totalFloorAreaM2": 278.15,
+      "farFloorAreaM2": 278.15,
+      "farPercent": 185.31,
+      "structure": "철근콘크리트구조",
+      "mainUse": "제2종근린생활시설",
+      "etcUse": "제2종근린생활시설(사무소)",
+      "households": 0,
+      "families": 0,
+      "unitCount": 0,
+      "heightM": 11.9,
+      "floorsAbove": 4,
+      "floorsBelow": 0,
+      "elevators": {
+        "passenger": 0,
+        "emergency": 0
+      },
+      "parking": {
+        "indoorMechanical": 0,
+        "outdoorMechanical": 0,
+        "indoorSelf": 0,
+        "outdoorSelf": 2,
+        "total": 2
+      },
+      "approvalDate": "2013-10-29",
+      "seismic": {
+        "applied": true,
+        "capacity": null
+      }
+    }
+  ]
+}

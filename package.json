@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "data:buildings": "node scripts/build-buildings.mjs"
+    "data:buildings": "node scripts/build-buildings.mjs",
+    "data:excel": "node scripts/build-excel-data.mjs"
   },
   "dependencies": {
     "next": "16.3.8",
@@ -26,6 +27,7 @@
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "xlsx": "^0.18.5"
   }
 }
