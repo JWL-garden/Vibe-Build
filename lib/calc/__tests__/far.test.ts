@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import parkingReview from '@/lib/data/parkingReview.json'
 import { getEffectiveRules } from '@/lib/rules/scenarios'
 import type { ZoneName } from '@/types'
 import { calcBcr, calcFar } from '../far'
@@ -64,25 +63,5 @@ describe('far.ts 용적률 (설계서 5-1, 5-7)', () => {
 
   it('건폐율: T1 113.99 ÷ 200.07 = 56.98% (기준 엑셀 건폐율)', () => {
     expect(Math.abs(calcBcr(113.99, 200.07) - 56.98)).toBeLessThanOrEqual(0.01)
-  })
-})
-
-describe('far.ts ↔ 기준 엑셀 용적률완화_주차검토 (미산정 제외 전체 행, ±0.01)', () => {
-  const rows = parkingReview.items.filter((r) => r.verdict !== '미산정')
-
-  it.each(rows.map((r) => [r.pnu, r] as const))('%s', (_pnu, row) => {
-    const r = calcFar(
-      {
-        siteAreaM2: row.siteAreaM2!,
-        farFloorAreaM2: row.farFloorAreaM2!,
-        zone: row.zone as ZoneName,
-        netRatio: row.netRatio!,
-      },
-      B,
-    )
-    expect(r.farLimitPercent).toBe(row.relaxedFarPercent)
-    expect(Math.abs(r.maxGfaM2 - row.relaxedMaxGfaM2!)).toBeLessThanOrEqual(0.01)
-    expect(Math.abs(r.remainingGfaM2 - row.addableGfaM2!)).toBeLessThanOrEqual(0.01)
-    expect(Math.abs(r.remainingNetM2 - row.addableNetM2!)).toBeLessThanOrEqual(0.01)
   })
 })

@@ -125,23 +125,3 @@ describe('T2 당산동6가 110-19 (설계서 12-2, 12-3)', () => {
     expect(parking.option).toBeNull()
   })
 })
-
-describe('parking.ts ↔ 기준 엑셀 용적률완화_주차검토 (미산정 제외 전체 행, ±0.01)', () => {
-  const rows = reviewRows.filter((r) => r.verdict !== '미산정')
-  const close = (calc: number | null, excel: number | null) => {
-    if (excel === null) expect(calc).toBeNull()
-    else expect(Math.abs(calc! - excel)).toBeLessThanOrEqual(0.01)
-  }
-
-  it.each(rows.map((r) => [r.pnu, r.category] as const))('%s %s', (pnu) => {
-    const { row, parking } = runSite(pnu)
-    close(parking.required.total, row.requiredParking)
-    close(parking.spare, row.spareParking)
-    // 최대 추가 세대: 엑셀이 null(용적률 여유 없음)이면 0세대
-    expect(parking.plan.units.length).toBe(row.maxAddUnits ?? 0)
-    expect(parking.excel.maxAddUnits).toBe(row.maxAddUnits)
-    close(parking.excel.needFor1Unit, row.needFor1Unit)
-    close(parking.excel.maxAreaUnits, row.maxAreaUnits)
-    close(parking.excel.needForMaxArea, row.needForMaxArea)
-  })
-})

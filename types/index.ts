@@ -911,3 +911,64 @@ export interface HousingLimitResult {
   areaGfaM2: number | null
   reasons: string[]
 }
+
+// ═════════════════════════════════════════════
+// 증축 산정 v3 — 주차 기준 최대 연면적 (설계서 5-3)
+// ═════════════════════════════════════════════
+
+/** 기준 엑셀에 없어 수기 입력하는 값 (lib/data/siteInputs.json) */
+export interface SiteInput {
+  pnu: string
+  /** 정북 인접대지 경계까지 이격거리 (m). null = 확인 필요 */
+  northSetbackM: number | null
+  /** 증축층 바닥면적 상한 (㎡, 기존 최상층 또는 기준층). null = 건축면적으로 가정 */
+  floorPlateM2: number | null
+  /** 1층이 필로티(주차 전용)인지 */
+  pilotiFloor1: boolean
+  source: '수기입력' | '확인필요'
+}
+
+/** 검토 항목별 판정 — pass 통과 / fail 불가 / check 확인 필요(자료 없음) */
+export interface ExpansionCheck {
+  item: 'parking' | 'far' | 'housingArea' | 'housingFloors' | 'sunlight' | 'floorPlate'
+  status: 'pass' | 'fail' | 'check'
+  /** 한 줄 설명 */
+  detail: string
+}
+
+/** 한 가지 주차 조건(기존 주차 또는 추가 확보)에서의 증축 규모 */
+export interface ExpansionPlan {
+  /** 추가 세대 */
+  addUnits: AddUnit[]
+  /** 추가 전용면적 (㎡) */
+  addNetM2: number
+  /** 증축 연면적 (㎡) = min(주차 기준, 용적률 잔여, 주택 연면적 잔여) 후 층수·일조 검토 */
+  addGfaM2: number
+  addFloors: number
+  newTotalFloors: number
+  /** 증축 후 높이 (m). 현재 높이를 모르면 null */
+  newHeightM: number | null
+  newFarPercent: number
+  /** 증축 규모를 결정한(또는 0으로 만든) 항목 */
+  limitingFactor: LimitingFactor
+  checks: ExpansionCheck[]
+  reasons: string[]
+}
+
+/** 증축 산정 결과 (lib/calc/expansion.ts) */
+export interface SiteExpansionResult {
+  scenarioId: ScenarioId
+  far: FarResult
+  parking: ParkingResult
+  housing: HousingSummary & { limit: HousingLimitResult }
+  /** 일조 허용 최고높이 (m). null = 미적용 또는 이격거리 확인 필요 */
+  allowedHeightM: number | null
+  /** 1개층 증축(현재 높이 + 층고) 시 필요한 정북 이격거리 (m). 일조 미적용·높이 없음이면 null */
+  requiredSetbackM: number | null
+  /** 증축층 바닥면적 상한 (㎡)과 출처 */
+  floorPlate: { areaM2: number; source: 'siteInput' | 'buildingArea' }
+  /** 기존 주차로 가능한 증축 */
+  plan: ExpansionPlan
+  /** 기존 주차로 0세대일 때: 주차 addSpaces대 추가 확보 시 증축 */
+  parkingOption: (ExpansionPlan & { addSpaces: number }) | null
+}
