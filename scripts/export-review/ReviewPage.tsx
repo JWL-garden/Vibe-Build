@@ -7,6 +7,7 @@ import SiteReportPages from '@/components/report/site/SiteReportPages'
 import Step1Target from '@/components/steps/Step1Target'
 import Step5Relaxation from '@/components/steps/Step5Relaxation'
 import Step6Expansion from '@/components/steps/Step6Expansion'
+import Step8Finance from '@/components/steps/Step8Finance'
 import { rowsFromExcelSite } from '@/lib/report/buildSiteReport'
 import type { Expandability, Scenario, ScenarioId, SiteData, SiteReport } from '@/types'
 
@@ -211,6 +212,14 @@ function ParcelBlock({
         <div className="mt-14">
           <SectionTitle title="⑥ 증축 산정" caption={`${block.scenarioId} 시나리오 · 주차 기준 최대 연면적`} />
           <Step6Expansion analysis={analysis} scenarios={scenarios} />
+        </div>
+
+        <div className="mt-14">
+          <SectionTitle
+            title="⑧ 수익성"
+            caption={`${block.scenarioId} 시나리오 · 토지가액(공시지가 기준) · 자산가치(예시 가정값)`}
+          />
+          <Step8Finance analysis={analysis} />
         </div>
       </section>
 
