@@ -3,7 +3,9 @@
 // 새로 계산하지 않고, 엑셀 값을 층별로 모으거나 표시 문자열로 바꾸는 일만 한다.
 
 import { judgeSite, LIMIT_LABEL } from '@/lib/calc'
+import { compareWithExcel, PARITY_TOLERANCE } from '@/lib/calc/excelParity'
 import { formatNumber, textOrEmpty, withUnit } from '@/lib/format'
+import { policyNotes } from '@/lib/rules/policies'
 import { getScenario, scenarios } from '@/lib/rules/scenarios'
 import { describeOverrides } from './describeOverrides'
 import type {
@@ -23,7 +25,7 @@ import type {
 
 const f = (v: number, digits = 2) => formatNumber(v, digits)
 
-/** 화면 ⑤단계와 보고서 2장이 함께 쓰는 현행→완화 3줄 (용적률, 주택 층수, 주택 연면적) */
+/** 화면 ⑤단계와 보고서 2장이 함께 쓰는 현행→완화 표 (용적률, 주택 층수, 주택 연면적, 일조 수직 허용 높이) */
 export interface RelaxRow {
   label: string
   note: string
@@ -42,6 +44,9 @@ function ruleValues(e: SiteExpansionResult) {
     far: e.far.farLimitPercent,
     floors: e.rules.housing.maxFloors[type],
     area: e.rules.housing.maxAreaM2[type],
+    areaWord: e.rules.housing.areaExclusive[type] ? '미만' : '이하',
+    /** 이 건물에 적용한 일조 수직 허용 높이 (m) */
+    sunLowHeight: e.sunlight.lowHeightM,
   }
 }
 
@@ -49,7 +54,9 @@ export function relaxationRows(analysis: SiteAnalysis, zone: string): RelaxRow[]
   const base = ruleValues(analysis.byScenario.BASE)
   const relaxed = ruleValues(analysis.byScenario.ALL)
   const sel = ruleValues(analysis.selected)
-  const housingNote = analysis.selected.housing.housingType ?? '이 건물은 미적용'
+  const type = analysis.selected.housing.housingType
+  const housingNote = type ?? '이 건물은 미적용'
+  const multiFamily = type === '다가구' || type === '다세대'
   return [
     {
       label: '용적률 상한',
@@ -72,11 +79,20 @@ export function relaxationRows(analysis: SiteAnalysis, zone: string): RelaxRow[]
     {
       label: '주택 연면적',
       note: housingNote,
-      base: `${f(base.area, 0)}㎡ 이하`,
-      relaxed: `${f(relaxed.area, 0)}㎡ 이하`,
+      base: `${f(base.area, 0)}㎡ ${base.areaWord}`,
+      relaxed: `${f(relaxed.area, 0)}㎡ ${relaxed.areaWord}`,
       by: 'C, ALL',
-      selected: `${f(sel.area, 0)}㎡ 이하`,
-      changed: sel.area !== base.area,
+      selected: `${f(sel.area, 0)}㎡ ${sel.areaWord}`,
+      changed: sel.area !== base.area || sel.areaWord !== base.areaWord,
+    },
+    {
+      label: '일조 수직 허용 높이',
+      note: multiFamily ? `${type} — 8·13 대책 '4~5층 수직 건축 허용' (15m 가정)` : '다가구·다세대만 적용 (이 건물은 미적용)',
+      base: `${f(base.sunLowHeight)}m 이하`,
+      relaxed: `${f(relaxed.sunLowHeight)}m 이하`,
+      by: 'C, ALL',
+      selected: `${f(sel.sunLowHeight)}m 이하`,
+      changed: sel.sunLowHeight !== base.sunLowHeight,
     },
   ]
 }
@@ -196,6 +212,54 @@ function planSection(e: SiteExpansionResult): SitePlanSection {
   }
 }
 
+/** 데이터 검증: 엑셀 '용적률완화_주차검토' 행 대조(시나리오 B) + 수기입력·가정 데이터 목록 */
+function buildVerification(data: SiteData, analysis: SiteAnalysis, floorUses: FloorUseRow[]): SiteReport['verification'] {
+  const parity = compareWithExcel(data.review, analysis.byScenario.B)
+  const show = (v: number | null) => (v === null ? '빈칸' : f(v, 4))
+  const input = data.siteInput
+  const top = [...floorUses].reverse().find((r) => r.netM2 > 0)
+  const C = analysis.byScenario.C.rules
+  const todoRows: ReportRow[] = [
+    [
+      '정북 인접대지 이격거리',
+      input?.northSetbackM != null ? `${f(input.northSetbackM)}m` : '미입력',
+      input?.northSetbackM != null ? '수기입력' : '확인 필요 — 일조 검토 불가',
+      'lib/data/siteInputs.json → northSetbackM',
+    ],
+    [
+      '증축층 바닥면적',
+      input?.floorPlateM2 != null
+        ? `${f(input.floorPlateM2)}㎡`
+        : `건축면적 ${f(data.site.buildingAreaM2)}㎡로 가정${top ? ` (최상층 ${top.floorLabel} 전유 ${f(top.netM2)}㎡)` : ''}`,
+      input?.floorPlateM2 != null ? '수기입력' : '확인 필요 — 증축 층수에 영향',
+      'lib/data/siteInputs.json → floorPlateM2',
+    ],
+    [
+      '1층 필로티 여부',
+      input ? (input.pilotiFloor1 ? '필로티' : '필로티 아님') : '미입력',
+      input?.source === '수기입력' ? '수기입력' : '가정 — 도면 확인 필요',
+      'lib/data/siteInputs.json → pilotiFloor1',
+    ],
+    [
+      '일조 수직 허용 높이 (8·13 대책)',
+      `${f(C.sunlight.multiFamilyLowHeightM ?? C.sunlight.lowHeightM)}m`,
+      '프로젝트 가정 — 시행령 개정안 확인 필요',
+      'lib/rules/scenarios.ts → C.sunlight.multiFamilyLowHeightM',
+    ],
+    ['건축물 숫자 (대지·연면적·호별 면적·주차)', data.sourceLabel, '기준 엑셀', '엑셀 수정 후 npm run data:excel 재실행'],
+    ['임대료·공사비·시세 (수익성)', '미입력', '수익성 단계에서 입력 (예시 가정값)', 'lib/mock/owner.json, market.json'],
+  ]
+  if (data.site.outsideParcels > 1) {
+    todoRows.push([`외필지 ${data.site.outsideParcels}개`, '대지 범위 미확인', '확인 필요', '토지대장·지적도 확인 후 기준 엑셀 반영'])
+  }
+  return {
+    parityRows: parity.map((p) => [p.name, show(p.excel), show(p.calc), p.match ? '일치' : '불일치']),
+    allMatch: parity.every((p) => p.match),
+    parityNote: `기준 엑셀 '용적률완화_주차검토' 행 ↔ 계산 엔진(시나리오 B, 용적률 완화 상한) — 허용오차 ±${PARITY_TOLERANCE}`,
+    todoRows,
+  }
+}
+
 /** 부록: 시나리오 가정, 적용 기준값, 데이터 출처(기준 엑셀 시트명), 엑셀 산정 근거, 계산식, 면책 */
 function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appendix'] {
   const base = analysis.byScenario.BASE.rules
@@ -220,9 +284,19 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       '서울시 도시계획 조례 / B는 프로젝트 가정 (상한 교체)',
     ],
     [
-      '주택 층수·연면적',
-      `${base.housing.maxFloors.다세대}개층·${f(base.housing.maxAreaM2.다세대, 0)}㎡ → ${all.housing.maxFloors.다세대}개층·${f(all.housing.maxAreaM2.다세대, 0)}㎡ (다세대·다가구·다중주택)`,
-      '건축법 시행령 별표1 / C는 프로젝트 가정',
+      '주택 층수',
+      `다세대 ${base.housing.maxFloors.다세대}개층, 다가구 ${base.housing.maxFloors.다가구}→${all.housing.maxFloors.다가구}개층, 다중주택 ${base.housing.maxFloors.다중주택}→${all.housing.maxFloors.다중주택}개층 이하`,
+      '건축법 시행령 별표1 / C는 8·13 대책',
+    ],
+    [
+      '주택 연면적',
+      `${f(base.housing.maxAreaM2.다세대, 0)}㎡ 이하 → 다가구·다세대 ${f(all.housing.maxAreaM2.다세대, 0)}㎡ ${all.housing.areaExclusive.다세대 ? '미만' : '이하'} (다중주택 ${f(all.housing.maxAreaM2.다중주택, 0)}㎡ 이하)`,
+      '건축법 시행령 별표1 / C는 8·13 대책',
+    ],
+    [
+      '일조 수직 허용 높이 (다가구·다세대)',
+      `${sun.lowHeightM}m → ${all.sunlight.multiFamilyLowHeightM ?? sun.lowHeightM}m`,
+      '8·13 대책 "4~5층도 수직 건축 허용" — 15m는 프로젝트 가정',
     ],
     [
       '주차 — 주택(제5호)',
@@ -266,6 +340,8 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ]),
     ruleRows,
     sourceRows,
+    policyRows: policyNotes.map((p) => [p.title, p.detail, p.usage]),
+    policySource: [...new Set(policyNotes.map((p) => p.source))].join(', '),
     sourceFile: `${data.source.file} (기준일 ${data.source.date}) — 원본 시트(건축물대장_원본 등)는 사용하지 않음`,
     excelNotes: data.excelNotes,
     formulas: [
@@ -428,6 +504,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
       checkItems,
     },
     plan,
+    verification: buildVerification(data, analysis, floor.rows),
     appendix: buildAppendix(data, analysis),
     analysis,
   }

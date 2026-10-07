@@ -9,11 +9,16 @@ const A: DeepPartial<Rules> = { sunlight: { ratio: 0.25 } }
 // 배수(×1.2)가 아니라 용도지역별 상한값 자체를 교체한다
 const B: DeepPartial<Rules> = { farLimitByZone: { 제2종일반주거지역: 250, 제3종일반주거지역: 300 } }
 
+// 8·13 주택공급 대책(관계부처 합동, 2026.8.13) '다가구·다세대 건축기준 합리화'
+//   (면적) 660 → 1,000㎡ 미만  (다가구 층수) 3 → 4개층 이하  (일조) 4~5층도 수직 건축 허용
+// 다중주택은 언급이 없어 완화하지 않는다. '4~5층 수직 허용'의 높이 15m는 프로젝트 가정(5개층 × 약 3m).
 const C: DeepPartial<Rules> = {
   housing: {
-    maxFloors: { 다세대: 4, 다가구: 4, 다중주택: 4 },
-    maxAreaM2: { 다세대: 1000, 다가구: 1000, 다중주택: 1000 },
+    maxFloors: { 다가구: 4 },
+    maxAreaM2: { 다세대: 1000, 다가구: 1000 },
+    areaExclusive: { 다세대: true, 다가구: true },
   },
+  sunlight: { multiFamilyLowHeightM: 15 },
 }
 
 export const scenarios: Scenario[] = [
@@ -34,15 +39,16 @@ export const scenarios: Scenario[] = [
   },
   {
     id: 'C',
-    name: '주택 층수·면적 완화',
-    rationale: '다세대·다가구(다중주택 포함) 주택 층수 3층→4층 이하, 주택 연면적 660→1,000㎡',
+    name: '다가구·다세대 기준 합리화',
+    rationale:
+      '8·13 주택공급 대책(2026.8.13 발표, 법령 개정 전): 면적 660→1,000㎡ 미만, 다가구 층수 3→4개층, 일조 4~5층 수직 건축 허용(15m 가정)',
     isAssumption: true,
     overrides: C,
   },
   {
     id: 'ALL',
     name: '복합 완화',
-    rationale: 'A(일조 사선)·B(용적률)·C(주택 층수·면적) 완화를 동시에 적용한다고 가정',
+    rationale: 'A(일조 사선)·B(용적률)·C(8·13 다가구·다세대 기준 합리화)를 동시에 적용한다고 가정',
     isAssumption: true,
     overrides: deepMerge(deepMerge(A, B), C),
   },

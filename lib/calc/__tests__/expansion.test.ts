@@ -4,8 +4,8 @@ import parkingReviewJson from '@/lib/data/parkingReview.json'
 import siteInputsJson from '@/lib/data/siteInputs.json'
 import sitesJson from '@/lib/data/sites.json'
 import unitsJson from '@/lib/data/units.json'
-import { getEffectiveRules } from '@/lib/rules/scenarios'
-import type { ExcelSite, ExcelUnit, ParkingReviewRow, ScenarioId, SiteInput } from '@/types'
+import { deepMerge, getEffectiveRules } from '@/lib/rules/scenarios'
+import type { ExcelSite, ExcelUnit, ParkingReviewRow, Rules, ScenarioId, SiteInput } from '@/types'
 import { calcExpansion } from '../expansion'
 
 const sites = sitesJson.items as ExcelSite[]
@@ -15,7 +15,10 @@ const siteInputs = siteInputsJson.items as SiteInput[]
 const DANGSAN = '1156011600001040048'
 const T2 = '1156011600001100019'
 
-function run(pnu: string, scenarioId: ScenarioId, siteInput?: Partial<SiteInput>) {
+/** 테스트 전용: ALL에 다중주택 4개층을 더한 규칙 (주차 추가 확보 → 증축 가능 경로 검증용, 실제 시나리오 아님) */
+const ALL_WITH_MULTI4: Rules = deepMerge(getEffectiveRules('ALL'), { housing: { maxFloors: { 다중주택: 4 } } })
+
+function run(pnu: string, scenarioId: ScenarioId, siteInput?: Partial<SiteInput>, rules?: Rules) {
   const site = sites.find((s) => s.pnu === pnu)!
   const base = siteInputs.find((s) => s.pnu === pnu) ?? null
   return calcExpansion(
@@ -26,7 +29,7 @@ function run(pnu: string, scenarioId: ScenarioId, siteInput?: Partial<SiteInput>
       netRatio: reviews.find((r) => r.pnu === pnu)!.netRatio!,
       siteInput: base && { ...base, ...siteInput },
     },
-    getEffectiveRules(scenarioId),
+    rules ?? getEffectiveRules(scenarioId),
   )
 }
 const status = (checks: { item: string; status: string }[], item: string) => checks.find((c) => c.item === item)?.status
@@ -40,7 +43,7 @@ describe('당산동6가 104-48 당산빌 (참고 — 2026-10-07 T1에서 제외,
     expect(r.parkingOption).toBeNull()
   })
 
-  it('B: 기존 주차 0세대. 주차 +1대 → L 75.04㎡지만 주택 4개층 > 3 → 불가', () => {
+  it('B: 기존 주차 0세대. 주차 +1대 → L 75.04㎡지만 주택 4개층 > 3 → 확인 필요', () => {
     const r = run(DANGSAN, 'B')
     expect(r.plan.addGfaM2).toBe(0)
     expect(r.parkingOption!.addSpaces).toBe(1)
@@ -48,8 +51,15 @@ describe('당산동6가 104-48 당산빌 (참고 — 2026-10-07 T1에서 제외,
     expect(r.parkingOption!.limitingFactor).toBe('housingFloors')
   })
 
-  it('ALL + 주차 1대 추가: 1개층 약 100.9㎡ (전용 75.04㎡ 1세대), 일조는 이격거리 확인 필요', () => {
+  it('ALL(실제 규칙): 주차 +1대 → 75.04㎡지만 다중주택은 8·13 대책에서 완화 안 됨 → 4개층 > 3 → 확인 필요', () => {
     const o = run(DANGSAN, 'ALL').parkingOption!
+    expect(o.addGfaM2).toBe(0)
+    expect(o.limitingFactor).toBe('housingFloors')
+    expect(o.verdict).toBe('check')
+  })
+
+  it('[테스트 규칙: 다중주택 4개층] ALL + 주차 1대 추가: 1개층 약 100.9㎡ (전용 75.04㎡ 1세대), 일조는 이격거리 확인 필요', () => {
+    const o = run(DANGSAN, 'ALL', undefined, ALL_WITH_MULTI4).parkingOption!
     expect(o.addUnits).toHaveLength(1)
     expect(o.addNetM2).toBeCloseTo(75.04, 2)
     expect(o.addGfaM2).toBeCloseTo(100.905, 2)
@@ -66,15 +76,15 @@ describe('당산동6가 104-48 당산빌 (참고 — 2026-10-07 T1에서 제외,
     expect(run(DANGSAN, 'ALL').requiredSetbackM).toBeCloseTo(4.7375)
   })
 
-  it('이격거리를 입력하면 일조로 층수를 줄인다 (이격 4m, ALL → 허용 16m < 18.95m → 불가)', () => {
-    const o = run(DANGSAN, 'ALL', { northSetbackM: 4 }).parkingOption!
+  it('[테스트 규칙] 이격거리를 입력하면 일조로 층수를 줄인다 (이격 4m, ALL → 허용 16m < 18.95m → 불가)', () => {
+    const o = run(DANGSAN, 'ALL', { northSetbackM: 4 }, ALL_WITH_MULTI4).parkingOption!
     expect(o.addGfaM2).toBe(0)
     expect(o.limitingFactor).toBe('sunlight')
     expect(status(o.checks, 'sunlight')).toBe('fail')
   })
 
-  it('이격 5m, ALL → 허용 20m ≥ 18.95m → 통과', () => {
-    const o = run(DANGSAN, 'ALL', { northSetbackM: 5 }).parkingOption!
+  it('[테스트 규칙] 이격 5m, ALL → 허용 20m ≥ 18.95m → 통과', () => {
+    const o = run(DANGSAN, 'ALL', { northSetbackM: 5 }, ALL_WITH_MULTI4).parkingOption!
     expect(o.addFloors).toBe(1)
     expect(status(o.checks, 'sunlight')).toBe('pass')
   })

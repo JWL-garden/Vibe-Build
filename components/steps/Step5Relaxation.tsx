@@ -26,6 +26,8 @@ function ruleValues(e: SiteExpansionResult) {
     floors: r.housing.maxFloors[type],
     area: r.housing.maxAreaM2[type],
     sunRatio: r.sunlight.ratio,
+    sunLowHeight: e.sunlight.lowHeightM,
+    areaWord: r.housing.areaExclusive[type] ? '미만' : '이하',
   }
 }
 
@@ -75,8 +77,13 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
               <dl className="mt-3 space-y-1 border-t border-line pt-3 text-xs">
                 <Value label="용적률" value={`${formatNumber(v.far, 0)}%`} changed={v.far !== base.far} />
                 <Value label="주택 층수" value={`${v.floors}개층`} changed={v.floors !== base.floors} />
-                <Value label="주택 연면적" value={`${formatNumber(v.area, 0)}㎡`} changed={v.area !== base.area} />
+                <Value
+                  label="주택 연면적"
+                  value={`${formatNumber(v.area, 0)}㎡ ${v.areaWord}`}
+                  changed={v.area !== base.area || v.areaWord !== base.areaWord}
+                />
                 <Value label="일조 사선" value={`높이의 ${v.sunRatio}배`} changed={v.sunRatio !== base.sunRatio} />
+                <Value label="일조 수직" value={`${v.sunLowHeight}m`} changed={v.sunLowHeight !== base.sunLowHeight} />
               </dl>
 
               <div className="mt-auto pt-3">

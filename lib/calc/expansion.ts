@@ -22,7 +22,7 @@ import { calcFar } from './far'
 import { calcHousingLimit, summarizeHousing } from './housingLimit'
 import { LIMIT_LABEL } from './labels'
 import { buildParkingUnits, calcParking } from './parking'
-import { maxHeightAtDistance, requiredSetback } from './sunlight'
+import { maxHeightAtDistance, requiredSetback, sunlightRuleFor } from './sunlight'
 
 export interface ExpansionInput {
   scenarioId: ScenarioId
@@ -66,9 +66,11 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     siteInput?.floorPlateM2 != null
       ? { areaM2: siteInput.floorPlateM2, source: 'siteInput' as const }
       : { areaM2: site.buildingAreaM2, source: 'buildingArea' as const }
-  const sunlightApplies = rules.sunlight.applies && (getZoneRule(site.zone)?.sunlightApplies ?? true)
+  // 다가구·다세대면 8·13 대책 '수직 건축 허용 높이'를 반영한 일조 규칙
+  const sun = sunlightRuleFor(rules.sunlight, housingSummary.housingType)
+  const sunlightApplies = sun.applies && (getZoneRule(site.zone)?.sunlightApplies ?? true)
   const setback = siteInput?.northSetbackM ?? null
-  const allowedHeightM = sunlightApplies && setback !== null ? maxHeightAtDistance(setback, rules.sunlight) : null
+  const allowedHeightM = sunlightApplies && setback !== null ? maxHeightAtDistance(setback, sun) : null
   const fh = rules.floorHeightM
 
   /** 연면적에 맞게 세대 수·면적을 줄인다 (세대당 전용이 최소면적 미만이면 세대를 뺀다) */
@@ -153,7 +155,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
       sunCheck = {
         item: 'sunlight',
         status: 'check',
-        detail: `${addFloors > 0 ? '' : '1개층 증축 시 '}높이 ${f(newH)}m → 정북 이격 ${f(requiredSetback(newH, rules.sunlight))}m 이상 필요 — 이격거리 확인 필요`,
+        detail: `${addFloors > 0 ? '' : '1개층 증축 시 '}높이 ${f(newH)}m → 정북 이격 ${f(requiredSetback(newH, sun))}m 이상 필요 — 이격거리 확인 필요`,
       }
     } else if (addFloors === 0) {
       sunCheck = { item: 'sunlight', status: 'pass', detail: '증축 없음' }
@@ -230,13 +232,14 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
   return {
     scenarioId,
     rules,
+    sunlight: sun,
     netRatio,
     far,
     parking,
     housing: { ...housingSummary, limit: housingLimit },
     allowedHeightM,
     requiredSetbackM:
-      sunlightApplies && site.heightM !== null ? requiredSetback(site.heightM + fh, rules.sunlight) : null,
+      sunlightApplies && site.heightM !== null ? requiredSetback(site.heightM + fh, sun) : null,
     floorPlate,
     plan,
     parkingOption,

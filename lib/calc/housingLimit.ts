@@ -47,6 +47,9 @@ export function summarizeHousing(site: ExcelSite, units: ExcelUnit[]): HousingSu
   }
 }
 
+/** 면적 한도가 '미만'일 때 한도에서 빼는 최소 단위 (㎡, 표시 단위) */
+const AREA_STEP_M2 = 0.01
+
 export interface HousingLimitInput extends HousingSummary {
   /** 증축하는 새 층에 주택을 넣는지 */
   addHousingFloor: boolean
@@ -70,8 +73,10 @@ export function calcHousingLimit(input: HousingLimitInput, rules: Rules): Housin
 
   const floorLimit = rules.housing.maxFloors[housingType]
   const areaLimitM2 = rules.housing.maxAreaM2[housingType]
+  const exclusive = rules.housing.areaExclusive[housingType]
   const floorOK = housingFloorsAfter <= floorLimit
-  const areaGfaM2 = Math.max(0, areaLimitM2 - housingAreaM2)
+  // '미만'이면 한도에서 표시 단위(0.01㎡)만큼 뺀 면적까지 허용
+  const areaGfaM2 = Math.max(0, areaLimitM2 - (exclusive ? AREA_STEP_M2 : 0) - housingAreaM2)
   const f = (v: number) => formatNumber(v, 2)
 
   return {
@@ -85,7 +90,7 @@ export function calcHousingLimit(input: HousingLimitInput, rules: Rules): Housin
       `${housingType} 주택 층수: 현재 ${housingFloors}개층` +
         (addHousingFloor ? ` → 새 층 주택 시 ${housingFloorsAfter}개층` : '') +
         ` (한도 ${floorLimit}개층 이하) → ${floorOK ? '통과' : '불가'}`,
-      `주택 연면적: 현재 ${f(housingAreaM2)}㎡ / 한도 ${f(areaLimitM2)}㎡ → 남은 면적 ${f(areaGfaM2)}㎡`,
+      `주택 연면적: 현재 ${f(housingAreaM2)}㎡ / 한도 ${f(areaLimitM2)}㎡ ${exclusive ? '미만' : '이하'} → 남은 면적 ${f(areaGfaM2)}㎡`,
     ],
   }
 }

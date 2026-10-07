@@ -44,9 +44,15 @@ describe('주택 층수 한도 (설계서 5-7, 12-3)', () => {
     expect(calcHousingLimit(input, ALL).housingFloorsAfter).toBe(5)
   })
 
-  it('104-48 당산빌(참고): 새 층 주택 시 4개층 → BASE(3) 불가, C(4) 통과', () => {
+  it('104-48 당산빌(참고, 다중주택): 새 층 주택 시 4개층 → BASE(3)·C(다중주택 미완화 3) 모두 불가', () => {
     expect(calcHousingLimit({ ...DANGSAN, addHousingFloor: true }, BASE).floorOK).toBe(false)
-    expect(calcHousingLimit({ ...DANGSAN, addHousingFloor: true }, C).floorOK).toBe(true)
+    expect(calcHousingLimit({ ...DANGSAN, addHousingFloor: true }, C).floorOK).toBe(false)
+  })
+
+  it('다가구 3개층 + 새 층 → BASE(3) 불가, C(8·13 대책 4) 통과', () => {
+    const input = { housingType: '다가구' as const, housingFloors: 3, housingAreaM2: 300, source: 'units' as const, addHousingFloor: true }
+    expect(calcHousingLimit(input, BASE).floorOK).toBe(false)
+    expect(calcHousingLimit(input, C).floorOK).toBe(true)
   })
 
   it('T2: 새 층 주택 시 5개층 → BASE·C 모두 불가', () => {
@@ -66,9 +72,16 @@ describe('주택 연면적 한도 (설계서 12-3)', () => {
     expect(calcHousingLimit({ ...DANGSAN, addHousingFloor: true }, BASE).areaGfaM2).toBeCloseTo(446.79, 2)
   })
 
-  it('T2: 633.59㎡ → BASE 남은 26.41㎡ (36.25㎡ 증축 불가), C 남은 366.41㎡', () => {
+  it('T2: 633.59㎡ → BASE 660㎡ 이하 남은 26.41㎡ (36.25㎡ 증축 불가), C 1,000㎡ 미만 남은 366.40㎡', () => {
     expect(calcHousingLimit({ ...T2, addHousingFloor: true }, BASE).areaGfaM2).toBeCloseTo(26.41, 2)
-    expect(calcHousingLimit({ ...T2, addHousingFloor: true }, C).areaGfaM2).toBeCloseTo(366.41, 2)
+    expect(calcHousingLimit({ ...T2, addHousingFloor: true }, C).areaGfaM2).toBeCloseTo(366.4, 2)
+  })
+
+  it('1,000㎡ 미만: 정확히 1,000㎡는 불가 (남은 면적 = 한도 − 0.01㎡ − 현재)', () => {
+    const at = (area: number) =>
+      calcHousingLimit({ housingType: '다세대', housingFloors: 2, housingAreaM2: area, source: 'units', addHousingFloor: false }, C)
+    expect(at(999.99).areaGfaM2).toBe(0)
+    expect(at(900).areaGfaM2).toBeCloseTo(99.99, 2)
   })
 
   it('주택이 아니면 한도 미적용', () => {

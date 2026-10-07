@@ -5,6 +5,7 @@ import SiteAppendix from './SiteAppendix'
 import SiteCh01Status from './SiteCh01Status'
 import SiteCh02Regulation from './SiteCh02Regulation'
 import SiteCh03Plan from './SiteCh03Plan'
+import SiteVerification from './SiteVerification'
 
 /** 아직 엔진·조립이 없는 장 (설계서 11장) */
 const UPCOMING = [
@@ -17,7 +18,7 @@ const UPCOMING = [
   { title: '10장 다음 단계 제안', note: '추후 작성' },
 ]
 
-/** 기준 엑셀 필지 보고서: 표지 + 1·2·3장 + 이어지는 장 목록 + 부록 (SiteReport만 읽고 계산하지 않음) */
+/** 기준 엑셀 필지 보고서: 표지 + 1·2·3장 + 이어지는 장 목록 + 부록 1(근거) + 부록 2(데이터 검증) (SiteReport만 읽고 계산하지 않음) */
 export default function SiteReportPages({ report }: { report: SiteReport }) {
   const { meta, summary } = report
   const pageProps = { address: meta.address, sourceLabel: meta.sourceLabel }
@@ -61,8 +62,12 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
         </ul>
       </ReportPage>
 
-      <ReportPage {...pageProps} chapter={{ no: '부록', title: '근거·가정·데이터 출처' }} page={chapters.length + 3}>
+      <ReportPage {...pageProps} chapter={{ no: '부록 1', title: '근거·가정·데이터 출처' }} page={chapters.length + 3}>
         <SiteAppendix report={report} />
+      </ReportPage>
+
+      <ReportPage {...pageProps} chapter={{ no: '부록 2', title: '데이터 검증' }} page={chapters.length + 4}>
+        <SiteVerification report={report} />
       </ReportPage>
     </>
   )

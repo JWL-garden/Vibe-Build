@@ -6,15 +6,16 @@ import { zoningTable } from './zoningTable'
 
 export const baseRules: Rules = {
   // 정북방향 일조 사선 (건축법 시행령 제86조, 2023 개정: 9m → 10m)
-  sunlight: { applies: true, lowHeightM: 10, lowSetbackM: 1.5, ratio: 0.5 },
+  sunlight: { applies: true, lowHeightM: 10, lowSetbackM: 1.5, ratio: 0.5, multiFamilyLowHeightM: null },
 
   // 용도지역별 용적률 상한 (서울시 조례) — 2종 200 / 3종 250
   farLimitByZone: Object.fromEntries(zoningTable.map((z) => [z.zone, z.farLimitPercent])),
 
-  // 다세대·다가구·다중주택: 주택으로 쓰는 층수 3개층, 바닥면적 합계 660㎡ (건축법 시행령 별표1)
+  // 건축법 시행령 별표1: 다세대 4개층 이하, 다가구·다중주택 3개층 이하, 바닥면적 합계 660㎡ 이하
   housing: {
-    maxFloors: { 다세대: 3, 다가구: 3, 다중주택: 3 },
+    maxFloors: { 다세대: 4, 다가구: 3, 다중주택: 3 },
     maxAreaM2: { 다세대: 660, 다가구: 660, 다중주택: 660 },
+    areaExclusive: { 다세대: false, 다가구: false, 다중주택: false },
     excludePilotiFloor: true,
   },
 

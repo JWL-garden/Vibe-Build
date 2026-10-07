@@ -51,6 +51,12 @@ export function judgeSite(analysis: SiteAnalysis): Expandability {
       reason: `기존 주차로는 증축할 수 없지만, ${name} 적용 + 주차 ${option.addSpaces}대 추가 확보 시 +${option.addFloors}개층(+${area(option.addGfaM2)}) 증축을 검토할 수 있습니다.`,
     }
   }
+  if (option?.verdict === 'check') {
+    return {
+      status: 'check',
+      reason: `기존 주차로는 증축할 수 없고, 주차 ${option.addSpaces}대를 추가 확보해도 ${name} 기준 주택 층수가 ${e.housing.housingFloors + 1}개층 이상으로 한도(${e.housing.limit.floorLimit}개층)를 넘어 신규 층 주택은 불가합니다. 부분 증축·용도변경 대안 확인이 필요합니다.`,
+    }
+  }
   if (plan.verdict === 'check') {
     return {
       status: 'check',

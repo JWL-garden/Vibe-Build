@@ -1,6 +1,8 @@
 // 보고서 1·2·3장 조립 — 숫자가 runAll·기준 엑셀(설계서 12-2)과 같은지
 import { describe, expect, it } from 'vitest'
 import { runAll } from '@/lib/calc'
+import { calcExpansion } from '@/lib/calc/expansion'
+import { deepMerge, getEffectiveRules } from '@/lib/rules/scenarios'
 import { getSiteData } from '@/lib/services/mockService'
 import type { ScenarioId } from '@/types'
 import { buildSiteReport } from '../buildSiteReport'
@@ -13,9 +15,27 @@ const build = async (pnu: string, id: ScenarioId = 'ALL') => {
   return buildSiteReport(data, runAll(data, id), '2026-10-07')
 }
 
-describe('104-48 보고서', () => {
-  it('표지: 조건부 가능, +1층 · +100.9㎡ (주차 +1대 조건)', async () => {
+/** 테스트 전용: 104-48을 'ALL + 다중주택 4개층' 규칙으로 계산한 보고서 (주차 추가 확보 증축안 경로 검증, 실제 시나리오 아님) */
+async function buildConditional() {
+  const data = (await getSiteData(DANGSAN))!
+  const analysis = runAll(data, 'ALL')
+  const rules = deepMerge(getEffectiveRules('ALL'), { housing: { maxFloors: { 다중주택: 4 } } })
+  const selected = calcExpansion(
+    { scenarioId: 'ALL', site: data.site, units: data.units, netRatio: data.review.netRatio!, siteInput: data.siteInput },
+    rules,
+  )
+  return buildSiteReport(data, { ...analysis, selected, byScenario: { ...analysis.byScenario, ALL: selected } }, '2026-10-07')
+}
+
+describe('104-48 보고서 (참고)', () => {
+  it('실제 규칙: 표지 확인 필요, 3장 대안 검토', async () => {
     const r = await build(DANGSAN)
+    expect(r.summary.kpis[3].value).toBe('확인 필요')
+    expect(r.plan.kind).toBe('none')
+  })
+
+  it('[테스트 규칙] 표지: 조건부 가능, +1층 · +100.9㎡ (주차 +1대 조건)', async () => {
+    const r = await buildConditional()
     expect(r.summary.kpis[0].value).toBe('+1층 · +100.9㎡')
     expect(r.summary.kpis[0].caption).toBe('주차 +1대 조건')
     expect(r.summary.kpis[3].value).toBe('조건부 가능')
@@ -29,9 +49,9 @@ describe('104-48 보고서', () => {
     expect(r.status.stats[2].value).toBe('3개층 · 213.21㎡')
   })
 
-  it('2장: 현행→완화 3줄, 주차 산정 단독 1.6 + 근생 1.3 = 2.9, 여유 0.1', async () => {
+  it('2장: 현행→완화 4줄(용적률·주택 층수·주택 연면적·일조 수직), 주차 산정 단독 1.6 + 근생 1.3 = 2.9, 여유 0.1', async () => {
     const r = await build(DANGSAN)
-    expect(r.regulation.relaxRows).toHaveLength(3)
+    expect(r.regulation.relaxRows).toHaveLength(4)
     expect(r.regulation.relaxRows[0].slice(1)).toEqual(['200%', '250%', 'B, ALL'])
     const byLabel = Object.fromEntries(r.regulation.parkingRows.map((row) => [row[0], row[2]]))
     expect(byLabel['단독·다중주택(제4호)']).toBe('1.6대')
@@ -42,8 +62,8 @@ describe('104-48 보고서', () => {
     expect(r.regulation.selectedRow).toBe(4)
   })
 
-  it('3장: 주차 1대 추가 조건 증축안, 증축 면적 = expansion.addGfaM2', async () => {
-    const r = await build(DANGSAN)
+  it('[테스트 규칙] 3장: 주차 1대 추가 조건 증축안, 증축 면적 = expansion.addGfaM2', async () => {
+    const r = await buildConditional()
     expect(r.plan.kind).toBe('parkingOption')
     expect(r.plan.plan).toBe(r.analysis.selected.parkingOption)
     expect(r.plan.plan!.addGfaM2).toBeCloseTo(100.905, 2)
@@ -130,3 +150,23 @@ describe('부록: 데이터 출처 (기준 엑셀 시트명)', () => {
   })
 })
 
+describe('부록 2: 데이터 검증', () => {
+  it('T1·T2 모두 엑셀 10개 항목 일치', async () => {
+    for (const pnu of [T1, T2]) {
+      const v = (await build(pnu)).verification
+      expect(v.parityRows).toHaveLength(10)
+      expect(v.allMatch).toBe(true)
+    }
+  })
+
+  it('T1: 수정할 데이터 목록에 정북 이격(미입력)·증축층 면적(최상층 5층 전유 59.81㎡)', async () => {
+    const todo = (await build(T1)).verification.todoRows
+    expect(todo[0]).toEqual(['정북 인접대지 이격거리', '미입력', '확인 필요 — 일조 검토 불가', 'lib/data/siteInputs.json → northSetbackM'])
+    expect(todo[1][1]).toBe('건축면적 99.27㎡로 가정 (최상층 5층 전유 59.81㎡)')
+  })
+
+  it('T2: 외필지 3개 확인 항목 포함', async () => {
+    const todo = (await build(T2)).verification.todoRows
+    expect(todo.some((r) => r[0] === '외필지 3개')).toBe(true)
+  })
+})

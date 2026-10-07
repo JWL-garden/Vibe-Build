@@ -24,7 +24,7 @@ describe('runAll 기본', () => {
   })
 })
 
-describe('104-48 당산빌(참고): 기존 주차 0㎡, 주차 1대 추가 확보 안 약 100.9㎡', () => {
+describe('104-48 당산빌(참고): 기존 주차 0㎡, 주차 1대 추가 확보 안은 다중주택 층수 한도로 확인 필요', () => {
   let r: SiteAnalysis
   it('모든 시나리오에서 기존 주차로는 0㎡ — 200%(BASE·A·C)는 용적률, 250%(B·ALL)는 주차가 제한', async () => {
     r = await load(DANGSAN)
@@ -36,13 +36,13 @@ describe('104-48 당산빌(참고): 기존 주차 0㎡, 주차 1대 추가 확�
     for (const id of ['B', 'ALL'] as const) expect(r.byScenario[id].plan.limitingFactor).toBe('parking')
   })
 
-  it('ALL + 주차 1대: L 1세대 전용 75.04㎡, 연면적 100.905㎡, 1개층, 판정 가능', () => {
+  it('ALL + 주차 1대: 주차 기준 L 1세대 75.04㎡지만 다중주택 3개층 한도(8·13 대책 미완화) → 확인 필요', () => {
     const o = r.byScenario.ALL.parkingOption!
     expect(o.addSpaces).toBe(1)
-    expect(o.addNetM2).toBeCloseTo(75.04, 2)
-    expect(o.addGfaM2).toBeCloseTo(100.905, 2)
-    expect(o.addFloors).toBe(1)
-    expect(o.verdict).toBe('possible')
+    expect(r.byScenario.ALL.parking.option!.netM2).toBeCloseTo(75.04, 2)
+    expect(o.addGfaM2).toBe(0)
+    expect(o.limitingFactor).toBe('housingFloors')
+    expect(o.verdict).toBe('check')
   })
 })
 
@@ -119,7 +119,7 @@ describe('2) T2: 주차 1세대 약 36.25㎡, 주택 연면적 BASE 불가 / C �
     expect(r.byScenario.B.housing.limit.areaGfaM2).toBeCloseTo(26.41, 2)
     expect(status(r.byScenario.ALL.plan, 'housingArea')).toBe('pass')
     expect(status(r.byScenario.C.plan, 'housingArea')).toBe('pass')
-    expect(r.byScenario.C.housing.limit.areaGfaM2).toBeCloseTo(366.41, 2)
+    expect(r.byScenario.C.housing.limit.areaGfaM2).toBeCloseTo(366.4, 2)
   })
 })
 
@@ -151,12 +151,11 @@ describe('4) 정북 이격거리가 비어 있으면 일조 검토 확인 필요
 })
 
 describe('judgeSite 증축 가능 여부 배지', () => {
-  it('104-48 당산빌(참고): ALL = 조건부 가능(주차 +1대), BASE = 불가(용적률)', async () => {
+  it('104-48 당산빌(참고): ALL = 확인 필요(주차 +1대 해도 다중주택 층수 초과), BASE = 불가(용적률)', async () => {
     const data = (await getSiteData(DANGSAN))!
     const all = judgeSite(runAll(data, 'ALL'))
-    expect(all.status).toBe('conditional')
-    expect(all.reason).toContain('주차 1대 추가 확보')
-    expect(all.reason).toContain('100.9㎡')
+    expect(all.status).toBe('check')
+    expect(all.reason).toContain('주차 1대를 추가 확보해도')
     const base = judgeSite(runAll(data, 'BASE'))
     expect(base.status).toBe('impossible')
     expect(base.reason).toContain('용적률')

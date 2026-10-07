@@ -143,7 +143,8 @@
             "applies": true,
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
-            "ratio": 0.5
+            "ratio": 0.5,
+            "multiFamilyLowHeightM": null
           },
           "farLimitByZone": {
             "제2종일반주거지역": 200,
@@ -152,7 +153,7 @@
           },
           "housing": {
             "maxFloors": {
-              "다세대": 3,
+              "다세대": 4,
               "다가구": 3,
               "다중주택": 3
             },
@@ -160,6 +161,11 @@
               "다세대": 660,
               "다가구": 660,
               "다중주택": 660
+            },
+            "areaExclusive": {
+              "다세대": false,
+              "다가구": false,
+              "다중주택": false
             },
             "excludePilotiFloor": true
           },
@@ -227,7 +233,8 @@
             "applies": true,
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
-            "ratio": 0.25
+            "ratio": 0.25,
+            "multiFamilyLowHeightM": 15
           },
           "farLimitByZone": {
             "제2종일반주거지역": 250,
@@ -238,12 +245,17 @@
             "maxFloors": {
               "다세대": 4,
               "다가구": 4,
-              "다중주택": 4
+              "다중주택": 3
             },
             "maxAreaM2": {
               "다세대": 1000,
               "다가구": 1000,
-              "다중주택": 1000
+              "다중주택": 660
+            },
+            "areaExclusive": {
+              "다세대": true,
+              "다가구": true,
+              "다중주택": false
             },
             "excludePilotiFloor": true
           },
@@ -301,7 +313,7 @@
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
           "허용 용적률 250.0% (제2종일반주거 완화 상한) → 허용 연면적 1375.0㎡, 잔여 715.0㎡ ÷ 층당 165㎡ = 4개층",
           "정북 이격 9.5m ÷ 사선 비율 0.25 → 허용 높이 38.0m, (허용 38.0m − 현재 15m) ÷ 층고 3.3m = 6개층",
-          "주택 층수·연면적 완화: 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
+          "다가구·다세대 기준 합리화(C): 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
           "최종 증축 4개층 (+660㎡), 제한요인: 용적률"
         ]
       }
@@ -314,7 +326,8 @@
             "applies": true,
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
-            "ratio": 0.5
+            "ratio": 0.5,
+            "multiFamilyLowHeightM": null
           },
           "farLimitByZone": {
             "제2종일반주거지역": 200,
@@ -323,7 +336,7 @@
           },
           "housing": {
             "maxFloors": {
-              "다세대": 3,
+              "다세대": 4,
               "다가구": 3,
               "다중주택": 3
             },
@@ -331,6 +344,11 @@
               "다세대": 660,
               "다가구": 660,
               "다중주택": 660
+            },
+            "areaExclusive": {
+              "다세대": false,
+              "다가구": false,
+              "다중주택": false
             },
             "excludePilotiFloor": true
           },
@@ -398,7 +416,8 @@
             "applies": true,
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
-            "ratio": 0.25
+            "ratio": 0.25,
+            "multiFamilyLowHeightM": null
           },
           "farLimitByZone": {
             "제2종일반주거지역": 200,
@@ -407,7 +426,7 @@
           },
           "housing": {
             "maxFloors": {
-              "다세대": 3,
+              "다세대": 4,
               "다가구": 3,
               "다중주택": 3
             },
@@ -415,6 +434,11 @@
               "다세대": 660,
               "다가구": 660,
               "다중주택": 660
+            },
+            "areaExclusive": {
+              "다세대": false,
+              "다가구": false,
+              "다중주택": false
             },
             "excludePilotiFloor": true
           },
@@ -482,7 +506,8 @@
             "applies": true,
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
-            "ratio": 0.5
+            "ratio": 0.5,
+            "multiFamilyLowHeightM": null
           },
           "farLimitByZone": {
             "제2종일반주거지역": 250,
@@ -491,7 +516,7 @@
           },
           "housing": {
             "maxFloors": {
-              "다세대": 3,
+              "다세대": 4,
               "다가구": 3,
               "다중주택": 3
             },
@@ -499,6 +524,11 @@
               "다세대": 660,
               "다가구": 660,
               "다중주택": 660
+            },
+            "areaExclusive": {
+              "다세대": false,
+              "다가구": false,
+              "다중주택": false
             },
             "excludePilotiFloor": true
           },
@@ -566,7 +596,8 @@
             "applies": true,
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
-            "ratio": 0.5
+            "ratio": 0.5,
+            "multiFamilyLowHeightM": 15
           },
           "farLimitByZone": {
             "제2종일반주거지역": 200,
@@ -577,12 +608,17 @@
             "maxFloors": {
               "다세대": 4,
               "다가구": 4,
-              "다중주택": 4
+              "다중주택": 3
             },
             "maxAreaM2": {
               "다세대": 1000,
               "다가구": 1000,
-              "다중주택": 1000
+              "다중주택": 660
+            },
+            "areaExclusive": {
+              "다세대": true,
+              "다가구": true,
+              "다중주택": false
             },
             "excludePilotiFloor": true
           },
@@ -640,7 +676,7 @@
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
           "허용 용적률 200.0% → 허용 연면적 1100.0㎡, 잔여 440.0㎡ ÷ 층당 165㎡ = 2개층",
           "정북 이격 9.5m ÷ 사선 비율 0.5 → 허용 높이 19.0m, (허용 19.0m − 현재 15m) ÷ 층고 3.3m = 1개층",
-          "주택 층수·연면적 완화: 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
+          "다가구·다세대 기준 합리화(C): 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
           "최종 증축 1개층 (+165㎡), 제한요인: 일조권"
         ]
       },
@@ -651,7 +687,8 @@
             "applies": true,
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
-            "ratio": 0.25
+            "ratio": 0.25,
+            "multiFamilyLowHeightM": 15
           },
           "farLimitByZone": {
             "제2종일반주거지역": 250,
@@ -662,12 +699,17 @@
             "maxFloors": {
               "다세대": 4,
               "다가구": 4,
-              "다중주택": 4
+              "다중주택": 3
             },
             "maxAreaM2": {
               "다세대": 1000,
               "다가구": 1000,
-              "다중주택": 1000
+              "다중주택": 660
+            },
+            "areaExclusive": {
+              "다세대": true,
+              "다가구": true,
+              "다중주택": false
             },
             "excludePilotiFloor": true
           },
@@ -725,7 +767,7 @@
           "현재 용적률 120.0% (용적률산정 연면적 660㎡ ÷ 대지면적 550㎡)",
           "허용 용적률 250.0% (제2종일반주거 완화 상한) → 허용 연면적 1375.0㎡, 잔여 715.0㎡ ÷ 층당 165㎡ = 4개층",
           "정북 이격 9.5m ÷ 사선 비율 0.25 → 허용 높이 38.0m, (허용 38.0m − 현재 15m) ÷ 층고 3.3m = 6개층",
-          "주택 층수·연면적 완화: 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
+          "다가구·다세대 기준 합리화(C): 증축층 용도가 사무소(비주택)여서 증축 규모에 영향 없음",
           "최종 증축 4개층 (+660㎡), 제한요인: 용적률"
         ]
       }
@@ -1804,32 +1846,37 @@
       },
       {
         "id": "C",
-        "name": "주택 층수·면적 완화",
-        "rationale": "다세대·다가구(다중주택 포함) 주택 층수 3층→4층 이하, 주택 연면적 660→1,000㎡",
+        "name": "다가구·다세대 기준 합리화",
+        "rationale": "8·13 주택공급 대책(2026.8.13 발표, 법령 개정 전): 면적 660→1,000㎡ 미만, 다가구 층수 3→4개층, 일조 4~5층 수직 건축 허용(15m 가정)",
         "isAssumption": true,
         "overrides": {
           "housing": {
             "maxFloors": {
-              "다세대": 4,
-              "다가구": 4,
-              "다중주택": 4
+              "다가구": 4
             },
             "maxAreaM2": {
               "다세대": 1000,
-              "다가구": 1000,
-              "다중주택": 1000
+              "다가구": 1000
+            },
+            "areaExclusive": {
+              "다세대": true,
+              "다가구": true
             }
+          },
+          "sunlight": {
+            "multiFamilyLowHeightM": 15
           }
         }
       },
       {
         "id": "ALL",
         "name": "복합 완화",
-        "rationale": "A(일조 사선)·B(용적률)·C(주택 층수·면적) 완화를 동시에 적용한다고 가정",
+        "rationale": "A(일조 사선)·B(용적률)·C(8·13 다가구·다세대 기준 합리화)를 동시에 적용한다고 가정",
         "isAssumption": true,
         "overrides": {
           "sunlight": {
-            "ratio": 0.25
+            "ratio": 0.25,
+            "multiFamilyLowHeightM": 15
           },
           "farLimitByZone": {
             "제2종일반주거지역": 250,
@@ -1837,14 +1884,15 @@
           },
           "housing": {
             "maxFloors": {
-              "다세대": 4,
-              "다가구": 4,
-              "다중주택": 4
+              "다가구": 4
             },
             "maxAreaM2": {
               "다세대": 1000,
-              "다가구": 1000,
-              "다중주택": 1000
+              "다가구": 1000
+            },
+            "areaExclusive": {
+              "다세대": true,
+              "다가구": true
             }
           }
         }

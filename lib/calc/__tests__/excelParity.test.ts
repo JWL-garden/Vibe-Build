@@ -10,29 +10,12 @@ import unitsJson from '@/lib/data/units.json'
 import { getEffectiveRules } from '@/lib/rules/scenarios'
 import type { ExcelSite, ExcelUnit, ParkingReviewRow, SiteExpansionResult } from '@/types'
 import { calcExpansion } from '../expansion'
+import { compareWithExcel } from '../excelParity'
 
 const sites = sitesJson.items as ExcelSite[]
 const units = unitsJson.items as ExcelUnit[]
 const rows = (parkingReviewJson.items as ParkingReviewRow[]).filter((r) => r.verdict !== '미산정')
 const B = getEffectiveRules('B')
-const TOLERANCE = 0.01
-
-/** [엑셀 열 이름, 엑셀 값, 계산 값] */
-type Item = [string, (r: ParkingReviewRow) => number | null, (e: SiteExpansionResult) => number | null]
-
-const ITEMS: Item[] = [
-  ['완화후허용연면적', (r) => r.relaxedMaxGfaM2, (e) => e.far.maxGfaM2],
-  ['추가가능연면적', (r) => r.addableGfaM2, (e) => e.far.remainingGfaM2],
-  ['추가가능전용면적', (r) => r.addableNetM2, (e) => e.far.remainingNetM2],
-  ['실제주차대수', (r) => r.actualParking, (e) => e.parking.actual],
-  ['현재법정대수', (r) => r.requiredParking, (e) => e.parking.required.total],
-  ['기존여유대수', (r) => r.spareParking, (e) => e.parking.spare],
-  // 엑셀이 빈칸(용적률 여유 없음)이면 엔진은 0세대
-  ['주차여유내_최대추가세대', (r) => r.maxAddUnits ?? 0, (e) => e.parking.plan.units.length],
-  ['필요추가주차_1세대', (r) => r.needFor1Unit, (e) => e.parking.excel.needFor1Unit],
-  ['면적최대세대수', (r) => r.maxAreaUnits, (e) => e.parking.excel.maxAreaUnits],
-  ['필요추가주차_면적최대', (r) => r.needForMaxArea, (e) => e.parking.excel.needForMaxArea],
-]
 
 interface Mismatch {
   PNU: string
@@ -56,11 +39,8 @@ function compareAll(): { mismatches: Mismatch[]; checked: number } {
       mismatches.push({ PNU: row.pnu, 항목: '계산 오류', 엑셀값: null, 계산값: String(error) })
       continue
     }
-    for (const [name, excelOf, calcOf] of ITEMS) {
-      const excel = excelOf(row)
-      const calc = calcOf(result)
-      const same = excel === null || calc === null ? excel === calc : Math.abs(excel - calc) <= TOLERANCE
-      if (!same) mismatches.push({ PNU: row.pnu, 항목: name, 엑셀값: excel, 계산값: calc })
+    for (const c of compareWithExcel(row, result)) {
+      if (!c.match) mismatches.push({ PNU: row.pnu, 항목: c.name, 엑셀값: c.excel, 계산값: c.calc })
     }
   }
   return { mismatches, checked: rows.length }

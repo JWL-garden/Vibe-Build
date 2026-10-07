@@ -172,6 +172,9 @@ export interface SunlightRule {
   lowSetbackM: number
   /** 기준높이 초과 부분: 이격거리 ≥ 높이 × 이 비율 — 현행 0.5 */
   ratio: number
+  /** 다가구·다세대 건축물의 수직 건축 허용 높이 (m) — 이 높이까지는 lowSetbackM 만 띄우면 된다.
+   *  null = 일반 기준(lowHeightM). 8·13 대책 '일조 4~5층도 수직 건축 허용' → 15 (프로젝트 가정) */
+  multiFamilyLowHeightM: number | null
 }
 
 /** 주택 층수·연면적 한도를 적용하는 주택 유형 (건축법 시행령 별표1) */
@@ -179,10 +182,12 @@ export type HousingType = '다세대' | '다가구' | '다중주택'
 
 /** 주택 층수·연면적 한도 (설계서 5-3b) */
 export interface HousingRule {
-  /** 주택으로 쓰는 층수 한도 (개층) — 현행 3, 완화 4 */
+  /** 주택으로 쓰는 층수 한도 (개층) — 현행 다세대 4, 다가구·다중 3 / 8·13 대책 다가구 4 */
   maxFloors: Record<HousingType, number>
-  /** 주택 바닥면적 합계 한도 (㎡) — 현행 660, 완화 1,000 */
+  /** 주택 바닥면적 합계 한도 (㎡) — 현행 660 이하 / 8·13 대책 다가구·다세대 1,000 미만 */
   maxAreaM2: Record<HousingType, number>
+  /** true = 면적 한도 '미만', false = '이하' */
+  areaExclusive: Record<HousingType, boolean>
   /** true면 1층 필로티(주차 전용)를 주택 층수에서 제외 */
   excludePilotiFloor: boolean
 }
@@ -230,6 +235,18 @@ export interface Rules {
 
 /** 객체 안쪽까지 모두 선택 항목으로 만드는 도우미 타입 */
 export type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] }
+
+/** 관련 정부 정책 한 건 (lib/rules/policies.ts) */
+export interface PolicyNote {
+  id: string
+  title: string
+  /** 정책 내용 (원문 요약) */
+  detail: string
+  /** 출처 문서 */
+  source: string
+  /** 이 서비스에서 어떻게 반영했는지 */
+  usage: string
+}
 
 /** 법규 시나리오 id */
 export type ScenarioId = 'BASE' | 'A' | 'B' | 'C' | 'ALL'
@@ -965,6 +982,8 @@ export interface SiteExpansionResult {
   scenarioId: ScenarioId
   /** 이 시나리오에서 적용한 규칙 (화면·보고서의 현행→완화 표에 그대로 사용) */
   rules: Rules
+  /** 이 건물에 실제 적용한 일조 규칙 (다가구·다세대면 수직 허용 높이 반영) */
+  sunlight: SunlightRule
   /** 전용률 (0~1, 기준 엑셀) */
   netRatio: number
   far: FarResult
@@ -1084,12 +1103,24 @@ export interface SiteReport {
   }
   /** 3장 증축 계획안 */
   plan: SitePlanSection
+  /** 데이터 검증: 기준 엑셀 대조 + 추가로 확인·수정할 데이터 */
+  verification: {
+    /** [항목, 엑셀값, 계산값, 결과] */
+    parityRows: ReportRow[]
+    allMatch: boolean
+    parityNote: string
+    /** [데이터, 현재 값, 상태, 수정 위치] */
+    todoRows: ReportRow[]
+  }
   /** 부록: 근거·가정·출처 */
   appendix: {
     scenarioRows: ReportRow[]
     ruleRows: ReportRow[]
     /** [항목, 시트(또는 파일), 비고] */
     sourceRows: ReportRow[]
+    /** [정책, 내용, 반영 방식] */
+    policyRows: ReportRow[]
+    policySource: string
     sourceFile: string
     excelNotes: string[]
     formulas: string[]
