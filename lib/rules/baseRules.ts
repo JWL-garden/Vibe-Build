@@ -29,6 +29,11 @@ export const baseRules: Rules = {
     officeM2PerSpace: 100,
     nonHousingDecimals: 1,
     minUnitNetM2: 15,
+    // 제4호 단독·다중: 50㎡ 초과 150㎡ 이하 1대, 150㎡ 초과분 100㎡당 1대
+    detached: { minM2: 50, baseM2: 150, baseSpaces: 1, extraM2PerSpace: 100 },
+    // 제5호 비교용 주택법 기준: 전용 85㎡ 이하 75㎡당 1대, 초과 65㎡당 1대
+    housingAct: { smallMaxNetM2: 85, smallM2PerSpace: 75, largeM2PerSpace: 65 },
+    multiFamilyNetRatio: 0.8,
   },
 
   maxAddFloors: null,

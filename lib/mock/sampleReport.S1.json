@@ -181,7 +181,19 @@
             "neighborhoodM2PerSpace": 134,
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
-            "minUnitNetM2": 15
+            "minUnitNetM2": 15,
+            "detached": {
+              "minM2": 50,
+              "baseM2": 150,
+              "baseSpaces": 1,
+              "extraM2PerSpace": 100
+            },
+            "housingAct": {
+              "smallMaxNetM2": 85,
+              "smallM2PerSpace": 75,
+              "largeM2PerSpace": 65
+            },
+            "multiFamilyNetRatio": 0.8
           },
           "maxAddFloors": null,
           "floorHeightM": 3.3
@@ -253,7 +265,19 @@
             "neighborhoodM2PerSpace": 134,
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
-            "minUnitNetM2": 15
+            "minUnitNetM2": 15,
+            "detached": {
+              "minM2": 50,
+              "baseM2": 150,
+              "baseSpaces": 1,
+              "extraM2PerSpace": 100
+            },
+            "housingAct": {
+              "smallMaxNetM2": 85,
+              "smallM2PerSpace": 75,
+              "largeM2PerSpace": 65
+            },
+            "multiFamilyNetRatio": 0.8
           },
           "maxAddFloors": null,
           "floorHeightM": 3.3
@@ -328,7 +352,19 @@
             "neighborhoodM2PerSpace": 134,
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
-            "minUnitNetM2": 15
+            "minUnitNetM2": 15,
+            "detached": {
+              "minM2": 50,
+              "baseM2": 150,
+              "baseSpaces": 1,
+              "extraM2PerSpace": 100
+            },
+            "housingAct": {
+              "smallMaxNetM2": 85,
+              "smallM2PerSpace": 75,
+              "largeM2PerSpace": 65
+            },
+            "multiFamilyNetRatio": 0.8
           },
           "maxAddFloors": null,
           "floorHeightM": 3.3
@@ -400,7 +436,19 @@
             "neighborhoodM2PerSpace": 134,
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
-            "minUnitNetM2": 15
+            "minUnitNetM2": 15,
+            "detached": {
+              "minM2": 50,
+              "baseM2": 150,
+              "baseSpaces": 1,
+              "extraM2PerSpace": 100
+            },
+            "housingAct": {
+              "smallMaxNetM2": 85,
+              "smallM2PerSpace": 75,
+              "largeM2PerSpace": 65
+            },
+            "multiFamilyNetRatio": 0.8
           },
           "maxAddFloors": null,
           "floorHeightM": 3.3
@@ -472,7 +520,19 @@
             "neighborhoodM2PerSpace": 134,
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
-            "minUnitNetM2": 15
+            "minUnitNetM2": 15,
+            "detached": {
+              "minM2": 50,
+              "baseM2": 150,
+              "baseSpaces": 1,
+              "extraM2PerSpace": 100
+            },
+            "housingAct": {
+              "smallMaxNetM2": 85,
+              "smallM2PerSpace": 75,
+              "largeM2PerSpace": 65
+            },
+            "multiFamilyNetRatio": 0.8
           },
           "maxAddFloors": null,
           "floorHeightM": 3.3
@@ -544,7 +604,19 @@
             "neighborhoodM2PerSpace": 134,
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
-            "minUnitNetM2": 15
+            "minUnitNetM2": 15,
+            "detached": {
+              "minM2": 50,
+              "baseM2": 150,
+              "baseSpaces": 1,
+              "extraM2PerSpace": 100
+            },
+            "housingAct": {
+              "smallMaxNetM2": 85,
+              "smallM2PerSpace": 75,
+              "largeM2PerSpace": 65
+            },
+            "multiFamilyNetRatio": 0.8
           },
           "maxAddFloors": null,
           "floorHeightM": 3.3
@@ -617,7 +689,19 @@
             "neighborhoodM2PerSpace": 134,
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
-            "minUnitNetM2": 15
+            "minUnitNetM2": 15,
+            "detached": {
+              "minM2": 50,
+              "baseM2": 150,
+              "baseSpaces": 1,
+              "extraM2PerSpace": 100
+            },
+            "housingAct": {
+              "smallMaxNetM2": 85,
+              "smallM2PerSpace": 75,
+              "largeM2PerSpace": 65
+            },
+            "multiFamilyNetRatio": 0.8
           },
           "maxAddFloors": null,
           "floorHeightM": 3.3

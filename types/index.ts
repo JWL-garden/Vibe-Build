@@ -207,6 +207,12 @@ export interface ParkingRule {
   nonHousingDecimals: number
   /** 추가 세대의 최소 전용면적 (㎡) — 15 미만이면 추가 불가 */
   minUnitNetM2: number
+  /** 단독주택·다중주택(제4호): 시설면적 minM2 초과 ~ baseM2 이하 baseSpaces대, baseM2 초과분은 extraM2PerSpace㎡당 1대 */
+  detached: { minM2: number; baseM2: number; baseSpaces: number; extraM2PerSpace: number }
+  /** 주택법 기준(제5호 비교용): 전용 smallMaxNetM2 이하 smallM2PerSpace㎡당 1대, 초과 largeM2PerSpace㎡당 1대 */
+  housingAct: { smallMaxNetM2: number; smallM2PerSpace: number; largeM2PerSpace: number }
+  /** 다가구 가구별 전용면적 = 연면적 × 이 비율 ÷ 가구수 (기준 엑셀 가정 0.8) */
+  multiFamilyNetRatio: number
 }
 
 /** 계산에 넣는 규칙 (baseRules + 시나리오 overrides 를 합친 결과) */
@@ -706,4 +712,202 @@ export interface Expandability {
   status: 'pending' | 'possible' | 'impossible'
   /** 화면에 보여줄 설명 */
   reason: string
+}
+
+// ═════════════════════════════════════════════
+// 기준 엑셀 데이터 (lib/data/*.json, scripts/build-excel-data.mjs 로 생성 — 설계서 12-1)
+// ═════════════════════════════════════════════
+
+/** 건축물대장_2단계 + 지역지구구역_2단계 한 동 */
+export interface ExcelSite {
+  id: string
+  pnu: string
+  address: string
+  roadAddress: string | null
+  buildingName: string | null
+  dongName: string | null
+  registerType: string
+  /** 외필지수 — 1보다 크면 대지 범위 확인 필요 */
+  outsideParcels: number
+  zone: ZoneName | null
+  zones: string[]
+  siteAreaM2: number | null
+  buildingAreaM2: number
+  bcrPercent: number | null
+  totalFloorAreaM2: number
+  farFloorAreaM2: number
+  farPercent: number | null
+  structure: string
+  mainUse: string
+  etcUse: string | null
+  households: number
+  /** 가구수 — 다가구주택 판별·가구별 면적 계산에 사용 */
+  families: number
+  unitCount: number
+  heightM: number | null
+  floorsAbove: number
+  floorsBelow: number
+  elevators: { passenger: number; emergency: number }
+  /** 실제 주차대수 (대) */
+  parking: { indoorMechanical: number; outdoorMechanical: number; indoorSelf: number; outdoorSelf: number; total: number }
+  approvalDate: string | null
+  seismic: { applied: boolean; capacity: string | null }
+}
+
+/** 전유공용면적_2단계 한 줄 */
+export interface ExcelUnitArea {
+  kind: '전유' | '공용'
+  floorType: string | null
+  floor: number | null
+  floorLabel: string | null
+  use: string
+  etcUse: string | null
+  areaM2: number
+}
+
+/** 주차대수_세대별 한 줄 */
+export interface ExcelUnitParking {
+  mainUse: string
+  netAreaM2: number | null
+  facilityAreaM2: number | null
+  /** 예: '제5호(공동주택·오피스텔)', '제3호(근생 134㎡)', '제2-1호(일반업무 100㎡)', '제4호(단독)' */
+  basis: string
+  perUnitSpaces: number | null
+  housingActSpaces: number | null
+  neighborhoodSpaces: number | null
+  officeSpaces: number | null
+}
+
+/** 호 하나 (면적 + 주차 산정) */
+export interface ExcelUnit {
+  pnu: string
+  unitName: string
+  mainUse: string
+  etcUse: string | null
+  areas: ExcelUnitArea[]
+  parking: ExcelUnitParking | null
+}
+
+/** 용적률완화_주차검토 한 행 — 엑셀 대조 테스트의 정답 */
+export interface ParkingReviewRow {
+  pnu: string
+  address: string
+  buildingName: string | null
+  zone: string
+  category: string
+  mainUse: string
+  etcUse: string | null
+  households: number | null
+  siteAreaM2: number | null
+  baseFarPercent: number | null
+  relaxedFarPercent: number | null
+  farFloorAreaM2: number | null
+  relaxedMaxGfaM2: number | null
+  addableGfaM2: number | null
+  netRatio: number | null
+  addableNetM2: number | null
+  actualParking: number | null
+  required: { perUnit: number | null; housingAct: number | null; detached: number | null; neighborhood: number | null; office: number | null }
+  requiredParking: number | null
+  spareParking: number | null
+  maxAddUnits: number | null
+  maxNetPerUnitM2: number | null
+  addedRequired: number | null
+  requiredAfter: number | null
+  needFor1Unit: number | null
+  maxAreaUnits: number | null
+  needForMaxArea: number | null
+  verdict: string | null
+  note: string | null
+}
+
+// ═════════════════════════════════════════════
+// 주차·주택 한도 계산 결과 (설계서 5-3a, 5-3b)
+// ═════════════════════════════════════════════
+
+/** 주차 산정용 호 — 용도 그룹과 면적만 남긴 형태 */
+export interface ParkingUnit {
+  /** housing5 = 제5호 주택(세대기준), detached = 제4호 단독·다중, neighborhood = 제3호 근생, office = 제2-1호 업무 */
+  use: 'housing5' | 'detached' | 'neighborhood' | 'office'
+  /** 전용면적 (㎡) */
+  netAreaM2: number
+  /** 시설면적 (㎡) — 공용 포함, 주차시설 제외 */
+  facilityAreaM2: number
+}
+
+/** 추가 세대 유형: S 전용 30㎡ 이하 / M 60㎡ 이하 / L 60㎡ 초과 */
+export type AddUnitType = 'S' | 'M' | 'L'
+
+export interface AddUnit {
+  type: AddUnitType
+  /** 전용면적 (㎡) */
+  netAreaM2: number
+  /** 이 세대에 필요한 주차 (대) */
+  spaces: number
+}
+
+/** 주차 여유로 넣을 수 있는 추가 세대 묶음 */
+export interface AddUnitPlan {
+  units: AddUnit[]
+  /** 추가 전용면적 합 (㎡) */
+  netM2: number
+  /** 증가 법정대수 (대) */
+  spaces: number
+  /** 주차 기준 최대 연면적 (㎡) = 추가 전용 ÷ 전용률 */
+  gfaM2: number
+}
+
+export interface ParkingResult {
+  /** 현재 법정대수 내역 (대) */
+  required: {
+    perUnit: number
+    housingAct: number
+    /** 제5호 = max(세대기준, 주택법) */
+    housing: number
+    detached: number
+    neighborhood: number
+    office: number
+    total: number
+    /** true면 복합용도 → 비주택 용도별 소수 절사 (비고4) */
+    mixedUse: boolean
+  }
+  /** 실제 주차대수 (대) */
+  actual: number
+  /** 기존 여유대수 = 실제 − 법정 (음수면 이미 부족) */
+  spare: number
+  /** 기존 주차 여유 안에서 전용면적이 최대가 되는 추가 세대 */
+  plan: AddUnitPlan
+  /** 엑셀 방식(추가 세대 전용 15~30㎡) 재현값 — 엑셀 대조용 */
+  excel: {
+    maxAddUnits: number | null
+    needFor1Unit: number | null
+    maxAreaUnits: number | null
+    needForMaxArea: number | null
+  }
+  /** 기존 여유로 0세대일 때: 주차를 addSpaces대 추가 확보한 안 */
+  option: (AddUnitPlan & { addSpaces: number; spareAfter: number }) | null
+  reasons: string[]
+}
+
+/** 주택 층수·연면적 현황 */
+export interface HousingSummary {
+  /** null = 다세대·다가구·다중주택이 아님 → 한도 미적용 */
+  housingType: HousingType | null
+  /** 주택으로 쓰는 지상 층 수 */
+  housingFloors: number
+  /** 주택 전유 + 공용 면적 (㎡) */
+  housingAreaM2: number
+  /** 'units' = 호별 면적 합산, 'register' = 호별 자료가 없어 대장 값으로 추정 */
+  source: 'units' | 'register'
+}
+
+export interface HousingLimitResult {
+  applies: boolean
+  floorLimit: number | null
+  areaLimitM2: number | null
+  housingFloorsAfter: number
+  floorOK: boolean
+  /** 주택 연면적 한도로 남은 면적 (㎡). null = 미적용 */
+  areaGfaM2: number | null
+  reasons: string[]
 }
