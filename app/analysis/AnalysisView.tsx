@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import Step5Relaxation from '@/components/steps/Step5Relaxation'
+import Step6Expansion from '@/components/steps/Step6Expansion'
 import { rowsFromRecord } from '@/lib/report/buildingRows'
 import { scenarios } from '@/lib/rules/scenarios'
 import { useAnalysisStore } from '@/store/analysisStore'
@@ -36,6 +37,17 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
     )
   }
 
+  // 증축 후 그림: 기존 주차로 가능하면 그 안, 아니면 주차 추가 확보 안, 둘 다 아니면 0층
+  const after = (() => {
+    if (!analysis) return { addFloors: null, caption: '법규 완화 적용 시 증축안' }
+    const { plan, parkingOption: option } = analysis.selected
+    const id = analysis.scenarioId
+    if (plan.verdict === 'possible') return { addFloors: plan.addFloors, caption: `${id} 적용 시 +${plan.addFloors}층` }
+    if (option?.verdict === 'possible')
+      return { addFloors: option.addFloors, caption: `${id} + 주차 ${option.addSpaces}대 확보 시 +${option.addFloors}층` }
+    return { addFloors: 0, caption: `${id} 기준 증축안 없음` }
+  })()
+
   const selector =
     buildings.length > 1 ? (
       <div className="flex flex-wrap gap-2">
@@ -64,8 +76,8 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
       infoRows={rowsFromRecord(building)}
       infoCaption="건축물대장 표제부"
       floorsAbove={building.floorsAbove}
-      addFloors={null}
-      afterCaption="법규 완화 적용 시 증축안"
+      addFloors={after.addFloors}
+      afterCaption={after.caption}
       expandability={expandability}
       reportHref={`/report?pnu=${pnu}&b=${building.id}`}
       steps={
@@ -82,6 +94,11 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
                     onSelect={setScenario}
                   />
                 ),
+              },
+              {
+                title: '⑥ 증축 산정',
+                caption: `${analysis.scenarioId} 시나리오 · 주차 기준 최대 연면적`,
+                content: <Step6Expansion analysis={analysis} scenarios={scenarios} />,
               },
             ]
           : undefined

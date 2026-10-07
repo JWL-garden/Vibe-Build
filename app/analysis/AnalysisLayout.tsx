@@ -110,6 +110,8 @@ function ViewPanel({
 const BADGE: Record<Expandability['status'], { text: string; className: string }> = {
   pending: { text: '판정 대기', className: 'bg-mist text-ink-soft' },
   possible: { text: '증축 가능', className: 'bg-accent-soft text-accent' },
+  conditional: { text: '조건부 가능', className: 'bg-accent-soft text-accent' },
+  check: { text: '확인 필요', className: 'bg-mist text-ink' },
   impossible: { text: '증축 불가', className: 'bg-mist text-ink-faint' },
 }
 

@@ -228,6 +228,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
   return {
     scenarioId,
     rules,
+    netRatio,
     far,
     parking,
     housing: { ...housingSummary, limit: housingLimit },

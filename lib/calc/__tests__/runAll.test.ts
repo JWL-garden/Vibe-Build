@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { getSiteData } from '@/lib/services/mockService'
 import type { ExpansionPlan, SiteAnalysis } from '@/types'
-import { runAll } from '../index'
+import { judgeSite, runAll } from '../index'
 
 const T1 = '1156011600001040048'
 const T2 = '1156011600001100019'
@@ -98,5 +98,25 @@ describe('4) 정북 이격거리가 비어 있으면 일조 검토 확인 필요
         expect(sun.detail).toContain('이격거리 확인 필요')
       }
     }
+  })
+})
+
+describe('judgeSite 증축 가능 여부 배지', () => {
+  it('T1: ALL = 조건부 가능(주차 +1대), BASE = 불가(용적률)', async () => {
+    const data = (await getSiteData(T1))!
+    const all = judgeSite(runAll(data, 'ALL'))
+    expect(all.status).toBe('conditional')
+    expect(all.reason).toContain('주차 1대 추가 확보')
+    expect(all.reason).toContain('100.9㎡')
+    const base = judgeSite(runAll(data, 'BASE'))
+    expect(base.status).toBe('impossible')
+    expect(base.reason).toContain('용적률')
+  })
+
+  it('T2: ALL = 확인 필요 (주택 층수 5 > 4)', async () => {
+    const r = judgeSite(runAll((await getSiteData(T2))!, 'ALL'))
+    expect(r.status).toBe('check')
+    expect(r.reason).toContain('5개층')
+    expect(r.reason).toContain('대안 확인')
   })
 })

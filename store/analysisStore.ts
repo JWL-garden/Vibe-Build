@@ -2,7 +2,7 @@
 // TODO [4-2]: 수익 시나리오, 가정값, 3D 캡처 이미지 추가
 
 import { create } from 'zustand'
-import { judgeExpandability, runAll } from '@/lib/calc'
+import { judgeExpandability, judgeSite, runAll } from '@/lib/calc'
 import { getBuildingsByPnu, getSiteData } from '@/lib/services/dataService'
 import type { BuildingRecord, Expandability, ScenarioId, SiteAnalysis, SiteData } from '@/types'
 
@@ -56,20 +56,26 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
     const [buildings, siteData] = await Promise.all([getBuildingsByPnu(pnu), getSiteData(pnu)])
     if (get().pnu !== pnu) return // 그사이 다른 필지를 선택한 경우 무시
     const selectedId = buildings.find((b) => b.id === buildingId)?.id ?? buildings[0]?.id ?? null
+    const analysis = siteData ? runAll(siteData, get().scenarioId) : null
     set({
       buildings,
       selectedBuildingId: selectedId,
-      expandability: judge(buildings, selectedId),
+      expandability: analysis ? judgeSite(analysis) : judge(buildings, selectedId),
       siteData,
-      analysis: siteData ? runAll(siteData, get().scenarioId) : null,
+      analysis,
       status: buildings.length > 0 ? 'ready' : 'notFound',
     })
   },
 
-  selectBuilding: (id) => set({ selectedBuildingId: id, expandability: judge(get().buildings, id) }),
+  selectBuilding: (id) => {
+    const { analysis, buildings } = get()
+    set({ selectedBuildingId: id, expandability: analysis ? judgeSite(analysis) : judge(buildings, id) })
+  },
 
   setScenario: (id) => {
     const { siteData } = get()
-    set({ scenarioId: id, analysis: siteData ? runAll(siteData, id) : null })
+    if (!siteData) return set({ scenarioId: id })
+    const analysis = runAll(siteData, id)
+    set({ scenarioId: id, analysis, expandability: judgeSite(analysis) })
   },
 }))

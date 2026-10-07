@@ -709,9 +709,10 @@ export interface ExampleAddress {
   tag?: string
 }
 
-/** 증축 가능 여부 판정 — pending: 계산 엔진 연결 전(판정 대기) */
+/** 증축 가능 여부 판정 — pending: 계산 엔진 연결 전(판정 대기) / conditional: 주차 추가 확보 시 가능 /
+ *  check: 주택 층수 한도 등으로 대안 확인 필요 */
 export interface Expandability {
-  status: 'pending' | 'possible' | 'impossible'
+  status: 'pending' | 'possible' | 'conditional' | 'check' | 'impossible'
   /** 화면에 보여줄 설명 */
   reason: string
 }
@@ -964,6 +965,8 @@ export interface SiteExpansionResult {
   scenarioId: ScenarioId
   /** 이 시나리오에서 적용한 규칙 (화면·보고서의 현행→완화 표에 그대로 사용) */
   rules: Rules
+  /** 전용률 (0~1, 기준 엑셀) */
+  netRatio: number
   far: FarResult
   parking: ParkingResult
   housing: HousingSummary & { limit: HousingLimitResult }
