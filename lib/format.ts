@@ -26,6 +26,12 @@ export function formatWon(won: number | null, eokDigits = 1): string {
   return `${sign}${Math.round(abs / 1e4).toLocaleString('ko-KR')}만원`
 }
 
+/** 금액(원) 정확값 → "1,062,372,000원" (표에서 항목 합이 맞아 보이도록 반올림하지 않음) */
+export function formatWonExact(won: number | null): string {
+  if (won === null) return EMPTY
+  return `${Math.round(won).toLocaleString('ko-KR')}원`
+}
+
 /** 소수 비율 → 퍼센트 (0.066 → "6.6%") */
 export function formatRate(rate: number | null, digits = 1): string {
   if (rate === null) return EMPTY

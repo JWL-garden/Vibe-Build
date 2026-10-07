@@ -4,11 +4,12 @@
 
 import { judgeSite, LIMIT_LABEL } from '@/lib/calc'
 import { compareWithExcel, PARITY_TOLERANCE } from '@/lib/calc/excelParity'
-import { formatNumber, formatRate, formatWon, textOrEmpty, withUnit } from '@/lib/format'
+import { formatNumber, formatRate, formatWon, formatWonExact, textOrEmpty, withUnit } from '@/lib/format'
 import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
 import { policyNotes } from '@/lib/rules/policies'
 import { getScenario, scenarios } from '@/lib/rules/scenarios'
 import { describeOverrides } from './describeOverrides'
+import { LAND_BADGE, landAreaSource, landBaseMonthText, landBasisNote } from './landText'
 import type {
   ExcelSite,
   ExcelUnit,
@@ -216,25 +217,10 @@ function planSection(e: SiteExpansionResult): SitePlanSection {
   }
 }
 
-const LAND_BADGE: Record<LandValueResult['basis'], { badge: string; tone: SiteLandSection['tone'] }> = {
-  sum: { badge: '공시지가 기준', tone: 'accent' },
-  mismatch: { badge: '면적 확인 필요', tone: 'danger' },
-  estimated: { badge: '추정', tone: 'neutral' },
-  none: { badge: '계산 불가', tone: 'danger' },
-}
-
-/** 공시 기준 문구 — 토지가액을 보여주는 모든 곳에 붙인다 */
-function landBasisNote(land: LandValueResult): string {
-  const pb = land.priceBasis
-  if (!pb) return landValueRule.label
-  const month = pb.baseMonth ? ` ${Number(pb.baseMonth)}월 1일` : ''
-  return `${landValueRule.label} · ${pb.baseYear}년${month} 기준 · ${pb.announcedDate} 공시`
-}
-
 /** 1장 토지가액 (runAll의 analysis.land를 표시용으로만 바꾼다) */
 function landSection(land: LandValueResult): SiteLandSection {
-  const won = (v: number) => `${f(v, 0)}원`
-  const areaSource = land.basis === 'estimated' ? '대장 대지면적' : '토지대장'
+  const won = formatWonExact
+  const areaSource = landAreaSource(land)
   const rows: ReportRow[] = land.lots.map((l) => [l.pnu, `${f(l.areaM2)}㎡ (${areaSource})`, `${f(l.pricePerM2, 0)}원/㎡`, won(l.valueWon)])
   if (land.lots.length > 1) rows.push(['합계', `${f(land.areaUsedM2)}㎡`, '', won(land.valueWon!)])
   const notes = [...land.reasons]
@@ -252,28 +238,41 @@ function landSection(land: LandValueResult): SiteLandSection {
   }
 }
 
-/** 3장 증축 전·후 자산가치 (원가 기준 참고값, runAll의 analysis.asset) */
+/** 5장 증축 전·후 자산가치 (원가 기준 참고값, runAll의 analysis.asset) */
 function assetSection(analysis: SiteAnalysis): SiteAssetSection {
   const a = analysis.asset
   const b = a.existingBuilding
   const cost = `재조달단가 ${f(b.unitCostWon / 1e4, 0)}만원/㎡`
+  const hasAdd = a.addBuilding.gfaM2 > 0
+  // 표는 원 단위 정확값 (억 단위 반올림이면 항목 합과 합계가 어긋나 보임), 억 단위 요약은 KPI 카드에만
   const rows: ReportRow[] = [
-    ['토지가액', formatWon(a.land.valueWon), formatWon(a.land.valueWon), `${landBasisNote(a.land)} [${LAND_BADGE[a.land.basis].badge}]`],
+    ['토지가액', formatWonExact(a.land.valueWon), formatWonExact(a.land.valueWon), `${landBasisNote(a.land)} [${LAND_BADGE[a.land.basis].badge}]`],
     [
       '기존 건물가치',
-      formatWon(b.valueWon),
-      formatWon(b.valueWon),
+      formatWonExact(b.valueWon),
+      formatWonExact(b.valueWon),
       `연면적 ${f(b.gfaM2)}㎡ × ${cost} × 잔가율 ${formatRate(b.residualRate)} (경과 ${b.ageYears ?? '–'}년 / 내용연수 ${b.usefulLifeYears}년)`,
     ],
     [
       '증축 건물가치',
       '–',
-      formatWon(a.addBuilding.valueWon),
-      a.addBuilding.gfaM2 > 0 ? `증축 ${f(a.addBuilding.gfaM2)}㎡ × ${cost} (신축)` : '증축안 없음',
+      hasAdd ? formatWonExact(a.addBuilding.valueWon) : '–',
+      hasAdd ? `증축 ${f(a.addBuilding.gfaM2, 1)}㎡ × ${cost} (신축)` : '증축안 없음',
     ],
-    ['자산가치 합계', formatWon(a.beforeWon), formatWon(a.afterWon), '토지가액 + 건물가치 (원가 기준 참고값)'],
+    ['자산가치 합계', formatWonExact(a.beforeWon), formatWonExact(a.afterWon), '토지가액 + 건물가치 (원가 기준 참고값)'],
+  ]
+  const kpis: Kpi[] = [
+    { label: '토지가액', value: formatWon(a.land.valueWon), caption: `${LAND_BADGE[a.land.basis].badge} · 공시지가 기준` },
+    { label: '자산가치 (증축 전)', value: formatWon(a.beforeWon), caption: '토지 + 기존 건물' },
+    { label: '자산가치 (증축 후)', value: formatWon(a.afterWon), caption: `${analysis.scenarioId} 시나리오 증축안` },
+    {
+      label: '증가 (원가 기준)',
+      value: hasAdd ? formatWon(a.addBuilding.valueWon) : '없음',
+      caption: hasAdd ? `증축 ${f(a.addBuilding.gfaM2, 1)}㎡` : '증축안 없음',
+    },
   ]
   return {
+    kpis,
     rows,
     yieldNote:
       '토지 포함 수익률 = (기존 NOI + 증축 NOI 증가) ÷ (증축 전 자산가치 + 총사업비) — 임대료·사업비(수익성 단계) 입력 후 계산됩니다. 증축 판단의 핵심 지표는 ROI(NOI 증가 ÷ 총사업비)입니다.',
@@ -420,7 +419,13 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ['층별·호별 전유/공용 면적, 주택 층수·면적', sheet('전유공용면적_2단계'), '기준 엑셀'],
     ['호별 주차 산정 기준 (제5호·제4호·제3호·제2-1호)', sheet('주차대수_세대별'), '기준 엑셀'],
     ['전용률, 완화 후 허용연면적·주차 검토 (엑셀 대조 정답표)', sheet('용적률완화_주차검토'), '계산 엔진과 자동 대조 (±0.01)'],
-    ['개별공시지가 (원/㎡, 기준연월·공시일)', sheet('개별공시지가_2단계'), landBasisNote(analysis.land)],
+    [
+      '개별공시지가 (원/㎡) — 토지가액',
+      `${sheet('개별공시지가_2단계')} (브이월드 개별공시지가)`,
+      analysis.land.priceBasis
+        ? `기준연월 ${analysis.land.priceBasis.baseYear}.${analysis.land.priceBasis.baseMonth ?? '01'} (${landBaseMonthText(analysis.land)} 기준) · 공시일 ${analysis.land.priceBasis.announcedDate} · 시세 아님`
+        : '공시지가 없음 — 토지가액 계산 불가',
+    ],
     ['토지대장 지목·면적·소유구분', sheet('토지임야목록_2단계'), '필지 면적 검증·토지가액'],
     [
       '토지가액 구성 필지',

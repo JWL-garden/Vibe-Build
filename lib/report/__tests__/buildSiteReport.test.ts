@@ -208,8 +208,36 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     const [landRow, , addRow, totalRow] = r.asset.rows
     expect(landRow[3]).toContain('시세 아님')
     expect(landRow[3]).toContain('[면적 확인 필요]')
-    expect(addRow[2]).toBe('2억원') // 198,540,000원
-    expect(totalRow.slice(1, 3)).toEqual(['15.5억원', '17.5억원'])
+    expect(addRow[2]).toBe('198,540,000원')
+    expect(totalRow.slice(1, 3)).toEqual(['1,546,519,200원', '1,745,059,200원']) // 표는 원 단위 정확값 (항목 합 = 합계)
     expect(r.asset.yieldNote).toContain('수익성 단계')
+  })
+})
+
+describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', () => {
+  it('T1·T2 5장 KPI = runAll asset 값', async () => {
+    const t1 = (await build(T1)).asset.kpis.map((k) => k.value)
+    expect(t1).toEqual(['10.6억원', '15.5억원', '17.5억원', '2억원'])
+    const t2 = (await build(T2)).asset.kpis.map((k) => k.value)
+    expect(t2).toEqual(['17.8억원', '29.9억원', '30.6억원', '7,251만원'])
+  })
+
+  it('부록 데이터 출처: 개별공시지가_2단계 + 기준연월·공시일·시세 아님', async () => {
+    const row = (await build(T2)).appendix.sourceRows.find((r) => r[1].includes('개별공시지가_2단계'))!
+    expect(row[2]).toBe('기준연월 2026.01 (2026년 1월 1일 기준) · 공시일 2026-04-30 · 시세 아님')
+  })
+})
+
+describe('5장 표시 점검 (2026-10-07 숫자 점검 반영)', () => {
+  it('증축안이 없으면 증가 "없음", 증축 건물가치 "–"', async () => {
+    const r = await build(T1, 'BASE')
+    expect(r.asset.kpis[3].value).toBe('없음')
+    expect(r.asset.rows[2][2]).toBe('–')
+  })
+
+  it('T2 증축 면적은 0장과 같은 소수 첫째 자리 (36.3㎡)', async () => {
+    const r = await build(T2)
+    expect(r.asset.kpis[3].caption).toBe('증축 36.3㎡')
+    expect(r.summary.kpis[0].value).toContain('36.3㎡')
   })
 })

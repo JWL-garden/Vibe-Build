@@ -5,12 +5,12 @@ import SiteAppendix from './SiteAppendix'
 import SiteCh01Status from './SiteCh01Status'
 import SiteCh02Regulation from './SiteCh02Regulation'
 import SiteCh03Plan from './SiteCh03Plan'
+import SiteCh05Return from './SiteCh05Return'
 import SiteVerification from './SiteVerification'
 
 /** 아직 엔진·조립이 없는 장 (설계서 11장) */
 const UPCOMING = [
   { title: '4장 사업비 추정', note: '수익성 계산 엔진 연결 후 작성' },
-  { title: '5장 수익 분석', note: '수익성 계산 엔진 연결 후 작성' },
   { title: '6장 시나리오·민감도', note: '수익성 계산 엔진 연결 후 작성' },
   { title: '7장 리스크와 대응', note: '추후 작성' },
   { title: '8장 추진 절차·일정', note: '추후 작성' },
@@ -18,7 +18,7 @@ const UPCOMING = [
   { title: '10장 다음 단계 제안', note: '추후 작성' },
 ]
 
-/** 기준 엑셀 필지 보고서: 표지 + 1·2·3장 + 이어지는 장 목록 + 부록 1(근거) + 부록 2(데이터 검증) (SiteReport만 읽고 계산하지 않음) */
+/** 기준 엑셀 필지 보고서: 표지 + 1·2·3·5장 + 이어지는 장 목록 + 부록 1(근거) + 부록 2(데이터 검증) (SiteReport만 읽고 계산하지 않음) */
 export default function SiteReportPages({ report }: { report: SiteReport }) {
   const { meta, summary } = report
   const pageProps = { address: meta.address, sourceLabel: meta.sourceLabel }
@@ -26,6 +26,8 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
     { no: '1장', title: '대상 건축물 현황', body: <SiteCh01Status report={report} /> },
     { no: '2장', title: '법규 검토', body: <SiteCh02Regulation report={report} /> },
     { no: '3장', title: '증축 계획안', body: <SiteCh03Plan report={report} /> },
+    // 4장 사업비는 수익성 엔진 연결 후 — 5장은 지금 토지가액·자산가치만
+    { no: '5장', title: '수익 분석 (토지·자산가치)', body: <SiteCh05Return report={report} /> },
   ]
 
   return (

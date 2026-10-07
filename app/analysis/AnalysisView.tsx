@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import Step5Relaxation from '@/components/steps/Step5Relaxation'
 import Step6Expansion from '@/components/steps/Step6Expansion'
+import Step8Finance from '@/components/steps/Step8Finance'
 import { rowsFromRecord } from '@/lib/report/buildingRows'
 import { scenarios } from '@/lib/rules/scenarios'
 import { useAnalysisStore } from '@/store/analysisStore'
@@ -99,6 +100,11 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
                 title: '⑥ 증축 산정',
                 caption: `${analysis.scenarioId} 시나리오 · 주차 기준 최대 연면적`,
                 content: <Step6Expansion analysis={analysis} scenarios={scenarios} />,
+              },
+              {
+                title: '⑧ 수익성',
+                caption: `${analysis.scenarioId} 시나리오 · 토지가액(공시지가 기준) · 자산가치(예시 가정값)`,
+                content: <Step8Finance analysis={analysis} />,
               },
             ]
           : undefined

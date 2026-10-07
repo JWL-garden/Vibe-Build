@@ -1200,8 +1200,10 @@ export interface SiteLandSection {
   notes: string[]
 }
 
-/** 3장 증축 전·후 자산가치 (원가 기준 참고) */
+/** 5장 수익 분석 — 증축 전·후 자산가치 (원가 기준 참고) */
 export interface SiteAssetSection {
+  /** 5장 핵심 숫자 (토지가액, 자산가치 전·후, 증가) */
+  kpis: Kpi[]
   /** [항목, 증축 전, 증축 후, 근거] */
   rows: ReportRow[]
   /** 토지 포함 수익률 안내 */
@@ -1248,7 +1250,7 @@ export interface SiteReport {
   }
   /** 3장 증축 계획안 */
   plan: SitePlanSection
-  /** 3장 증축 전·후 자산가치 */
+  /** 5장 수익 분석 (토지가액·자산가치, 임대수익은 수익성 엔진 연결 후) */
   asset: SiteAssetSection
   /** 데이터 검증: 기준 엑셀 대조 + 추가로 확인·수정할 데이터 */
   verification: {
