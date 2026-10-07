@@ -241,6 +241,20 @@ export interface Scenario {
   overrides: DeepPartial<Rules>
 }
 
+/** 용적률·건폐율 계산 결과 (설계서 5-1, far.ts) */
+export interface FarResult {
+  /** 현재 용적률 (%) = 용적률산정 연면적 ÷ 대지면적 × 100 */
+  currentFarPercent: number
+  /** 적용 용적률 상한 (%) = rules.farLimitByZone[용도지역] (시나리오 적용 후) */
+  farLimitPercent: number
+  /** 허용 연면적 (㎡) = 대지면적 × 상한 ÷ 100 */
+  maxGfaM2: number
+  /** 잔여 연면적 (㎡, 0 이상) = 허용 연면적 − 현재 용적률산정 연면적 */
+  remainingGfaM2: number
+  /** 잔여 전용면적 (㎡) = 잔여 연면적 × 전용률 */
+  remainingNetM2: number
+}
+
 /** 증축을 멈추게 한 조건 */
 export type LimitingFactor = 'parking' | 'far' | 'housingArea' | 'housingFloors' | 'sunlight' | 'other'
 
