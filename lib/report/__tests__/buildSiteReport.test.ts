@@ -88,8 +88,17 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(byLabel['기존 여유']).toBe('1.9대')
   })
 
-  it('3장: 증축안 없음(주택 층수) → 대안 검토, 표지 3세대 여유·확인 필요', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 99.27㎡ · 3세대, 표지 증축 가능', async () => {
     const r = await build(T1)
+    expect(r.plan.kind).toBe('existing')
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(99.27, 2)
+    expect(r.summary.kpis[0].value).toBe('+1층 · +99.3㎡')
+    expect(r.summary.kpis[1].value).toBe('3세대')
+    expect(r.summary.kpis[3].value).toBe('증축 가능')
+  })
+
+  it('3장 B(다세대 4개층 한도): 증축안 없음 → 대안 검토, 표지 3세대 여유·확인 필요', async () => {
+    const r = await build(T1, 'B')
     expect(r.plan.kind).toBe('none')
     expect(r.summary.kpis[1].value).toBe('3세대 여유')
     expect(r.summary.kpis[3].value).toBe('확인 필요')
@@ -115,8 +124,15 @@ describe('T2 보고서', () => {
     expect(byLabel['기존 여유']).toBe('0.5대')
   })
 
-  it('3장: 증축안 없음 → 주택 층수 대안 검토, 표지 판정 확인 필요', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 36.25㎡ · 1세대, 표지 증축 가능', async () => {
     const r = await build(T2)
+    expect(r.plan.kind).toBe('existing')
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(36.25, 2)
+    expect(r.summary.kpis[3].value).toBe('증축 가능')
+  })
+
+  it('3장 BASE: 증축안 없음 → 주택 층수 대안 검토, 표지 1세대 여유·확인 필요', async () => {
+    const r = await build(T2, 'BASE')
     expect(r.plan.kind).toBe('none')
     expect(r.plan.alternatives.length).toBeGreaterThan(1)
     expect(r.summary.kpis[3].value).toBe('확인 필요')

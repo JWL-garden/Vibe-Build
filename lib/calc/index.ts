@@ -54,13 +54,13 @@ export function judgeSite(analysis: SiteAnalysis): Expandability {
   if (option?.verdict === 'check') {
     return {
       status: 'check',
-      reason: `기존 주차로는 증축할 수 없고, 주차 ${option.addSpaces}대를 추가 확보해도 ${name} 기준 주택 층수가 ${e.housing.housingFloors + 1}개층 이상으로 한도(${e.housing.limit.floorLimit}개층)를 넘어 신규 층 주택은 불가합니다. 부분 증축·용도변경 대안 확인이 필요합니다.`,
+      reason: `기존 주차로는 증축할 수 없고, 주차 ${option.addSpaces}대를 추가 확보해도 ${name} 기준 주택 ${option.attemptedFloors}개층 증축 시 주택 층수가 ${option.housingFloorsAfter}개층으로 한도(${e.housing.limit.floorLimit}개층)를 넘어 신규 층 주택은 불가합니다. 부분 증축·용도변경 대안 확인이 필요합니다.`,
     }
   }
   if (plan.verdict === 'check') {
     return {
       status: 'check',
-      reason: `${name} 기준 주차·용적률로는 ${e.parking.plan.units.length}세대 여유가 있으나, 주택 층수가 ${e.housing.limit.housingFloorsAfter}개층으로 한도(${e.housing.limit.floorLimit}개층)를 넘어 신규 층 주택은 불가합니다. 부분 증축·용도변경 대안 확인이 필요합니다.`,
+      reason: `${name} 기준 주차·용적률로는 ${e.parking.plan.units.length}세대 여유가 있으나, 주택 ${plan.attemptedFloors}개층 증축 시 주택 층수가 ${plan.housingFloorsAfter}개층으로 한도(${e.housing.limit.floorLimit}개층)를 넘어 신규 층 주택은 불가합니다. 부분 증축·용도변경 대안 확인이 필요합니다.`,
     }
   }
   return {

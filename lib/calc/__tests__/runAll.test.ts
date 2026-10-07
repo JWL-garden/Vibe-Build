@@ -73,24 +73,49 @@ describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
     }
   })
 
-  it('주택: 다세대 2~5층 4개층·378.24㎡ → B·ALL은 +2개층(6개층), C는 +1개층(5개층) 모두 한도 초과 → 확인 필요', async () => {
+  it('주택: 다세대 2~5층 4개층·378.24㎡ → 현행 한도 4개층인 BASE·A·B는 확인 필요 (B는 +2개층 → 6개층)', async () => {
     const r = await load(T1)
     expect(r.selected.housing.housingFloors).toBe(4)
     expect(r.selected.housing.housingAreaM2).toBeCloseTo(378.24, 2)
-    for (const id of SCENARIOS) {
+    for (const id of ['BASE', 'A', 'B'] as const) {
       const p = r.byScenario[id].plan
       expect(status(p, 'housingFloors')).toBe('fail')
       expect(p.verdict).toBe('check')
       expect(p.limitingFactor).toBe('housingFloors')
     }
-    expect(r.byScenario.ALL.plan.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+2개층 주택 시 6개층')
-    expect(r.byScenario.C.plan.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+1개층 주택 시 5개층')
+    expect(r.byScenario.B.plan.attemptedFloors).toBe(2)
+    expect(r.byScenario.B.plan.housingFloorsAfter).toBe(6)
+    expect(r.byScenario.B.plan.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+2개층 주택 시 6개층 > 한도 4개층')
   })
 
-  it('배지: ALL = 확인 필요 (3세대 여유)', async () => {
-    const j = judgeSite(await load(T1))
-    expect(j.status).toBe('check')
-    expect(j.reason).toContain('3세대 여유')
+  it('C(다세대 5개층): 용적률 잔여 20.76㎡ → +1개층, 5개층 ≤ 5 → 증축 가능', async () => {
+    const p = (await load(T1)).byScenario.C.plan
+    expect(p.verdict).toBe('possible')
+    expect(p.addFloors).toBe(1)
+    expect(p.addGfaM2).toBeCloseTo(20.76, 2)
+    expect(p.housingFloorsAfter).toBe(5)
+  })
+
+  it('ALL: +2개층 필요 → 주택 6개층 > 5 → 한도에 맞춰 +1개층(증축층 바닥면적 99.27㎡)으로 축소, 3세대', async () => {
+    const p = (await load(T1)).byScenario.ALL.plan
+    expect(p.attemptedFloors).toBe(2)
+    expect(p.addFloors).toBe(1)
+    expect(p.addGfaM2).toBeCloseTo(99.27, 2)
+    expect(p.addUnits).toHaveLength(3)
+    expect(p.housingFloorsAfter).toBe(5)
+    expect(p.limitingFactor).toBe('housingFloors')
+    expect(p.verdict).toBe('possible')
+    expect(p.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+1개층(99.27㎡)으로 축소')
+  })
+
+  it('배지 문장은 실제 증축 층수를 쓴다: B = "주택 2개층 증축 시 6개층", ALL = 증축 가능 +1개층', async () => {
+    const data = (await getSiteData(T1))!
+    const b = judgeSite(runAll(data, 'B'))
+    expect(b.status).toBe('check')
+    expect(b.reason).toContain('주택 2개층 증축 시 주택 층수가 6개층으로 한도(4개층)')
+    const all = judgeSite(runAll(data, 'ALL'))
+    expect(all.status).toBe('possible')
+    expect(all.reason).toContain('+1개층(+99.3㎡, 3세대)')
   })
 })
 
@@ -123,15 +148,23 @@ describe('2) T2: 주차 1세대 약 36.25㎡, 주택 연면적 BASE 불가 / C �
   })
 })
 
-describe('3) T2: 주택 5개층 > 4층 한도 → 확인 필요', () => {
-  it('C·ALL: 주택 층수 항목 불가, 종합 판정 확인 필요', async () => {
+describe('3) T2: 주택 5개층 — 현행 4개층 한도는 확인 필요, C·ALL(다세대 5개층)은 증축 가능', () => {
+  it('BASE·A·B: 주택 층수 항목 불가, 종합 판정 확인 필요', async () => {
     const r = await load(T2)
-    for (const id of ['C', 'ALL'] as const) {
+    for (const id of ['BASE', 'A', 'B'] as const) {
       const p = r.byScenario[id].plan
-      expect(r.byScenario[id].housing.limit.housingFloorsAfter).toBe(5)
+      expect(p.housingFloorsAfter).toBe(5)
       expect(r.byScenario[id].housing.limit.floorLimit).toBe(4)
       expect(status(p, 'housingFloors')).toBe('fail')
       expect(p.verdict).toBe('check')
+    }
+  })
+
+  it('C·ALL: 5개층 ≤ 한도 5 → 증축 가능', async () => {
+    const r = await load(T2)
+    for (const id of ['C', 'ALL'] as const) {
+      expect(r.byScenario[id].housing.limit.floorLimit).toBe(5)
+      expect(r.byScenario[id].plan.verdict).toBe('possible')
     }
   })
 })
@@ -161,10 +194,13 @@ describe('judgeSite 증축 가능 여부 배지', () => {
     expect(base.reason).toContain('용적률')
   })
 
-  it('T2: ALL = 확인 필요 (주택 층수 5 > 4)', async () => {
-    const r = judgeSite(runAll((await getSiteData(T2))!, 'ALL'))
-    expect(r.status).toBe('check')
-    expect(r.reason).toContain('5개층')
-    expect(r.reason).toContain('대안 확인')
+  it('T2: ALL = 증축 가능 +1개층(+36.3㎡, 1세대), BASE = 확인 필요 (주택 1개층 증축 시 5개층 > 4)', async () => {
+    const data = (await getSiteData(T2))!
+    const all = judgeSite(runAll(data, 'ALL'))
+    expect(all.status).toBe('possible')
+    expect(all.reason).toContain('+1개층(+36.3㎡, 1세대)')
+    const base = judgeSite(runAll(data, 'BASE'))
+    expect(base.status).toBe('check')
+    expect(base.reason).toContain('주택 1개층 증축 시 주택 층수가 5개층으로 한도(4개층)')
   })
 })

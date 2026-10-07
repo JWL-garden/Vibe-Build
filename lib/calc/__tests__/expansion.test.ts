@@ -103,14 +103,28 @@ describe('T2 당산동6가 110-19 (설계서 12-3)', () => {
     expect(r.plan.limitingFactor).toBe('housingFloors')
   })
 
-  it('C·ALL: 주택 연면적 통과(1,000㎡)지만 5개층 > 4 → 불가 (확인 필요 안내)', () => {
-    for (const id of ['C', 'ALL'] as const) {
+  it('BASE·B: 다세대 4개층 + 1 = 5개층 > 4 → 불가 (대안 확인 필요 안내)', () => {
+    for (const id of ['BASE', 'B'] as const) {
       const r = run(T2, id)
-      expect(status(r.plan.checks, 'housingArea')).toBe('pass')
       expect(status(r.plan.checks, 'housingFloors')).toBe('fail')
       expect(r.plan.limitingFactor).toBe('housingFloors')
       expect(r.plan.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('대안 확인 필요')
     }
+  })
+
+  it('C·ALL(다세대 5개층): 5개층 ≤ 5 → 증축 가능 — C는 용적률 24.18㎡, ALL은 주차 36.25㎡', () => {
+    const c = run(T2, 'C').plan
+    const all = run(T2, 'ALL').plan
+    for (const p of [c, all]) {
+      expect(status(p.checks, 'housingArea')).toBe('pass')
+      expect(status(p.checks, 'housingFloors')).toBe('pass')
+      expect(p.verdict).toBe('possible')
+      expect(p.addFloors).toBe(1)
+    }
+    expect(c.addGfaM2).toBeCloseTo(24.18, 2)
+    expect(c.limitingFactor).toBe('far')
+    expect(all.addGfaM2).toBeCloseTo(36.25, 2)
+    expect(all.limitingFactor).toBe('parking')
   })
 
   it('1개층 증축 시 필요 정북 이격: 17 + 3.3 = 20.3m → BASE 10.15m / A 5.075m', () => {

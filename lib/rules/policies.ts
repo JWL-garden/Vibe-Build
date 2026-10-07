@@ -11,7 +11,8 @@ export const policyNotes: PolicyNote[] = [
     title: '다가구·다세대 건축기준 합리화',
     detail: '(면적) 660→1,000㎡ 미만, (다가구 층수) 3→4개층 이하, (일조) 4~5층도 수직 건축 허용',
     source: SOURCE,
-    usage: '시나리오 C·ALL에 반영 (발표 단계, 법령 개정 전). 일조 수직 허용 높이 15m는 프로젝트 가정',
+    usage:
+      '시나리오 C·ALL에 반영 (발표 단계, 법령 개정 전). 다세대 층수 4→5개층과 일조 수직 허용 높이 15m는 프로젝트 해석·가정',
   },
   {
     id: 'small-new-housing-tax',

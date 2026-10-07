@@ -285,8 +285,8 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ],
     [
       '주택 층수',
-      `다세대 ${base.housing.maxFloors.다세대}개층, 다가구 ${base.housing.maxFloors.다가구}→${all.housing.maxFloors.다가구}개층, 다중주택 ${base.housing.maxFloors.다중주택}→${all.housing.maxFloors.다중주택}개층 이하`,
-      '건축법 시행령 별표1 / C는 8·13 대책',
+      `다세대 ${base.housing.maxFloors.다세대}→${all.housing.maxFloors.다세대}개층, 다가구 ${base.housing.maxFloors.다가구}→${all.housing.maxFloors.다가구}개층, 다중주택 ${base.housing.maxFloors.다중주택}→${all.housing.maxFloors.다중주택}개층 이하`,
+      '건축법 시행령 별표1 / C는 8·13 대책 (다세대 5개층은 프로젝트 해석)',
     ],
     [
       '주택 연면적',
@@ -457,7 +457,9 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
       `${f(x.far.farLimitPercent, 0)}% / ${f(x.far.remainingGfaM2)}㎡`,
       `${f(x.parking.plan.gfaM2)}㎡`,
       x.housing.limit.applies ? `${f(x.housing.limit.areaGfaM2!)}㎡` : '미적용',
-      x.housing.limit.applies ? `${x.housing.limit.housingFloorsAfter}/${x.housing.limit.floorLimit}개층` : '미적용',
+      x.housing.limit.applies
+        ? `${x.plan.housingFloorsAfter ?? x.housing.housingFloors}/${x.housing.limit.floorLimit}개층${x.plan.attemptedFloors > 0 ? ` (+${x.plan.attemptedFloors}층 시)` : ''}`
+        : '미적용',
       `${f(x.plan.addGfaM2)}㎡ · ${verdict}${o?.verdict === 'possible' ? ` (주차 +${o.addSpaces}대 시 ${f(o.addGfaM2)}㎡)` : ''}`,
       LIMIT_LABEL[x.plan.limitingFactor],
     ]

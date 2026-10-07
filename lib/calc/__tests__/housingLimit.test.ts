@@ -37,10 +37,10 @@ describe('주택 현황 (설계서 12-2)', () => {
 })
 
 describe('주택 층수 한도 (설계서 5-7, 12-3)', () => {
-  it('주택 4개층 건물에 새 층 주택 추가 → BASE·완화(4층) 모두 불가', () => {
+  it('다세대 4개층 + 새 층 → BASE(4) 불가, C(8·13 대책 다세대 5) 통과', () => {
     const input = { housingType: '다세대' as const, housingFloors: 4, housingAreaM2: 500, source: 'units' as const, addHousingFloor: true }
     expect(calcHousingLimit(input, BASE).floorOK).toBe(false)
-    expect(calcHousingLimit(input, C).floorOK).toBe(false)
+    expect(calcHousingLimit(input, C).floorOK).toBe(true)
     expect(calcHousingLimit(input, ALL).housingFloorsAfter).toBe(5)
   })
 
@@ -55,9 +55,9 @@ describe('주택 층수 한도 (설계서 5-7, 12-3)', () => {
     expect(calcHousingLimit(input, C).floorOK).toBe(true)
   })
 
-  it('T2: 새 층 주택 시 5개층 → BASE·C 모두 불가', () => {
+  it('T2: 새 층 주택 시 5개층 → BASE(4) 불가, C(5) 통과', () => {
     expect(calcHousingLimit({ ...T2, addHousingFloor: true }, BASE).floorOK).toBe(false)
-    expect(calcHousingLimit({ ...T2, addHousingFloor: true }, C).floorOK).toBe(false)
+    expect(calcHousingLimit({ ...T2, addHousingFloor: true }, C).floorOK).toBe(true)
   })
 
   it('새 층에 주택을 넣지 않으면 층수는 그대로 (T2 4개층 → C 통과)', () => {

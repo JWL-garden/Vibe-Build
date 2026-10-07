@@ -971,6 +971,10 @@ export interface ExpansionPlan {
   newFarPercent: number
   /** 증축 규모를 결정한(또는 0으로 만든) 항목 */
   limitingFactor: LimitingFactor
+  /** 주택 층수 검토 전에 필요했던 증축 층수 (연면적 ÷ 증축층 바닥면적) */
+  attemptedFloors: number
+  /** 증축 후 주택 층수 (실제 증축 층수 기준, 주택이 아니거나 증축이 없으면 null) */
+  housingFloorsAfter: number | null
   /** 종합 판정 — possible 증축 가능 / impossible 불가 / check 확인 필요(주택 층수 한도로 신규 층 주택만 불가, 대안 검토) */
   verdict: 'possible' | 'impossible' | 'check'
   checks: ExpansionCheck[]
