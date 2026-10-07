@@ -89,8 +89,10 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     const housingGfa = housingLimit.applies ? housingLimit.areaGfaM2! : Infinity
 
     // 1)~3) 최솟값. 같으면 용적률 → 주택 연면적 → 주차 순으로 제한요인을 정한다
+    // 잔여 전용면적이 최소 세대면적(15㎡)보다 작으면 용적률로는 사실상 증축 불가
+    const farUsable = far.remainingNetM2 + EPS >= minUnitNet
     const candidates: [LimitingFactor, number][] = [
-      ['far', far.remainingGfaM2],
+      ['far', farUsable ? far.remainingGfaM2 : 0],
       ['housingArea', housingGfa],
       ['parking', plan.gfaM2],
     ]
@@ -108,8 +110,10 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     })
     checks.push({
       item: 'far',
-      status: far.remainingGfaM2 > EPS ? 'pass' : 'fail',
-      detail: `용적률 ${f(far.farLimitPercent)}% → 잔여 연면적 ${f(far.remainingGfaM2)}㎡`,
+      status: farUsable ? 'pass' : 'fail',
+      detail:
+        `용적률 ${f(far.farLimitPercent)}% → 잔여 연면적 ${f(far.remainingGfaM2)}㎡` +
+        (farUsable ? '' : ` (전용 ${f(far.remainingNetM2)}㎡ < 최소 세대 ${f(minUnitNet)}㎡ → 사실상 불가)`),
     })
     checks.push(
       housingLimit.applies
@@ -140,20 +144,22 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     let sunCheck: ExpansionCheck
     if (!sunlightApplies) {
       sunCheck = { item: 'sunlight', status: 'pass', detail: '일조 사선 미적용 지역' }
-    } else if (addFloors === 0) {
-      sunCheck = { item: 'sunlight', status: 'pass', detail: '증축 없음' }
     } else if (height === null) {
       sunCheck = { item: 'sunlight', status: 'check', detail: '현재 높이 정보 없음 — 확인 필요' }
+    } else if (allowedHeightM === null) {
+      // 정북 이격거리 미입력: 증축이 0이어도 1개층 증축에 필요한 이격거리를 안내한다
+      const floors = Math.max(addFloors, 1)
+      const newH = height + floors * fh
+      sunCheck = {
+        item: 'sunlight',
+        status: 'check',
+        detail: `${addFloors > 0 ? '' : '1개층 증축 시 '}높이 ${f(newH)}m → 정북 이격 ${f(requiredSetback(newH, rules.sunlight))}m 이상 필요 — 이격거리 확인 필요`,
+      }
+    } else if (addFloors === 0) {
+      sunCheck = { item: 'sunlight', status: 'pass', detail: '증축 없음' }
     } else {
       const newH = height + addFloors * fh
-      const need = requiredSetback(newH, rules.sunlight)
-      if (allowedHeightM === null) {
-        sunCheck = {
-          item: 'sunlight',
-          status: 'check',
-          detail: `높이 ${f(newH)}m → 정북 이격 ${f(need)}m 이상 필요 — 이격거리 확인 필요`,
-        }
-      } else if (newH <= allowedHeightM + EPS) {
+      if (newH <= allowedHeightM + EPS) {
         sunCheck = { item: 'sunlight', status: 'pass', detail: `높이 ${f(newH)}m ≤ 허용 ${f(allowedHeightM)}m` }
       } else {
         const floorsBySun = Math.max(0, Math.floor((allowedHeightM - height) / fh + EPS))
@@ -207,6 +213,8 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
       newHeightM: height === null ? null : height + addFloors * fh,
       newFarPercent: ((site.farFloorAreaM2 + fitted.gfa) / siteAreaM2) * 100,
       limitingFactor,
+      // 주택 층수만 막힌 경우는 부분 증축·용도변경 대안이 있어 '확인 필요'
+      verdict: fitted.gfa > EPS ? 'possible' : limitingFactor === 'housingFloors' ? 'check' : 'impossible',
       checks,
       reasons: [...parking.reasons.slice(0, 2), ...reasons],
     }

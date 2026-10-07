@@ -4,7 +4,22 @@
 import registryJson from '@/lib/mock/registry.json'
 import examplesJson from '@/lib/mock/examples.json'
 import sampleReportS1 from '@/lib/mock/sampleReport.S1.json'
-import type { BuildingRecord, ExampleAddress, ReportData, SampleId, SiteCandidate } from '@/types'
+import parkingReviewJson from '@/lib/data/parkingReview.json'
+import siteInputsJson from '@/lib/data/siteInputs.json'
+import sitesJson from '@/lib/data/sites.json'
+import unitsJson from '@/lib/data/units.json'
+import type {
+  BuildingRecord,
+  ExampleAddress,
+  ExcelSite,
+  ExcelUnit,
+  ParkingReviewRow,
+  ReportData,
+  SampleId,
+  SiteCandidate,
+  SiteData,
+  SiteInput,
+} from '@/types'
 
 const registry = registryJson as BuildingRecord[]
 const examples = examplesJson as ExampleAddress[]
@@ -64,4 +79,22 @@ export async function getExampleAddresses(): Promise<ExampleAddress[]> {
 /** 샘플 보고서 데이터. 없으면 null */
 export async function getSampleReport(id: string): Promise<ReportData | null> {
   return sampleReports[id as SampleId] ?? null
+}
+
+/**
+ * 기준 엑셀(lib/data) 한 필지 묶음. 엑셀 검토 대상이 아니거나 '미산정' 필지면 null.
+ * 건축물 숫자는 이 묶음에서만 가져온다 (CLAUDE.md "기준 엑셀이 정답").
+ */
+export async function getSiteData(pnu: string): Promise<SiteData | null> {
+  const site = (sitesJson.items as ExcelSite[]).find((s) => s.pnu === pnu)
+  const review = (parkingReviewJson.items as ParkingReviewRow[]).find((r) => r.pnu === pnu)
+  if (!site || !review || review.verdict === '미산정' || review.netRatio === null) return null
+  return {
+    pnu,
+    site,
+    units: (unitsJson.items as ExcelUnit[]).filter((u) => u.pnu === pnu),
+    review,
+    siteInput: (siteInputsJson.items as SiteInput[]).find((s) => s.pnu === pnu) ?? null,
+    sourceLabel: `기준 엑셀(${sitesJson.source.date})`,
+  }
 }

@@ -1,10 +1,35 @@
 // 계산 통합 함수 (설계서 5-6)
-// TODO [3-4]: analyze, analyzeFinance, runAll 구현
+// TODO [3-4]: analyzeFinance(수익성) 구현 후 runAll 결과에 추가
 
-import type { BuildingRecord, Expandability, ExpansionResult } from '@/types'
+import { getEffectiveRules, scenarios } from '@/lib/rules/scenarios'
+import type { BuildingRecord, Expandability, ExpansionResult, ScenarioId, SiteAnalysis, SiteData } from '@/types'
+import { calcExpansion } from './expansion'
 import { LIMIT_LABEL } from './labels'
 
 export { LIMIT_LABEL }
+
+/**
+ * 한 필지를 모든 법규 시나리오(BASE/A/B/C/ALL)로 계산한다.
+ * 화면·보고서의 모든 숫자는 이 결과만 사용한다.
+ */
+export function runAll(data: SiteData, scenarioId: ScenarioId): SiteAnalysis {
+  const byScenario = Object.fromEntries(
+    scenarios.map((s) => [
+      s.id,
+      calcExpansion(
+        {
+          scenarioId: s.id,
+          site: data.site,
+          units: data.units,
+          netRatio: data.review.netRatio!,
+          siteInput: data.siteInput,
+        },
+        getEffectiveRules(s.id),
+      ),
+    ]),
+  ) as Record<ScenarioId, SiteAnalysis['selected']>
+  return { pnu: data.pnu, scenarioId, byScenario, selected: byScenario[scenarioId] }
+}
 
 /**
  * 실제 건축물대장 레코드의 증축 가능 여부.

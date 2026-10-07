@@ -951,6 +951,8 @@ export interface ExpansionPlan {
   newFarPercent: number
   /** 증축 규모를 결정한(또는 0으로 만든) 항목 */
   limitingFactor: LimitingFactor
+  /** 종합 판정 — possible 증축 가능 / impossible 불가 / check 확인 필요(주택 층수 한도로 신규 층 주택만 불가, 대안 검토) */
+  verdict: 'possible' | 'impossible' | 'check'
   checks: ExpansionCheck[]
   reasons: string[]
 }
@@ -971,4 +973,30 @@ export interface SiteExpansionResult {
   plan: ExpansionPlan
   /** 기존 주차로 0세대일 때: 주차 addSpaces대 추가 확보 시 증축 */
   parkingOption: (ExpansionPlan & { addSpaces: number }) | null
+}
+
+/** 기준 엑셀에서 모은 한 필지 묶음 — runAll 입력 (설계서 5-6) */
+export interface SiteData {
+  pnu: string
+  /** 대표 동 (한 필지에 동이 여러 개면 첫 동) */
+  site: ExcelSite
+  /** 이 필지의 호 목록 */
+  units: ExcelUnit[]
+  /** 기준 엑셀 '용적률완화_주차검토' 행 (전용률 출처) */
+  review: ParkingReviewRow
+  /** 수기 입력값 (없으면 null) */
+  siteInput: SiteInput | null
+  /** 화면·보고서 출처 표기 (예: '기준 엑셀(2026-10-07)') */
+  sourceLabel: string
+}
+
+/** runAll 결과 — 화면·보고서는 이 값만 쓴다 */
+export interface SiteAnalysis {
+  pnu: string
+  /** 선택한 법규 시나리오 */
+  scenarioId: ScenarioId
+  /** 시나리오별 증축 산정 결과 */
+  byScenario: Record<ScenarioId, SiteExpansionResult>
+  /** byScenario[scenarioId] */
+  selected: SiteExpansionResult
 }

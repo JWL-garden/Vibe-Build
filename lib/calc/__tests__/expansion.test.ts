@@ -32,11 +32,11 @@ function run(pnu: string, scenarioId: ScenarioId, siteInput?: Partial<SiteInput>
 const status = (checks: { item: string; status: string }[], item: string) => checks.find((c) => c.item === item)?.status
 
 describe('T1 당산동6가 104-48 (설계서 12-3)', () => {
-  it('BASE: 용적률 잔여 0.87㎡, 기존 주차 0세대 → 증축 불가 (제한: 주차), 추가 확보 안 없음', () => {
+  it('BASE: 용적률 잔여 0.87㎡(사실상 불가), 기존 주차 0세대 → 증축 불가 (제한: 용적률), 추가 확보 안 없음', () => {
     const r = run(T1, 'BASE')
     expect(r.far.remainingGfaM2).toBeCloseTo(0.87, 2)
     expect(r.plan.addGfaM2).toBe(0)
-    expect(r.plan.limitingFactor).toBe('parking')
+    expect(r.plan.limitingFactor).toBe('far')
     expect(r.parkingOption).toBeNull()
   })
 
