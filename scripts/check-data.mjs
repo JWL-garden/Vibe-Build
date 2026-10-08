@@ -2,20 +2,28 @@
 // 검사 기준은 lib/data/sheetMap.json (required, columns, key, unique, min/max, values, targetRequired)
 // 오류가 하나라도 있으면 종료 코드 1. 단위 이상값·미등록 시트 등은 경고만 출력.
 
-import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { DATA_DIR, PROJECT_ROOT, dataRows, loadSheetMap, loadSource, openWorkbook, readJson, readSheet } from './lib/excel-utils.mjs'
+import { DATA_DIR, PROJECT_ROOT, dataRows, loadSheetMap, readJson } from './lib/excel-utils.mjs'
+import { openTableSource } from './lib/table-source.mjs'
 
 const errors = []
 const warnings = []
 const isEmpty = (v) => v === null || v === undefined || String(v).trim() === ''
 const norm = (s) => String(s).replace(/[\s()㎡%_]/g, '')
 
-const source = loadSource()
 const sheetMap = loadSheetMap()
-const workbook = openWorkbook(source)
-console.log(`기준 엑셀 ${source.version} (${source.sourceDate}): ${source.fileName}\n`)
+/** sheetMap에 나오는 소스를 모두 연다 (입력 엑셀이 없으면 오류로 알려 준다) */
+const sources = {}
+for (const id of new Set(sheetMap.map((e) => e.source))) {
+  try {
+    sources[id] = openTableSource(id)
+    console.log(`${sources[id].label ?? id} ${sources[id].version} (${sources[id].sourceDate}): ${sources[id].fileName ?? sources[id].kind}`)
+  } catch (error) {
+    errors.push(`소스 '${id}'를 열 수 없음: ${error.message.split('\n')[0]}`)
+  }
+}
+console.log('')
 
 /** T1·T2 = 랜딩 예시 중 '기준 엑셀' 태그가 붙은 필지 */
 const targets = readJson(resolve(PROJECT_ROOT, 'lib/mock/examples.json'))
@@ -26,18 +34,22 @@ if (!targets.length) errors.push('lib/mock/examples.json에 기준 엑셀 대상
 // ── 1) 필수 시트 / sheetMap에 없는 시트 ────────────────────────────
 
 for (const e of sheetMap) {
-  if (!workbook.Sheets[e.sheet]) (e.required ? errors : warnings).push(`시트 없음: '${e.sheet}'${e.required ? ' (필수)' : ''}`)
+  if (sources[e.source] && !sources[e.source].has(e.sheet)) {
+    ;(e.required ? errors : warnings).push(`시트 없음: '${e.sheet}' (${e.source})${e.required ? ' (필수)' : ''}`)
+  }
 }
-for (const name of workbook.SheetNames) {
-  if (!sheetMap.some((e) => e.sheet === name)) {
-    warnings.push(`sheetMap에 없는 시트: '${name}' → 쓰려면 lib/data/sheetMap.json에 한 줄 추가`)
+for (const [id, src] of Object.entries(sources)) {
+  for (const name of src.names ?? []) {
+    if (!sheetMap.some((e) => e.source === id && e.sheet === name)) {
+      warnings.push(`sheetMap에 없는 시트: '${name}' (${id}) → 쓰려면 lib/data/sheetMap.json에 한 줄 추가`)
+    }
   }
 }
 
 // ── 시트별 검사 ─────────────────────────────────────────────
 
-for (const e of sheetMap.filter((s) => (s.enabled || s.required) && workbook.Sheets[s.sheet])) {
-  const all = readSheet(workbook, e.sheet)
+for (const e of sheetMap.filter((s) => (s.enabled || s.required) && sources[s.source]?.has(s.sheet))) {
+  const all = sources[e.source].read(e.sheet)
   const rows = dataRows(all)
   const header = Object.keys(all[0] ?? {})
   const at = `'${e.sheet}'`
@@ -103,9 +115,10 @@ for (const e of sheetMap.filter((s) => (s.enabled || s.required) && workbook.She
 
 // ── 6) 변환 JSON이 지금 엑셀·버전과 맞는지, T1·T2가 들어 있는지 ──────────────
 
-const fileHash = createHash('sha256').update(readFileSync(source.absPath)).digest('hex').slice(0, 16)
 const outputs = [...new Set(sheetMap.filter((e) => e.enabled).map((e) => e.output))]
 for (const output of outputs) {
+  const source = sources[sheetMap.find((e) => e.output === output).source]
+  if (!source) continue
   const path = resolve(DATA_DIR, output)
   if (!existsSync(path)) {
     errors.push(`${output} 없음 → npm run data:excel`)
@@ -113,11 +126,14 @@ for (const output of outputs) {
   }
   const json = readJson(path)
   if (!json.meta) errors.push(`${output}에 meta 없음 → npm run data:excel`)
-  else if (json.meta.fileHash !== fileHash || json.meta.version !== source.version) {
+  else if (json.meta.fileHash !== source.hash || json.meta.version !== source.version) {
     warnings.push(`${output}이 지금 엑셀/버전과 다름 (${json.meta.version}) → npm run data:excel`)
   }
-  for (const t of targets) {
-    if (!json.items?.some((i) => i.pnu === t.pnu)) errors.push(`${output}에 ${t.id}(${t.pnu}) 없음`)
+  // 기준 엑셀 출력에는 T1·T2가 반드시 있어야 한다 (입력 엑셀은 필지별 값이 비어 있을 수 있음)
+  if (source.id === 'base') {
+    for (const t of targets) {
+      if (!json.items?.some((i) => i.pnu === t.pnu)) errors.push(`${output}에 ${t.id}(${t.pnu}) 없음`)
+    }
   }
 }
 

@@ -78,15 +78,15 @@ describe('자산가치 — 원가 기준 (재조달단가 200만원/㎡, 내용�
     expect(fullYearsBetween('2018-10-08', '2026-10-07')).toBe(7)
   })
 
-  it('T1: 기존 378.24㎡ × 200만 × 0.64 = 484,147,200 / 전 1,546,519,200 / ALL +99.27㎡ → 후 1,745,059,200', async () => {
+  it('T1: 기존 378.24㎡ × 200만 × 0.64 = 484,147,200 / 전 1,546,519,200 / ALL +53.829㎡ → 후 1,654,177,200', async () => {
     const a = runAll(await site(T1), 'ALL').asset
     expect(a.existingBuilding.ageYears).toBe(18)
     expect(a.existingBuilding.residualRate).toBeCloseTo(0.64, 10)
     expect(a.existingBuilding.valueWon).toBe(484_147_200)
     expect(a.beforeWon).toBe(1_546_519_200)
-    expect(a.addBuilding.gfaM2).toBe(99.27)
-    expect(a.addBuilding.valueWon).toBe(198_540_000)
-    expect(a.afterWon).toBe(1_745_059_200)
+    expect(a.addBuilding.gfaM2).toBeCloseTo(53.829, 6)
+    expect(a.addBuilding.valueWon).toBe(107_658_000)
+    expect(a.afterWon).toBe(1_654_177_200)
   })
 
   it('T2: 기존 722.02㎡ × 200만 × 0.84 = 1,212,993,600 / 전 2,990,068,900 / ALL +36.2527㎡ → 후 3,062,574,214', async () => {

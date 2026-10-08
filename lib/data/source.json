@@ -1,7 +1,21 @@
 {
-  "_comment": "기준 데이터 파일 경로·버전은 이 파일 한 곳에서만 관리한다. 엑셀을 바꾸면 excelPath·version·sourceDate·note를 고치고 npm run data:excel → docs/data-changelog.md 기록.",
-  "excelPath": "../261007_데이터 통합_토지 공시지가 추가.xlsx",
-  "version": "261007-b",
-  "sourceDate": "2026-10-07",
-  "note": "261007-a + 토지임야목록·개별공시지가·빈땅_신축시나리오 시트 추가 (기존 시트 값 변경 없음)"
+  "_comment": "데이터 소스 경로·버전은 이 파일 한 곳에서만 관리한다. 엑셀을 바꾸면 해당 소스의 excelPath·version·sourceDate·note를 고치고 npm run data:excel → docs/data-changelog.md 기록. kind: excel(지금) | api(예정 — scripts/lib/table-source.mjs에 어댑터 추가). 시트가 어느 소스에서 오는지는 sheetMap.json의 source.",
+  "sources": {
+    "base": {
+      "kind": "excel",
+      "label": "기준 엑셀",
+      "excelPath": "../261007_데이터 통합_토지 공시지가 추가.xlsx",
+      "version": "261007-b",
+      "sourceDate": "2026-10-07",
+      "note": "261007-a + 토지임야목록·개별공시지가·빈땅_신축시나리오 시트 추가 (기존 시트 값 변경 없음)"
+    },
+    "input": {
+      "kind": "excel",
+      "label": "가정값 입력 엑셀",
+      "excelPath": "../261008_가정값 입력.xlsx",
+      "version": "261008-a",
+      "sourceDate": "2026-10-08",
+      "note": "증축층 바닥면적(옵션2) 입력 양식 — npm run data:template 으로 생성, 수익성 가정값 시트는 다음 단계에서 추가"
+    }
+  }
 }

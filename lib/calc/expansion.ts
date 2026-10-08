@@ -20,6 +20,7 @@ import type {
   SiteInput,
 } from '@/types'
 import { calcFar } from './far'
+import { calcFloorPlate } from './floorPlate'
 import { calcHousingLimit, summarizeHousing } from './housingLimit'
 import { LIMIT_LABEL } from './labels'
 import { buildParkingUnits, calcParking } from './parking'
@@ -34,6 +35,8 @@ export interface ExpansionInput {
   netRatio: number
   /** 수기 입력값 (없으면 null → 해당 항목 '확인 필요') */
   siteInput: SiteInput | null
+  /** 증축층 바닥면적 옵션2 값 (가정값 입력 엑셀). 없으면 옵션1 */
+  floorPlateOption2M2?: number | null
 }
 
 const EPS = 1e-9
@@ -63,10 +66,9 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
   // 추가 세대는 주택이므로 새 층은 주택 층으로 본다
   const housingLimit = calcHousingLimit({ ...housingSummary, addHousingFloor: true }, rules)
 
-  const floorPlate =
-    siteInput?.floorPlateM2 != null
-      ? { areaM2: siteInput.floorPlateM2, source: 'siteInput' as const }
-      : { areaM2: site.buildingAreaM2, source: 'buildingArea' as const }
+  // 증축층 바닥면적: 옵션1(최상층 전유 × 0.9) / 옵션2(입력 엑셀). 지붕이 평슬라브가 아니면 null(계산 보류)
+  const floorPlate = calcFloorPlate({ site, units, option2M2: input.floorPlateOption2M2 ?? null }, rules)
+  const plateM2 = floorPlate.areaM2 ?? 0
   // 다가구·다세대면 8·13 대책 '수직 건축 허용 높이'를 반영한 일조 규칙
   const sun = sunlightRuleFor(rules.sunlight, housingSummary.housingType)
   const sunlightApplies = sun.applies && (getZoneRule(site.zone)?.sunlightApplies ?? true)
@@ -131,16 +133,18 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
       `증축 연면적 = min(주차 ${f(plan.gfaM2)}, 용적률 ${f(far.remainingGfaM2)}, 주택 연면적 ${housingLimit.applies ? f(housingGfa) : '미적용'}) = ${f(fitted.gfa)}㎡`,
     )
 
-    // 4) 층수
-    let addFloors = fitted.gfa > EPS ? Math.ceil(fitted.gfa / floorPlate.areaM2 - EPS) : 0
+    // 4) 층수 — 증축층 바닥면적 (지붕이 평슬라브가 아니면 증축 불가, 계산 보류)
     checks.push({
       item: 'floorPlate',
-      status: floorPlate.source === 'siteInput' ? 'pass' : 'check',
-      detail:
-        floorPlate.source === 'siteInput'
-          ? `증축층 바닥면적 ${f(floorPlate.areaM2)}㎡ (수기입력)`
-          : `증축층 바닥면적 = 건축면적 ${f(floorPlate.areaM2)}㎡로 가정 — 최상층 면적 확인 필요`,
+      status: { ok: 'pass', blocked: 'fail', fallback: 'check' }[floorPlate.status] as ExpansionCheck['status'],
+      detail: floorPlate.detail,
     })
+    if (floorPlate.status === 'blocked') {
+      fitted = { gfa: 0, net: 0, units: [] }
+      limitingFactor = 'roof'
+      reasons.push(floorPlate.detail)
+    }
+    let addFloors = fitted.gfa > EPS ? Math.ceil(fitted.gfa / plateM2 - EPS) : 0
 
     // 5) 주택 층수 — 새 층을 모두 주택으로 쓰면 주택 층수가 증축 층수만큼 늘어난다.
     //    한도를 넘으면 한도에 맞는 층수까지 줄이고, 한 층도 못 올리면 0 (부분 증축·용도변경 대안 확인 필요)
@@ -167,7 +171,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
         limitingFactor = 'housingFloors'
       } else {
         addFloors = allowedAdd
-        fitted = fitUnits(plan, Math.min(fitted.gfa, addFloors * floorPlate.areaM2))
+        fitted = fitUnits(plan, Math.min(fitted.gfa, addFloors * plateM2))
         if (fitted.gfa <= EPS) addFloors = 0
         limitingFactor = 'housingFloors'
         checks.push({
@@ -210,7 +214,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
       } else {
         const floorsBySun = Math.max(0, Math.floor((allowedHeightM - height) / fh + EPS))
         addFloors = Math.min(addFloors, floorsBySun)
-        fitted = fitUnits(plan, Math.min(fitted.gfa, addFloors * floorPlate.areaM2))
+        fitted = fitUnits(plan, Math.min(fitted.gfa, addFloors * plateM2))
         if (fitted.gfa <= EPS) addFloors = 0
         limitingFactor = 'sunlight'
         if (housingFloorsAfter !== null) housingFloorsAfter = housingSummary.housingFloors + addFloors

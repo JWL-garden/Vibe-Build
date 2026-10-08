@@ -26,5 +26,6 @@ export const LIMIT_LABEL: Record<LimitingFactor, string> = {
   housingArea: '주택 연면적',
   housingFloors: '주택 층수',
   sunlight: '일조권',
+  roof: '지붕 형태(평슬라브 아님)',
   other: '기타 제한',
 }

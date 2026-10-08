@@ -233,6 +233,40 @@ export interface Rules {
   floorHeightM: number
   /** 전체 재건축(철거 후 신축) 가정 — 기준 엑셀 '빈땅_신축시나리오' 산식 */
   rebuild: RebuildRule
+  /** 증축층 바닥면적 산정 (옵션1·2) */
+  floorPlate: FloorPlateRule
+}
+
+/** 증축층 바닥면적 산정 규칙 (2026-10-08 결정 8) */
+export interface FloorPlateRule {
+  /** option1 = 최상층 전유 × ratio (기본) / option2 = 가정값 입력 엑셀 '증축층면적_옵션2' 값 (모델링 등) */
+  method: 'option1' | 'option2'
+  /** 옵션1 배율 */
+  ratio: number
+  /** 최상층에 층 지정 공용면적(계단실 등)이 없을 때, 지붕 표기에 이 글자가 있으면 평슬라브가 아님 → 증축 불가(계산 보류) */
+  nonFlatRoofKeywords: string[]
+}
+
+/** 증축층 바닥면적 산정 결과 (lib/calc/floorPlate.ts) */
+export interface FloorPlateResult {
+  /** 증축층 바닥면적 (㎡). null = 계산 보류 (지붕이 평슬라브가 아님) */
+  areaM2: number | null
+  /** 실제로 쓴 방식 — buildingArea = 호별 면적 자료가 없어 건축면적 사용 */
+  method: 'option1' | 'option2' | 'buildingArea'
+  /** ok / blocked = 증축 불가(보류) / fallback = 자료 부족으로 건축면적 사용 */
+  status: 'ok' | 'blocked' | 'fallback'
+  /** 최상층 (층 번호가 있는 지상층 중 가장 높은 층) */
+  topFloor: number | null
+  /** 전유면적이 있는 가장 높은 층과 그 전유면적 (㎡) */
+  netFloor: number | null
+  netFloorNetM2: number | null
+  /** 최상층에 층 지정 공용면적(계단실 등)이 있는지 */
+  topFloorHasCommon: boolean
+  /** 지붕 표기 */
+  roofText: string
+  /** 지붕 검사 결과 (검사하지 않았으면 null) */
+  roofFlat: boolean | null
+  detail: string
 }
 
 /** 전체 재건축 가정값 (lib/rules/baseRules.ts) */
@@ -307,7 +341,7 @@ export interface FarResult {
 }
 
 /** 증축을 멈추게 한 조건 */
-export type LimitingFactor = 'parking' | 'far' | 'housingArea' | 'housingFloors' | 'sunlight' | 'other'
+export type LimitingFactor = 'parking' | 'far' | 'housingArea' | 'housingFloors' | 'sunlight' | 'roof' | 'other'
 
 /** 증축 산정 결과 (설계서 5-1 ~ 5-3) */
 export interface ExpansionResult {
@@ -800,6 +834,8 @@ export interface ExcelSite {
   parking: { indoorMechanical: number; outdoorMechanical: number; indoorSelf: number; outdoorSelf: number; total: number }
   approvalDate: string | null
   seismic: { applied: boolean; capacity: string | null }
+  /** 지붕 (건축물대장 지붕코드명 / 기타지붕) — 증축층 바닥면적 옵션1의 증축 가능 판단 */
+  roof: { type: string | null; etc: string | null }
 }
 
 /** 전유공용면적_2단계 한 줄 */
@@ -969,8 +1005,6 @@ export interface SiteInput {
   pnu: string
   /** 정북 인접대지 경계까지 이격거리 (m). null = 확인 필요 */
   northSetbackM: number | null
-  /** 증축층 바닥면적 상한 (㎡, 기존 최상층 또는 기준층). null = 건축면적으로 가정 */
-  floorPlateM2: number | null
   /** 1층이 필로티(주차 전용)인지 */
   pilotiFloor1: boolean
   /**
@@ -1031,7 +1065,7 @@ export interface SiteExpansionResult {
   /** 1개층 증축(현재 높이 + 층고) 시 필요한 정북 이격거리 (m). 일조 미적용·높이 없음이면 null */
   requiredSetbackM: number | null
   /** 증축층 바닥면적 상한 (㎡)과 출처 */
-  floorPlate: { areaM2: number; source: 'siteInput' | 'buildingArea' }
+  floorPlate: FloorPlateResult
   /** 기존 주차로 가능한 증축 */
   plan: ExpansionPlan
   /** 기존 주차로 0세대일 때: 주차 addSpaces대 추가 확보 시 증축 */
@@ -1059,6 +1093,8 @@ export interface SiteData {
   landPrices: LandPriceRow[]
   /** 대표 필지 + 구성 필지의 토지대장 (기준 엑셀 '토지임야목록_2단계' → landLots.json) */
   landLots: LandLotRow[]
+  /** 증축층 바닥면적 옵션2 값 (가정값 입력 엑셀 '증축층면적_옵션2' → inputs/floorPlate.json). 없으면 null */
+  floorPlateOption2M2: number | null
 }
 
 /** 전체 재건축 산정 결과 (lib/calc/rebuild.ts) — 기존 건물 철거 후 같은 대지에 신축 */

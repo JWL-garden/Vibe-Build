@@ -29,6 +29,7 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
           units: data.units,
           netRatio: data.review.netRatio!,
           siteInput: data.siteInput,
+          floorPlateOption2M2: data.floorPlateOption2M2,
         },
         getEffectiveRules(s.id),
       ),

@@ -103,11 +103,7 @@ export default function ReportView({
       {expandability?.status === 'pending' && (
         <p className="mx-auto mt-6 max-w-[210mm] rounded-card border border-line bg-paper px-5 py-3 text-sm text-ink-soft print:hidden">
           증축 가능 여부 <b className="text-ink">판정 대기</b> 상태의 미리보기입니다. 계산 엔진 연결 후 숫자와 결론이
-          채워집니다. 완성된 보고서 모양은{' '}
-          <Link href="/report?sample=S1" className="font-medium text-accent hover:underline">
-            샘플 보고서
-          </Link>
-          에서 볼 수 있습니다.
+          채워집니다.
         </p>
       )}
 

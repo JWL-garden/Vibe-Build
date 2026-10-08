@@ -1,5 +1,6 @@
 {
   "meta": {
+    "source": "base",
     "file": "261007_데이터 통합_토지 공시지가 추가.xlsx",
     "version": "261007-b",
     "sourceDate": "2026-10-07",
@@ -61,6 +62,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "경사슬라브"
       }
     },
     {
@@ -106,6 +111,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -151,6 +160,10 @@
       "seismic": {
         "applied": true,
         "capacity": "VII-0.204g"
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트"
       }
     },
     {
@@ -196,6 +209,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평옥개"
       }
     },
     {
@@ -241,6 +258,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "스라브"
       }
     },
     {
@@ -286,6 +307,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "기타지붕",
+        "etc": "평스라브"
       }
     },
     {
@@ -331,6 +356,10 @@
       "seismic": {
         "applied": true,
         "capacity": "VII-0.204g"
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트"
       }
     },
     {
@@ -376,6 +405,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브, 샌드위치판넬"
       }
     },
     {
@@ -421,6 +454,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -466,6 +503,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -511,6 +552,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "스라브"
       }
     },
     {
@@ -556,6 +601,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -601,6 +650,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평슬라브"
       }
     },
     {
@@ -646,6 +699,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트"
       }
     },
     {
@@ -691,6 +748,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평슬라브"
       }
     },
     {
@@ -736,6 +797,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -781,6 +846,10 @@
       "seismic": {
         "applied": true,
         "capacity": "Ⅶ - 0.1877g"
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트"
       }
     },
     {
@@ -826,6 +895,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -871,6 +944,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "기타지붕",
+        "etc": "경사지붕"
       }
     },
     {
@@ -916,6 +993,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -961,6 +1042,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1006,6 +1091,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1051,6 +1140,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1096,6 +1189,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1141,6 +1238,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "스라브,경사지붕"
       }
     },
     {
@@ -1186,6 +1287,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "기와",
+        "etc": "와즙"
       }
     },
     {
@@ -1231,6 +1336,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트"
       }
     },
     {
@@ -1276,6 +1385,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1321,6 +1434,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브,기타지붕(경량철골)"
       }
     },
     {
@@ -1366,6 +1483,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "기와",
+        "etc": "와즙"
       }
     },
     {
@@ -1411,6 +1532,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "기와",
+        "etc": "와즙"
       }
     },
     {
@@ -1456,6 +1581,10 @@
       "seismic": {
         "applied": true,
         "capacity": "Ⅶ-0.204g"
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트"
       }
     },
     {
@@ -1501,6 +1630,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1546,6 +1679,10 @@
       "seismic": {
         "applied": true,
         "capacity": "Ⅶ-0.214g"
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "경사지붕"
       }
     },
     {
@@ -1591,6 +1728,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "스라브"
       }
     },
     {
@@ -1636,6 +1777,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1681,6 +1826,10 @@
       "seismic": {
         "applied": true,
         "capacity": "0.22"
+      },
+      "roof": {
+        "type": "기타지붕",
+        "etc": "평스라브"
       }
     },
     {
@@ -1726,6 +1875,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1771,6 +1924,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1816,6 +1973,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트"
       }
     },
     {
@@ -1861,6 +2022,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브,샌드위피판넬"
       }
     },
     {
@@ -1906,6 +2071,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1951,6 +2120,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -1996,6 +2169,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "기타지붕",
+        "etc": "단열판넬지붕"
       }
     },
     {
@@ -2041,6 +2218,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "스라브"
       }
     },
     {
@@ -2086,6 +2267,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트"
       }
     },
     {
@@ -2131,6 +2316,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -2176,6 +2365,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평스라브"
       }
     },
     {
@@ -2221,6 +2414,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": "기와",
+        "etc": "세멘와즙"
       }
     },
     {
@@ -2266,6 +2463,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "(철근)콘크리트(평스라브)"
       }
     },
     {
@@ -2311,6 +2512,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "(철근)콘크리트",
+        "etc": "평지붕"
       }
     },
     {
@@ -2356,6 +2561,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": null,
+        "etc": null
       }
     },
     {
@@ -2401,6 +2610,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": null,
+        "etc": null
       }
     },
     {
@@ -2446,6 +2659,10 @@
       "seismic": {
         "applied": false,
         "capacity": null
+      },
+      "roof": {
+        "type": null,
+        "etc": null
       }
     },
     {
@@ -2491,6 +2708,10 @@
       "seismic": {
         "applied": true,
         "capacity": null
+      },
+      "roof": {
+        "type": "기타지붕",
+        "etc": "평슬라브"
       }
     }
   ]

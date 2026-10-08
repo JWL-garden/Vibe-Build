@@ -34,9 +34,9 @@ describe('104-48 보고서 (참고)', () => {
     expect(r.plan.kind).toBe('none')
   })
 
-  it('[테스트 규칙] 표지: 조건부 가능, +1층 · +100.9㎡ (주차 +1대 조건)', async () => {
+  it('[테스트 규칙] 표지: 조건부 가능, +1층 · +29.5㎡ (주차 +1대 조건, 증축층 바닥면적 옵션1)', async () => {
     const r = await buildConditional()
-    expect(r.summary.kpis[0].value).toBe('+1층 · +100.9㎡')
+    expect(r.summary.kpis[0].value).toBe('+1층 · +29.5㎡')
     expect(r.summary.kpis[0].caption).toBe('주차 +1대 조건')
     expect(r.summary.kpis[3].value).toBe('조건부 가능')
     expect(r.summary.addFloors).toBe(1)
@@ -66,7 +66,7 @@ describe('104-48 보고서 (참고)', () => {
     const r = await buildConditional()
     expect(r.plan.kind).toBe('parkingOption')
     expect(r.plan.plan).toBe(r.analysis.selected.parkingOption)
-    expect(r.plan.plan!.addGfaM2).toBeCloseTo(100.905, 2)
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(29.529, 3)
     expect(r.regulation.checkItems).toContain('주차 1대 추가 확보 시 대지 내 배치 가능 여부')
   })
 })
@@ -88,11 +88,11 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(byLabel['기존 여유']).toBe('1.9대')
   })
 
-  it('3장 ALL: 기존 주차 증축안 +1층 · 99.27㎡ · 3세대, 표지 증축 가능', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 53.83㎡(옵션1) · 3세대, 표지 증축 가능', async () => {
     const r = await build(T1)
     expect(r.plan.kind).toBe('existing')
-    expect(r.plan.plan!.addGfaM2).toBeCloseTo(99.27, 2)
-    expect(r.summary.kpis[0].value).toBe('+1층 · +99.3㎡')
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(53.829, 3)
+    expect(r.summary.kpis[0].value).toBe('+1층 · +53.8㎡')
     expect(r.summary.kpis[1].value).toBe('3세대')
     expect(r.summary.kpis[3].value).toBe('증축 가능')
   })
@@ -106,7 +106,7 @@ describe('T1 104-10 렉스빌 보고서', () => {
 })
 
 describe('T2 보고서', () => {
-  it('1장: 1층 필로티(가정), 2~5층 다세대, 6층 사무소, 주택 4개층·633.59㎡, 외필지 안내', async () => {
+  it('1장: 1층 필로티(가정), 2~5층 다세대, 6층 사무소, 주택 4개층·633.59㎡, 외필지는 토지가액 추정 안내만', async () => {
     const r = await build(T2)
     const uses = r.status.floorUses.map((f) => `${f.floorLabel}:${f.uses}`)
     expect(uses.slice(-5)).toEqual(['2층:다세대주택', '3층:다세대주택', '4층:다세대주택', '5층:다세대주택', '6층:사무소'])
@@ -175,15 +175,16 @@ describe('부록 2: 데이터 검증', () => {
     }
   })
 
-  it('T1: 수정할 데이터 목록에 정북 이격(미입력)·증축층 면적(최상층 5층 전유 59.81㎡)', async () => {
+  it('T1: 수정할 데이터 목록에 정북 이격(미입력)·증축층 면적(옵션1 자동 산정 53.83㎡)', async () => {
     const todo = (await build(T1)).verification.todoRows
     expect(todo[0]).toEqual(['정북 인접대지 이격거리', '미입력', '확인 필요 — 일조 검토 불가', 'lib/data/siteInputs.json → northSetbackM'])
-    expect(todo[1][1]).toBe('건축면적 99.27㎡로 가정 (최상층 5층 전유 59.81㎡)')
+    expect(todo[1].slice(1, 3)).toEqual(['53.83㎡ (옵션1: 최상층 전유 × 0.9)', '자동 산정 (옵션1)'])
   })
 
-  it('T2: 외필지 3개 확인 항목 포함', async () => {
-    const todo = (await build(T2)).verification.todoRows
-    expect(todo.some((r) => r[0] === '외필지 3개')).toBe(true)
+  it('T2: 외필지 3개는 문제로 제기하지 않는다 (2026-10-08 결정 7) — 확인 항목·추가 확인 목록에 없음', async () => {
+    const r = await build(T2)
+    expect(r.verification.todoRows.some((row) => row[0].startsWith('외필지'))).toBe(false)
+    expect(r.regulation.checkItems.some((c) => c.includes('외필지'))).toBe(false)
   })
 })
 
@@ -196,11 +197,11 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     expect(land.notes.join(' ')).toContain('건축물대장 대지면적: 199.5㎡')
   })
 
-  it('T2: 추정 배지 + 구성 필지 확인 항목', async () => {
+  it('T2: 추정 배지 + 구성 필지 참고 항목 (문제 아님)', async () => {
     const r = await build(T2)
     expect(r.status.land.badge).toBe('추정')
     expect(r.status.land.exactText).toBe('1,777,075,300원')
-    expect(r.verification.todoRows.some((row) => row[0] === '토지가액 구성 필지' && row[2] === '추정')).toBe(true)
+    expect(r.verification.todoRows.some((row) => row[0] === '토지가액 구성 필지' && row[2] === '추정 (참고, 문제 아님)')).toBe(true)
   })
 
   it('3장 자산가치 표: 토지가액 행에 공시 기준, 합계 = runAll asset 값', async () => {
@@ -208,8 +209,8 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     const [landRow, , addRow, totalRow] = r.asset.rows
     expect(landRow[3]).toContain('시세 아님')
     expect(landRow[3]).toContain('[면적 확인 필요]')
-    expect(addRow[2]).toBe('198,540,000원')
-    expect(totalRow.slice(1, 3)).toEqual(['1,546,519,200원', '1,745,059,200원']) // 표는 원 단위 정확값 (항목 합 = 합계)
+    expect(addRow[2]).toBe('107,658,000원')
+    expect(totalRow.slice(1, 3)).toEqual(['1,546,519,200원', '1,654,177,200원']) // 표는 원 단위 정확값 (항목 합 = 합계)
     expect(r.asset.yieldNote).toContain('수익성 단계')
   })
 })
@@ -217,7 +218,7 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
 describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', () => {
   it('T1·T2 5장 KPI = runAll asset 값', async () => {
     const t1 = (await build(T1)).asset.kpis.map((k) => k.value)
-    expect(t1).toEqual(['10.6억원', '15.5억원', '17.5억원', '2억원'])
+    expect(t1).toEqual(['10.6억원', '15.5억원', '16.5억원', '1.1억원'])
     const t2 = (await build(T2)).asset.kpis.map((k) => k.value)
     expect(t2).toEqual(['17.8억원', '29.9억원', '30.6억원', '7,251만원'])
   })

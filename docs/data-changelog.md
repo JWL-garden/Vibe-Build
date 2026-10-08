@@ -26,6 +26,17 @@
 
 ---
 
+## input 261008-a — 2026-10-08 (가정값 입력 엑셀 신설)
+
+- **파일**: `261008_가정값 입력.xlsx` (상위 폴더, `npm run data:template`으로 생성 — 없는 시트만 추가하고 입력값은 덮어쓰지 않음)
+- **변경 요약**: `lib/data/source.json`을 `sources.base`(기준 엑셀) / `sources.input`(가정값 입력 엑셀) 구조로 바꿈. 소스는 `scripts/lib/table-source.mjs`로만 연다 (kind: excel, 추후 api)
+- **시트**: 추가 `증축층면적_옵션2` → `lib/data/inputs/floorPlate.json` (T1·T2 행, 값은 빈칸 = 옵션1 사용)
+- **기준 엑셀 쪽 변화**: `sites.json`에 `roof`(지붕코드명·기타지붕) 추가, 모든 JSON meta에 `source` 추가. 그 밖의 items 값 변경 없음
+- **영향받는 화면·보고서**: 증축층 바닥면적(옵션1 자동) → T1 ALL 증축 99.27㎡ → 53.83㎡, 자산가치 후 1,745,059,200 → 1,654,177,200원
+- **검증**: data:check 오류 0 · 경고 1(기존) / excelParity 통과
+
+---
+
 ## 261007-b — 2026-10-07
 
 - **파일**: `261007_데이터 통합_토지 공시지가 추가.xlsx`

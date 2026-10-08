@@ -177,6 +177,8 @@ export function floorUseRows(units: ExcelUnit[], pilotiFloor1: boolean): { rows:
   return { rows, sharedCommonM2 }
 }
 
+const FLOOR_PLATE_METHOD = { option1: '옵션1: 최상층 전유 × 0.9', option2: '옵션2: 입력 엑셀', buildingArea: '건축면적 가정' } as const
+
 /** 증축안이 없을 때 제한요인별 대안 검토 문장 */
 const ALTERNATIVES: Record<LimitingFactor, string[]> = {
   housingFloors: [
@@ -188,6 +190,7 @@ const ALTERNATIVES: Record<LimitingFactor, string[]> = {
   parking: ['대지 내 주차 추가 배치(기계식 포함) 또는 인근 부설주차장 확보 방안 검토'],
   far: ['용적률 상향(B·ALL) 시나리오가 시행될 경우 재검토'],
   sunlight: ['정북 이격거리 실측 후 재검토', '상부를 북쪽에서 물려 짓는 계단식(셋백) 증축안 검토'],
+  roof: ['현장·도면으로 지붕 형태와 계단실 위치 확인 후 재검토', '기존 건물 위 증축 대신 전체 재건축(REBUILD) 검토'],
   other: [],
 }
 const ALWAYS_ALTERNATIVE = '증축 대신 리모델링·용도변경으로 임대 수익을 높이는 방안'
@@ -314,11 +317,11 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
 }
 
 /** 데이터 검증: 엑셀 '용적률완화_주차검토' 행 대조(시나리오 B) + 수기입력·가정 데이터 목록 */
-function buildVerification(data: SiteData, analysis: SiteAnalysis, floorUses: FloorUseRow[]): SiteReport['verification'] {
+function buildVerification(data: SiteData, analysis: SiteAnalysis): SiteReport['verification'] {
   const parity = compareWithExcel(data.review, analysis.byScenario.B)
   const show = (v: number | null) => (v === null ? '빈칸' : f(v, 4))
   const input = data.siteInput
-  const top = [...floorUses].reverse().find((r) => r.netM2 > 0)
+  const fp = analysis.selected.floorPlate
   const C = analysis.byScenario.C.rules
   const todoRows: ReportRow[] = [
     [
@@ -329,11 +332,9 @@ function buildVerification(data: SiteData, analysis: SiteAnalysis, floorUses: Fl
     ],
     [
       '증축층 바닥면적',
-      input?.floorPlateM2 != null
-        ? `${f(input.floorPlateM2)}㎡`
-        : `건축면적 ${f(data.site.buildingAreaM2)}㎡로 가정${top ? ` (최상층 ${top.floorLabel} 전유 ${f(top.netM2)}㎡)` : ''}`,
-      input?.floorPlateM2 != null ? '수기입력' : '확인 필요 — 증축 층수에 영향',
-      'lib/data/siteInputs.json → floorPlateM2',
+      fp.areaM2 === null ? '계산 보류' : `${f(fp.areaM2)}㎡ (${FLOOR_PLATE_METHOD[fp.method]})`,
+      { ok: fp.method === 'option2' ? '입력 엑셀 값' : '자동 산정 (옵션1)', blocked: '증축 불가 — 지붕 형태', fallback: '확인 필요 — 호별 면적 없음' }[fp.status],
+      "옵션2: 가정값 입력 엑셀 '증축층면적_옵션2' + lib/rules/baseRules.ts floorPlate.method",
     ],
     [
       '1층 필로티 여부',
@@ -350,12 +351,9 @@ function buildVerification(data: SiteData, analysis: SiteAnalysis, floorUses: Fl
     ['건축물 숫자 (대지·연면적·호별 면적·주차)', data.sourceLabel, '기준 엑셀', '엑셀 수정 후 npm run data:excel 재실행'],
     ['임대료·공사비·시세 (수익성)', '미입력', '수익성 단계에서 입력 (예시 가정값)', 'lib/mock/owner.json, market.json'],
   ]
-  if (data.site.outsideParcels > 1) {
-    todoRows.push([`외필지 ${data.site.outsideParcels}개`, '대지 범위 미확인', '확인 필요', '토지대장·지적도 확인 후 기준 엑셀 반영'])
-  }
   const land = analysis.land
   if (land.basis === 'estimated') {
-    todoRows.push(['토지가액 구성 필지', '외필지 목록 없음 — 대표 필지 공시지가 × 대장 대지면적', '추정', 'lib/data/siteInputs.json → lots'])
+    todoRows.push(['토지가액 구성 필지', `외필지 ${data.site.outsideParcels}개 목록 없음 — 대표 필지 공시지가 × 대장 대지면적`, '추정 (참고, 문제 아님)', 'lib/data/siteInputs.json → lots (입력하면 정확해짐)'])
   } else if (land.basis === 'mismatch') {
     todoRows.push(['토지대장 면적 ↔ 대장 대지면적', `${f(land.areaUsedM2)}㎡ ↔ ${f(land.siteAreaM2 ?? 0)}㎡`, '면적 확인 필요', '토지대장·건축물대장 확인'])
   }
@@ -431,8 +429,8 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ],
     [
       '증축층 바닥면적',
-      input?.floorPlateM2 != null ? inputText(input.floorPlateM2, '㎡') : `건축면적 ${f(data.site.buildingAreaM2)}㎡로 가정 — 확인 필요`,
-      '최상층 도면 확인 필요',
+      `옵션1: 전유면적이 있는 최상층의 전유 × ${base.floorPlate.ratio} (최상층에 층 지정 공용면적이 없으면 지붕 확인 — ${base.floorPlate.nonFlatRoofKeywords.join('·')} 표기는 증축 불가) / 옵션2: 가정값 입력 엑셀 값`,
+      `적용 ${base.floorPlate.method === 'option1' ? '옵션1' : '옵션2'} — 2026-10-08 결정 (프로젝트 가정)`,
     ],
     [
       '토지가액',
@@ -467,7 +465,11 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       input?.lots?.length ? `${input.lots.length}필지 (수기입력)` : '미입력 — 외필지 없으면 대표 필지',
     ],
     ['정북 이격거리', 'lib/data/siteInputs.json', inputText(input?.northSetbackM ?? null, 'm')],
-    ['증축층 바닥면적', 'lib/data/siteInputs.json', inputText(input?.floorPlateM2 ?? null, '㎡')],
+    [
+      '증축층 바닥면적',
+      `${sheet('전유공용면적_2단계')}·${sheet('건축물대장_2단계')}(지붕) / 옵션2: 가정값 입력 엑셀 '증축층면적_옵션2'`,
+      analysis.selected.floorPlate.detail,
+    ],
     ['1층 필로티 여부', 'lib/data/siteInputs.json', input?.pilotiFloor1 ? '필로티(가정)' : '필로티 아님'],
     ['법규 기준·완화 시나리오', 'lib/rules (서울시 조례 기준 + 프로젝트 가정)', '현행법 아님 (ALL·REBUILD)'],
   ]
@@ -605,7 +607,10 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
         : '1층은 필로티(주차 전용, 가정)로 전유·공용면적 자료가 없어 표에 나오지 않습니다.',
     )
   }
-  if (site.outsideParcels > 1) notes.push(`외필지 ${site.outsideParcels}개 — 대지 범위 확인이 필요합니다.`)
+  // 외필지는 행정상 묶인 필지일 수 있어 문제로 보지 않는다 (2026-10-08 결정 7) — 토지가액만 '추정'
+  if (site.outsideParcels > 0 && analysis.land.basis === 'estimated') {
+    notes.push(`외필지 ${site.outsideParcels}개 — 필지 목록이 없어 토지가액은 대표 필지 공시지가 × 대장 대지면적으로 추정했습니다.`)
+  }
 
   // 2장 법규 검토
   const relaxRows = relaxationRows(analysis, zone).map((r) => [`${r.label} (${r.note})`, r.base, r.relaxed, r.by])
@@ -676,7 +681,6 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     ...checkPlan.checks.filter((c) => c.status === 'check').map((c) => c.detail),
     ...(plan.kind === 'rebuild' ? REBUILD_CHECK_ITEMS : FIXED_CHECK_ITEMS),
     ...(plan.kind === 'parkingOption' ? [`주차 ${plan.addSpaces}대 추가 확보 시 대지 내 배치 가능 여부`] : []),
-    ...(site.outsideParcels > 1 ? [`외필지 ${site.outsideParcels}개 — 대지 범위`] : []),
   ]
 
   return {
@@ -715,7 +719,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     },
     plan,
     asset: assetSection(analysis),
-    verification: buildVerification(data, analysis, floor.rows),
+    verification: buildVerification(data, analysis),
     appendix: buildAppendix(data, analysis),
     analysis,
   }

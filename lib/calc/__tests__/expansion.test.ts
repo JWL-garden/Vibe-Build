@@ -58,17 +58,16 @@ describe('당산동6가 104-48 당산빌 (참고 — 2026-10-07 T1에서 제외,
     expect(o.verdict).toBe('check')
   })
 
-  it('[테스트 규칙: 다중주택 4개층] ALL + 주차 1대 추가: 1개층 약 100.9㎡ (전용 75.04㎡ 1세대), 일조는 이격거리 확인 필요', () => {
+  it('[테스트 규칙: 다중주택 4개층] ALL + 주차 1대 추가: 주차 기준 100.9㎡지만 증축층 바닥면적(옵션1 32.81 × 0.9 = 29.53㎡)·주택 층수로 1개층 29.53㎡', () => {
     const o = run(DANGSAN, 'ALL', undefined, ALL_WITH_MULTI4).parkingOption!
     expect(o.addUnits).toHaveLength(1)
-    expect(o.addNetM2).toBeCloseTo(75.04, 2)
-    expect(o.addGfaM2).toBeCloseTo(100.905, 2)
+    expect(o.addGfaM2).toBeCloseTo(29.529, 3)
     expect(o.addFloors).toBe(1)
     expect(o.newHeightM).toBeCloseTo(18.95)
     expect(status(o.checks, 'housingFloors')).toBe('pass')
     expect(status(o.checks, 'housingArea')).toBe('pass')
     expect(status(o.checks, 'sunlight')).toBe('check')
-    expect(status(o.checks, 'floorPlate')).toBe('check')
+    expect(status(o.checks, 'floorPlate')).toBe('pass')
   })
 
   it('1개층 증축 시 필요 정북 이격: BASE 9.475m / A·ALL 4.7375m', () => {

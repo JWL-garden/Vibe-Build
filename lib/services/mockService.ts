@@ -4,6 +4,7 @@
 import registryJson from '@/lib/mock/registry.json'
 import examplesJson from '@/lib/mock/examples.json'
 import sampleReportS1 from '@/lib/mock/sampleReport.S1.json'
+import floorPlateInputJson from '@/lib/data/inputs/floorPlate.json'
 import landLotsJson from '@/lib/data/landLots.json'
 import landPriceJson from '@/lib/data/landPrice.json'
 import parkingReviewJson from '@/lib/data/parkingReview.json'
@@ -107,5 +108,7 @@ export async function getSiteData(pnu: string): Promise<SiteData | null> {
     excelNotes: parkingReviewJson.notes,
     landPrices: (landPriceJson.items as LandPriceRow[]).filter((p) => lotPnus.has(p.pnu)),
     landLots: (landLotsJson.items as LandLotRow[]).filter((l) => lotPnus.has(l.pnu)),
+    // 가정값 입력 엑셀 '증축층면적_옵션2' (빈칸이면 null → 옵션1)
+    floorPlateOption2M2: floorPlateInputJson.items.find((i) => i.pnu === pnu)?.floorPlateM2 ?? null,
   }
 }

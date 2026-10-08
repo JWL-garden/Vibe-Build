@@ -8,7 +8,8 @@
     "columns: { 엑셀열: { field, type, min, max, values, targetRequired } } — 여기 적힌 열은 모두 필수 컬럼",
     "  field·type은 generic builder에서만 사용 (type: str | num | numOrNull | date | pnu)",
     "  min·max: 단위 이상값 경고 범위 / values: 허용값 목록 / targetRequired: T1·T2 행에서 비어 있으면 오류",
-    "PNU 열이 19자리 숫자가 아닌 행(시트 하단 '[근거]' 설명 줄 등)은 데이터 행으로 보지 않는다"
+    "PNU 열이 19자리 숫자가 아닌 행(시트 하단 '[근거]' 설명 줄 등)은 데이터 행으로 보지 않는다",
+    "source: 시트가 오는 소스 (lib/data/source.json sources의 id). 없으면 base(기준 엑셀). input = 가정값 입력 엑셀 (npm run data:template 으로 양식 생성)"
   ],
   "sheets": [
     {
@@ -543,6 +544,43 @@
       "key": [],
       "unique": false,
       "columns": {}
+    },
+    {
+      "sheet": "증축층면적_옵션2",
+      "source": "input",
+      "output": "inputs/floorPlate.json",
+      "builder": "generic",
+      "purpose": "증축층 바닥면적 옵션2 (모델링 등 외부 값). 빈칸이면 옵션1",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "PNU"
+      ],
+      "unique": true,
+      "columns": {
+        "PNU": {
+          "field": "pnu",
+          "type": "pnu"
+        },
+        "필지": {
+          "field": "label",
+          "type": "str"
+        },
+        "증축층바닥면적(㎡)": {
+          "field": "floorPlateM2",
+          "type": "num",
+          "min": 1,
+          "max": 10000
+        },
+        "출처": {
+          "field": "source",
+          "type": "str"
+        },
+        "메모": {
+          "field": "memo",
+          "type": "str"
+        }
+      }
     }
   ]
 }

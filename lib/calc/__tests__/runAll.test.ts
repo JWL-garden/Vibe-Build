@@ -73,7 +73,7 @@ describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
     }
   })
 
-  it('주택: 다세대 2~5층 4개층·378.24㎡ → 현행 한도 4개층인 BASE·A·B는 확인 필요 (B는 +2개층 → 6개층)', async () => {
+  it('주택: 다세대 2~5층 4개층·378.24㎡ → 현행 한도 4개층인 BASE·A·B는 확인 필요 (B는 +3개층 → 7개층)', async () => {
     const r = await load(T1)
     expect(r.selected.housing.housingFloors).toBe(4)
     expect(r.selected.housing.housingAreaM2).toBeCloseTo(378.24, 2)
@@ -83,9 +83,10 @@ describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
       expect(p.verdict).toBe('check')
       expect(p.limitingFactor).toBe('housingFloors')
     }
-    expect(r.byScenario.B.plan.attemptedFloors).toBe(2)
-    expect(r.byScenario.B.plan.housingFloorsAfter).toBe(6)
-    expect(r.byScenario.B.plan.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+2개층 주택 시 6개층 > 한도 4개층')
+    // 증축층 바닥면적 옵션1 = 5층 전유 59.81 × 0.9 = 53.829㎡ → 120.51 ÷ 53.829 = 3개층
+    expect(r.byScenario.B.plan.attemptedFloors).toBe(3)
+    expect(r.byScenario.B.plan.housingFloorsAfter).toBe(7)
+    expect(r.byScenario.B.plan.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+3개층 주택 시 7개층 > 한도 4개층')
   })
 
   it('C(다세대 5개층): 용적률 잔여 20.76㎡ → +1개층, 5개층 ≤ 5 → 증축 가능', async () => {
@@ -96,16 +97,16 @@ describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
     expect(p.housingFloorsAfter).toBe(5)
   })
 
-  it('ALL: +2개층 필요 → 주택 6개층 > 5 → 한도에 맞춰 +1개층(증축층 바닥면적 99.27㎡)으로 축소, 3세대', async () => {
+  it('ALL: +3개층 필요 → 주택 7개층 > 5 → 한도에 맞춰 +1개층(증축층 바닥면적 옵션1 53.83㎡)으로 축소, 3세대(세대당 15.56㎡)', async () => {
     const p = (await load(T1)).byScenario.ALL.plan
-    expect(p.attemptedFloors).toBe(2)
+    expect(p.attemptedFloors).toBe(3)
     expect(p.addFloors).toBe(1)
-    expect(p.addGfaM2).toBeCloseTo(99.27, 2)
+    expect(p.addGfaM2).toBeCloseTo(53.829, 3)
     expect(p.addUnits).toHaveLength(3)
     expect(p.housingFloorsAfter).toBe(5)
     expect(p.limitingFactor).toBe('housingFloors')
     expect(p.verdict).toBe('possible')
-    expect(p.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+1개층(99.27㎡)으로 축소')
+    expect(p.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+1개층(53.83㎡)으로 축소')
   })
 
   it('배지 문장은 실제 증축 층수를 쓴다: BASE = "주택 1개층 증축 시 5개층", ALL = 증축 가능 +1개층', async () => {
@@ -115,7 +116,7 @@ describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
     expect(b.reason).toContain('주택 1개층 증축 시 주택 층수가 5개층으로 한도(4개층)')
     const all = judgeSite(runAll(data, 'ALL'))
     expect(all.status).toBe('possible')
-    expect(all.reason).toContain('+1개층(+99.3㎡, 3세대)')
+    expect(all.reason).toContain('+1개층(+53.8㎡, 3세대)')
   })
 })
 

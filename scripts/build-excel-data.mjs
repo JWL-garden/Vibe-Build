@@ -1,24 +1,27 @@
-// 기준 엑셀 → lib/data/*.json 변환 스크립트 (설계서 12-1)
+// 데이터 소스(기준 엑셀·가정값 입력 엑셀) → lib/data/*.json 변환 스크립트 (설계서 12-1)
 // 실행: npm run data:excel
-// 엑셀 경로·버전: lib/data/source.json / 시트 → JSON 매핑: lib/data/sheetMap.json
+// 소스 경로·버전: lib/data/source.json (sources.base / sources.input) / 시트 → JSON 매핑: lib/data/sheetMap.json
+// 소스는 scripts/lib/table-source.mjs 로만 연다 — 나중에 API로 바꿔도 아래 builder는 그대로 쓴다.
 // 원본 엑셀은 상위 폴더(../)에 있고 저장소에 올리지 않는다. 결과 JSON만 커밋한다.
 // 숫자는 반올림하지 않고 엑셀 값 그대로 저장한다 (엑셀 대조 테스트 ±0.01 비교용).
 
-import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import {
-  CONVERTERS, DATA_DIR, dataRows, date, isPnu, loadSheetMap, loadSource, num, numOrNull, openWorkbook, readJson, readSheet,
-  str,
-} from './lib/excel-utils.mjs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { CONVERTERS, DATA_DIR, dataRows, date, isPnu, loadSheetMap, num, numOrNull, readJson, str } from './lib/excel-utils.mjs'
+import { openTableSource } from './lib/table-source.mjs'
 
-const source = loadSource()
 const sheetMap = loadSheetMap()
-const workbook = openWorkbook(source)
-console.log(`기준 엑셀 ${source.version} (${source.sourceDate}): ${source.fileName}`)
-const read = (name) => readSheet(workbook, name)
-/** 엑셀 파일 해시 — 같으면 이전 변환 일시를 유지해 불필요한 git diff를 막는다 */
-const fileHash = createHash('sha256').update(readFileSync(source.absPath)).digest('hex').slice(0, 16)
+/** 소스는 필요할 때 한 번만 연다 */
+const opened = {}
+const sourceOf = (id) => {
+  if (!opened[id]) {
+    opened[id] = openTableSource(id)
+    console.log(`${opened[id].label ?? id} ${opened[id].version} (${opened[id].sourceDate}): ${opened[id].fileName ?? opened[id].kind}`)
+  }
+  return opened[id]
+}
+/** 전용 builder는 기준 엑셀(base)에서 읽는다 */
+const read = (name) => sourceOf('base').read(name)
 const now = new Date().toISOString()
 
 const warnings = []
@@ -75,6 +78,8 @@ const builders = {
         parking: { ...parking, total: Object.values(parking).reduce((s, v) => s + v, 0) },
         approvalDate: date(r['사용승인일']),
         seismic: { applied: num(r['내진설계적용여부']) === 1, capacity: str(r['내진능력']) },
+        /** 지붕 (예: '(철근)콘크리트' / 기타지붕 '평스라브') — 증축층 바닥면적 옵션1의 증축 가능 판단 */
+        roof: { type: str(r['지붕코드명']), etc: str(r['기타지붕']) },
       }
     })
     return { items }
@@ -192,7 +197,7 @@ const builders = {
 function buildGeneric(entry) {
   const fields = Object.entries(entry.columns).filter(([, c]) => c.field)
   if (!fields.length) throw new Error(`sheetMap '${entry.sheet}': generic builder는 columns에 field가 필요합니다`)
-  const rows = read(entry.sheet)
+  const rows = sourceOf(entry.source).read(entry.sheet)
   const hasPnu = rows.length > 0 && 'PNU' in rows[0]
   // PNU 열이 있으면 19자리가 아닌 줄(설명 문장 등)은 notes로 보관
   const notes = hasPnu ? rows.filter((r) => !isPnu(r.PNU) && str(r.PNU)).map((r) => String(r.PNU)) : []
@@ -216,6 +221,9 @@ for (const entry of sheetMap.filter((e) => e.enabled)) {
   if (!outputs.has(entry.output)) outputs.set(entry.output, { builder: entry.builder, entries: [] })
   const out = outputs.get(entry.output)
   if (out.builder !== entry.builder) throw new Error(`sheetMap: ${entry.output}의 builder가 시트마다 다릅니다`)
+  if (out.entries.length && out.entries[0].source !== entry.source) {
+    throw new Error(`sheetMap: ${entry.output}의 시트들이 서로 다른 소스에서 옵니다`)
+  }
   out.entries.push(entry)
 }
 
@@ -230,19 +238,23 @@ for (const [output, { builder, entries }] of outputs) {
   } else {
     throw new Error(`sheetMap: 알 수 없는 builder '${builder}' (${output})`)
   }
+  const source = sourceOf(entries[0].source)
   const path = resolve(DATA_DIR, output)
+  mkdirSync(dirname(path), { recursive: true })
   const prev = existsSync(path) ? readJson(path).meta : null
-  const sheets = entries.map((e) => ({ name: e.sheet, rows: dataRows(read(e.sheet)).length }))
+  const sheets = entries.map((e) => ({ name: e.sheet, rows: dataRows(source.read(e.sheet)).length }))
   const meta = {
-    /** 원본 엑셀 파일명 */
+    /** 소스 id (lib/data/source.json sources.{id}) */
+    source: source.id,
+    /** 원본 파일명 */
     file: source.fileName,
     /** lib/data/source.json의 version · sourceDate */
     version: source.version,
     sourceDate: source.sourceDate,
-    /** 엑셀 sha256 앞 16자리 */
-    fileHash,
-    /** 변환 일시 (엑셀·버전이 그대로면 이전 값 유지) */
-    convertedAt: prev?.fileHash === fileHash && prev?.version === source.version ? prev.convertedAt : now,
+    /** 파일 sha256 앞 16자리 */
+    fileHash: source.hash,
+    /** 변환 일시 (파일·버전이 그대로면 이전 값 유지) */
+    convertedAt: prev?.fileHash === source.hash && prev?.version === source.version ? prev.convertedAt : now,
     /** 사용 시트와 데이터 행 수 (PNU 행만, 설명 줄 제외) */
     sheets,
     itemCount: built.items.length,

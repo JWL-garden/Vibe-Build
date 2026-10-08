@@ -11,7 +11,8 @@
     "data:buildings": "node scripts/build-buildings.mjs",
     "data:excel": "node scripts/build-excel-data.mjs && node scripts/check-data.mjs",
     "data:check": "node scripts/check-data.mjs",
-    "export:review": "next build && vitest run --config vitest.export.config.mts"
+    "export:review": "next build && vitest run --config vitest.export.config.mts",
+    "data:template": "node scripts/make-input-template.mjs"
   },
   "dependencies": {
     "next": "16.3.8",

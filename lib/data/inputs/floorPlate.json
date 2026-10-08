@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "source": "input",
+    "file": "261008_가정값 입력.xlsx",
+    "version": "261008-a",
+    "sourceDate": "2026-10-08",
+    "fileHash": "cfdecd7e50c26915",
+    "convertedAt": "2026-10-08T02:05:31.958Z",
+    "sheets": [
+      {
+        "name": "증축층면적_옵션2",
+        "rows": 2
+      }
+    ],
+    "itemCount": 2
+  },
+  "notes": [
+    "[설명] 증축층 바닥면적 옵션2 — 모델링 등에서 뽑은 면적(㎡). 빈칸이면 옵션1(최상층 전유 × 0.9)을 쓴다. 적용 옵션은 lib/rules/baseRules.ts floorPlate.method"
+  ],
+  "items": [
+    {
+      "pnu": "1156011600001040010",
+      "label": "T1 당산동6가 104-10 (렉스빌)",
+      "floorPlateM2": null,
+      "source": null,
+      "memo": null
+    },
+    {
+      "pnu": "1156011600001100019",
+      "label": "T2 당산동6가 110-19 (더 채움 하우스)",
+      "floorPlateM2": null,
+      "source": null,
+      "memo": null
+    }
+  ]
+}
