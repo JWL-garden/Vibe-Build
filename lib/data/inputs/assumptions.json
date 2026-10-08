@@ -4,15 +4,15 @@
     "file": "261008_가정값 입력.xlsx",
     "version": "261008-a",
     "sourceDate": "2026-10-08",
-    "fileHash": "8d244e655c744bb2",
-    "convertedAt": "2026-10-08T02:50:01.081Z",
+    "fileHash": "2866d59d7ecfec80",
+    "convertedAt": "2026-10-08T03:09:43.761Z",
     "sheets": [
       {
         "name": "가정값",
-        "rows": 19
+        "rows": 20
       }
     ],
-    "itemCount": 18
+    "itemCount": 19
   },
   "notes": [
     "[설명] 보수·기준·낙관은 ROI에 불리한 값 → 유리한 값. 등급 A·B는 자료명·기관·기준일 필수. 값을 모르면 빈칸(보고서에 \"입력 대기\"). 수정 후 npm run data:excel"
@@ -160,17 +160,31 @@
     },
     {
       "key": "constructionMonths",
-      "label": "공사 기간",
+      "label": "공사 기간 (증축)",
       "unit": "개월",
-      "low": 8,
-      "base": 6,
-      "high": 5,
+      "low": 2,
+      "base": 2,
+      "high": 2,
       "grade": "C",
-      "sourceTitle": null,
-      "publisher": null,
-      "baseDate": null,
+      "sourceTitle": "2026-10-08 결정 (사용자 결정)",
+      "publisher": "프로젝트",
+      "baseDate": "2026-10-08",
       "url": null,
-      "memo": "프로젝트 가정 — 시공사 공정표로 교체"
+      "memo": "상부 건식 조립식 목구조·각재 형식 증축으로 보고 2개월"
+    },
+    {
+      "key": "rebuildConstructionMonths",
+      "label": "공사 기간 (재건축)",
+      "unit": "개월",
+      "low": 12,
+      "base": 12,
+      "high": 12,
+      "grade": "C",
+      "sourceTitle": "2026-10-08 결정 (사용자 결정)",
+      "publisher": "프로젝트",
+      "baseDate": "2026-10-08",
+      "url": null,
+      "memo": "철거 후 신축 (REBUILD)"
     },
     {
       "key": "vacancyRate",

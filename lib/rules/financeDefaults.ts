@@ -43,6 +43,7 @@ export const ASSUMPTION_SPEC = {
   loanInterestRate: { unit: '비율', direction: 'lower', required: true },
   loanRatio: { unit: '비율', direction: 'none', required: true },
   constructionMonths: { unit: '개월', direction: 'lower', required: true },
+  rebuildConstructionMonths: { unit: '개월', direction: 'lower', required: true },
   vacancyRate: { unit: '비율', direction: 'lower', required: true },
   opexRate: { unit: '비율', direction: 'lower', required: true },
   maintenanceFeePerUnit: { unit: '원/월', direction: 'higher', required: false },

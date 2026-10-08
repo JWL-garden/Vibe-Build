@@ -5,9 +5,19 @@ import { formatNumber } from '@/lib/format'
 import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
 import { getEffectiveRules, getViewScenario, scenarios } from '@/lib/rules/scenarios'
 import { getZoneRule } from '@/lib/rules/zoningTable'
-import type { BuildingRecord, Expandability, ExpansionResult, ScenarioId, SiteAnalysis, SiteData, ViewScenarioId } from '@/types'
+import type {
+  BuildingRecord,
+  Expandability,
+  ExpansionResult,
+  FinanceScenarioId,
+  ScenarioId,
+  SiteAnalysis,
+  SiteData,
+  SiteFinanceResult,
+  ViewScenarioId,
+} from '@/types'
 import { calcExpansion } from './expansion'
-import { calcAssetValue, calcLandValue } from './finance'
+import { calcAssetValue, calcLandValue, calcSiteFinance } from './finance'
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from './labels'
 import { calcRebuild } from './rebuild'
 
@@ -84,7 +94,58 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
     },
     buildingValueRule,
   )
-  return { pnu: data.pnu, scenarioId, byScenario, selected, rebuild, land, asset }
+
+  // 수익성 (임대 모델) — 보수·기준·낙관 3개 시나리오를 모두 계산, 화면·보고서 기본은 기준
+  const rebuildOk = rebuild.verdict !== 'impossible'
+  const financeInput = isRebuild
+    ? {
+        kind: 'rebuild' as const,
+        gfaM2: rebuildOk ? rebuild.gfaM2 : 0,
+        // 공사 연면적 = 용적률 연면적 + 1층 필로티 (주차, 용적률 제외)
+        constructionAreaM2: rebuildOk ? rebuild.gfaM2 + (rebuild.rules.rebuild.pilotiFloor1 ? rebuild.maxBuildingAreaM2 : 0) : 0,
+        newUnitNets: rebuildOk ? Array.from({ length: rebuild.households }, () => rebuild.netPerUnitM2) : [],
+      }
+    : {
+        kind: 'expansion' as const,
+        gfaM2: adopted?.addGfaM2 ?? 0,
+        constructionAreaM2: adopted?.addGfaM2 ?? 0,
+        newUnitNets: adopted?.addUnits.map((u) => u.netAreaM2) ?? [],
+      }
+  const financeByScenario = Object.fromEntries(
+    FINANCE_SCENARIOS.map((fs) => [
+      fs,
+      calcSiteFinance({
+        ...financeInput,
+        existingUnitNets: existingHousingUnitNets(data),
+        assumptionRows: data.assumptionRows,
+        rentComps: data.rentComps,
+        scenario: fs,
+        assetBeforeWon: asset.beforeWon,
+      }),
+    ]),
+  ) as Record<FinanceScenarioId, SiteFinanceResult>
+
+  return {
+    pnu: data.pnu,
+    scenarioId,
+    byScenario,
+    selected,
+    rebuild,
+    land,
+    asset,
+    finance: { selected: 'BASE', byScenario: financeByScenario },
+  }
+}
+
+/** 수익 시나리오 (보수·기준·낙관) */
+export const FINANCE_SCENARIOS: FinanceScenarioId[] = ['CONSERVATIVE', 'BASE', 'OPTIMISTIC']
+
+/** 기존 주택 세대(다세대·다가구·다중주택 호)의 전유면적 목록 — 기존 NOI 추정용 */
+function existingHousingUnitNets(data: SiteData): number[] {
+  return data.units
+    .filter((u) => /다세대|다가구|다중주택/.test(u.mainUse ?? ''))
+    .map((u) => u.areas.filter((a) => a.kind === '전유').reduce((s, a) => s + a.areaM2, 0))
+    .filter((v) => v > 0)
 }
 
 /** runAll 결과(선택 시나리오)로 증축 가능 여부 판정 — 화면 배지·보고서 버튼에 사용 */

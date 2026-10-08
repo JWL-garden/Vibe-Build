@@ -1170,6 +1170,8 @@ export interface SiteAnalysis {
   land: LandValueResult
   /** 선택 시나리오의 증축 전·후 자산가치 (원가 기준, 참고) */
   asset: AssetValueResult
+  /** 수익성 (임대 모델) — 수익 시나리오 보수·기준·낙관 (결정 1·6) */
+  finance: { selected: FinanceScenarioId; byScenario: Record<FinanceScenarioId, SiteFinanceResult> }
 }
 
 // ═════════════════════════════════════════════
@@ -1493,4 +1495,85 @@ export interface RentBandSummary {
   maintenanceWon: number | null
   /** 중위 ㎡당 월 환산 임대료 (원/㎡·월) = (월세 + 보증금 × 전환율 ÷ 12) ÷ 전용면적, 전세·월세 사례 모두 */
   monthlyEquivalentPerM2: number | null
+}
+
+// ═════════════════════════════════════════════
+// 수익성 계산 결과 (설계서 5-4 [A][B][C], 2026-10-08 결정 1·2·6·12) — lib/calc/finance.ts calcSiteFinance
+// 임대 모델(보증금 + 월세), 사업주체 = 대표 1인
+// ═════════════════════════════════════════════
+
+/** 사업비 항목 하나 */
+export interface SiteCostItem {
+  key: 'construction' | 'permit' | 'tax' | 'contingency' | 'finance' | 'demolition' | 'constructionLoss'
+  label: string
+  /** 금액 (원). 입력이 없어 반영하지 못하면 null */
+  amountWon: number | null
+  /** 산식·근거 한 줄 */
+  basis: string
+  grade: EvidenceGrade | null
+}
+
+/** 새 세대 하나의 예상 임대 조건 */
+export interface SiteRentUnit {
+  netAreaM2: number
+  /** 임대 사례 구간 ('S' 0~30㎡ / 'M' 30~60㎡, 60㎡ 초과는 M 사례로 추정) */
+  band: 'S' | 'M'
+  /** 월 환산 임대료 (원) = ㎡당 월 환산 임대료 × 전용 */
+  monthlyEquivalentWon: number | null
+  /** 참고: 구간 중위 보증금·월세 (원) */
+  depositWon: number | null
+  monthlyWon: number | null
+}
+
+export interface SiteFinanceResult {
+  scenario: FinanceScenarioId
+  /** ok 계산 / none 증축·재건축안 없음 / pending 필수 가정값 입력 대기 */
+  status: 'ok' | 'none' | 'pending'
+  /** pending일 때 비어 있는 가정값 이름 */
+  missing: string[]
+  project: {
+    kind: 'expansion' | 'rebuild'
+    /** 증축(또는 신축) 연면적 (㎡, 용적률 기준) */
+    gfaM2: number
+    /** 공사 연면적 (㎡) — 재건축은 1층 필로티 포함 */
+    constructionAreaM2: number
+    units: SiteRentUnit[]
+  }
+  costs: SiteCostItem[]
+  /** 총사업비 (원) = 반영된 항목 합 */
+  totalCostWon: number | null
+  loanWon: number | null
+  equityWon: number | null
+  revenue: {
+    /** 연 임대수입 (공실 전, 원) = Σ 월 환산 임대료 × 12 */
+    grossAnnualWon: number | null
+    vacancyLossWon: number | null
+    opexWon: number | null
+    /** 새 세대 연 NOI (원) */
+    noiWon: number | null
+    /** 기존 세대 연 NOI 추정 (원) — 같은 임대 사례로 추정, 재건축이면 철거로 사라지는 수입 */
+    existingNoiWon: number | null
+    /** NOI 증가 (원) = 증축: 새 세대 NOI / 재건축: 새 NOI − 기존 NOI */
+    noiIncreaseWon: number | null
+    /** 참고: 새 세대 보증금 합계 (원) — 구간 중위 보증금 × 세대 수 */
+    depositTotalWon: number | null
+  }
+  metrics: {
+    /** 단순 ROI = NOI 증가 ÷ 총사업비 */
+    roi: number | null
+    /** 회수기간 (년) = 총사업비 ÷ NOI 증가 */
+    paybackYears: number | null
+    /** 자기자본수익률 = (NOI 증가 − 연 이자) ÷ 자기자본 */
+    roe: number | null
+    /** 자산가치 증가 (수익 기준) = NOI 증가 ÷ 환원율 */
+    valueIncreaseWon: number | null
+    netValueIncreaseWon: number | null
+  }
+  /** 토지 포함 수익률 (전·후) — 보조 지표 */
+  landInclusiveYield: LandInclusiveYield | null
+  conversion: ConversionRates
+  rentBands: RentBandSummary[]
+  /** 사용한 가정값 (부록 표) */
+  assumptions: ResolvedAssumption[]
+  notes: string[]
 }
