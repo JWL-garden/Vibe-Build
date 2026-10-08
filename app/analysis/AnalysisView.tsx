@@ -84,6 +84,8 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
       floorsAbove={building.floorsAbove}
       addFloors={after.addFloors}
       afterCaption={after.caption}
+      massPnu={pnu}
+      massUseModel={analysis?.scenarioId !== 'REBUILD'}
       expandability={expandability}
       reportHref={`/report?pnu=${pnu}&b=${building.id}${analysis ? `&s=${analysis.scenarioId}` : ''}`}
       steps={

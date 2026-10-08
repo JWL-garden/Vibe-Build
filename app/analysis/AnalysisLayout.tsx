@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import BuildingIllustration from '@/components/layout/BuildingIllustration'
+import MassView from '@/components/three/MassView'
 import Step1Target from '@/components/steps/Step1Target'
 import type { InfoRow } from '@/lib/report/buildingRows'
 import type { Expandability } from '@/types'
@@ -20,6 +21,10 @@ interface Props {
   addFloors: number | null
   /** 증축 후 패널 설명 (예: '복합 완화(ALL) 적용 시 +4층') */
   afterCaption: string
+  /** 3D 매스 모델(GLB)에서 찾을 필지 PNU — 없으면(샘플 등) 일러스트 */
+  massPnu?: string | null
+  /** false면 GLB 대신 일러스트 (재건축: 모델은 증축안만 있음) */
+  massUseModel?: boolean
   expandability: Expandability
   reportHref: string
   /** 아래쪽 상세 분석 단계 (⑤ 완화, ⑥ 증축 산정 …). 없으면 표시 안 함 */
@@ -46,13 +51,24 @@ export default function AnalysisLayout(p: Props) {
       </section>
 
       <section className="mt-14">
-        <SectionTitle title="3D 매스" caption="Day 5 구현 예정" />
+        <SectionTitle
+          title="3D 매스"
+          caption={p.massPnu && p.massUseModel !== false ? '드래그: 회전 · 휠: 확대 · 북서쪽 45° 조감' : '모델이 없으면 일러스트로 표시'}
+        />
         <div className="grid gap-5 md:grid-cols-2">
           <ViewPanel label="증축 전" description="현재 건물">
-            <BuildingIllustration floors={p.floorsAbove} className="h-56 w-full" />
+            {p.massPnu ? (
+              <MassView pnu={p.massPnu} mode="before" floorsAbove={p.floorsAbove} addFloors={p.addFloors} useModel={p.massUseModel} />
+            ) : (
+              <BuildingIllustration floors={p.floorsAbove} className="h-56 w-full" />
+            )}
           </ViewPanel>
           <ViewPanel label="증축 후" description={p.afterCaption} accent>
-            <BuildingIllustration floors={p.floorsAbove} addFloors={p.addFloors} showAddition className="h-56 w-full" />
+            {p.massPnu ? (
+              <MassView pnu={p.massPnu} mode="after" floorsAbove={p.floorsAbove} addFloors={p.addFloors} useModel={p.massUseModel} />
+            ) : (
+              <BuildingIllustration floors={p.floorsAbove} addFloors={p.addFloors} showAddition className="h-56 w-full" />
+            )}
           </ViewPanel>
         </div>
       </section>
@@ -78,7 +94,7 @@ function SectionTitle({ title, caption }: { title: string; caption: string }) {
   )
 }
 
-/** 3D 뷰가 들어갈 자리 (지금은 일러스트) */
+/** 3D 매스 패널 (GLB 모델 또는 일러스트) */
 function ViewPanel({
   label,
   description,
@@ -101,7 +117,6 @@ function ViewPanel({
       </div>
       <div className="flex aspect-[4/3] flex-col items-center justify-end bg-mist px-8 pb-6">
         {children}
-        <p className="mt-3 text-xs text-ink-faint">3D 뷰는 추후 추가됩니다</p>
       </div>
     </div>
   )

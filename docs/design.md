@@ -608,9 +608,18 @@ financeScenarios = [
 ### 7-3. 좌표 규칙
 - 대상 건물 중심 (0,0), 미터 단위. x=동쪽, −z=북쪽, y=높이
 
+### 7-3b. (2026-10-08) GLB 매스 모델 사용
+
+- 모델: `public/models/261008_sunlight_test3.glb` (사용자 제작 테스트, 원본 `../261008_sunlight_test3.glb`). 노드 이름 규칙 `{PNU 19자리}_{EXIST|REV}_F{층}` — 토지 PNU(대지 = 1)라 앱 PNU(대지 = 0)와 11번째 자리만 다름 → `lib/geo/massModel.ts parcelKey()`로 비교
+- 현재 모델에 든 필지: 104-10(T1, EXIST 1~5 · REV 6~8), 110-21, 289-3. **T2(110-19)는 없음 → 일러스트**
+- 표시: 증축 전 = 대상 EXIST / 증축 후 = EXIST + REV **아래층부터 계산 엔진 증축 층수만큼** (`visibleRevFloors`, 숫자는 runAll 결과만). 모델 층수와 다르면 "3D 모델 증축 n개층 중 계산 결과 m개층 표시". 주변 필지 EXIST는 흐린 흰색, 주변 REV는 숨김. 재건축(REBUILD)은 모델이 증축안이라 일러스트
+- 좌표: TM 절대좌표 → 대상 필지 중심 (0,0)·바닥 y=0으로 이동 (7-3 규칙). 카메라 **북서쪽 위 45° 조감**(2026-10-08 변경, `lib/geo/cameraFit.ts MASS_VIEW`), 대상 건물(기존층 + 표시 증축층)이 화면 비율에 맞게 가득 차도록 거리·중심 자동 조정, 전·후 같은 범위, 방위는 화면 오른쪽 위 N 표시, 조명도 북서쪽
+- 컴포넌트: `components/three/ParcelMassView.tsx`(three.js, 인쇄 시 PNG 스냅샷) ← `MassView.tsx`(next/dynamic ssr:false, 모델 없으면 `BuildingIllustration`) — 분석 화면 3D 매스, 보고서 표지·3장
+- 패키지: three, @react-three/fiber 9, @react-three/drei 10
+
 ### 7-4. 보고서용 이미지 캡처
 - Canvas에 `gl={{ preserveDrawingBuffer: true }}` 설정
-- `useSnapshot` 훅: 같은 카메라 각도(남동측 조감)에서 증축 전 / 증축 후 2장을 PNG(dataURL)로 캡처 → store에 저장
+- `useSnapshot` 훅: 같은 카메라 각도(2026-10-08부터 북서쪽 위 45° 조감 — 7-3b)에서 증축 전 / 증축 후 2장을 PNG(dataURL)로 캡처 → store에 저장
 - 보고서 0장(표지·요약)과 3장(증축 계획안)에서 사용
 - 캡처가 없으면 보고서에서 3D 뷰를 직접 렌더링(대체)
 

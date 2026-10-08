@@ -44,6 +44,8 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
           kpis={summary.kpis}
           conclusion={summary.conclusion}
           nextStep={null}
+          massPnu={report.analysis.pnu}
+          massUseModel={report.analysis.scenarioId !== 'REBUILD'}
         />
       </ReportPage>
 

@@ -16,10 +16,13 @@
     "data:rent": "node scripts/fetch-rent-comps.mjs"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
     "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "recharts": "^3.10.1",
+    "three": "^0.186.1",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -27,6 +30,7 @@
     "@types/node": "^24.19.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",

@@ -1,4 +1,4 @@
-import BuildingIllustration from '@/components/layout/BuildingIllustration'
+import MassView from '@/components/three/MassView'
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from '@/lib/calc'
 import { formatNumber } from '@/lib/format'
 import type { ExpansionCheck, SiteReport } from '@/types'
@@ -31,11 +31,14 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
         <div className="mt-6 grid grid-cols-2 gap-4">
           {[false, true].map((after) => (
             <div key={String(after)} className="rounded-card bg-mist px-6 pb-4 pt-6">
-              <BuildingIllustration
-                floors={summary.floorsAbove}
+              <MassView
+                pnu={analysis.pnu}
+                mode={after ? 'after' : 'before'}
+                floorsAbove={summary.floorsAbove}
                 addFloors={summary.addFloors}
-                showAddition={after}
-                className="h-36 w-full"
+                useModel={false}
+                interactive={false}
+                className="h-36"
               />
               <p className="mt-2 text-center text-xs text-ink-faint">
                 {after ? `재건축 후 (지상 ${r.totalFloors}층)` : `현재 (지상 ${r.existing.floorsAbove}층)`}
@@ -111,11 +114,13 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
       <div className="mt-6 grid grid-cols-2 gap-4">
         {[false, true].map((after) => (
           <div key={String(after)} className="rounded-card bg-mist px-6 pb-4 pt-6">
-            <BuildingIllustration
-              floors={summary.floorsAbove}
+            <MassView
+              pnu={analysis.pnu}
+              mode={after ? 'after' : 'before'}
+              floorsAbove={summary.floorsAbove}
               addFloors={p.addFloors}
-              showAddition={after}
-              className="h-36 w-full"
+              interactive={false}
+              className="h-36"
             />
             <p className="mt-2 text-center text-xs text-ink-faint">{after ? '증축 후' : '증축 전'}</p>
           </div>

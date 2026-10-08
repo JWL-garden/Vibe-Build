@@ -1,4 +1,5 @@
 import BuildingIllustration from '@/components/layout/BuildingIllustration'
+import MassView from '@/components/three/MassView'
 import type { Kpi } from '@/types'
 
 interface Props {
@@ -20,12 +21,16 @@ interface Props {
   conclusion: string | null
   /** 추천 다음 단계 한 줄 (없으면 null) */
   nextStep: string | null
+  /** 3D 매스 모델(GLB)에서 찾을 필지 PNU — 없으면 일러스트 */
+  massPnu?: string | null
+  /** false면 GLB 대신 일러스트 (재건축) */
+  massUseModel?: boolean
 }
 
 const PENDING_KPIS = ['증축 규모', '총사업비', 'ROI', '투자회수기간']
 
 /** 0장: 표지 + 한 장 요약 (값은 모두 props로 받고 계산하지 않음)
- * TODO [5-2]: 3D 전/후 캡처 이미지가 있으면 일러스트 대신 사용 */
+ * 3D 전/후: massPnu가 있으면 GLB 매스(인쇄 시 스냅샷 이미지), 없으면 일러스트 */
 export default function Ch00Summary(p: Props) {
   return (
     <div className="flex h-full flex-col">
@@ -44,12 +49,24 @@ export default function Ch00Summary(p: Props) {
           { label: '증축 후', addition: true },
         ].map((v) => (
           <div key={v.label} className="rounded-card bg-mist px-6 pb-4 pt-6">
-            <BuildingIllustration
-              floors={p.floorsAbove}
-              addFloors={p.addFloors}
-              showAddition={v.addition}
-              className="h-40 w-full"
-            />
+            {p.massPnu ? (
+              <MassView
+                pnu={p.massPnu}
+                mode={v.addition ? 'after' : 'before'}
+                floorsAbove={p.floorsAbove}
+                addFloors={p.addFloors}
+                useModel={p.massUseModel}
+                interactive={false}
+                className="h-40"
+              />
+            ) : (
+              <BuildingIllustration
+                floors={p.floorsAbove}
+                addFloors={p.addFloors}
+                showAddition={v.addition}
+                className="h-40 w-full"
+              />
+            )}
             <p className="mt-2 text-center text-xs text-ink-faint">{v.label}</p>
           </div>
         ))}
