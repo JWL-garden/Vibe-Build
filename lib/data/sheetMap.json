@@ -581,6 +581,160 @@
           "type": "str"
         }
       }
+    },
+    {
+      "sheet": "가정값",
+      "source": "input",
+      "output": "inputs/assumptions.json",
+      "builder": "generic",
+      "purpose": "수익성 가정값 레지스트리 (값·보수/기준/낙관·등급·출처·기준일) — 결정 1~6·12",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "키"
+      ],
+      "unique": true,
+      "columns": {
+        "키": {
+          "field": "key",
+          "type": "str"
+        },
+        "항목": {
+          "field": "label",
+          "type": "str"
+        },
+        "단위": {
+          "field": "unit",
+          "type": "str"
+        },
+        "보수": {
+          "field": "low",
+          "type": "num"
+        },
+        "기준": {
+          "field": "base",
+          "type": "num"
+        },
+        "낙관": {
+          "field": "high",
+          "type": "num"
+        },
+        "등급": {
+          "field": "grade",
+          "type": "str",
+          "values": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
+        },
+        "자료명": {
+          "field": "sourceTitle",
+          "type": "str"
+        },
+        "기관": {
+          "field": "publisher",
+          "type": "str"
+        },
+        "기준일": {
+          "field": "baseDate",
+          "type": "str"
+        },
+        "URL": {
+          "field": "url",
+          "type": "str"
+        },
+        "메모": {
+          "field": "memo",
+          "type": "str"
+        }
+      }
+    },
+    {
+      "sheet": "임대사례",
+      "source": "input",
+      "output": "inputs/rentComps.json",
+      "builder": "generic",
+      "purpose": "연립·다세대 전월세 실거래 사례 (당산동6가, 부족하면 영등포구, 최근 12개월) — 결정 5",
+      "enabled": true,
+      "required": true,
+      "key": [],
+      "unique": false,
+      "columns": {
+        "출처": {
+          "field": "source",
+          "type": "str"
+        },
+        "계약일": {
+          "field": "contractDate",
+          "type": "str"
+        },
+        "자치구": {
+          "field": "district",
+          "type": "str"
+        },
+        "법정동": {
+          "field": "dong",
+          "type": "str"
+        },
+        "지번": {
+          "field": "jibun",
+          "type": "str"
+        },
+        "층": {
+          "field": "floor",
+          "type": "num"
+        },
+        "전월세구분": {
+          "field": "rentType",
+          "type": "str",
+          "values": [
+            "전세",
+            "월세"
+          ]
+        },
+        "전용면적(㎡)": {
+          "field": "netAreaM2",
+          "type": "num",
+          "min": 5,
+          "max": 200
+        },
+        "보증금(만원)": {
+          "field": "depositManwon",
+          "type": "num",
+          "min": 0,
+          "max": 300000
+        },
+        "월세(만원)": {
+          "field": "monthlyManwon",
+          "type": "num",
+          "min": 0,
+          "max": 1000
+        },
+        "관리비(만원)": {
+          "field": "maintenanceManwon",
+          "type": "num",
+          "min": 0,
+          "max": 100
+        },
+        "건물용도": {
+          "field": "buildingUse",
+          "type": "str"
+        },
+        "건축년도": {
+          "field": "builtYear",
+          "type": "num"
+        },
+        "신규갱신": {
+          "field": "newOrRenewal",
+          "type": "str"
+        },
+        "메모": {
+          "field": "memo",
+          "type": "str"
+        }
+      }
     }
   ]
 }

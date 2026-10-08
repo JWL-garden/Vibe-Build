@@ -4,7 +4,9 @@
 import registryJson from '@/lib/mock/registry.json'
 import examplesJson from '@/lib/mock/examples.json'
 import sampleReportS1 from '@/lib/mock/sampleReport.S1.json'
+import assumptionsJson from '@/lib/data/inputs/assumptions.json'
 import floorPlateInputJson from '@/lib/data/inputs/floorPlate.json'
+import rentCompsJson from '@/lib/data/inputs/rentComps.json'
 import landLotsJson from '@/lib/data/landLots.json'
 import landPriceJson from '@/lib/data/landPrice.json'
 import parkingReviewJson from '@/lib/data/parkingReview.json'
@@ -12,6 +14,7 @@ import siteInputsJson from '@/lib/data/siteInputs.json'
 import sitesJson from '@/lib/data/sites.json'
 import unitsJson from '@/lib/data/units.json'
 import type {
+  AssumptionRow,
   BuildingRecord,
   ExampleAddress,
   ExcelSite,
@@ -19,6 +22,7 @@ import type {
   LandLotRow,
   LandPriceRow,
   ParkingReviewRow,
+  RentComp,
   ReportData,
   SampleId,
   SiteCandidate,
@@ -108,6 +112,9 @@ export async function getSiteData(pnu: string): Promise<SiteData | null> {
     excelNotes: parkingReviewJson.notes,
     landPrices: (landPriceJson.items as LandPriceRow[]).filter((p) => lotPnus.has(p.pnu)),
     landLots: (landLotsJson.items as LandLotRow[]).filter((l) => lotPnus.has(l.pnu)),
+    // 가정값 입력 엑셀 (수익성 가정값·임대 사례는 필지 공통)
+    assumptionRows: assumptionsJson.items as AssumptionRow[],
+    rentComps: rentCompsJson.items as RentComp[],
     // 가정값 입력 엑셀 '증축층면적_옵션2' (빈칸이면 null → 옵션1)
     floorPlateOption2M2: floorPlateInputJson.items.find((i) => i.pnu === pnu)?.floorPlateM2 ?? null,
   }

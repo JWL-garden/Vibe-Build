@@ -197,11 +197,15 @@ const builders = {
 function buildGeneric(entry) {
   const fields = Object.entries(entry.columns).filter(([, c]) => c.field)
   if (!fields.length) throw new Error(`sheetMap '${entry.sheet}': generic builder는 columns에 field가 필요합니다`)
-  const rows = sourceOf(entry.source).read(entry.sheet)
+  const rows = sourceOf(entry.source)
+    .read(entry.sheet)
+    .filter((r) => Object.values(r).some((v) => v !== null && v !== ''))
   const hasPnu = rows.length > 0 && 'PNU' in rows[0]
-  // PNU 열이 있으면 19자리가 아닌 줄(설명 문장 등)은 notes로 보관
-  const notes = hasPnu ? rows.filter((r) => !isPnu(r.PNU) && str(r.PNU)).map((r) => String(r.PNU)) : []
-  const items = (hasPnu ? rows.filter((r) => isPnu(r.PNU)) : rows).map((r) => {
+  // 설명 줄: PNU 열이 있으면 19자리가 아닌 줄, 없으면 첫 열이 '['로 시작하는 줄 ('[설명] …') → notes로 보관
+  const firstCol = Object.keys(entry.columns)[0]
+  const isNote = (r) => (hasPnu ? !isPnu(r.PNU) && str(r.PNU) : String(r[firstCol] ?? '').startsWith('['))
+  const notes = rows.filter(isNote).map((r) => String(hasPnu ? r.PNU : r[firstCol]))
+  const items = rows.filter((r) => !isNote(r) && (!hasPnu || isPnu(r.PNU))).map((r) => {
     const item = {}
     for (const [col, c] of fields) {
       const convert = CONVERTERS[c.type ?? 'raw']

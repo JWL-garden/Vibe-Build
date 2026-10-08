@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "source": "input",
+    "file": "261008_가정값 입력.xlsx",
+    "version": "261008-a",
+    "sourceDate": "2026-10-08",
+    "fileHash": "e37a9612bd5a5e89",
+    "convertedAt": "2026-10-08T02:21:22.258Z",
+    "sheets": [
+      {
+        "name": "임대사례",
+        "rows": 1
+      }
+    ],
+    "itemCount": 0
+  },
+  "notes": [
+    "[설명] 보증금·월세·관리비는 만원. 전월세구분 = 전세|월세. npm run data:rent 는 출처가 \"서울 열린데이터광장\"인 행만 다시 쓴다 (직접 입력한 행은 유지)"
+  ],
+  "items": []
+}

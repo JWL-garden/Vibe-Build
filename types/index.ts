@@ -1093,6 +1093,10 @@ export interface SiteData {
   landPrices: LandPriceRow[]
   /** 대표 필지 + 구성 필지의 토지대장 (기준 엑셀 '토지임야목록_2단계' → landLots.json) */
   landLots: LandLotRow[]
+  /** 수익성 가정값 (가정값 입력 엑셀 '가정값' → inputs/assumptions.json) */
+  assumptionRows: AssumptionRow[]
+  /** 임대 사례 (가정값 입력 엑셀 '임대사례' → inputs/rentComps.json) */
+  rentComps: RentComp[]
   /** 증축층 바닥면적 옵션2 값 (가정값 입력 엑셀 '증축층면적_옵션2' → inputs/floorPlate.json). 없으면 null */
   floorPlateOption2M2: number | null
 }
@@ -1400,4 +1404,93 @@ export interface SiteReport {
     disclaimer: string[]
   }
   analysis: SiteAnalysis
+}
+
+// ═════════════════════════════════════════════
+// 수익성 가정값 레지스트리·임대 사례 (2026-10-08 결정 1~6·12)
+// 값은 가정값 입력 엑셀 → lib/data/inputs/*.json, 항목 정의는 lib/rules/financeDefaults.ts
+// ═════════════════════════════════════════════
+
+/** 근거 등급 — A 공식 데이터·법령 / B 공개자료 기반 / C 프로젝트 가정 / D 근거 없음 */
+export type EvidenceGrade = 'A' | 'B' | 'C' | 'D'
+
+/** 가정값 입력 엑셀 '가정값' 한 행 (inputs/assumptions.json) */
+export interface AssumptionRow {
+  key: string
+  label: string | null
+  unit: string | null
+  /** 보수 (ROI에 불리한 값) */
+  low: number | null
+  base: number | null
+  /** 낙관 (ROI에 유리한 값) */
+  high: number | null
+  grade: EvidenceGrade | null
+  sourceTitle: string | null
+  publisher: string | null
+  baseDate: string | null
+  url: string | null
+  memo: string | null
+}
+
+/** 수익 시나리오에서 쓰는 가정값 하나 */
+export interface ResolvedAssumption {
+  key: string
+  label: string
+  unit: string
+  /** 선택한 수익 시나리오의 값. 입력이 없으면 null (보고서 "입력 대기") */
+  value: number | null
+  range: { low: number | null; base: number | null; high: number | null }
+  grade: EvidenceGrade | null
+  /** 보고서 출처 표기 (자료명 · 기관 · 기준일) */
+  sourceText: string | null
+  url: string | null
+  memo: string | null
+  /** 사용자 입력으로 덮어썼는지 */
+  overridden: boolean
+}
+
+/** 가정값 입력 엑셀 '임대사례' 한 행 (inputs/rentComps.json) — 금액은 만원 */
+export interface RentComp {
+  source: string | null
+  contractDate: string | null
+  district: string | null
+  dong: string | null
+  jibun: string | null
+  floor: number | null
+  rentType: '전세' | '월세' | string | null
+  netAreaM2: number | null
+  depositManwon: number | null
+  monthlyManwon: number | null
+  maintenanceManwon: number | null
+  buildingUse: string | null
+  builtYear: number | null
+  newOrRenewal: string | null
+  memo: string | null
+}
+
+/** 전월세 전환율 (결정 6) — 소수 (0.05 = 5%) */
+export interface ConversionRates {
+  /** 주택: 법정 상한 = min(연 10%, 기준금리 + 2%p) — 주택임대차보호법 제7조의2·시행령 제9조 */
+  housing: { legalCap: number | null; market: number | null; applied: number | null; basis: string }
+  /** 상가·사무실: 법정 상한 = min(연 12%, 기준금리 × 4.5) — 상가건물 임대차보호법 제12조·시행령 제5조 */
+  commercial: { legalCap: number | null; market: number | null; applied: number | null; basis: string }
+}
+
+/** 임대 사례 전용 구간 요약 (결정 5) */
+export interface RentBandSummary {
+  /** 'S' = 전용 0~30㎡, 'M' = 30~60㎡ */
+  band: 'S' | 'M'
+  label: string
+  /** 사용한 사례 수 (전세 + 월세) */
+  count: number
+  /** 지역 — 당산동6가 사례가 부족하면 영등포구 포함 */
+  area: string
+  /** 중위 보증금 (원) — 월세 계약 */
+  depositWon: number | null
+  /** 중위 월세 (원) — 월세 계약 */
+  monthlyWon: number | null
+  /** 중위 관리비 (원/월) — 사례에 있으면, 없으면 null */
+  maintenanceWon: number | null
+  /** 중위 ㎡당 월 환산 임대료 (원/㎡·월) = (월세 + 보증금 × 전환율 ÷ 12) ÷ 전용면적, 전세·월세 사례 모두 */
+  monthlyEquivalentPerM2: number | null
 }
