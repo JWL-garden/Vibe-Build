@@ -1380,8 +1380,10 @@ export interface SiteReport {
   }
   /** 3장 증축 계획안 */
   plan: SitePlanSection
-  /** 5장 수익 분석 (토지가액·자산가치, 임대수익은 수익성 엔진 연결 후) */
+  /** 5장 수익 분석 — 자산가치 (토지가액·건물가치) */
   asset: SiteAssetSection
+  /** 4장 사업비 · 5장 임대수익·지표 (lib/report/financeSection.ts) */
+  finance: SiteFinanceSection
   /** 데이터 검증: 기준 엑셀 대조 + 추가로 확인·수정할 데이터 */
   verification: {
     /** [항목, 엑셀값, 계산값, 결과] */
@@ -1404,8 +1406,38 @@ export interface SiteReport {
     excelNotes: string[]
     formulas: string[]
     disclaimer: string[]
+    /** 수익성 가정값 표 [항목, 적용값(기준), 범위(보수 ~ 낙관), 등급, 출처] — 결정 4: 등급 C도 범위와 함께 출력 */
+    assumptionRows: ReportRow[]
+    /** 전월세 전환율 표 [구분, 법정 상한, 시장, 보수, 기준, 근거] */
+    conversionRows: ReportRow[]
   }
   analysis: SiteAnalysis
+}
+
+/** 4장 사업비 · 5장 임대수익 (보고서 표시용 — 계산은 runAll().finance) */
+export interface SiteFinanceSection {
+  status: 'ok' | 'none' | 'pending'
+  /** 계산하지 못했을 때 안내 (ok면 null) */
+  statusText: string | null
+  /** 예: '기준 시나리오 (보수·낙관은 시나리오 표)' */
+  scenarioLabel: string
+  /** [항목, 금액, 산식·근거, 등급] */
+  costRows: ReportRow[]
+  /** [자금, 금액, 비고] */
+  fundingRows: ReportRow[]
+  /** [세대, 전용, 사례 구간, 월 환산 임대료, 참고: 구간 중위 보증금 / 월세] */
+  unitRows: ReportRow[]
+  /** [항목, 금액(연), 근거] */
+  revenueRows: ReportRow[]
+  /** ROI·회수기간·ROE·자산가치 증가 */
+  kpis: Kpi[]
+  /** [수익 시나리오, 전환율, 총사업비, 연 NOI 증가, ROI, 회수기간] */
+  scenarioRows: ReportRow[]
+  /** [구간, 사례(신규), 지역, 중위 보증금, 중위 월세, ㎡당 월 환산] */
+  bandRows: ReportRow[]
+  /** 토지 포함 수익률 문장 */
+  yieldText: string
+  notes: string[]
 }
 
 // ═════════════════════════════════════════════

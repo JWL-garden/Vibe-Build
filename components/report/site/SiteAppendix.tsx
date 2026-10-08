@@ -22,6 +22,15 @@ export default function SiteAppendix({ report }: { report: SiteReport }) {
       <SubTitle>적용 기준값</SubTitle>
       <DataTable head={['항목', '값', '근거']} rows={a.ruleRows} />
 
+      <SubTitle>수익성 가정값 (기준 · 범위 · 근거 등급)</SubTitle>
+      <DataTable head={['항목', '적용값 (기준)', '범위 (보수 ~ 낙관)', '근거 등급', '출처 · 메모']} rows={a.assumptionRows} />
+      <p className="mt-2 text-xs text-ink-faint">
+        근거 등급: A 공식 데이터·법령 / B 공개자료 기반 / C 프로젝트 가정 (범위와 함께 표시) / 입력 대기 = 자료 없음
+      </p>
+
+      <SubTitle>전월세 전환율</SubTitle>
+      <DataTable head={['구분', '법정 상한', '시장', '보수 적용', '기준 적용', '근거']} numeric={[1, 2, 3, 4]} rows={a.conversionRows} />
+
       <SubTitle>기준 엑셀 산정 근거</SubTitle>
       <ul className="list-disc space-y-1 pl-5 text-xs leading-relaxed text-ink-soft">
         {a.excelNotes.map((n) => (

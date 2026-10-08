@@ -9,6 +9,7 @@ import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
 import { policyNotes } from '@/lib/rules/policies'
 import { getScenario, getViewScenario, viewScenarios } from '@/lib/rules/scenarios'
 import { describeOverrides } from './describeOverrides'
+import { FINANCE_SCENARIO_LABEL, assumptionRows, conversionRows, financeSection } from './financeSection'
 import { LAND_BADGE, landAreaSource, landBaseMonthText, landBasisNote } from './landText'
 import type {
   ExcelSite,
@@ -306,8 +307,7 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
   return {
     kpis,
     rows,
-    yieldNote:
-      '토지 포함 수익률 = (기존 NOI + 증축 NOI 증가) ÷ (증축 전 자산가치 + 총사업비) — 임대료·사업비(수익성 단계) 입력 후 계산됩니다. 증축 판단의 핵심 지표는 ROI(NOI 증가 ÷ 총사업비)입니다.',
+    yieldNote: financeSection(analysis).yieldText,
     notes: [
       ...a.reasons,
       `${buildingValueRule.note}. 수익 기준 가치(NOI ÷ 환원율)와 더하면 토지를 두 번 세게 되므로 따로 봅니다.`,
@@ -349,7 +349,12 @@ function buildVerification(data: SiteData, analysis: SiteAnalysis): SiteReport['
       'lib/rules/scenarios.ts → C.sunlight.multiFamilyLowHeightM',
     ],
     ['건축물 숫자 (대지·연면적·호별 면적·주차)', data.sourceLabel, '기준 엑셀', '엑셀 수정 후 npm run data:excel 재실행'],
-    ['임대료·공사비·시세 (수익성)', '미입력', '수익성 단계에서 입력 (예시 가정값)', 'lib/mock/owner.json, market.json'],
+    [
+      '수익성 가정값 (공사비·임대료·공실·금리 등)',
+      `${analysis.finance.byScenario.BASE.assumptions.filter((a) => a.grade === 'C').length}개 항목 등급 C (프로젝트 가정)`,
+      '검토 후 확정 필요',
+      "가정값 입력 엑셀 '가정값' 시트 → npm run data:excel",
+    ],
   ]
   const land = analysis.land
   if (land.basis === 'estimated') {
@@ -472,6 +477,12 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ],
     ['1층 필로티 여부', 'lib/data/siteInputs.json', input?.pilotiFloor1 ? '필로티(가정)' : '필로티 아님'],
     ['법규 기준·완화 시나리오', 'lib/rules (서울시 조례 기준 + 프로젝트 가정)', '현행법 아님 (ALL·REBUILD)'],
+    ['수익성 가정값 (값·범위·등급·출처)', "가정값 입력 엑셀 '가정값' 시트", '출처표: docs/assumption-sources.md'],
+    [
+      '임대 사례 (연립·다세대 전월세 실거래)',
+      "가정값 입력 엑셀 '임대사례' 시트 (서울 열린데이터광장 tbLnOpendataRentV)",
+      `신규 계약 ${analysis.finance.byScenario.BASE.rentBands.map((b) => `${b.label} ${b.count}건`).join(' · ')} — 최근 12개월`,
+    ],
   ]
 
   return {
@@ -484,6 +495,8 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ruleRows,
     sourceRows,
     policyRows: policyNotes.map((p) => [p.title, p.detail, p.usage]),
+    assumptionRows: assumptionRows(analysis.finance.byScenario.BASE),
+    conversionRows: conversionRows(analysis),
     policySource: [...new Set(policyNotes.map((p) => p.source))].join(', '),
     sourceFile: `${data.source.file} (버전 ${data.source.version}, 기준일 ${data.source.date}) — 원본 시트(건축물대장_원본 등)는 사용하지 않음`,
     excelNotes: data.excelNotes,
@@ -497,6 +510,10 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       '토지가액 = Σ(구성 필지 면적 × 개별공시지가) — 외필지 자료가 없으면 대표 필지 공시지가 × 대장 대지면적 (추정)',
       '자산가치(원가 기준) = 토지가액 + 연면적 × 재조달단가 × 잔가율, 잔가율 = max(최저 잔가율, 1 − 경과연수 ÷ 내용연수), 증축분 = 증축 연면적 × 재조달단가',
       '재건축 연면적 = min(대지 × 용적률 상한, 대지 × 건폐율 × 주택 층수 한도, 주택 연면적 한도), 세대수 = 내림(연면적 × 전용률 ÷ 최소 세대 전용), 재건축 후 자산가치 = 토지가액 + 신축 연면적 × 재조달단가',
+      '사업비(증축) = 연면적 ÷ 3.305785 × 평당 단가 + 세대 × 제반비용 + 취득세 등 + 예비비 + 금융비용(대출 × 금리 × 공사기간 ÷ 12 × 0.5) / 재건축 공사비 = 공사 연면적(필로티 포함) × max(건물신축단가표, 엑셀 신축비용)',
+      '연 임대수입 = Σ 세대 전용 × ㎡당 월 환산 임대료(신규 실거래 구간 중위, (월세 + 보증금 × 전환율 ÷ 12) ÷ 전용) × 12, NOI = 임대수입 × (1 − 공실률) × (1 − 운영비율)',
+      '전환율: 보수 = 법정 상한(주택 min(10%, 기준금리 + 2%p), 상가 min(12%, 기준금리 × 4.5)), 기준·낙관 = 시장 전환율',
+      'ROI = 연 NOI 증가 ÷ 총사업비, 회수기간 = 총사업비 ÷ 연 NOI 증가, ROE = (NOI 증가 − 대출 × 금리) ÷ 자기자본, 자산가치 증가 = NOI 증가 ÷ 환원율',
     ],
     disclaimer: [
       '본 보고서는 기준 엑셀 자료와 예시 가정값 기반의 개략 검토이며 투자 권유가 아닙니다. 실제 사업성은 정밀 조사와 세무·법률·감정평가 전문가 검토에 따라 달라질 수 있습니다.',
@@ -504,6 +521,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       '주차 기준 증축 면적은 기존 주차 여유 범위의 개략 산정이며, 주차 추가 확보 안은 대지 내 배치 가능 여부를 별도로 확인해야 합니다.',
       '실제 증축 가능성은 지구단위계획, 가로구역 높이제한, 고도지구, 주차장 기준, 구조안전 등에 따라 달라집니다.',
       '토지가액은 개별공시지가 기준(시세 아님)이고, 건물가치는 예시 가정값 기반 원가 추정으로 감정평가가 아닙니다.',
+      '수익성은 임대 모델(보증금 + 월세, 사업주체 대표 1인) 기준 개략 추정입니다. 등급 C(프로젝트 가정) 값은 범위와 함께 표시했으며, 세무·금융·감정평가 전문가 확인이 필요합니다.',
     ],
   }
 }
@@ -577,6 +595,25 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
       caption: `${analysis.scenarioId} 시나리오`,
     },
   ]
+
+  const fin = analysis.finance.byScenario[analysis.finance.selected]
+  if (fin.status === 'ok') {
+    const label = FINANCE_SCENARIO_LABEL[analysis.finance.selected]
+    const c = analysis.finance.byScenario.CONSERVATIVE.metrics.roi
+    const o = analysis.finance.byScenario.OPTIMISTIC.metrics.roi
+    const pct = (v: number | null) => (v === null ? '–' : formatRate(v, 1))
+    kpis.splice(
+      1,
+      3,
+      { label: '총사업비', value: formatWon(fin.totalCostWon), caption: `자기자본 ${formatWon(fin.equityWon)} · 대출 ${formatWon(fin.loanWon)}` },
+      { label: `ROI (${label})`, value: pct(fin.metrics.roi), caption: `보수 ${pct(c)} ~ 낙관 ${pct(o)}` },
+      {
+        label: '투자회수기간',
+        value: fin.metrics.paybackYears === null ? '–' : `${f(fin.metrics.paybackYears, 1)}년`,
+        caption: `연 NOI +${formatWon(fin.revenue.noiIncreaseWon)} · ${verdictText}`,
+      },
+    )
+  }
 
   // 1장 현황
   const floor = floorUseRows(units, siteInput?.pilotiFloor1 ?? false)
@@ -719,6 +756,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     },
     plan,
     asset: assetSection(analysis),
+    finance: financeSection(analysis),
     verification: buildVerification(data, analysis),
     appendix: buildAppendix(data, analysis),
     analysis,

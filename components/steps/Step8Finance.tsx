@@ -1,4 +1,5 @@
 import { formatNumber, formatRate, formatWon, formatWonExact } from '@/lib/format'
+import { financeSection } from '@/lib/report/financeSection'
 import { LAND_BADGE, landAreaSource, landBasisNote } from '@/lib/report/landText'
 import type { SiteAnalysis } from '@/types'
 
@@ -11,7 +12,7 @@ const TONE_CLASS = {
 /**
  * ⑧ 수익성 — 지금은 토지가액(공시지가 기준)과 증축 전·후 자산가치(원가 기준)만 표시.
  * 숫자는 runAll 결과(analysis.land·asset)만 쓰고 화면에서 다시 계산하지 않는다.
- * TODO [5-4]: 사업비·임대수익·ROI (수익성 엔진 [3-2]~[3-4] 연결 후)
+ * 2026-10-08: 사업비·임대수익·ROI 요약 추가 (runAll().finance, 보고서 4·5장과 같은 문구)
  */
 export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
   const { land, asset } = analysis
@@ -87,14 +88,58 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-mist px-5 py-4 text-sm text-ink-soft">
-        <p className="font-medium text-ink">사업비·임대수익·ROI·토지 포함 수익률</p>
-        <p className="mt-1">
-          임대료·공사비 예시 가정값과 수익성 계산 엔진을 연결한 뒤 표시됩니다. 토지 포함 수익률 = (기존 NOI + 증축 NOI
-          증가) ÷ (증축 전 자산가치 + 총사업비).
-        </p>
-      </section>
+      <FinanceSummary analysis={analysis} />
     </div>
+  )
+}
+
+/** 사업비·임대수익·ROI 요약 — runAll().finance를 보고서 4·5장과 같은 문구로 보여준다 (계산 없음) */
+function FinanceSummary({ analysis }: { analysis: SiteAnalysis }) {
+  const fin = financeSection(analysis)
+  if (fin.status !== 'ok') {
+    return <section className="rounded-card border border-line bg-mist px-5 py-4 text-sm text-ink-soft">{fin.statusText}</section>
+  }
+  const total = fin.costRows[fin.costRows.length - 1]
+  return (
+    <section>
+      <h3 className="font-serif text-lg font-bold text-ink">사업비·임대수익 (임대 모델)</h3>
+      <p className="mt-1 text-xs text-ink-faint">{fin.scenarioLabel} · 근거 등급 C는 프로젝트 가정 — 보고서 4·5장과 부록에 상세</p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="rounded-card border border-line px-4 py-3">
+          <p className="text-xs text-ink-faint">총사업비</p>
+          <p className="mt-1 font-serif text-xl font-bold text-ink">{total[1]}</p>
+        </div>
+        {fin.kpis.map((k) => (
+          <div key={k.label} className="rounded-card border border-line px-4 py-3">
+            <p className="text-xs text-ink-faint">{k.label}</p>
+            <p className="mt-1 font-serif text-xl font-bold text-ink">{k.value}</p>
+            {k.caption && <p className="mt-1 text-xs text-ink-soft">{k.caption}</p>}
+          </div>
+        ))}
+      </div>
+      <table className="mt-4 w-full text-sm">
+        <thead>
+          <tr className="border-b border-ink/20 text-left text-xs text-ink-faint">
+            {['시나리오', '전환율', '총사업비', '연 NOI 증가', 'ROI', '회수기간'].map((h) => (
+              <th key={h} className="py-2 font-normal">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-line">
+          {fin.scenarioRows.map((row) => (
+            <tr key={row[0]}>
+              {row.map((cell, i) => (
+                <td key={i} className="py-2 text-ink">
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   )
 }
 

@@ -93,8 +93,11 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(r.plan.kind).toBe('existing')
     expect(r.plan.plan!.addGfaM2).toBeCloseTo(53.829, 3)
     expect(r.summary.kpis[0].value).toBe('+1층 · +53.8㎡')
-    expect(r.summary.kpis[1].value).toBe('3세대')
-    expect(r.summary.kpis[3].value).toBe('증축 가능')
+    // 수익성이 계산되면 표지 KPI = 규모 · 총사업비 · ROI · 회수기간 (설계서 11장), 판정은 회수기간 보조 문구
+    expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', 'ROI (기준)', '투자회수기간'])
+    expect(r.summary.kpis[1].value).toBe('1.6억원')
+    expect(r.summary.kpis[2].value).toBe('14.9%')
+    expect(r.summary.kpis[3].caption).toContain('증축 가능')
   })
 
   it('3장 BASE(다세대 4개층 한도): 증축안 없음 → 대안 검토, 표지 1세대 여유·확인 필요', async () => {
@@ -128,7 +131,7 @@ describe('T2 보고서', () => {
     const r = await build(T2)
     expect(r.plan.kind).toBe('existing')
     expect(r.plan.plan!.addGfaM2).toBeCloseTo(36.25, 2)
-    expect(r.summary.kpis[3].value).toBe('증축 가능')
+    expect(r.summary.kpis[3].caption).toContain('증축 가능')
   })
 
   it('3장 BASE: 증축안 없음 → 주택 층수 대안 검토, 표지 1세대 여유·확인 필요', async () => {
@@ -211,7 +214,7 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     expect(landRow[3]).toContain('[면적 확인 필요]')
     expect(addRow[2]).toBe('107,658,000원')
     expect(totalRow.slice(1, 3)).toEqual(['1,546,519,200원', '1,654,177,200원']) // 표는 원 단위 정확값 (항목 합 = 합계)
-    expect(r.asset.yieldNote).toContain('수익성 단계')
+    expect(r.asset.yieldNote).toContain('토지 포함 수익률')
   })
 })
 
@@ -240,5 +243,43 @@ describe('5장 표시 점검 (2026-10-07 숫자 점검 반영)', () => {
     const r = await build(T2)
     expect(r.asset.kpis[3].caption).toBe('증축 36.3㎡')
     expect(r.summary.kpis[0].value).toContain('36.3㎡')
+  })
+})
+
+describe('4장 사업비 · 5장 수익 · 부록 가정값 (2026-10-08 결정 1~6·12)', () => {
+  it('T1 ALL: 4장 사업비 표 마지막 행 = 총사업비 = runAll finance 값, 입력 대기 항목 표시', async () => {
+    const r = await build(T1)
+    const fin = r.analysis.finance.byScenario.BASE
+    expect(r.finance.status).toBe('ok')
+    const total = r.finance.costRows[r.finance.costRows.length - 1]
+    expect(total[0]).toBe('총사업비')
+    expect(total[1]).toBe(`${fin.totalCostWon!.toLocaleString('ko-KR')}원`)
+    expect(r.finance.costRows.find((row) => row[0] === '공사 중 임대 손실')![1]).toBe('입력 대기')
+  })
+
+  it('T1 ALL: 5장 KPI·시나리오 표 = runAll 값, 보수 전환율은 법정 상한', async () => {
+    const r = await build(T1)
+    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '14.9%' })
+    expect(r.finance.scenarioRows.map((row) => row[0])).toEqual(['보수', '기준', '낙관'])
+    expect(r.finance.scenarioRows[0][1]).toBe('5.0% (법정 상한)')
+    expect(r.finance.unitRows).toHaveLength(3)
+    expect(r.finance.bandRows[0].slice(0, 3)).toEqual(['전용 0~30㎡', '120건', '당산동6가'])
+  })
+
+  it('증축안이 없으면(T1 BASE) 4·5장은 계산 생략 안내, 표지 KPI는 규모·세대·주차·판정 유지', async () => {
+    const r = await build(T1, 'BASE')
+    expect(r.finance.status).toBe('none')
+    expect(r.finance.statusText).toContain('계산하지 않았습니다')
+    expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '추가 세대', '주차', '판정'])
+  })
+
+  it('부록 가정값 표: 등급 C 항목도 범위와 함께 출력 (결정 4), 전환율 표 2행', async () => {
+    const a = (await build(T2)).appendix
+    const vacancy = a.assumptionRows.find((row) => row[0] === '공실률')!
+    expect(vacancy.slice(1, 4)).toEqual(['5.00%', '10.00% ~ 3.00%', 'C 프로젝트 가정'])
+    const rate = a.assumptionRows.find((row) => row[0] === '한국은행 기준금리')!
+    expect(rate[3]).toBe('A 공식')
+    expect(a.conversionRows.map((row) => row[0])).toEqual(['주택 (연립·다세대)', '상가·사무실 (주거 외)'])
+    expect(a.conversionRows[0].slice(1, 3)).toEqual(['5.0%', '5.6%'])
   })
 })
