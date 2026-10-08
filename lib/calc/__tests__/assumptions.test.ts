@@ -112,6 +112,14 @@ describe('임대 사례 요약 (결정 5)', () => {
     expect(m.area).toBe('사례 없음')
   })
 
+  it('갱신 계약·구분 없는 계약은 빼고 신규 계약만 쓴다 (2026-10-08 결정)', () => {
+    const renewal = { ...comp('당산동6가', 25, '월세', 500, 30), newOrRenewal: '갱신' }
+    const unknown = { ...comp('당산동6가', 25, '월세', 500, 30), newOrRenewal: null }
+    const [s] = summarizeRentComps([comp('당산동6가', 25, '월세', 1000, 60), renewal, unknown], 0.05)
+    expect(s.count).toBe(1)
+    expect(s.monthlyWon).toBe(600_000)
+  })
+
   it('당산동6가가 10건 미만이면 영등포구 사례 포함, 전세는 보증금만으로 환산', () => {
     const comps = [comp('당산동6가', 45, '전세', 20000, 0), comp('문래동2가', 50, '월세', 3000, 100)]
     const [, m] = summarizeRentComps(comps, 0.06)

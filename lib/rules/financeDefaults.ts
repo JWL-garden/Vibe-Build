@@ -72,6 +72,8 @@ export const conversionRule = {
 export const rentCompRule = {
   months: 12,
   minSamples: 10,
+  /** 신규 계약만 사용 (2026-10-08 결정 — 갱신 계약은 인상률 5% 상한으로 시장 임대료보다 낮을 수 있음) */
+  contractTypes: ['신규'] as readonly string[],
   bands: [
     { band: 'S', label: '전용 0~30㎡', maxNetM2: 30 },
     { band: 'M', label: '전용 30~60㎡', maxNetM2: 60 },

@@ -1,7 +1,7 @@
 // 수익성 가정값 정리 (2026-10-08 결정 1~6·12) — 순수 함수
 // 1) resolveAssumptions: 가정값 입력 엑셀 행 → 수익 시나리오(보수/기준/낙관) 값. 우선순위: 사용자 입력 > 입력 엑셀
 // 2) calcConversionRates: 전월세 전환율 — 보수 = 법정 상한, 기준·낙관 = 시장 전환율. 주거 외 용도는 상가법 기준
-// 3) summarizeRentComps: 임대 사례 → 전용 구간(0~30 / 30~60㎡)별 중위 보증금·월세·관리비·㎡당 월 환산 임대료
+// 3) summarizeRentComps: 임대 사례(신규 계약만) → 전용 구간(0~30 / 30~60㎡)별 중위 보증금·월세·관리비·㎡당 월 환산 임대료
 
 import { ASSUMPTION_SPEC, conversionRule, rentCompRule, type AssumptionKey } from '@/lib/rules/financeDefaults'
 import type {
@@ -96,7 +96,13 @@ const MANWON = 10_000
  * 당산동6가 사례가 구간별 minSamples 이상이면 당산동6가만, 아니면 영등포구 사례까지 쓴다.
  */
 export function summarizeRentComps(comps: RentComp[], conversionRate: number | null): RentBandSummary[] {
-  const valid = comps.filter((c) => (c.netAreaM2 ?? 0) > 0 && c.depositManwon !== null && (c.rentType === '전세' || c.rentType === '월세'))
+  const valid = comps.filter(
+    (c) =>
+      (c.netAreaM2 ?? 0) > 0 &&
+      c.depositManwon !== null &&
+      (c.rentType === '전세' || c.rentType === '월세') &&
+      rentCompRule.contractTypes.includes(c.newOrRenewal ?? ''),
+  )
   let lower = 0
   return rentCompRule.bands.map(({ band, label, maxNetM2 }) => {
     const inBand = valid.filter((c) => c.netAreaM2! > lower && c.netAreaM2! <= maxNetM2)
