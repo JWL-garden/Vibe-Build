@@ -11,7 +11,7 @@ import { buildSiteReport } from '@/lib/report/buildSiteReport'
 import Step1Target from '@/components/steps/Step1Target'
 import { rowsFromRecord } from '@/lib/report/buildingRows'
 import { useAnalysisStore } from '@/store/analysisStore'
-import type { ScenarioId } from '@/types'
+import type { ViewScenarioId } from '@/types'
 
 /** 아직 계산 엔진이 없어 채울 수 없는 장 (설계서 11장) */
 const UPCOMING = [
@@ -41,7 +41,7 @@ export default function ReportView({
   pnu: string
   buildingId: string | null
   /** URL의 법규 시나리오 (없으면 분석 화면에서 고른 값) */
-  scenario: ScenarioId | null
+  scenario: ViewScenarioId | null
 }) {
   const { buildings, selectedBuildingId, expandability, status, loadSite, siteData, analysis, setScenario } =
     useAnalysisStore()

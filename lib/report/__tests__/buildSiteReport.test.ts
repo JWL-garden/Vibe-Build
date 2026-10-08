@@ -4,13 +4,13 @@ import { runAll } from '@/lib/calc'
 import { calcExpansion } from '@/lib/calc/expansion'
 import { deepMerge, getEffectiveRules } from '@/lib/rules/scenarios'
 import { getSiteData } from '@/lib/services/mockService'
-import type { ScenarioId } from '@/types'
+import type { ViewScenarioId } from '@/types'
 import { buildSiteReport } from '../buildSiteReport'
 
 const T1 = '1156011600001040010'
 const DANGSAN = '1156011600001040048' // 104-48 당산빌: 2026-10-07 T1에서 제외, 주차 추가 확보 경로 회귀 테스트
 const T2 = '1156011600001100019'
-const build = async (pnu: string, id: ScenarioId = 'ALL') => {
+const build = async (pnu: string, id: ViewScenarioId = 'ALL') => {
   const data = (await getSiteData(pnu))!
   return buildSiteReport(data, runAll(data, id), '2026-10-07')
 }
@@ -52,14 +52,14 @@ describe('104-48 보고서 (참고)', () => {
   it('2장: 현행→완화 4줄(용적률·주택 층수·주택 연면적·일조 수직), 주차 산정 단독 1.6 + 근생 1.3 = 2.9, 여유 0.1', async () => {
     const r = await build(DANGSAN)
     expect(r.regulation.relaxRows).toHaveLength(4)
-    expect(r.regulation.relaxRows[0].slice(1)).toEqual(['200%', '250%', 'B, ALL'])
+    expect(r.regulation.relaxRows[0].slice(1)).toEqual(['200%', '250%', 'ALL, REBUILD'])
     const byLabel = Object.fromEntries(r.regulation.parkingRows.map((row) => [row[0], row[2]]))
     expect(byLabel['단독·다중주택(제4호)']).toBe('1.6대')
     expect(byLabel['근린생활시설(제3호)']).toBe('1.3대')
     expect(byLabel['현재 법정 대수']).toBe('2.9대')
     expect(byLabel['기존 여유']).toBe('0.1대')
-    expect(r.regulation.scenarioRows).toHaveLength(5)
-    expect(r.regulation.selectedRow).toBe(4)
+    expect(r.regulation.scenarioRows).toHaveLength(3)
+    expect(r.regulation.selectedRow).toBe(1)
   })
 
   it('[테스트 규칙] 3장: 주차 1대 추가 조건 증축안, 증축 면적 = expansion.addGfaM2', async () => {
@@ -97,10 +97,10 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(r.summary.kpis[3].value).toBe('증축 가능')
   })
 
-  it('3장 B(다세대 4개층 한도): 증축안 없음 → 대안 검토, 표지 3세대 여유·확인 필요', async () => {
-    const r = await build(T1, 'B')
+  it('3장 BASE(다세대 4개층 한도): 증축안 없음 → 대안 검토, 표지 1세대 여유·확인 필요', async () => {
+    const r = await build(T1, 'BASE')
     expect(r.plan.kind).toBe('none')
-    expect(r.summary.kpis[1].value).toBe('3세대 여유')
+    expect(r.summary.kpis[1].value).toBe('1세대 여유')
     expect(r.summary.kpis[3].value).toBe('확인 필요')
   })
 })
@@ -158,10 +158,10 @@ describe('부록: 데이터 출처 (기준 엑셀 시트명)', () => {
     expect(r.appendix.excelNotes).toHaveLength(4)
   })
 
-  it('시나리오 5개, B는 용적률 상한 교체로 표시 (배수 아님)', async () => {
+  it('화면 시나리오 3개(BASE·ALL·REBUILD), ALL은 용적률 상한 교체로 표시 (배수 아님)', async () => {
     const r = await build(T1)
-    expect(r.appendix.scenarioRows).toHaveLength(5)
-    expect(r.appendix.scenarioRows[2][1]).toContain('용적률 상한 250%')
+    expect(r.appendix.scenarioRows.map((row) => row[0].split(' ')[0])).toEqual(['BASE', 'ALL', 'REBUILD'])
+    expect(r.appendix.scenarioRows[1][1]).toContain('용적률 상한 250%')
     expect(r.appendix.ruleRows[1][1]).toBe('제2종일반주거 200→250%, 제3종일반주거 250→300%')
   })
 })

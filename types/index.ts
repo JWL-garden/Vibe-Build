@@ -231,6 +231,18 @@ export interface Rules {
   maxAddFloors: number | null
   /** 증축 층고 (m) — 기본 3.3 */
   floorHeightM: number
+  /** 전체 재건축(철거 후 신축) 가정 — 기준 엑셀 '빈땅_신축시나리오' 산식 */
+  rebuild: RebuildRule
+}
+
+/** 전체 재건축 가정값 (lib/rules/baseRules.ts) */
+export interface RebuildRule {
+  /** 신축 전용률 (0~1) — 기준 엑셀 '빈땅_신축시나리오' 전유 80%·공용 20% 가정 */
+  netRatio: number
+  /** true면 1층을 필로티 주차로 두고 2층부터 주택 (주택 층수·용적률에서 1층 제외) */
+  pilotiFloor1: boolean
+  /** 건축 유형별 세대수 상한 (다가구 19세대, 건축법 시행령 별표1). 없으면 상한 없음 */
+  maxHouseholds: Partial<Record<HousingType, number>>
 }
 
 /** 객체 안쪽까지 모두 선택 항목으로 만드는 도우미 타입 */
@@ -248,8 +260,24 @@ export interface PolicyNote {
   usage: string
 }
 
-/** 법규 시나리오 id */
+/** 법규 시나리오 id (계산 엔진용 규칙 묶음). A·B·C는 ALL을 이루는 구성 요소로, 화면·보고서에는 보이지 않는다 */
 export type ScenarioId = 'BASE' | 'A' | 'B' | 'C' | 'ALL'
+
+/** 화면·보고서에서 고르는 시나리오: 현행 / 복합 완화(증축) / 복합 완화 + 전체 재건축 */
+export type ViewScenarioId = 'BASE' | 'ALL' | 'REBUILD'
+
+/** 화면·보고서 시나리오 (lib/rules/scenarios.ts → viewScenarios) */
+export interface ViewScenario {
+  id: ViewScenarioId
+  name: string
+  rationale: string
+  /** true면 "프로젝트 가정" 배지 */
+  isAssumption: boolean
+  /** 계산에 쓰는 규칙 시나리오 */
+  rulesId: ScenarioId
+  /** expansion = 기존 건물 위 증축 / rebuild = 철거 후 신축 */
+  kind: 'expansion' | 'rebuild'
+}
 
 /** 법규 완화 시나리오 */
 export interface Scenario {
@@ -1033,15 +1061,71 @@ export interface SiteData {
   landLots: LandLotRow[]
 }
 
+/** 전체 재건축 산정 결과 (lib/calc/rebuild.ts) — 기존 건물 철거 후 같은 대지에 신축 */
+export interface RebuildResult {
+  /** 사용한 규칙 시나리오 (ALL) */
+  rulesId: ScenarioId
+  rules: Rules
+  /** 신축 건축 유형 (기존 건물 유형, 주택이 아니면 다세대로 가정) */
+  housingType: HousingType
+  /** 대지면적 (㎡, 건축물대장) */
+  siteAreaM2: number
+  /** 건폐율 상한 (%) — 서울시 조례 (zoningTable) */
+  bcrLimitPercent: number
+  /** 최대 건축면적 (㎡) = 대지 × 건폐율 = 신축 기준층 바닥면적 */
+  maxBuildingAreaM2: number
+  farLimitPercent: number
+  /** 용적률 한도 연면적 (㎡) = 대지 × 용적률 상한 */
+  farGfaM2: number
+  /** 주택 층수 한도 (개층) */
+  floorLimit: number
+  /** 층수 한도 연면적 (㎡) = 최대 건축면적 × 주택 층수 한도 */
+  floorsGfaM2: number
+  /** 주택 연면적 한도 (㎡, '미만'이면 0.01㎡ 뺀 값) */
+  housingAreaGfaM2: number
+  /** 신축 연면적 (㎡, 용적률 산정 기준 — 필로티 주차 제외) = 위 셋 중 최솟값 (일조 이격이 입력되면 높이로 축소) */
+  gfaM2: number
+  limitingFactor: LimitingFactor
+  /** 전용률 (rules.rebuild.netRatio) */
+  netRatio: number
+  /** 전용면적 합 (㎡) */
+  netM2: number
+  /** 세대수 = 내림(전용 합 ÷ 최소 세대 전용), 유형별 상한 적용 */
+  households: number
+  /** 세대당 전용 (㎡) */
+  netPerUnitM2: number
+  /** 주택 층수 */
+  housingFloors: number
+  /** 지상 층수 (필로티 포함) */
+  totalFloors: number
+  /** 높이 (m) = 지상 층수 × 층고 (가정) */
+  heightM: number
+  /** 신축 용적률 (%) */
+  farPercent: number
+  /** 법정 주차 (대) — 세대기준·주택법 기준 중 큰 값 */
+  parking: { perUnit: number; housingAct: number; required: number; currentActual: number }
+  /** 기존 건물 연면적·세대수 (비교용) */
+  existing: { gfaM2: number; households: number; floorsAbove: number }
+  /** 신축 높이에 필요한 정북 이격 (m). 일조 미적용이면 null */
+  requiredSetbackM: number | null
+  /** 입력된 이격거리 기준 허용 높이 (m). 미입력·미적용이면 null */
+  allowedHeightM: number | null
+  verdict: 'possible' | 'impossible' | 'check'
+  checks: ExpansionCheck[]
+  reasons: string[]
+}
+
 /** runAll 결과 — 화면·보고서는 이 값만 쓴다 */
 export interface SiteAnalysis {
   pnu: string
-  /** 선택한 법규 시나리오 */
-  scenarioId: ScenarioId
-  /** 시나리오별 증축 산정 결과 */
+  /** 선택한 화면 시나리오 (BASE / ALL / REBUILD) */
+  scenarioId: ViewScenarioId
+  /** 규칙 시나리오별 증축 산정 결과 (A·B·C 포함 — 엑셀 대조·현행→완화 표에 사용) */
   byScenario: Record<ScenarioId, SiteExpansionResult>
-  /** byScenario[scenarioId] */
+  /** 선택 시나리오의 규칙으로 계산한 증축 결과 (REBUILD는 같은 규칙인 ALL) */
   selected: SiteExpansionResult
+  /** 전체 재건축 결과 (ALL 규칙, 시나리오 선택과 무관하게 항상 계산) */
+  rebuild: RebuildResult
   /** 토지가액 (공시지가 기준, 시나리오와 무관) */
   land: LandValueResult
   /** 선택 시나리오의 증축 전·후 자산가치 (원가 기준, 참고) */
@@ -1136,6 +1220,8 @@ export interface AssetValueResult {
   beforeWon: number | null
   /** 증축 후 자산가치 (원). 토지가액이 없으면 null */
   afterWon: number | null
+  /** true면 기존 건물을 철거하고 신축 (재건축) — 후 자산가치에서 기존 건물가치를 뺀다 */
+  demolished: boolean
   /** 기준일 (경과연수 계산) */
   baseDate: string
   reasons: string[]
@@ -1172,12 +1258,14 @@ export interface FloorUseRow {
 
 /** 3장 증축 계획안 (증축안이 없으면 alternatives 로 대체) */
 export interface SitePlanSection {
-  /** 'existing' 기존 주차로 가능 / 'parkingOption' 주차 추가 확보 조건 / 'none' 증축안 없음 */
-  kind: 'existing' | 'parkingOption' | 'none'
+  /** 'existing' 기존 주차로 가능 / 'parkingOption' 주차 추가 확보 조건 / 'rebuild' 전체 재건축 / 'none' 증축안 없음 */
+  kind: 'existing' | 'parkingOption' | 'rebuild' | 'none'
   /** 계획안 제목 (예: '주차 1대 추가 확보 조건 증축안') */
   heading: string
-  /** 증축안 (kind = none 이면 null) */
+  /** 증축안 (kind = none·rebuild 이면 null) */
   plan: ExpansionPlan | null
+  /** 재건축안 (kind = rebuild 일 때) */
+  rebuild: RebuildResult | null
   /** 주차 추가 대수 (kind = parkingOption 일 때) */
   addSpaces: number | null
   /** 증축안이 없을 때 대안 검토 문장 */
@@ -1218,7 +1306,7 @@ export interface SiteReport {
     address: string
     jibunAddress: string
     createdAt: string
-    scenarioId: ScenarioId
+    scenarioId: ViewScenarioId
     /** 예: 'ALL 복합 완화 (프로젝트 가정)' */
     scenarioLabel: string
     /** 바닥글 출처 문구 */

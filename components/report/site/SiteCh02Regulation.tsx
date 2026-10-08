@@ -7,7 +7,7 @@ export default function SiteCh02Regulation({ report }: { report: SiteReport }) {
   return (
     <div>
       <Lead>
-        용적률 상한, 주택 층수·연면적 한도, 주차 기준, 정북 일조 사선을 함께 검토했습니다. A·B·C·ALL은 프로젝트에서
+        용적률 상한, 주택 층수·연면적 한도, 주차 기준, 정북 일조 사선을 함께 검토했습니다. ALL(복합 완화 증축)·REBUILD(복합 완화 + 전체 재건축)는 프로젝트에서
         가정한 완화안이며 현행법이 아닙니다.
       </Lead>
 

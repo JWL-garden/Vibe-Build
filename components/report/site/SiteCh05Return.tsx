@@ -7,10 +7,11 @@ import { DataTable, Lead, StatCard, SubTitle } from '../ReportParts'
  */
 export default function SiteCh05Return({ report }: { report: SiteReport }) {
   const { asset, status } = report
+  const work = report.analysis.asset.demolished ? '재건축' : '증축'
   return (
     <div>
       <Lead>
-        증축 전·후 보유 자산의 가치를 토지가액(개별공시지가 기준)과 건물가치(재조달 원가 기준)로 비교한 참고값입니다. 임대수익·ROI는
+        증축(재건축) 전·후 보유 자산의 가치를 토지가액(개별공시지가 기준)과 건물가치(재조달 원가 기준)로 비교한 참고값입니다. 임대수익·ROI는
         임대료·공사비 가정값 입력 후 이 장에 추가됩니다.
       </Lead>
 
@@ -22,8 +23,8 @@ export default function SiteCh05Return({ report }: { report: SiteReport }) {
       <p className="mt-2 text-xs text-ink-faint">{status.land.basisNote}</p>
 
       <div className="break-inside-avoid">
-        <SubTitle>증축 전·후 자산가치</SubTitle>
-        <DataTable head={['항목', '증축 전', '증축 후', '근거']} numeric={[1, 2]} rows={asset.rows} />
+        <SubTitle>{work} 전·후 자산가치</SubTitle>
+        <DataTable head={['항목', `${work} 전`, `${work} 후`, '근거']} numeric={[1, 2]} rows={asset.rows} />
       </div>
 
       <SubTitle>토지 포함 수익률</SubTitle>

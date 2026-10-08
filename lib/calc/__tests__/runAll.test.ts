@@ -108,11 +108,11 @@ describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
     expect(p.checks.find((c) => c.item === 'housingFloors')!.detail).toContain('+1개층(99.27㎡)으로 축소')
   })
 
-  it('배지 문장은 실제 증축 층수를 쓴다: B = "주택 2개층 증축 시 6개층", ALL = 증축 가능 +1개층', async () => {
+  it('배지 문장은 실제 증축 층수를 쓴다: BASE = "주택 1개층 증축 시 5개층", ALL = 증축 가능 +1개층', async () => {
     const data = (await getSiteData(T1))!
-    const b = judgeSite(runAll(data, 'B'))
+    const b = judgeSite(runAll(data, 'BASE'))
     expect(b.status).toBe('check')
-    expect(b.reason).toContain('주택 2개층 증축 시 주택 층수가 6개층으로 한도(4개층)')
+    expect(b.reason).toContain('주택 1개층 증축 시 주택 층수가 5개층으로 한도(4개층)')
     const all = judgeSite(runAll(data, 'ALL'))
     expect(all.status).toBe('possible')
     expect(all.reason).toContain('+1개층(+99.3㎡, 3세대)')

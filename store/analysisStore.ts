@@ -4,7 +4,7 @@
 import { create } from 'zustand'
 import { judgeExpandability, judgeSite, runAll } from '@/lib/calc'
 import { getBuildingsByPnu, getSiteData } from '@/lib/services/dataService'
-import type { BuildingRecord, Expandability, ScenarioId, SiteAnalysis, SiteData } from '@/types'
+import type { BuildingRecord, Expandability, SiteAnalysis, SiteData, ViewScenarioId } from '@/types'
 
 type LoadStatus = 'idle' | 'loading' | 'ready' | 'notFound'
 
@@ -20,15 +20,15 @@ interface AnalysisState {
   status: LoadStatus
   /** 기준 엑셀 필지 묶음 (엑셀 검토 대상이 아니면 null) */
   siteData: SiteData | null
-  /** 선택한 법규 시나리오 */
-  scenarioId: ScenarioId
+  /** 선택한 화면 시나리오 (BASE / ALL / REBUILD) */
+  scenarioId: ViewScenarioId
   /** runAll 결과 — 화면의 계산 숫자는 이것만 쓴다 (siteData 가 없으면 null) */
   analysis: SiteAnalysis | null
   /** PNU로 건물 정보를 불러와 저장. buildingId를 주면 그 건물을 선택 */
   loadSite: (pnu: string, buildingId?: string | null) => Promise<void>
   selectBuilding: (id: string) => void
   /** 법규 시나리오를 바꾸고 runAll 을 다시 실행 */
-  setScenario: (id: ScenarioId) => void
+  setScenario: (id: ViewScenarioId) => void
 }
 
 const judge = (buildings: BuildingRecord[], id: string | null) => {

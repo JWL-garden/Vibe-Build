@@ -39,4 +39,8 @@ export const baseRules: Rules = {
 
   maxAddFloors: null,
   floorHeightM: 3.3,
+
+  // 전체 재건축(철거 후 신축) — 기준 엑셀 '빈땅_신축시나리오' [가정]: 전유 80%·공용 20%, 최소 세대 전용 15㎡(parking.minUnitNetM2)
+  // 1층 필로티 주차는 프로젝트 가정 (2026-10-08 결정). 다가구 19세대 이하 (건축법 시행령 별표1)
+  rebuild: { netRatio: 0.8, pilotiFloor1: true, maxHouseholds: { 다가구: 19 } },
 }

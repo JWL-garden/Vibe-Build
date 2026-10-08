@@ -1,7 +1,7 @@
 // 법규 완화 시나리오 (설계서 6-1, v3) — 모두 프로젝트 가정이며 현행법이 아니다.
 // overrides 에는 바꿀 규칙값만 적고, getEffectiveRules 가 baseRules 와 깊은 병합한다.
 
-import type { DeepPartial, Rules, Scenario, ScenarioId } from '@/types'
+import type { DeepPartial, Rules, Scenario, ScenarioId, ViewScenario, ViewScenarioId } from '@/types'
 import { baseRules } from './baseRules'
 
 const A: DeepPartial<Rules> = { sunlight: { ratio: 0.25 } }
@@ -54,6 +54,38 @@ export const scenarios: Scenario[] = [
     overrides: deepMerge(deepMerge(A, B), C),
   },
 ]
+
+/**
+ * 화면·보고서에 보이는 시나리오 3개 (2026-10-08 결정).
+ * A·B·C는 ALL을 이루는 구성 요소로 위 scenarios에 남겨 두고(엑셀 대조 테스트는 B 사용), 화면에서는 고르지 않는다.
+ */
+export const viewScenarios: ViewScenario[] = [
+  { id: 'BASE', name: '현행 법규', rationale: '현행 건축법·서울시 조례 기준, 기존 건물 위 증축', isAssumption: false, rulesId: 'BASE', kind: 'expansion' },
+  {
+    id: 'ALL',
+    name: '복합 완화',
+    rationale: '일조 사선 1/4·용적률 상한 교체(2종 250 / 3종 300%)·8·13 다가구·다세대 기준 합리화를 함께 적용, 기존 건물 위 증축',
+    isAssumption: true,
+    rulesId: 'ALL',
+    kind: 'expansion',
+  },
+  {
+    id: 'REBUILD',
+    name: '복합 완화 + 전체 재건축',
+    rationale: '복합 완화(ALL) 규칙으로 기존 건물을 철거하고 1층 필로티 주차 + 2층부터 주택으로 신축 (기준 엑셀 빈땅_신축시나리오 산식)',
+    isAssumption: true,
+    rulesId: 'ALL',
+    kind: 'rebuild',
+  },
+]
+
+export const VIEW_SCENARIO_IDS = viewScenarios.map((s) => s.id)
+
+export function getViewScenario(id: ViewScenarioId): ViewScenario {
+  const scenario = viewScenarios.find((s) => s.id === id)
+  if (!scenario) throw new Error(`알 수 없는 화면 시나리오: ${id}`)
+  return scenario
+}
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)

@@ -6,7 +6,7 @@ import Step5Relaxation from '@/components/steps/Step5Relaxation'
 import Step6Expansion from '@/components/steps/Step6Expansion'
 import Step8Finance from '@/components/steps/Step8Finance'
 import { rowsFromRecord } from '@/lib/report/buildingRows'
-import { scenarios } from '@/lib/rules/scenarios'
+import { viewScenarios } from '@/lib/rules/scenarios'
 import { useAnalysisStore } from '@/store/analysisStore'
 import AnalysisLayout from './AnalysisLayout'
 
@@ -43,6 +43,11 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
     if (!analysis) return { addFloors: null, caption: '법규 완화 적용 시 증축안' }
     const { plan, parkingOption: option } = analysis.selected
     const id = analysis.scenarioId
+    // 재건축: 기존 층수 대비 늘어난 층만 강조 (신축 지상 층수는 캡션에)
+    if (id === 'REBUILD') {
+      const r = analysis.rebuild
+      return { addFloors: Math.max(0, r.totalFloors - building.floorsAbove), caption: `${id} 전체 재건축 시 지상 ${r.totalFloors}층` }
+    }
     if (plan.verdict === 'possible') return { addFloors: plan.addFloors, caption: `${id} 적용 시 +${plan.addFloors}층` }
     if (option?.verdict === 'possible')
       return { addFloors: option.addFloors, caption: `${id} + 주차 ${option.addSpaces}대 확보 시 +${option.addFloors}층` }
@@ -91,15 +96,18 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
                   <Step5Relaxation
                     analysis={analysis}
                     zone={siteData.site.zone ?? '용도지역 정보 없음'}
-                    scenarios={scenarios}
+                    scenarios={viewScenarios}
                     onSelect={setScenario}
                   />
                 ),
               },
               {
-                title: '⑥ 증축 산정',
-                caption: `${analysis.scenarioId} 시나리오 · 주차 기준 최대 연면적`,
-                content: <Step6Expansion analysis={analysis} scenarios={scenarios} />,
+                title: analysis.scenarioId === 'REBUILD' ? '⑥ 재건축 산정' : '⑥ 증축 산정',
+                caption:
+                  analysis.scenarioId === 'REBUILD'
+                    ? 'REBUILD 시나리오 · 복합 완화 규칙으로 철거 후 신축'
+                    : `${analysis.scenarioId} 시나리오 · 주차 기준 최대 연면적`,
+                content: <Step6Expansion analysis={analysis} scenarios={viewScenarios} />,
               },
               {
                 title: '⑧ 수익성',

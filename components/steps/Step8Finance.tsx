@@ -18,6 +18,7 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
   const badge = LAND_BADGE[land.basis]
   const b = asset.existingBuilding
   const unitCost = `${formatNumber(b.unitCostWon / 1e4, 0)}만원/㎡`
+  const work = asset.demolished ? '재건축' : '증축'
 
   return (
     <div className="space-y-8">
@@ -55,7 +56,7 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
       </section>
 
       <section>
-        <h3 className="font-serif text-lg font-bold text-ink">증축 전·후 자산가치 (원가 기준 참고)</h3>
+        <h3 className="font-serif text-lg font-bold text-ink">{work} 전·후 자산가치 (원가 기준 참고)</h3>
         <p className="mt-1 text-xs text-ink-faint">
           토지가액 + 건물가치 · {analysis.scenarioId} 시나리오 · 재조달단가 {unitCost} 등 예시 가정값 (감정평가 아님)
         </p>
@@ -64,8 +65,8 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
             <thead>
               <tr className="border-b border-ink/20 text-left text-xs text-ink-faint">
                 <th className="py-2 font-normal">항목</th>
-                <th className="py-2 text-right font-normal">증축 전</th>
-                <th className="py-2 text-right font-normal">증축 후</th>
+                <th className="py-2 text-right font-normal">{work} 전</th>
+                <th className="py-2 text-right font-normal">{work} 후</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -73,10 +74,10 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
               <Row
                 label={`기존 건물 (잔가율 ${formatRate(b.residualRate)}, 경과 ${b.ageYears ?? '–'}년)`}
                 before={formatWonExact(b.valueWon)}
-                after={formatWonExact(b.valueWon)}
+                after={asset.demolished ? '– (철거)' : formatWonExact(b.valueWon)}
               />
               <Row
-                label={asset.addBuilding.gfaM2 > 0 ? `증축 ${formatNumber(asset.addBuilding.gfaM2, 1)}㎡` : '증축 (증축안 없음)'}
+                label={asset.addBuilding.gfaM2 > 0 ? `${work} ${formatNumber(asset.addBuilding.gfaM2, 1)}㎡ (신축)` : '증축 (증축안 없음)'}
                 before="–"
                 after={asset.addBuilding.gfaM2 > 0 ? formatWonExact(asset.addBuilding.valueWon) : '–'}
               />

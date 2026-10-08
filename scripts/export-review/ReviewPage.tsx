@@ -9,7 +9,7 @@ import Step5Relaxation from '@/components/steps/Step5Relaxation'
 import Step6Expansion from '@/components/steps/Step6Expansion'
 import Step8Finance from '@/components/steps/Step8Finance'
 import { rowsFromExcelSite } from '@/lib/report/buildSiteReport'
-import type { Expandability, Scenario, ScenarioId, SiteData, SiteReport } from '@/types'
+import type { Expandability, SiteData, SiteReport, ViewScenario as Scenario, ViewScenarioId as ScenarioId } from '@/types'
 
 export interface ReviewBlock {
   scenarioId: ScenarioId

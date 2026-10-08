@@ -9,7 +9,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { it } from 'vitest'
 import { judgeSite, runAll } from '@/lib/calc'
 import { buildSiteReport } from '@/lib/report/buildSiteReport'
-import { scenarios } from '@/lib/rules/scenarios'
+import { viewScenarios as scenarios } from '@/lib/rules/scenarios'
 import { getSiteData } from '@/lib/services/mockService'
 import ReviewPage, { type ReviewParcel } from './ReviewPage'
 

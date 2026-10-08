@@ -3,19 +3,22 @@
 
 import { formatNumber } from '@/lib/format'
 import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
-import { getEffectiveRules, getScenario, scenarios } from '@/lib/rules/scenarios'
-import type { BuildingRecord, Expandability, ExpansionResult, ScenarioId, SiteAnalysis, SiteData } from '@/types'
+import { getEffectiveRules, getViewScenario, scenarios } from '@/lib/rules/scenarios'
+import { getZoneRule } from '@/lib/rules/zoningTable'
+import type { BuildingRecord, Expandability, ExpansionResult, ScenarioId, SiteAnalysis, SiteData, ViewScenarioId } from '@/types'
 import { calcExpansion } from './expansion'
 import { calcAssetValue, calcLandValue } from './finance'
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from './labels'
+import { calcRebuild } from './rebuild'
 
 export { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL }
 
 /**
- * 한 필지를 모든 법규 시나리오(BASE/A/B/C/ALL)로 계산한다.
- * 화면·보고서의 모든 숫자는 이 결과만 사용한다.
+ * 한 필지를 모든 규칙 시나리오(BASE/A/B/C/ALL)로 증축 계산하고, ALL 규칙으로 전체 재건축도 계산한다.
+ * scenarioId = 화면에서 고른 시나리오(BASE / ALL / REBUILD). 화면·보고서의 모든 숫자는 이 결과만 사용한다.
  */
-export function runAll(data: SiteData, scenarioId: ScenarioId): SiteAnalysis {
+export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis {
+  const view = getViewScenario(scenarioId)
   const byScenario = Object.fromEntries(
     scenarios.map((s) => [
       s.id,
@@ -31,7 +34,21 @@ export function runAll(data: SiteData, scenarioId: ScenarioId): SiteAnalysis {
       ),
     ]),
   ) as Record<ScenarioId, SiteAnalysis['selected']>
-  const selected = byScenario[scenarioId]
+  const selected = byScenario[view.rulesId]
+
+  const zone = data.site.zone ? getZoneRule(data.site.zone) : undefined
+  if (!zone) throw new Error(`건폐율 기준이 없는 용도지역: ${data.site.zone}`)
+  const rebuild = calcRebuild(
+    {
+      site: data.site,
+      housingType: byScenario.ALL.housing.housingType,
+      bcrLimitPercent: zone.bcrLimitPercent,
+      zoneSunlightApplies: zone.sunlightApplies,
+      northSetbackM: data.siteInput?.northSetbackM ?? null,
+    },
+    getEffectiveRules('ALL'),
+    'ALL',
+  )
 
   const land = calcLandValue(
     {
@@ -44,9 +61,11 @@ export function runAll(data: SiteData, scenarioId: ScenarioId): SiteAnalysis {
     },
     landValueRule,
   )
-  // 증축 후 자산가치는 보고서 3장과 같은 증축안(기존 주차 → 주차 추가 확보 조건 순)을 쓴다
-  const adopted =
-    selected.plan.verdict === 'possible'
+  // 증축 후 자산가치는 보고서 3장과 같은 증축안(기존 주차 → 주차 추가 확보 조건 순)을 쓴다. 재건축이면 신축 연면적
+  const isRebuild = view.kind === 'rebuild'
+  const adopted = isRebuild
+    ? null
+    : selected.plan.verdict === 'possible'
       ? selected.plan
       : selected.parkingOption?.verdict === 'possible'
         ? selected.parkingOption
@@ -59,19 +78,36 @@ export function runAll(data: SiteData, scenarioId: ScenarioId): SiteAnalysis {
       approvalDate: data.site.approvalDate,
       // 경과연수 기준일 = 기준 데이터 기준일 (같은 데이터면 언제 열어도 같은 결과)
       baseDate: data.source.date,
-      addGfaM2: adopted?.addGfaM2 ?? 0,
+      addGfaM2: isRebuild ? (rebuild.verdict === 'impossible' ? 0 : rebuild.gfaM2) : (adopted?.addGfaM2 ?? 0),
+      demolishExisting: isRebuild && rebuild.verdict !== 'impossible',
     },
     buildingValueRule,
   )
-  return { pnu: data.pnu, scenarioId, byScenario, selected, land, asset }
+  return { pnu: data.pnu, scenarioId, byScenario, selected, rebuild, land, asset }
 }
 
 /** runAll 결과(선택 시나리오)로 증축 가능 여부 판정 — 화면 배지·보고서 버튼에 사용 */
 export function judgeSite(analysis: SiteAnalysis): Expandability {
   const e = analysis.selected
-  const name = `${getScenario(analysis.scenarioId).name}(${analysis.scenarioId})`
+  const name = `${getViewScenario(analysis.scenarioId).name}(${analysis.scenarioId})`
   const area = (v: number) => `${formatNumber(v, 1)}㎡`
   const { plan, parkingOption: option } = e
+
+  if (analysis.scenarioId === 'REBUILD') {
+    const r = analysis.rebuild
+    const diff = r.gfaM2 - r.existing.gfaM2
+    const size = `지상 ${r.totalFloors}층(${r.rules.rebuild.pilotiFloor1 ? '1층 필로티 + ' : ''}주택 ${r.housingFloors}개층), 연면적 ${area(r.gfaM2)}(기존 대비 ${diff >= 0 ? '+' : '−'}${area(Math.abs(diff))}), ${r.households}세대`
+    if (r.verdict === 'possible') {
+      return {
+        status: 'possible',
+        reason: `${name} 시 ${size}로 신축할 수 있습니다. 제한요인: ${LIMIT_LABEL[r.limitingFactor]}. 법정 주차 ${formatNumber(r.parking.required, 1)}대 확보와 정북 이격 확인이 필요합니다.`,
+      }
+    }
+    if (r.verdict === 'check') {
+      return { status: 'check', reason: `${name} 시 ${size}로 기존보다 커지지 않아 재건축 효과가 없습니다.` }
+    }
+    return { status: 'impossible', reason: `${name} 기준으로 신축할 수 있는 연면적이 없습니다.` }
+  }
 
   if (plan.verdict === 'possible') {
     return {

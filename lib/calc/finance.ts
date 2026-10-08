@@ -121,14 +121,17 @@ export interface AssetValueInput {
   approvalDate: string | null
   /** 경과연수 기준일 (YYYY-MM-DD) */
   baseDate: string
-  /** 증축 연면적 (㎡). 증축안이 없으면 0 */
+  /** 증축 연면적 (㎡). 증축안이 없으면 0. 재건축이면 신축 연면적 */
   addGfaM2: number
+  /** true면 재건축: 기존 건물을 철거하므로 후 자산가치에 기존 건물가치를 넣지 않는다 */
+  demolishExisting?: boolean
 }
 
 /**
  * 증축 전·후 자산가치(원가 기준 참고값)
  * 기존건물가치 = 연면적 × 재조달단가 × 잔가율, 증축건물가치 = 증축 연면적 × 재조달단가
  * 자산가치(전) = 토지가액 + 기존건물가치, 자산가치(후) = 자산가치(전) + 증축건물가치
+ * 재건축(demolishExisting)이면 자산가치(후) = 토지가액 + 신축건물가치
  */
 export function calcAssetValue(input: AssetValueInput, rule: BuildingValueRule): AssetValueResult {
   const unitCostWon = rule.replacementCostPerM2Won
@@ -147,12 +150,15 @@ export function calcAssetValue(input: AssetValueInput, rule: BuildingValueRule):
     '건물가치는 재조달단가 기준 원가 추정(예시 가정값)이며 감정평가가 아닙니다.',
   ]
   if (land === null) reasons.push('토지가액이 없어 자산가치를 합산하지 않았습니다.')
+  const demolished = input.demolishExisting ?? false
+  if (demolished) reasons.push('재건축: 기존 건물을 철거하므로 후 자산가치 = 토지가액 + 신축 건물가치입니다 (철거비는 사업비에서 반영 예정).')
   return {
     land: input.land,
     existingBuilding: { gfaM2: input.gfaM2, unitCostWon, ageYears, usefulLifeYears, residualRate, valueWon: existingValue },
     addBuilding: { gfaM2: input.addGfaM2, valueWon: addValue },
     beforeWon: land === null ? null : land + existingValue,
-    afterWon: land === null ? null : land + existingValue + addValue,
+    afterWon: land === null ? null : land + (demolished ? 0 : existingValue) + addValue,
+    demolished,
     baseDate: input.baseDate,
     reasons,
   }

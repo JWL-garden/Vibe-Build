@@ -1,20 +1,26 @@
 import { formatNumber } from '@/lib/format'
 import { relaxationRows } from '@/lib/report/buildSiteReport'
-import type { HousingType, Rules, Scenario, ScenarioId, SiteAnalysis, SiteExpansionResult } from '@/types'
+import type { HousingType, Rules, SiteAnalysis, SiteExpansionResult, ViewScenario, ViewScenarioId } from '@/types'
 
 interface Props {
   analysis: SiteAnalysis
   /** 용도지역 (예: 제2종일반주거지역) */
   zone: string
-  /** 시나리오 이름·근거 (lib/rules/scenarios) */
-  scenarios: Scenario[]
-  onSelect: (id: ScenarioId) => void
+  /** 화면 시나리오 3개 (lib/rules/scenarios → viewScenarios) */
+  scenarios: ViewScenario[]
+  onSelect: (id: ViewScenarioId) => void
 }
 
 const VERDICT = {
   possible: { text: '증축 가능', className: 'bg-accent-soft text-accent' },
   check: { text: '확인 필요', className: 'bg-mist text-ink' },
   impossible: { text: '증축 불가', className: 'bg-mist text-ink-faint' },
+} as const
+
+const REBUILD_VERDICT = {
+  possible: { text: '재건축 가능', className: 'bg-accent-soft text-accent' },
+  check: { text: '확인 필요', className: 'bg-mist text-ink' },
+  impossible: { text: '재건축 불가', className: 'bg-mist text-ink-faint' },
 } as const
 
 /** 이 건물에 해당하는 규칙값 (주택이 아니면 다세대 기준값을 보여준다) */
@@ -31,7 +37,7 @@ function ruleValues(e: SiteExpansionResult) {
   }
 }
 
-/** ⑤ 법규 완화: 시나리오 카드 5개 + 현행→완화 비교표 */
+/** ⑤ 법규 완화: 시나리오 카드 3개(BASE·ALL·REBUILD) + 현행→완화 비교표 */
 export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }: Props) {
   const { byScenario, scenarioId } = analysis
   const base = ruleValues(byScenario.BASE)
@@ -40,17 +46,19 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
   return (
     <div>
       <p className="mb-5 rounded-card bg-mist px-5 py-4 text-sm leading-relaxed text-ink-soft">
-        A·B·C·ALL은 이 프로젝트에서 가정한 <b className="text-ink">완화 정책안이며 현행법이 아닙니다.</b> 시나리오를
-        누르면 아래 증축 산정 결과가 바뀝니다.
+        ALL·REBUILD는 이 프로젝트에서 가정한 <b className="text-ink">완화 정책안이며 현행법이 아닙니다.</b> ALL은 기존
+        건물 위 증축, REBUILD는 같은 완화 규칙으로 기존 건물을 철거하고 새로 짓는 경우입니다. 시나리오를 누르면 아래 산정
+        결과가 바뀝니다.
       </p>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-3">
         {scenarios.map((s) => {
-          const e = byScenario[s.id]
+          const e = byScenario[s.rulesId]
           const v = ruleValues(e)
           const active = s.id === scenarioId
-          const verdict = VERDICT[e.plan.verdict]
-          const option = e.parkingOption?.verdict === 'possible' ? e.parkingOption : null
+          const rebuild = s.kind === 'rebuild'
+          const verdict = rebuild ? REBUILD_VERDICT[analysis.rebuild.verdict] : VERDICT[e.plan.verdict]
+          const option = !rebuild && e.parkingOption?.verdict === 'possible' ? e.parkingOption : null
           return (
             <button
               key={s.id}
@@ -89,6 +97,12 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
 
               <div className="mt-auto pt-3">
                 <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${verdict.className}`}>{verdict.text}</span>
+                {rebuild && (
+                  <p className="mt-2 text-[11px] text-ink-soft">
+                    지상 {analysis.rebuild.totalFloors}층 · {formatNumber(analysis.rebuild.gfaM2, 1)}㎡ ·{' '}
+                    {analysis.rebuild.households}세대
+                  </p>
+                )}
                 {option && (
                   <p className="mt-2 text-[11px] text-accent">주차 +{option.addSpaces}대 확보 시 증축 가능</p>
                 )}

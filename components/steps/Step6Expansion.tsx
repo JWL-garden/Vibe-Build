@@ -1,11 +1,11 @@
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from '@/lib/calc'
 import { formatNumber } from '@/lib/format'
-import type { AddUnit, ExpansionCheck, ExpansionPlan, Scenario, SiteAnalysis } from '@/types'
+import type { AddUnit, ExpansionCheck, ExpansionPlan, RebuildResult, SiteAnalysis, ViewScenario } from '@/types'
 
 interface Props {
   analysis: SiteAnalysis
-  /** 시나리오 이름 (lib/rules/scenarios) */
-  scenarios: Scenario[]
+  /** 화면 시나리오 3개 (lib/rules/scenarios → viewScenarios) */
+  scenarios: ViewScenario[]
 }
 
 const f = (v: number) => formatNumber(v, 2)
@@ -22,14 +22,33 @@ const VERDICT = {
   impossible: { text: '증축 불가', className: 'bg-mist text-ink-faint' },
 } as const
 
+const REBUILD_VERDICT = {
+  possible: { text: '재건축 가능', className: 'bg-accent text-paper' },
+  check: { text: '확인 필요', className: 'border border-ink/30 bg-paper text-ink' },
+  impossible: { text: '재건축 불가', className: 'bg-mist text-ink-faint' },
+} as const
+
 const unitsText = (units: AddUnit[]) =>
   units.length === 0 ? '0세대' : units.map((u) => `${u.type} 전용 ${f(u.netAreaM2)}㎡`).join(' + ')
 
-/** ⑥ 증축 산정: 주차 여유 → 추가 세대 → 최대 연면적 흐름 + 다른 제한 반영 결과 + 항목별 판정 */
+/**
+ * ⑥ 증축 산정: 주차 여유 → 추가 세대 → 최대 연면적 흐름 + 다른 제한 반영 결과 + 항목별 판정.
+ * REBUILD 시나리오면 철거 후 신축 산정(용적률·주택 층수·주택 연면적 한도 → 신축 연면적 → 세대·주차)을 보여준다.
+ */
 export default function Step6Expansion({ analysis, scenarios }: Props) {
   const e = analysis.selected
   const p = e.parking
-  const name = (id: string) => scenarios.find((s) => s.id === id)?.name ?? id
+
+  if (analysis.scenarioId === 'REBUILD') {
+    const r = analysis.rebuild
+    return (
+      <div className="space-y-8">
+        <RebuildBlock r={r} />
+        <ScenarioTable analysis={analysis} scenarios={scenarios} />
+        <Reasons reasons={r.reasons} />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -76,17 +95,23 @@ export default function Step6Expansion({ analysis, scenarios }: Props) {
         />
       )}
 
-      <ScenarioTable analysis={analysis} name={name} />
+      <ScenarioTable analysis={analysis} scenarios={scenarios} />
 
-      <details className="rounded-card border border-line px-5 py-4">
-        <summary className="cursor-pointer text-sm font-medium text-ink">계산 근거 펼치기</summary>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-ink-soft">
-          {[...e.plan.reasons, ...(e.parkingOption ? e.parkingOption.reasons.slice(-2) : [])].map((r, i) => (
-            <li key={i}>{r}</li>
-          ))}
-        </ul>
-      </details>
+      <Reasons reasons={[...e.plan.reasons, ...(e.parkingOption ? e.parkingOption.reasons.slice(-2) : [])]} />
     </div>
+  )
+}
+
+function Reasons({ reasons }: { reasons: string[] }) {
+  return (
+    <details className="rounded-card border border-line px-5 py-4">
+      <summary className="cursor-pointer text-sm font-medium text-ink">계산 근거 펼치기</summary>
+      <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+        {reasons.map((r, i) => (
+          <li key={i}>{r}</li>
+        ))}
+      </ul>
+    </details>
   )
 }
 
@@ -96,8 +121,86 @@ interface FlowStep {
   sub: string
 }
 
+/** 재건축: 한도 3개 → 신축 연면적(최솟값) → 기존 대비·세대·주차·높이 */
+function RebuildBlock({ r }: { r: RebuildResult }) {
+  const diff = r.gfaM2 - r.existing.gfaM2
+  const area = r.rules.housing
+  return (
+    <FlowFrame
+      title="기존 건물 철거 후 신축 (복합 완화 규칙)"
+      note={r.rules.rebuild.pilotiFloor1 ? '1층 필로티 주차 + 2층부터 주택 가정' : undefined}
+      steps={[
+        { label: '용적률 한도', value: `${f(r.farGfaM2)}㎡`, sub: `대지 ${f(r.siteAreaM2)}㎡ × ${f(r.farLimitPercent)}%` },
+        {
+          label: '주택 층수 한도',
+          value: `${f(r.floorsGfaM2)}㎡`,
+          sub: `최대 건축면적 ${f(r.maxBuildingAreaM2)}㎡ (건폐율 ${f(r.bcrLimitPercent)}%) × ${r.floorLimit}개층`,
+        },
+        {
+          label: '주택 연면적 한도',
+          value: `${f(r.housingAreaGfaM2)}㎡`,
+          sub: `${r.housingType} ${f(area.maxAreaM2[r.housingType])}㎡ ${area.areaExclusive[r.housingType] ? '미만' : '이하'}`,
+        },
+      ]}
+      finalLabel="세 한도 중 최솟값"
+      finalValue={`${f(r.gfaM2)}㎡ · 지상 ${r.totalFloors}층`}
+      verdict={REBUILD_VERDICT[r.verdict]}
+      limitText={`제한요인: ${LIMIT_LABEL[r.limitingFactor]}`}
+      checks={r.checks}
+      footer={
+        <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-4">
+          <Fact
+            label="기존 대비"
+            value={`${diff >= 0 ? '+' : '−'}${f(Math.abs(diff))}㎡`}
+            sub={`기존 ${f(r.existing.gfaM2)}㎡ · 지상 ${r.existing.floorsAbove}층`}
+          />
+          <Fact label="세대" value={`${r.households}세대`} sub={`세대당 전용 ${f(r.netPerUnitM2)}㎡ (기존 ${r.existing.households}세대)`} />
+          <Fact label="법정 주차" value={`${f(r.parking.required)}대`} sub={`현재 ${f(r.parking.currentActual)}대 — 확보 확인 필요`} />
+          <Fact label="높이" value={`${f(r.heightM)}m`} sub={`용적률 ${f(r.farPercent)}%`} />
+        </dl>
+      }
+    />
+  )
+}
+
+function Fact({ label, value, sub }: { label: string; value: string; sub: string }) {
+  return (
+    <div className="rounded-card bg-mist px-4 py-3">
+      <dt className="text-xs text-ink-faint">{label}</dt>
+      <dd className="mt-1 font-serif text-lg font-bold text-ink">{value}</dd>
+      <dd className="text-xs leading-relaxed text-ink-soft">{sub}</dd>
+    </div>
+  )
+}
+
 function FlowBlock({ title, note, steps, plan }: { title: string; note?: string; steps: FlowStep[]; plan: ExpansionPlan }) {
-  const verdict = VERDICT[plan.verdict]
+  return (
+    <FlowFrame
+      title={title}
+      note={note}
+      steps={steps}
+      finalLabel="다른 제한 반영 후 최종"
+      finalValue={`${f(plan.addGfaM2)}㎡ · +${plan.addFloors}개층`}
+      verdict={VERDICT[plan.verdict]}
+      limitText={`제한요인: ${LIMIT_LABEL[plan.limitingFactor]}`}
+      checks={plan.checks}
+    />
+  )
+}
+
+interface FrameProps {
+  title: string
+  note?: string
+  steps: FlowStep[]
+  finalLabel: string
+  finalValue: string
+  verdict: { text: string; className: string }
+  limitText: string
+  checks: ExpansionCheck[]
+  footer?: React.ReactNode
+}
+
+function FlowFrame({ title, note, steps, finalLabel, finalValue, verdict, limitText, checks, footer }: FrameProps) {
   return (
     <div className="rounded-card border border-line p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -105,7 +208,7 @@ function FlowBlock({ title, note, steps, plan }: { title: string; note?: string;
         {note && <span className="text-xs text-ink-faint">{note}</span>}
       </div>
 
-      {/* 주차 여유 → 추가 세대 → 최대 연면적 → 최종 */}
+      {/* 단계 3개 → 최종 */}
       <ol className="mt-4 grid gap-3 md:grid-cols-4">
         {steps.map((s, i) => (
           <li key={s.label} className="relative rounded-card bg-mist px-4 py-3">
@@ -118,20 +221,18 @@ function FlowBlock({ title, note, steps, plan }: { title: string; note?: string;
           </li>
         ))}
         <li className="rounded-card border-2 border-accent px-4 py-3">
-          <div className="text-xs text-ink-faint">4. 다른 제한 반영 후 최종</div>
-          <div className="mt-1 font-serif text-xl font-bold text-accent">
-            {f(plan.addGfaM2)}㎡ · +{plan.addFloors}개층
-          </div>
+          <div className="text-xs text-ink-faint">4. {finalLabel}</div>
+          <div className="mt-1 font-serif text-xl font-bold text-accent">{finalValue}</div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${verdict.className}`}>{verdict.text}</span>
-            <span className="text-xs text-ink-soft">제한요인: {LIMIT_LABEL[plan.limitingFactor]}</span>
+            <span className="text-xs text-ink-soft">{limitText}</span>
           </div>
         </li>
       </ol>
 
       {/* 항목별 판정 */}
       <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-        {plan.checks.map((c) => (
+        {checks.map((c) => (
           <li key={c.item} className="flex items-start gap-3 rounded-card border border-line px-3 py-2.5">
             <span className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_CLASS[c.status]}`}>
               {CHECK_STATUS_LABEL[c.status]}
@@ -143,42 +244,64 @@ function FlowBlock({ title, note, steps, plan }: { title: string; note?: string;
           </li>
         ))}
       </ul>
+      {footer}
     </div>
   )
 }
 
-/** 시나리오별 최종 결과 비교 (완화 전/후) */
-function ScenarioTable({ analysis, name }: { analysis: SiteAnalysis; name: (id: string) => string }) {
+/** 시나리오별 최종 결과 비교 (현행 / 복합 완화 / 재건축) */
+function ScenarioTable({ analysis, scenarios }: { analysis: SiteAnalysis; scenarios: ViewScenario[] }) {
   return (
     <div>
-      <h3 className="mb-3 font-medium text-ink">시나리오별 증축 규모 비교</h3>
+      <h3 className="mb-3 font-medium text-ink">시나리오별 규모 비교</h3>
       <div className="overflow-x-auto rounded-card border border-line">
         <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-mist text-left text-xs text-ink-faint">
             <tr>
               <th className="px-4 py-3 font-medium">시나리오</th>
-              <th className="px-4 py-3 text-right font-medium">기존 주차 증축</th>
+              <th className="px-4 py-3 text-right font-medium">증축 / 신축 규모</th>
               <th className="px-4 py-3 font-medium">판정 · 제한요인</th>
-              <th className="px-4 py-3 text-right font-medium">주차 추가 확보 시</th>
+              <th className="px-4 py-3 text-right font-medium">주차</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {Object.values(analysis.byScenario).map((e) => {
-              const active = e.scenarioId === analysis.scenarioId
+            {scenarios.map((s) => {
+              const active = s.id === analysis.scenarioId
+              const rowClass = active ? 'bg-accent-soft/40' : undefined
+              if (s.kind === 'rebuild') {
+                const r = analysis.rebuild
+                const diff = r.gfaM2 - r.existing.gfaM2
+                return (
+                  <tr key={s.id} className={rowClass}>
+                    <td className="px-4 py-3 font-medium text-ink">
+                      {s.id} {s.name}
+                    </td>
+                    <td className="px-4 py-3 text-right text-ink">
+                      신축 {f(r.gfaM2)}㎡ · 지상 {r.totalFloors}층 ({diff >= 0 ? '+' : '−'}
+                      {f(Math.abs(diff))}㎡)
+                    </td>
+                    <td className="px-4 py-3 text-ink-soft">
+                      {REBUILD_VERDICT[r.verdict].text} · {LIMIT_LABEL[r.limitingFactor]}
+                    </td>
+                    <td className="px-4 py-3 text-right text-ink-soft">법정 {f(r.parking.required)}대 · 확보 확인 필요</td>
+                  </tr>
+                )
+              }
+              const e = analysis.byScenario[s.rulesId]
               const o = e.parkingOption
               return (
-                <tr key={e.scenarioId} className={active ? 'bg-accent-soft/40' : undefined}>
+                <tr key={s.id} className={rowClass}>
                   <td className="px-4 py-3 font-medium text-ink">
-                    {e.scenarioId} {name(e.scenarioId)}
+                    {s.id} {s.name}
                   </td>
                   <td className="px-4 py-3 text-right text-ink">
-                    {f(e.plan.addGfaM2)}㎡ · +{e.plan.addFloors}층
+                    증축 {f(e.plan.addGfaM2)}㎡ · +{e.plan.addFloors}층
                   </td>
                   <td className="px-4 py-3 text-ink-soft">
                     {VERDICT[e.plan.verdict].text} · {LIMIT_LABEL[e.plan.limitingFactor]}
                   </td>
                   <td className="px-4 py-3 text-right text-ink-soft">
-                    {o ? `+${o.addSpaces}대 → ${f(o.addGfaM2)}㎡ · ${VERDICT[o.verdict].text}` : '—'}
+                    {o ? `+${o.addSpaces}대 확보 시 ${f(o.addGfaM2)}㎡ · ${VERDICT[o.verdict].text}` : '기존 주차'}
                   </td>
                 </tr>
               )
