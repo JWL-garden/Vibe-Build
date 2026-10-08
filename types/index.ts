@@ -1095,6 +1095,8 @@ export interface SiteData {
   landLots: LandLotRow[]
   /** 수익성 가정값 (가정값 입력 엑셀 '가정값' → inputs/assumptions.json) */
   assumptionRows: AssumptionRow[]
+  /** '가정값' 시트의 메모 줄 (예: 층별 공사비 단가 안내) — 보고서 4장·부록에 표시 */
+  assumptionNotes: string[]
   /** 임대 사례 (가정값 입력 엑셀 '임대사례' → inputs/rentComps.json) */
   rentComps: RentComp[]
   /** 증축층 바닥면적 옵션2 값 (가정값 입력 엑셀 '증축층면적_옵션2' → inputs/floorPlate.json). 없으면 null */
@@ -1410,6 +1412,8 @@ export interface SiteReport {
     assumptionRows: ReportRow[]
     /** 전월세 전환율 표 [구분, 법정 상한, 시장, 보수, 기준, 근거] */
     conversionRows: ReportRow[]
+    /** 가정값 입력 엑셀 메모 */
+    assumptionNotes: string[]
   }
   analysis: SiteAnalysis
 }
@@ -1438,6 +1442,8 @@ export interface SiteFinanceSection {
   /** 토지 포함 수익률 문장 */
   yieldText: string
   notes: string[]
+  /** 가정값 입력 엑셀 메모 (예: 층별 공사비 단가 안내) — 4장 아래 표시 */
+  inputNotes: string[]
 }
 
 // ═════════════════════════════════════════════
@@ -1579,6 +1585,8 @@ export interface SiteFinanceResult {
   revenue: {
     /** 연 임대수입 (공실 전, 원) = Σ 월 환산 임대료 × 12 */
     grossAnnualWon: number | null
+    /** 관리비 수입 (연, 원) = 연 임대수입 × 관리비 비율 (2026-10-08 결정). 비율이 없으면 0 */
+    maintenanceWon: number | null
     vacancyLossWon: number | null
     opexWon: number | null
     /** 새 세대 연 NOI (원) */

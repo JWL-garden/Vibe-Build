@@ -114,6 +114,7 @@ export async function getSiteData(pnu: string): Promise<SiteData | null> {
     landLots: (landLotsJson.items as LandLotRow[]).filter((l) => lotPnus.has(l.pnu)),
     // 가정값 입력 엑셀 (수익성 가정값·임대 사례는 필지 공통)
     assumptionRows: assumptionsJson.items as AssumptionRow[],
+    assumptionNotes: (assumptionsJson.notes ?? []).filter((n) => !n.startsWith('[')),
     rentComps: rentCompsJson.items as RentComp[],
     // 가정값 입력 엑셀 '증축층면적_옵션2' (빈칸이면 null → 옵션1)
     floorPlateOption2M2: floorPlateInputJson.items.find((i) => i.pnu === pnu)?.floorPlateM2 ?? null,

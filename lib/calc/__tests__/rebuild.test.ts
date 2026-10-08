@@ -119,7 +119,7 @@ describe('REBUILD 판정·보고서', () => {
     const r = buildSiteReport(data, runAll(data, 'REBUILD'), '2026-10-08')
     expect(r.summary.kpis[0].value).toBe('지상 6층 · 932.8㎡')
     expect(r.summary.kpis.map((k) => k.label)).toEqual(['재건축 규모', '총사업비', 'ROI (기준)', '투자회수기간'])
-    expect(r.summary.kpis[1].value).toBe('28.7억원')
+    expect(r.summary.kpis[1].value).toBe('28.8억원')
     expect(r.summary.addFloors).toBe(0) // 기존도 지상 6층
     expect(r.plan.kind).toBe('rebuild')
     expect(r.plan.rebuild).toBe(r.analysis.rebuild)

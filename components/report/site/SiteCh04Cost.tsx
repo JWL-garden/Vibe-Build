@@ -36,6 +36,13 @@ export default function SiteCh04Cost({ report }: { report: SiteReport }) {
         &lsquo;입력 대기&rsquo; 항목(철거비·공사 중 임대 손실 등)은 금액이 없어 총사업비에 들어 있지 않습니다. 실제 사업비는 시공사 견적과
         세무 검토로 확정해야 합니다.
       </p>
+      {fin.inputNotes.length > 0 && (
+        <ul className="mt-2 space-y-1 text-xs text-ink-faint">
+          {fin.inputNotes.map((n) => (
+            <li key={n}>· 가정값 메모: {n}</li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

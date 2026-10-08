@@ -48,6 +48,7 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
     bandRows: bandRows(f),
     yieldText: '',
     notes: f.notes,
+    inputNotes: [],
   }
   if (f.status === 'none') return { ...base, statusText: '증축(재건축)안이 없어 사업비·수익성을 계산하지 않았습니다. 3장 대안 검토를 참고하세요.' }
   if (f.status === 'pending') return { ...base, statusText: `가정값 입력 대기로 계산하지 않았습니다: ${f.missing.join(', ')}` }
@@ -65,7 +66,8 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
   const opex = f.assumptions.find((a) => a.key === 'opexRate')!
   const revenueRows: ReportRow[] = [
     ['연 임대수입 (공실 전)', formatWonExact(r.grossAnnualWon), `${f.project.units.length}세대 월 환산 임대료 합 × 12`],
-    ['공실 손실', `−${formatWonExact(r.vacancyLossWon)}`, `× 공실률 ${formatRate(vacancy.value, 1)}`],
+    ['관리비 수입', formatWonExact(r.maintenanceWon), `임대수입 × ${formatRate(f.assumptions.find((a) => a.key === 'maintenanceFeePerUnit')!.value ?? 0, 1)}`],
+    ['공실 손실', `−${formatWonExact(r.vacancyLossWon)}`, `(임대수입 + 관리비) × 공실률 ${formatRate(vacancy.value, 1)}`],
     ['운영비', `−${formatWonExact(r.opexWon)}`, `× 운영비율 ${formatRate(opex.value, 1)}`],
     ['신규 세대 연 NOI', formatWonExact(r.noiWon), '임대수입 − 공실 − 운영비'],
   ]

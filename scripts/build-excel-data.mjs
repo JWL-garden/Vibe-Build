@@ -203,7 +203,12 @@ function buildGeneric(entry) {
   const hasPnu = rows.length > 0 && 'PNU' in rows[0]
   // 설명 줄: PNU 열이 있으면 19자리가 아닌 줄, 없으면 첫 열이 '['로 시작하는 줄 ('[설명] …') → notes로 보관
   const firstCol = Object.keys(entry.columns)[0]
-  const isNote = (r) => (hasPnu ? !isPnu(r.PNU) && str(r.PNU) : String(r[firstCol] ?? '').startsWith('['))
+  // notePattern(sheetMap)이 있으면 첫 열이 그 정규식에 맞지 않는 줄도 메모로 본다 (예: 가정값 시트 끝의 설명 문장)
+  const keyPattern = entry.notePattern ? new RegExp(entry.notePattern) : null
+  const isNote = (r) =>
+    hasPnu
+      ? !isPnu(r.PNU) && str(r.PNU)
+      : String(r[firstCol] ?? '').startsWith('[') || (keyPattern !== null && !keyPattern.test(String(r[firstCol] ?? '')))
   const notes = rows.filter(isNote).map((r) => String(hasPnu ? r.PNU : r[firstCol]))
   const items = rows.filter((r) => !isNote(r) && (!hasPnu || isPnu(r.PNU))).map((r) => {
     const item = {}

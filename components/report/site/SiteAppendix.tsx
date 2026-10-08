@@ -27,6 +27,11 @@ export default function SiteAppendix({ report }: { report: SiteReport }) {
       <p className="mt-2 text-xs text-ink-faint">
         근거 등급: A 공식 데이터·법령 / B 공개자료 기반 / C 프로젝트 가정 (범위와 함께 표시) / 입력 대기 = 자료 없음
       </p>
+      {a.assumptionNotes.map((n) => (
+        <p key={n} className="mt-1 text-xs text-ink-faint">
+          · 가정값 메모: {n}
+        </p>
+      ))}
 
       <SubTitle>전월세 전환율</SubTitle>
       <DataTable head={['구분', '법정 상한', '시장', '보수 적용', '기준 적용', '근거']} numeric={[1, 2, 3, 4]} rows={a.conversionRows} />

@@ -1,11 +1,11 @@
 {
   "meta": {
     "source": "input",
-    "file": "261008_가정값 입력.xlsx",
-    "version": "261008-a",
+    "file": "261008_가정값 입력-데이터 입력완료.xlsx",
+    "version": "261008-b",
     "sourceDate": "2026-10-08",
-    "fileHash": "2866d59d7ecfec80",
-    "convertedAt": "2026-10-08T03:09:43.761Z",
+    "fileHash": "1e18ab781535259c",
+    "convertedAt": "2026-10-08T03:44:31.114Z",
     "sheets": [
       {
         "name": "증축층면적_옵션2",

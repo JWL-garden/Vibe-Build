@@ -251,6 +251,7 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     equityWon: null,
     revenue: {
       grossAnnualWon: null,
+      maintenanceWon: null,
       vacancyLossWon: null,
       opexWon: null,
       noiWon: null,
@@ -363,19 +364,28 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   // [B] 임대수익
   const vacancy = v('vacancyRate')!
   const opexRate = v('opexRate')!
-  const noiOf = (gross: number) => gross * (1 - vacancy) * (1 - opexRate)
-  const gross = units.reduce((s, u) => s + u.monthlyEquivalentWon! * 12, 0)
+  // 관리비 수입 = 월 환산 임대료 × 비율 (2026-10-08 결정, 없으면 0)
+  const maintRate = v('maintenanceFeePerUnit') ?? 0
+  const withMaint = (rent: number) => rent * (1 + maintRate)
+  const noiOf = (rent: number) => withMaint(rent) * (1 - vacancy) * (1 - opexRate)
+  const rentAnnual = units.reduce((s, u) => s + u.monthlyEquivalentWon! * 12, 0)
+  const maintenance = rentAnnual * maintRate
+  const gross = rentAnnual + maintenance
   const vacancyLoss = gross * vacancy
   const opex = (gross - vacancyLoss) * opexRate
-  const noi = noiOf(gross)
-  const existingGross = existingUnitNets.map(rentUnit).reduce((s, u) => s + (u.monthlyEquivalentWon ?? 0) * 12, 0)
-  const existingNoi = existingUnitNets.length ? noiOf(existingGross) : null
+  const noi = noiOf(rentAnnual)
+  const existingRent = existingUnitNets.map(rentUnit).reduce((s, u) => s + (u.monthlyEquivalentWon ?? 0) * 12, 0)
+  const existingNoi = existingUnitNets.length ? noiOf(existingRent) : null
   const noiIncrease = kind === 'rebuild' ? noi - (existingNoi ?? 0) : noi
   const deposits = units.reduce((s, u) => s + (u.depositWon ?? 0), 0)
   notes.push(
     `임대수입 = 세대 전용 × ㎡당 월 환산 임대료 (신규 실거래 중위, 보증금 × 전환율 ${fmtPct(conversion.housing.applied!)} ÷ 12 + 월세) × 12 — ${conversion.housing.basis}`,
   )
-  if (v('maintenanceFeePerUnit') === null) notes.push('관리비는 자료가 없어 임대수입에 넣지 않았습니다 (입력 대기).')
+  notes.push(
+    v('maintenanceFeePerUnit') === null
+      ? '관리비는 자료가 없어 임대수입에 넣지 않았습니다 (입력 대기).'
+      : `관리비 수입 = 월 환산 임대료 × ${fmtPct(maintRate, 1)} (가정값 입력)`,
+  )
   if (existingNoi !== null) notes.push('기존 세대 NOI는 같은 임대 사례로 추정한 값입니다 (실제 임대 조건 아님).')
   if (kind === 'rebuild') notes.push('재건축 NOI 증가 = 신축 세대 NOI − 철거되는 기존 세대 NOI(추정).')
 
@@ -394,7 +404,8 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     loanWon: loan,
     equityWon: equity,
     revenue: {
-      grossAnnualWon: wonR(gross),
+      grossAnnualWon: wonR(rentAnnual),
+      maintenanceWon: wonR(maintenance),
       vacancyLossWon: wonR(vacancyLoss),
       opexWon: wonR(opex),
       noiWon: wonR(noi),

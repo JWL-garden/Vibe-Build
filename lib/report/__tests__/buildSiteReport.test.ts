@@ -96,7 +96,7 @@ describe('T1 104-10 렉스빌 보고서', () => {
     // 수익성이 계산되면 표지 KPI = 규모 · 총사업비 · ROI · 회수기간 (설계서 11장), 판정은 회수기간 보조 문구
     expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', 'ROI (기준)', '투자회수기간'])
     expect(r.summary.kpis[1].value).toBe('1.6억원')
-    expect(r.summary.kpis[2].value).toBe('14.9%')
+    expect(r.summary.kpis[2].value).toBe('15.2%')
     expect(r.summary.kpis[3].caption).toContain('증축 가능')
   })
 
@@ -259,7 +259,9 @@ describe('4장 사업비 · 5장 수익 · 부록 가정값 (2026-10-08 결정 1
 
   it('T1 ALL: 5장 KPI·시나리오 표 = runAll 값, 보수 전환율은 법정 상한', async () => {
     const r = await build(T1)
-    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '14.9%' })
+    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '15.2%' })
+    expect(r.finance.revenueRows.map((row) => row[0])).toContain('관리비 수입')
+    expect(r.finance.inputNotes).toContain('증축공사비 단가는 층별로 달라지므로 엑셀데이터 참고할 것')
     expect(r.finance.scenarioRows.map((row) => row[0])).toEqual(['보수', '기준', '낙관'])
     expect(r.finance.scenarioRows[0][1]).toBe('5.0% (법정 상한)')
     expect(r.finance.unitRows).toHaveLength(3)

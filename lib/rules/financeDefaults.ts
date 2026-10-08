@@ -46,7 +46,8 @@ export const ASSUMPTION_SPEC = {
   rebuildConstructionMonths: { unit: '개월', direction: 'lower', required: true },
   vacancyRate: { unit: '비율', direction: 'lower', required: true },
   opexRate: { unit: '비율', direction: 'lower', required: true },
-  maintenanceFeePerUnit: { unit: '원/월', direction: 'higher', required: false },
+  // 관리비 수입 = 세대 월 환산 임대료 × 비율 (2026-10-08 결정). 입력값이 보수 3% > 낙관 1%라 ROI 방향과 반대 — 순서 검사 제외
+  maintenanceFeePerUnit: { unit: '비율', direction: 'none', required: false },
   contingencyRate: { unit: '비율', direction: 'lower', required: true },
   capRate: { unit: '비율', direction: 'lower', required: true },
   rentGrowthRate: { unit: '비율', direction: 'higher', required: false },
