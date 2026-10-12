@@ -4,11 +4,12 @@ import type { SiteReport } from '@/types'
 import { DataTable, Lead, SubTitle } from '../ReportParts'
 
 /**
- * 6장: 시나리오·민감도 — 보수/기준/낙관 비교, 토네이도 차트, 10년 현금흐름·NPV·IRR.
+ * 6장: 시나리오·민감도 — 보수/기준/낙관 비교, 토네이도 차트, 20년 현금흐름·NPV·IRR.
  * SiteReport만 읽고 계산하지 않는다.
  */
 export default function SiteCh06Scenario({ report }: { report: SiteReport }) {
   const sc = report.scenario
+  const kindWord = report.analysis.scenarioId === 'REBUILD' ? '재건축' : '증축'
   if (sc.status !== 'ok') return <Lead>{sc.statusText}</Lead>
 
   return (
@@ -32,7 +33,7 @@ export default function SiteCh06Scenario({ report }: { report: SiteReport }) {
       )}
 
       <div className="break-inside-avoid">
-        <SubTitle>10년 현금흐름 — 증축 안 함 vs 함 (기준 시나리오)</SubTitle>
+        <SubTitle>{sc.years}년 현금흐름 — {kindWord} 안 함 vs 함 (기준 시나리오)</SubTitle>
         <CashflowChart cashflow={sc.cashflow} />
       </div>
       <div className="mt-4 break-inside-avoid">
@@ -42,7 +43,7 @@ export default function SiteCh06Scenario({ report }: { report: SiteReport }) {
       <div className="break-inside-avoid">
         <SubTitle>시나리오별 NPV · IRR</SubTitle>
         <DataTable
-          head={['시나리오', 'NPV', 'IRR', '회수 연차', '10년 말 누적 순증']}
+          head={['시나리오', `NPV (${sc.years}년)`, `IRR (${sc.years}년)`, '회수 연차', `${sc.years}년 말 누적 순증`]}
           numeric={[1, 2, 3, 4]}
           rows={sc.cashflowScenarioRows}
           highlightRow={1}

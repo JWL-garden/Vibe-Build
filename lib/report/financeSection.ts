@@ -141,7 +141,6 @@ function constructionSection(analysis: SiteAnalysis): SiteFinanceSection['constr
   const base = analysis.finance.byScenario.BASE
   const rows: ReportRow[] = c.compare.map((s) => [
     s.label,
-    `${s.count}건`,
     s.perM2Median === null ? '–' : `${formatNumber(s.perM2Median, 0)}원`,
     s.pyeongGfaMedianManwon === null ? '–' : `${formatNumber(s.pyeongGfaMedianManwon, 0)}만원`,
     s.pyeongWorkMedianManwon === null ? '–' : `${formatNumber(s.pyeongWorkMedianManwon, 0)}만원`,
@@ -198,8 +197,14 @@ function bandNote(f: SiteFinanceResult): string {
 }
 
 /** 부록: 수익성 가정값 표 (결정 4 — 등급 C도 범위와 함께 출력) */
+/** 이 보고서(증축 또는 재건축)에서 쓰지 않는 공사 관련 가정값 — 부록 표에서 뺀다 */
+const UNUSED_BY_KIND: Record<'expansion' | 'rebuild', string[]> = {
+  expansion: ['rebuildConstructionMonths', 'newBuildCostTable', 'newBuildCostExcel'],
+  rebuild: ['constructionMonths', 'expansionCostPerPyeong'],
+}
+
 export function assumptionRows(f: SiteFinanceResult): ReportRow[] {
-  return f.assumptions.map((a) => {
+  return f.assumptions.filter((a) => !UNUSED_BY_KIND[f.project.kind].includes(a.key)).map((a) => {
     const { low, high } = a.range
     const ranged = low !== null && high !== null && (low !== a.range.base || high !== a.range.base)
     return [

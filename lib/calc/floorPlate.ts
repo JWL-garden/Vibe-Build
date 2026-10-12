@@ -68,7 +68,7 @@ export function calcFloorPlate(input: FloorPlateInput, rules: Rules): FloorPlate
       method: 'buildingArea',
       status: 'fallback',
       roofFlat,
-      detail: `호별 전유면적 자료가 없어 건축면적 ${f(site.buildingAreaM2)}㎡로 가정 — 확인 필요`,
+      detail: `호별 전용면적 자료가 없어 건축면적 ${f(site.buildingAreaM2)}㎡로 가정 — 확인 필요`,
     }
   }
 
@@ -83,6 +83,6 @@ export function calcFloorPlate(input: FloorPlateInput, rules: Rules): FloorPlate
     method: 'option1',
     status: 'ok',
     roofFlat,
-    detail: `옵션1${fallbackNote}: ${netFloor}층 전유 ${f(netFloorNetM2)}㎡ × ${rule.ratio} = ${f(areaM2)}㎡ (${roofNote})`,
+    detail: `옵션1${fallbackNote}: ${netFloor}층 전용 ${f(netFloorNetM2)}㎡ × ${rule.ratio} = ${f(areaM2)}㎡ (${roofNote})`,
   }
 }

@@ -107,7 +107,7 @@ describe('T1 ALL 증축 (+1층 53.829㎡ + 측면 보강 36.52㎡ = 90.349㎡, 3
 })
 
 describe('재건축 (REBUILD)', () => {
-  it('T1: 공사 연면적 = 498.75 + 필로티 119.7 = 618.45㎡ × max(신축단가표 2,055,379원, 하우빌드 실적 중앙값 3,023,747원), 26세대 × 500만원, 철거비 입력 대기', async () => {
+  it('T1: 공사 연면적 = 498.75 + 필로티 119.7 = 618.45㎡ × max(신축단가표 2,055,379원, 하우빌드 실적 중앙값 3,023,747원), 26세대 × 500만원, 철거비는 공사비에 포함', async () => {
     const a = await load(T1, 'REBUILD')
     const f = a.finance.byScenario.BASE
     expect(f.project.kind).toBe('rebuild')
@@ -120,8 +120,10 @@ describe('재건축 (REBUILD)', () => {
     expect(by.construction.basis).toContain('건물신축단가표 2,055,379원/㎡ vs 엑셀 신축비용 3,023,747원/㎡ 중 높은 값')
     expect(by.construction.grade).toBe('B')
     expect(by.permit.amountWon).toBe(130_000_000)
-    expect(by.demolition.amountWon).toBeNull()
-    expect(by.finance.basis).toContain('10/12개월') // 재건축 공사 기간 기준 10개월 (증축은 2개월)
+    expect(by.demolition).toBeUndefined() // 철거비는 신축 공사비에 포함 (2026-10-12)
+    expect(by.construction.basis).toContain('철거비 포함')
+    const months = f.assumptions.find((x) => x.key === 'rebuildConstructionMonths')!.value!
+    expect(by.finance.basis).toContain(`${months}/12개월`) // 공사 기간 = 층별·면적별 실적
     expect(sumCosts(f)).toBe(f.totalCostWon)
   })
 

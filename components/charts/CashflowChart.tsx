@@ -4,7 +4,7 @@ import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContai
 import { formatWon } from '@/lib/format'
 import type { CashflowYear } from '@/types'
 
-/** "증축 안 함 vs 증축함" 10년 누적 순수익 라인 차트 (값은 계산 결과 그대로) */
+/** "증축 안 함 vs 증축함" 누적 순수익 라인 차트 (값은 계산 결과 그대로, 기간은 cashflowRule.years) */
 export default function CashflowChart({ cashflow }: { cashflow: CashflowYear[] }) {
   const rows = cashflow.map((c) => ({
     year: `${c.year}년`,

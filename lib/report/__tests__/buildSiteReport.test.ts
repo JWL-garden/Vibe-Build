@@ -52,13 +52,15 @@ describe('104-48 보고서 (참고)', () => {
   it('2장: 현행→완화 4줄(용적률·주택 층수·주택 연면적·일조 수직), 주차 산정 단독 1.6 + 근생 1.3 = 2.9, 여유 0.1', async () => {
     const r = await build(DANGSAN)
     expect(r.regulation.relaxRows).toHaveLength(4)
-    expect(r.regulation.relaxRows[0].slice(1)).toEqual(['200%', '250%', 'ALL, REBUILD'])
+    expect(r.regulation.relaxRows[0].slice(1)).toEqual(['200%', '250%']) // 완화 시나리오 열 없음
+    expect(r.regulation.relaxRows[0][0]).toBe('용적률 상한 (제2종일반주거지역)')
     const byLabel = Object.fromEntries(r.regulation.parkingRows.map((row) => [row[0], row[2]]))
     expect(byLabel['단독·다중주택(제4호)']).toBe('1.6대')
     expect(byLabel['근린생활시설(제3호)']).toBe('1.3대')
     expect(byLabel['현재 법정 대수']).toBe('2.9대')
-    expect(byLabel['기존 여유']).toBe('0.1대')
-    expect(r.regulation.scenarioRows).toHaveLength(3)
+    expect(byLabel['여유 주차대수']).toBe('0.1대')
+    // 현행법규 + 이 보고서(증축 = ALL)의 시나리오 행만
+    expect(r.regulation.scenarioRows.map((row) => row[0])).toEqual(['현행법규', '복합 완화'])
     expect(r.regulation.selectedRow).toBe(1)
   })
 
@@ -77,7 +79,11 @@ describe('T1 104-10 렉스빌 보고서', () => {
     const uses = r.status.floorUses.map((f) => `${f.floorLabel}:${f.uses}`)
     expect(uses).toEqual(['1층:필로티(가정)·공용', '2층:다세대주택', '3층:다세대주택', '4층:다세대주택', '5층:다세대주택'])
     expect(r.status.stats[2].value).toBe('4개층 · 378.24㎡')
-    expect(r.status.notes.join(' ')).toContain('필로티(주차 전용)로 가정')
+    expect(r.status.notes.join(' ')).not.toContain('필로티') // 필로티 가정 문구 삭제
+    expect(r.status.stats.map((k) => k.label)).toEqual(['용적률', '추가확보 가능면적', '주택 현황', '주차'])
+    expect(r.status.stats[0].caption).toBe('현행 용적률 최대 200%')
+    expect(r.status.stats[1].caption).toBe('용적률 완화 시 120.51㎡')
+    expect(r.status.stats[3].caption).toBe('법정 6.1대\n여유 주차 1.9대')
   })
 
   it('2장: 주차 세대기준 6.1, 실제 8, 여유 1.9', async () => {
@@ -85,7 +91,7 @@ describe('T1 104-10 렉스빌 보고서', () => {
     const byLabel = Object.fromEntries(r.regulation.parkingRows.map((row) => [row[0], row[2]]))
     expect(byLabel['주택(제5호) 세대기준']).toBe('6.1대')
     expect(byLabel['실제 주차 (대장)']).toBe('8대')
-    expect(byLabel['기존 여유']).toBe('1.9대')
+    expect(byLabel['여유 주차대수']).toBe('1.9대')
   })
 
   it('3장 ALL: 기존 주차 증축안 +1층 · 새 층 53.83㎡(옵션1) + 측면 보강 36.52㎡ = 90.35㎡ · 3세대, 표지 증축 가능', async () => {
@@ -96,10 +102,13 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(r.summary.kpis[0].value).toBe('+1층 · +90.3㎡')
     expect(r.summary.kpis[0].caption).toBe('측면 보강 36.5㎡ 포함')
     // 수익성이 계산되면 표지 KPI = 규모 · 총사업비 · ROI · 회수기간 (설계서 11장), 판정은 회수기간 보조 문구
-    expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', 'ROI (기준)', '투자회수기간'])
+    expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', '연간 수익률(ROI)', '투자회수기간'])
     expect(r.summary.kpis[1].value).toBe('2.5억원')
     expect(r.summary.kpis[2].value).toBe('16.3%')
-    expect(r.summary.kpis[3].caption).toContain('증축 가능')
+    expect(r.summary.kpis[3].caption).toBeNull() // 투자회수기간 하단 작은 글자 삭제
+    expect(r.summary.kpis[1].caption).toBe('자기자본 20% · 대출 80%') // 금액 대신 퍼센트
+    expect(r.summary.conclusion).toBe('일조권 사선제한 및 층수제한 완화 적용 시 +1층(90.3㎡) 증축이 가능합니다. 제한요인: 주택 층수')
+    expect(r.meta.scenarioLabel).toBe('일조권 사선제한 및 층수제한 완화')
   })
 
   it('3장 BASE(다세대 4개층 한도): 증축안 없음 → 대안 검토, 표지 1세대 여유·확인 필요', async () => {
@@ -117,7 +126,7 @@ describe('T2 보고서', () => {
     expect(uses.slice(-5)).toEqual(['2층:다세대주택', '3층:다세대주택', '4층:다세대주택', '5층:다세대주택', '6층:사무소'])
     expect(r.status.stats[2].value).toBe('4개층 · 633.59㎡')
     expect(r.status.notes.join(' ')).toContain('외필지 3개')
-    expect(r.status.notes.join(' ')).toContain('1층은 필로티')
+    expect(r.status.notes.join(' ')).not.toContain('1층은 필로티')
   })
 
   it('2장: 주차 세대기준 9.9 + 근생 0.6 = 10.5, 여유 0.5', async () => {
@@ -126,14 +135,14 @@ describe('T2 보고서', () => {
     expect(byLabel['주택(제5호) 세대기준']).toBe('9.9대')
     expect(byLabel['근린생활시설(제3호)']).toBe('0.6대')
     expect(byLabel['현재 법정 대수']).toBe('10.5대')
-    expect(byLabel['기존 여유']).toBe('0.5대')
+    expect(byLabel['여유 주차대수']).toBe('0.5대')
   })
 
   it('3장 ALL: 기존 주차 증축안 +1층 · 새 층 36.25㎡ + 측면 보강 83.98㎡ · 1세대, 표지 증축 가능', async () => {
     const r = await build(T2)
     expect(r.plan.kind).toBe('existing')
     expect(r.plan.plan!.addGfaM2).toBeCloseTo(36.2527 + 83.98, 2)
-    expect(r.summary.kpis[3].caption).toContain('증축 가능')
+    expect(r.summary.kpis[3].caption).toBeNull() // 투자회수기간 하단 작은 글자 삭제
   })
 
   it('3장 BASE: 증축안 없음 → 주택 층수 대안 검토, 표지 1세대 여유·확인 필요', async () => {
@@ -163,9 +172,9 @@ describe('부록: 데이터 출처 (기준 엑셀 시트명)', () => {
     expect(r.appendix.excelNotes).toHaveLength(4)
   })
 
-  it('화면 시나리오 3개(BASE·ALL·REBUILD), ALL은 용적률 상한 교체로 표시 (배수 아님)', async () => {
+  it('부록 시나리오 표: 현행 법규 + 이 보고서의 시나리오만, ALL은 용적률 상한 교체로 표시 (배수 아님)', async () => {
     const r = await build(T1)
-    expect(r.appendix.scenarioRows.map((row) => row[0].split(' ')[0])).toEqual(['BASE', 'ALL', 'REBUILD'])
+    expect(r.appendix.scenarioRows.map((row) => row[0])).toEqual(['현행 법규', '복합 완화'])
     expect(r.appendix.scenarioRows[1][1]).toContain('용적률 상한 250%')
     expect(r.appendix.ruleRows[1][1]).toBe('제2종일반주거 200→250%, 제3종일반주거 250→300%')
   })
@@ -183,7 +192,7 @@ describe('부록 2: 데이터 검증', () => {
   it('T1: 수정할 데이터 목록에 정북 이격(미입력)·증축층 면적(옵션1 자동 산정 53.83㎡)', async () => {
     const todo = (await build(T1)).verification.todoRows
     expect(todo[0]).toEqual(['정북 인접대지 이격거리', '미입력', '확인 필요 — 일조 검토 불가', 'lib/data/siteInputs.json → northSetbackM'])
-    expect(todo[1].slice(1, 3)).toEqual(['53.83㎡ (옵션1: 최상층 전유 × 0.9)', '자동 산정 (옵션1)'])
+    expect(todo[1].slice(1, 3)).toEqual(['53.83㎡ (옵션1: 최상층 전용 × 0.9)', '자동 산정 (옵션1)'])
   })
 
   it('T2: 외필지 3개는 문제로 제기하지 않는다 (2026-10-08 결정 7) — 확인 항목·추가 확인 목록에 없음', async () => {
@@ -304,7 +313,8 @@ describe('6장 시나리오·민감도 (T1)', () => {
     expect(s.compareRows.find((row) => row[0] === '단순 ROI')!.slice(1)).toEqual([roi('CONSERVATIVE'), roi('BASE'), roi('OPTIMISTIC')])
     expect(s.baseRoi).toBe(a.finance.byScenario.BASE.metrics.roi)
     expect(s.tornado.length).toBe(a.finance.sensitivity!.items.length)
-    expect(s.cashflow).toHaveLength(10)
+    expect(s.cashflow).toHaveLength(20)
+    expect(s.years).toBe(20)
     expect(s.cashflowScenarioRows).toHaveLength(3)
   })
 
@@ -318,26 +328,27 @@ describe('6장 시나리오·민감도 (T1)', () => {
 })
 
 describe('7장 리스크 (규칙 기반)', () => {
-  it('T1 ALL: 위험도 높은 순 정렬, 구조·동의·일조(이격 미입력)·주차 포함, 숫자는 runAll 값', async () => {
+  it('T1 ALL: 위험도 높은 순 정렬, 구조·일조(이격 미입력)·주차 포함, 법규 완화 미시행·구분소유자 동의는 없음', async () => {
     const r = await build(T1, 'ALL')
     const items = r.risk.items
     const order = { 높음: 0, 중간: 1, 낮음: 2 } as const
     for (let i = 1; i < items.length; i++) expect(order[items[i - 1].level]).toBeLessThanOrEqual(order[items[i].level])
     const by = (t: string) => items.find((x) => x.title.startsWith(t))!
     expect(by('구조안전').description).toContain('경과 18년')
-    expect(by('구분소유자').level).toBe('높음')
+    expect(items.some((x) => x.title.includes('구분소유자'))).toBe(false)
+    expect(items.some((x) => x.title.startsWith('법규 완화'))).toBe(false)
     expect(by('일조').level).toBe('중간') // 정북 이격 미입력
     expect(by('일조').description).toContain('확인 필요')
-    expect(by('법규 완화').title).toContain('프로젝트 가정')
     expect(items.every((x) => x.mitigation.length > 0)).toBe(true)
     expect(r.risk.summary).toContain('높음')
   })
 
-  it('BASE: 법규 완화 리스크 없음. REBUILD: 철거·이주 리스크 높음', async () => {
-    const base = await build(T1, 'BASE')
-    expect(base.risk.items.some((x) => x.title.startsWith('법규 완화'))).toBe(false)
+  it('REBUILD: 이주·철거와 공사 중 임대 손실 리스크 높음 (계산한 금액을 총사업비에 포함, 철거비는 공사비에 포함)', async () => {
     const rb = await build(T1, 'REBUILD')
-    expect(rb.risk.items.find((x) => x.title.startsWith('철거'))!.level).toBe('높음')
+    const item = rb.risk.items.find((x) => x.title.startsWith('이주'))!
+    expect(item.level).toBe('높음')
+    expect(item.description).toContain('철거비는 신축 공사비에 포함')
+    expect(rb.risk.items.some((x) => x.title.includes('구분소유자'))).toBe(false)
   })
 })
 
@@ -374,13 +385,14 @@ describe('8~10장 일정·협업·다음 단계', () => {
       expect(r.schedule.status).toBe('none')
       expect(r.nextStep.decisionNow).toContain('제한한 요인')
     }
-    expect(r.partners.length).toBeGreaterThanOrEqual(6)
+    expect(r.partners.map((p) => p.role)).toEqual(['건축사 (설계사무소)', '구조기술사', '시공사', '감정평가사·부동산 중개', '금융기관']) // 법무사·변호사, 세무사·회계사 삭제
     expect(r.nextStep.steps).toHaveLength(3)
   })
 
-  it('T1 ALL: 지금 결정할 한 가지 = 구분소유자 동의 확인', async () => {
+  it('T1 ALL: 지금 결정할 한 가지 = 구조안전진단 의뢰 (동의 항목 없음)', async () => {
     const r = await build(T1, 'ALL')
-    expect(r.nextStep.decisionNow).toContain('구분소유자')
+    expect(r.nextStep.decisionNow).toContain('구조안전진단')
+    expect(r.nextStep.decisionNow).not.toContain('구분소유자')
     expect(r.nextStep.checklist.length).toBeGreaterThan(0)
   })
 })

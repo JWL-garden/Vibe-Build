@@ -9,8 +9,17 @@ export default function SiteCh08Schedule({ report }: { report: SiteReport }) {
   return (
     <div>
       <Lead>
-        사전 검토부터 준공·임대까지 약 {s.totalMonths}개월이 예상됩니다. 각 단계에서 건축주가 결정해야 할 일과 비용이 나가는 시점을 함께 정리했습니다.
+        사전 검토부터 준공·사용승인까지 약 {s.totalMonths}개월이 예상됩니다. 각 단계에서 건축주가 결정해야 할 일과 비용이 나가는 시점을 함께 정리했습니다.
       </Lead>
+
+      <div className="break-inside-avoid">
+        <SubTitle>층별·면적별 공사 기간 (하우빌드 준공 실적)</SubTitle>
+        <div className="grid grid-cols-2 gap-4">
+          <DataTable head={['지상 층수', '사례', '중위', '25~75%']} numeric={[1, 2, 3]} rows={s.durationFloorRows} />
+          <DataTable head={['연면적', '사례', '중위', '25~75%']} numeric={[1, 2, 3]} rows={s.durationAreaRows} />
+        </div>
+        <p className="mt-2 text-xs text-ink-faint">{s.durationNote}</p>
+      </div>
 
       <SubTitle>단계별 일정</SubTitle>
       <ScheduleChart steps={s.steps} />

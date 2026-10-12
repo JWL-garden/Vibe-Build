@@ -118,13 +118,13 @@ describe('REBUILD 판정·보고서', () => {
     const data = (await getSiteData(T2))!
     const r = buildSiteReport(data, runAll(data, 'REBUILD'), '2026-10-08')
     expect(r.summary.kpis[0].value).toBe('지상 6층 · 932.8㎡')
-    expect(r.summary.kpis.map((k) => k.label)).toEqual(['재건축 규모', '총사업비', 'ROI (기준)', '투자회수기간'])
-    expect(r.summary.kpis[1].value).toBe('41.3억원') // 신축 단가 = 하우빌드 실적 중앙값, 대출 금리 6.0% (2026-10-12; 이전 28.8억원은 신축단가표 + 금리 4.66%)
+    expect(r.summary.kpis.map((k) => k.label)).toEqual(['재건축 규모', '총사업비', '연간 수익률(ROI)', '투자회수기간'])
+    expect(r.summary.kpis[1].value).toBe('43.5억원') // 신축 단가 = 하우빌드 실적 중앙값, 대출 금리 6.0%, 공사 중 임대 손실 포함(철거비는 공사비에 포함), 2026-10-12
     expect(r.summary.addFloors).toBe(0) // 기존도 지상 6층
     expect(r.plan.kind).toBe('rebuild')
     expect(r.plan.rebuild).toBe(r.analysis.rebuild)
-    expect(r.regulation.scenarioRows.map((row) => row[0].split(' ')[0])).toEqual(['BASE', 'ALL', 'REBUILD'])
-    expect(r.regulation.selectedRow).toBe(2)
+    expect(r.regulation.scenarioRows.map((row) => row[0])).toEqual(['현행법규', '복합 완화 + 전체 재건축']) // 현행법규 + 이 보고서의 시나리오만
+    expect(r.regulation.selectedRow).toBe(1)
     expect(r.asset.rows[1][2]).toBe('– (철거)')
   })
 })

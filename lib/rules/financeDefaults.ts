@@ -108,3 +108,6 @@ export const constructionCostRule = {
   grade: 'B',
   note: '시공사 도급 공사비(VAT 포함) — 감리비·부담금 등 간접비 미포함',
 } as const
+
+/** 현금흐름 기간 (2026-10-12 결정: 10년 → 20년). NPV·IRR·누적 비교의 기준 기간 */
+export const cashflowRule = { years: 20 } as const

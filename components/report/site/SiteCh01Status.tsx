@@ -2,12 +2,12 @@ import { formatNumber } from '@/lib/format'
 import type { SiteReport } from '@/types'
 import { Badge, DataTable, Lead, StatCard, SubTitle } from '../ReportParts'
 
-/** 1장: 대상 건축물 현황 — 기준 엑셀 대장 값, 층별 용도·호별 면적, 미활용 용적률 */
+/** 1장: 대상 건축물 현황 — 건축물대장 값, 층별 용도·호별 면적, 추가확보 가능면적 */
 export default function SiteCh01Status({ report }: { report: SiteReport }) {
   const { status } = report
   return (
     <div>
-      <Lead>기준 엑셀(건축물대장·전유공용면적)로 정리한 대상 건축물의 현재 규모와 층별 용도입니다.</Lead>
+      <Lead>건축물대장 기준 대상 건축물의 규모와 층별용도입니다.</Lead>
 
       <div className="mt-6 grid grid-cols-4 gap-3">
         {status.stats.map((k) => (
@@ -27,7 +27,7 @@ export default function SiteCh01Status({ report }: { report: SiteReport }) {
 
       <SubTitle>층별 용도·호별 면적</SubTitle>
       <DataTable
-        head={['층', '용도', '호', '전유면적', '공용면적']}
+        head={['층', '용도', '호', '전용면적', '공용면적']}
         numeric={[3, 4]}
         rows={status.floorUses.map((r) => [
           r.floorLabel,
@@ -68,7 +68,7 @@ function LandValue({ land }: { land: SiteReport['status']['land'] }) {
       <p className="mt-1 text-xs text-ink-faint">{land.basisNote}</p>
       {land.rows.length > 0 && (
         <div className="mt-3">
-          <DataTable head={['필지(PNU)', '면적', '개별공시지가', '금액']} numeric={[1, 2, 3]} rows={land.rows} />
+          <DataTable head={['필지', '면적', '개별공시지가', '금액']} numeric={[1, 2, 3]} rows={land.rows} />
         </div>
       )}
       <ul className="mt-2 space-y-1 text-xs text-ink-faint">

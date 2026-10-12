@@ -1,7 +1,7 @@
 // 보고서 6장(시나리오·민감도) 조립 — runAll().finance 결과를 표·문장으로 바꾸기만 한다 (새로 계산하지 않음)
 
 import { formatNumber, formatRate, formatWon, formatWonExact } from '@/lib/format'
-import type { AssumptionKey } from '@/lib/rules/financeDefaults'
+import { cashflowRule, type AssumptionKey } from '@/lib/rules/financeDefaults'
 import type { CashflowYear, FinanceScenarioId, ReportRow, SiteAnalysis, SiteScenarioSection } from '@/types'
 import { FINANCE_SCENARIO_LABEL, formatAssumptionValue, gradeText } from './financeSection'
 
@@ -39,6 +39,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     cashflow: [],
     cashflowRows: [],
     cashflowScenarioRows: [],
+    years: cashflowRule.years,
     notes: [],
   }
   if (base.status === 'none') {
@@ -100,8 +101,11 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
             s.gradeCShare >= 0.5 ? '가정 의존도가 높습니다 — 착공 전 견적·실거래 자료로 먼저 확인해야 합니다.' : '가정 의존도는 보통입니다.'
           }`)
 
-  // 10년 현금흐름
+  // 현금흐름 (cashflowRule.years년 기준)
   const cf = base.cashflow
+  const years = cashflowRule.years
+  /** 표에는 대표 연차만 (1~5년, 이후 5년 단위) — 차트는 전 기간 */
+  const shownYear = (y: number) => y <= 5 || y % 5 === 0
   const cashflow: CashflowYear[] = (cf?.years ?? []).map((y) => ({
     year: y.year,
     noiWon: y.noiIncreaseWon,
@@ -110,7 +114,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     cumulativeWithWon: y.withWon,
     cumulativeWithoutWon: y.withoutWon,
   }))
-  const cashflowRows: ReportRow[] = (cf?.years ?? []).map((y) => [
+  const cashflowRows: ReportRow[] = (cf?.years ?? []).filter((y) => shownYear(y.year)).map((y) => [
     `${y.year}년차`,
     formatWonExact(y.noiIncreaseWon),
     formatWonExact(y.cumulativeNetWon),
@@ -123,7 +127,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
       FINANCE_SCENARIO_LABEL[id],
       c?.npvWon == null ? '–' : formatWon(c.npvWon),
       pctOrDash(c?.irr ?? null),
-      c ? (c.paybackYear === null ? '10년 초과' : `${c.paybackYear}년차`) : '–',
+      c ? (c.paybackYear === null ? `${years}년 초과` : `${c.paybackYear}년차`) : '–',
       c ? formatWon(c.cumulativeNetWon) : '–',
     ]
   })
@@ -133,9 +137,9 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
   const notes = [
     '수익 시나리오: 가정값 입력 엑셀의 보수·기준·낙관 값을 그대로 적용 (주택 전월세 전환율은 모든 시나리오 6.0% 고정).',
     '토네이도: 기준 시나리오에서 변수 하나만 불리한 값·유리한 값으로 바꾸고 나머지는 기준값 그대로 두었습니다. 임대료는 ±10%(설계서 5-5). 값이 하나뿐인 가정값(예: 취득세율)은 제외했습니다.',
-    `10년 현금흐름: 총사업비는 0년차에 지출, NOI 증가는 1년차부터 연 ${g == null ? '0%(가정값 없음)' : formatRate(g, 1)} 상승, 할인율 ${d == null ? '없음' : formatRate(d, 1)}. 10년 말 잔존가치(자산가치 증가)와 공사 중 임대 손실은 반영하지 않은 보수적 단순화입니다.`,
+    `${years}년 현금흐름: 총사업비는 0년차에 지출, NOI 증가는 1년차부터 연 ${g == null ? '0%(가정값 없음)' : formatRate(g, 1)} 상승, 할인율 ${d == null ? '없음' : formatRate(d, 1)}. ${years}년 말 잔존가치(자산가치 증가)는 반영하지 않은 보수적 단순화이며, 표는 1~5년과 5년 단위 연차만 보입니다.`,
     kind === 'rebuild'
-      ? '재건축은 공사 기간 동안 기존 임대수입이 없어지지만 10년 누적에는 반영하지 않았습니다. "함"은 신축 NOI, "안 함"은 기존 NOI(추정)입니다.'
+      ? '재건축은 이주·철거와 공사 기간 동안의 기존 임대수입 중단을 총사업비(공사 중 임대 손실)에 포함했습니다. "함"은 신축 NOI, "안 함"은 기존 NOI(추정)입니다.'
       : '"안 함" 누적은 기존 세대 NOI(같은 임대 사례로 추정)이며 실제 임대 조건이 아닙니다.',
   ]
   if (cf?.existingNoiMissing) notes.push('기존 세대 NOI 추정이 없어 "안 함" 누적을 0으로 두었습니다.')
@@ -152,6 +156,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     cashflow,
     cashflowRows,
     cashflowScenarioRows,
+    years,
     notes,
   }
 }

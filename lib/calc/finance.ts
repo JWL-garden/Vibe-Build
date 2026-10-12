@@ -1,9 +1,10 @@
 // 수익성 계산 모듈 (순수 함수, 설계서 5-4)
 // 구현: [0] 토지가액(공시지가 기준), [C'] 증축 전·후 자산가치(원가 기준), [C''] 토지 포함 수익률,
 //       [A] 사업비·[B] 임대수익·[C] 지표 (calcSiteFinance, 2026-10-08 결정 1·2·6·12)
-//       [D] 10년 현금흐름·NPV·IRR (calcCashflow10y, 2026-10-12) — 민감도는 sensitivity.ts
+//       [D] 현금흐름·NPV·IRR (calcCashflow, 20년 기준 — cashflowRule, 2026-10-12) — 민감도는 sensitivity.ts
 
-import { PYEONG_M2, type AssumptionKey, type BuildingValueRule, type LandValueRule } from '@/lib/rules/financeDefaults'
+import { RELOCATION_MONTHS } from '@/lib/rules/projectSchedule'
+import { PYEONG_M2, cashflowRule, type AssumptionKey, type BuildingValueRule, type LandValueRule } from '@/lib/rules/financeDefaults'
 import type {
   AssetValueResult,
   AssumptionRow,
@@ -161,7 +162,7 @@ export function calcAssetValue(input: AssetValueInput, rule: BuildingValueRule):
   ]
   if (land === null) reasons.push('토지가액이 없어 자산가치를 합산하지 않았습니다.')
   const demolished = input.demolishExisting ?? false
-  if (demolished) reasons.push('재건축: 기존 건물을 철거하므로 후 자산가치 = 토지가액 + 신축 건물가치입니다 (철거비는 사업비에서 반영 예정).')
+  if (demolished) reasons.push('재건축: 기존 건물을 철거하므로 후 자산가치 = 토지가액 + 신축 건물가치입니다 (철거비는 신축 공사비에 포함).')
   return {
     land: input.land,
     existingBuilding: { gfaM2: input.gfaM2, unitCostWon, ageYears, usefulLifeYears, residualRate, valueWon: existingValue },
@@ -294,6 +295,8 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   }
 
   // [A] 사업비
+  // 공사 기간: 층별·면적별 실적(2026-10-12) — 증축 = 증축 층수 × 층당, 재건축 = 지상 층수·연면적대 중앙값
+  const months = v(kind === 'rebuild' ? 'rebuildConstructionMonths' : 'constructionMonths')!
   const n = newUnitNets.length
   const costs: SiteCostItem[] = []
   if (kind === 'expansion') {
@@ -318,10 +321,9 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
       key: 'construction',
       label: '신축 공사비',
       amountWon: wonR(constructionAreaM2 * newBuildCost),
-      basis: `공사 연면적 ${constructionAreaM2.toFixed(2)}㎡(필로티 포함) × ${fmtWon(newBuildCost)}/㎡ — ${compare}${usedRow.sourceText ? ` · ${usedRow.sourceText}` : ''}`,
+      basis: `공사 연면적 ${constructionAreaM2.toFixed(2)}㎡(필로티 포함) × ${fmtWon(newBuildCost)}/㎡ — ${compare}${usedRow.sourceText ? ` · ${usedRow.sourceText}` : ''} · 철거비 포함`,
       grade: usedRow.grade,
     })
-    costs.push({ key: 'demolition', label: '철거비', amountWon: null, basis: '미반영 — 철거비 가정값 입력 대기', grade: null })
   }
   const perUnit = v('expansionCostPerUnit')!
   costs.push({
@@ -340,13 +342,29 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     basis: `공사비 × ${fmtPct(taxRate)} (원시취득, 과세표준 = 공사비 가정)`,
     grade: a.acquisitionTaxRate.grade,
   })
-  costs.push({
-    key: 'constructionLoss',
-    label: '공사 중 임대 손실',
-    amountWon: null,
-    basis: '미반영 — 기존 세대 임대 조건(건축주 자료) 입력 대기',
-    grade: null,
-  })
+  if (kind === 'rebuild') {
+    // 재건축: 이주·철거 + 공사 기간 동안 기존 세대의 임대수입이 끊긴다 (2026-10-12 결정)
+    const existingMonthly = existingUnitNets.map(rentUnit).reduce((s2, u) => s2 + (u.monthlyEquivalentWon ?? 0), 0)
+    const maintRate0 = v('maintenanceFeePerUnit') ?? 0
+    const vacancy0 = v('vacancyRate')!
+    const lossMonths = RELOCATION_MONTHS + months
+    const monthlyIncome = existingMonthly * (1 + maintRate0) * (1 - vacancy0)
+    costs.push({
+      key: 'constructionLoss',
+      label: '공사 중 임대 손실',
+      amountWon: wonR(monthlyIncome * lossMonths),
+      basis: `기존 ${existingUnitNets.length}세대 월 임대수입 ${fmtWon(monthlyIncome)}(관리비 포함, 공실 ${fmtPct(vacancy0, 1)} 반영, 추정) × (이주·철거 ${RELOCATION_MONTHS}개월 + 공사 ${months}개월)`,
+      grade: 'C',
+    })
+  } else {
+    costs.push({
+      key: 'constructionLoss',
+      label: '공사 중 임대 손실',
+      amountWon: null,
+      basis: '미반영 — 기존 세대 임대 조건(건축주 자료) 입력 대기',
+      grade: null,
+    })
+  }
   const subtotal = costs.reduce((s, c) => s + (c.amountWon ?? 0), 0)
   const contingencyRate = v('contingencyRate')!
   const contingency = wonR(subtotal * contingencyRate)
@@ -360,8 +378,6 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   const beforeFinance = subtotal + contingency
   const loan = wonR(beforeFinance * v('loanRatio')!)
   const rate = v('loanInterestRate')!
-  // 공사 기간: 증축(상부 건식 조립식) / 재건축(철거 후 신축) — 2026-10-08 결정
-  const months = v(kind === 'rebuild' ? 'rebuildConstructionMonths' : 'constructionMonths')!
   const finance = wonR(loan * rate * (months / 12) * 0.5)
   costs.push({
     key: 'finance',
@@ -451,7 +467,7 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
             totalCostWon: totalCost,
           })
         : null,
-    cashflow: calcCashflow10y({
+    cashflow: calcCashflow({
       totalCostWon: totalCost,
       noiIncreaseWon: noiIncrease,
       existingNoiWon: existingNoi,
@@ -477,7 +493,7 @@ export interface CashflowInput {
   growthRate: number | null
   /** 할인율 (소수). null이면 NPV 계산 안 함 */
   discountRate: number | null
-  /** 기간 (년, 기본 10) */
+  /** 기간 (년, 기본 cashflowRule.years = 20) */
   horizonYears?: number
 }
 
@@ -486,8 +502,8 @@ export interface CashflowInput {
  * 10년 말 잔존가치(자산가치 증가)와 공사 중 임대 손실은 반영하지 않는다 (보수적 단순화).
  * 안 함 = 기존 NOI 누적(추정), 함 = 기존 NOI 누적 + (−총사업비 + NOI 증가 누적).
  */
-export function calcCashflow10y(input: CashflowInput): SiteCashflow {
-  const horizon = input.horizonYears ?? 10
+export function calcCashflow(input: CashflowInput): SiteCashflow {
+  const horizon = input.horizonYears ?? cashflowRule.years
   const g = input.growthRate ?? 0
   const years: SiteCashflowYear[] = []
   let incCum = 0

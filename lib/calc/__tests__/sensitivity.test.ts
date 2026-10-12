@@ -1,42 +1,42 @@
-// 민감도(설계서 5-5) · 10년 현금흐름·NPV·IRR(5-4 [D]) — 손계산·합계 검산
+// 민감도(설계서 5-5) · 20년 현금흐름·NPV·IRR(5-4 [D]) — 손계산·합계 검산
 import { describe, expect, it } from 'vitest'
 import { runAll } from '@/lib/calc'
-import { calcCashflow10y } from '@/lib/calc/finance'
+import { calcCashflow } from '@/lib/calc/finance'
 import { getSiteData } from '@/lib/services/mockService'
 
 const T1 = '1156011600001040010'
 const load = async (view: 'BASE' | 'ALL' | 'REBUILD') => runAll((await getSiteData(T1))!, view)
 
-describe('calcCashflow10y — 손계산', () => {
+describe('calcCashflow — 손계산', () => {
   const base = { totalCostWon: 100, noiIncreaseWon: 20, existingNoiWon: null, growthRate: null, discountRate: null }
 
-  it('연 NOI 20, 총사업비 100, 상승률 0: 5년차 회수, 10년 말 누적 +100', () => {
-    const c = calcCashflow10y(base)
-    expect(c.years).toHaveLength(10)
+  it('연 NOI 20, 총사업비 100, 상승률 0: 5년차 회수, 20년 말 누적 +300', () => {
+    const c = calcCashflow(base)
+    expect(c.years).toHaveLength(20)
     expect(c.paybackYear).toBe(5)
-    expect(c.cumulativeNetWon).toBe(100)
+    expect(c.cumulativeNetWon).toBe(300)
     expect(c.npvWon).toBeNull() // 할인율 없음
     expect(c.existingNoiMissing).toBe(true)
   })
 
-  it('할인율 10%: NPV = 20 × 6.1446 − 100 ≈ 22.89, IRR ≈ 15.1%', () => {
-    const c = calcCashflow10y({ ...base, discountRate: 0.1, totalCostWon: 1_000_000, noiIncreaseWon: 200_000 })
-    expect(c.npvWon).toBeGreaterThan(228_000)
-    expect(c.npvWon).toBeLessThan(230_000)
-    expect(c.irr).toBeGreaterThan(0.15)
-    expect(c.irr).toBeLessThan(0.152)
+  it('할인율 10%, 20년: NPV = 20 × 8.5136 − 100 ≈ 70.27(×1만), IRR ≈ 19.4%', () => {
+    const c = calcCashflow({ ...base, discountRate: 0.1, totalCostWon: 1_000_000, noiIncreaseWon: 200_000 })
+    expect(c.npvWon).toBeGreaterThan(702_000)
+    expect(c.npvWon).toBeLessThan(703_000)
+    expect(c.irr).toBeGreaterThan(0.19)
+    expect(c.irr).toBeLessThan(0.2)
   })
 
   it('상승률 3%: 2년차 NOI = 1년차 × 1.03, "함" = 안 함 + 순증', () => {
-    const c = calcCashflow10y({ ...base, totalCostWon: 1_000_000, noiIncreaseWon: 100_000, existingNoiWon: 50_000, growthRate: 0.03 })
+    const c = calcCashflow({ ...base, totalCostWon: 1_000_000, noiIncreaseWon: 100_000, existingNoiWon: 50_000, growthRate: 0.03 })
     expect(c.years[0].noiIncreaseWon).toBe(100_000)
     expect(c.years[1].noiIncreaseWon).toBe(103_000)
     for (const y of c.years) expect(y.withWon).toBe(y.withoutWon + y.cumulativeNetWon)
     expect(c.existingNoiMissing).toBe(false)
   })
 
-  it('10년 안에 회수하지 못하면 paybackYear = null, 총사업비를 못 넘으면 IRR 음수', () => {
-    const c = calcCashflow10y({ ...base, noiIncreaseWon: 5 })
+  it('20년 안에 회수하지 못하면 paybackYear = null, 총사업비를 못 넘으면 IRR 음수', () => {
+    const c = calcCashflow({ ...base, noiIncreaseWon: 4 })
     expect(c.paybackYear).toBeNull()
     expect(c.irr).toBeLessThan(0)
   })
@@ -62,12 +62,12 @@ describe('T1 ALL 민감도·현금흐름', () => {
     expect(s.gradeCShare).toBeLessThanOrEqual(1)
   })
 
-  it('3개 수익 시나리오 모두 10년 현금흐름이 있고, 누적 순증 = −총사업비 + NOI 증가 합', async () => {
+  it('3개 수익 시나리오 모두 20년 현금흐름이 있고, 누적 순증 = −총사업비 + NOI 증가 합', async () => {
     const a = await load('ALL')
     for (const id of ['CONSERVATIVE', 'BASE', 'OPTIMISTIC'] as const) {
       const f = a.finance.byScenario[id]
       const c = f.cashflow!
-      expect(c.years).toHaveLength(10)
+      expect(c.years).toHaveLength(20)
       const sum = c.years.reduce((s, y) => s + y.noiIncreaseWon, 0)
       expect(Math.abs(c.cumulativeNetWon - (sum - f.totalCostWon!))).toBeLessThanOrEqual(10)
     }

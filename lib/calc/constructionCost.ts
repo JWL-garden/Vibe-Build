@@ -2,7 +2,15 @@
 // 엑셀 '하우빌드 2026환산' 집계표와 같은 값이 나와야 한다 (constructionCost.test.ts)
 
 import { PYEONG_M2, constructionCostRule } from '@/lib/rules/financeDefaults'
-import type { AssumptionRow, ConstructionCostRow, ConstructionCostSummary, ConstructionStat } from '@/types'
+import type {
+  AssumptionRow,
+  ConstructionCostRow,
+  ConstructionCostSummary,
+  ConstructionDurationSummary,
+  ConstructionStat,
+  DurationEstimate,
+  DurationStat,
+} from '@/types'
 
 type Rule = typeof constructionCostRule
 
@@ -84,4 +92,114 @@ export function withConstructionUnitCost(rows: AssumptionRow[], summary: Constru
     memo: `${rule.note}. 보수 = 상위 사분위, 낙관 = 하위 사분위. ${summary.basisNote}`,
   }
   return existing ? rows.map((r) => (r.key === 'newBuildCostExcel' ? filled : r)) : [...rows, filled]
+}
+
+// ── 공사 기간: 층별·면적별 실적 (2026-10-12) ─────────────────────────────
+
+/** 층수별·연면적대별 공사 기간 집계 기준 */
+export const durationRule = {
+  /** 연면적 구간 (㎡) — 이 경계로 사례를 나눈다 */
+  areaBinsM2: [0, 300, 450, 600, Infinity] as readonly number[],
+  /** 같은 층수 사례가 이 값 미만이면 인접 층(±1)까지 넓힌다 */
+  minSamples: 5,
+} as const
+
+const floorsOf = (r: ConstructionCostRow) => {
+  const m = /지상\s*(\d+)\s*층/.exec(r.floorsText ?? '')
+  return m ? Number(m[1]) : null
+}
+
+const usable = (rows: ConstructionCostRow[]) =>
+  rows.filter((r) => (r.excluded === null || r.excluded === '') && (r.months ?? 0) > 0 && (r.gfaM2 ?? 0) > 0 && floorsOf(r) !== null)
+
+function durationStat(label: string, rows: ConstructionCostRow[], value: (r: ConstructionCostRow) => number): DurationStat {
+  const v = rows.map(value)
+  return { label, count: v.length, median: percentile(v, 0.5), p25: percentile(v, 0.25), p75: percentile(v, 0.75) }
+}
+
+/** 층수별·연면적대별 공사 기간 집계 (표는 권역 구분 없이 전체 사례) */
+export function summarizeDuration(all: ConstructionCostRow[], rule = durationRule): ConstructionDurationSummary {
+  const rows = usable(all)
+  const months = (r: ConstructionCostRow) => r.months!
+  const floorNos = [...new Set(rows.map((r) => floorsOf(r)!))].sort((a, b) => a - b)
+  const bins = rule.areaBinsM2
+  return {
+    byFloors: floorNos.map((n) => durationStat(`지상 ${n}층`, rows.filter((r) => floorsOf(r) === n), months)),
+    byArea: bins.slice(0, -1).map((lo, i) => {
+      const hi = bins[i + 1]
+      const label = hi === Infinity ? `연면적 ${lo}㎡ 이상` : lo === 0 ? `연면적 ${hi}㎡ 미만` : `연면적 ${lo}~${hi}㎡`
+      return durationStat(label, rows.filter((r) => r.gfaM2! >= lo && r.gfaM2! < hi), months)
+    }),
+    perFloor: durationStat('층당 공사 기간', rows, (r) => r.months! / floorsOf(r)!),
+  }
+}
+
+/**
+ * 신축(재건축) 공사 기간 추정 — 지상 N층 사례(5건 미만이면 ±1층까지) 중 연면적이 같은 구간 사례(5건 이상일 때)의 중앙값.
+ * 사례가 전혀 없으면 null.
+ */
+export function estimateNewBuildMonths(all: ConstructionCostRow[], totalFloors: number, gfaM2: number, rule = durationRule): DurationEstimate | null {
+  const rows = usable(all)
+  let span = 0
+  let set = rows.filter((r) => floorsOf(r) === totalFloors)
+  while (set.length < rule.minSamples && span < 3) {
+    span++
+    set = rows.filter((r) => Math.abs(floorsOf(r)! - totalFloors) <= span)
+  }
+  if (set.length === 0) return null
+  const inBin = set.filter((r) => {
+    const bins = rule.areaBinsM2
+    const idx = bins.findIndex((lo, i) => i < bins.length - 1 && gfaM2 >= lo && gfaM2 < bins[i + 1])
+    return idx >= 0 && r.gfaM2! >= bins[idx] && r.gfaM2! < bins[idx + 1]
+  })
+  const used = inBin.length >= rule.minSamples ? inBin : set
+  const v = used.map((r) => r.months!)
+  const floorText = span === 0 ? `지상 ${totalFloors}층` : `지상 ${totalFloors - span}~${totalFloors + span}층`
+  return {
+    base: percentile(v, 0.5)!,
+    conservative: percentile(v, 0.75)!,
+    optimistic: percentile(v, 0.25)!,
+    count: used.length,
+    basis: `하우빌드 실적 ${floorText}${used === inBin ? ' · 같은 연면적대' : ''} ${used.length}건 중앙값`,
+  }
+}
+
+/** 증축 공사 기간 추정 — 층당 공사 기간(실적 중앙값) × 증축 층수, 최소 1개월 */
+export function estimateAddFloorsMonths(all: ConstructionCostRow[], addFloors: number, rule = durationRule): DurationEstimate | null {
+  if (addFloors <= 0) return null
+  const s = summarizeDuration(all, rule).perFloor
+  if (s.median === null || s.p25 === null || s.p75 === null) return null
+  const at = (v: number) => Math.max(1, Math.round(v * addFloors * 2) / 2)
+  return {
+    base: at(s.median),
+    conservative: at(s.p75),
+    optimistic: at(s.p25),
+    count: s.count,
+    basis: `하우빌드 실적 ${s.count}건의 층당 공사 기간 중앙값 ${s.median.toFixed(2)}개월 × 증축 ${addFloors}개층`,
+  }
+}
+
+/** 공사 기간 가정값(key)을 실적 추정으로 바꾼다 (보수 = 상위 사분위, 낙관 = 하위 사분위, 등급 B) */
+export function withConstructionMonths(
+  rows: AssumptionRow[],
+  key: 'constructionMonths' | 'rebuildConstructionMonths',
+  est: DurationEstimate | null,
+): AssumptionRow[] {
+  if (!est) return rows
+  const existing = rows.find((r) => r.key === key)
+  const row: AssumptionRow = {
+    key,
+    label: existing?.label ?? (key === 'rebuildConstructionMonths' ? '공사 기간 (재건축)' : '공사 기간 (증축)'),
+    unit: existing?.unit ?? '개월',
+    low: est.conservative,
+    base: est.base,
+    high: est.optimistic,
+    grade: 'B',
+    sourceTitle: est.basis,
+    publisher: '하우빌드 준공 현장 (층별·면적별 공사 기간)',
+    baseDate: '2026-08',
+    url: null,
+    memo: '공사 기간은 층별·면적별 실적으로 갈음 (2026-10-12 결정). 보수 = 상위 사분위, 낙관 = 하위 사분위',
+  }
+  return existing ? rows.map((r) => (r.key === key ? row : r)) : [...rows, row]
 }

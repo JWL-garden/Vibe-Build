@@ -1,18 +1,15 @@
 import type { SiteReport } from '@/types'
 import { DataTable, Lead, SubTitle } from '../ReportParts'
 
-/** 2장: 법규 검토 — 현행→완화 3줄 표, 주차 산정표, 시나리오별 검토, 일조, 추가 확인 항목 */
+/** 2장: 법규 검토 — 현행→완화 표, 주차 산정표, 현행법규와 이 보고서 시나리오 비교 */
 export default function SiteCh02Regulation({ report }: { report: SiteReport }) {
   const r = report.regulation
   return (
     <div>
-      <Lead>
-        용적률 상한, 주택 층수·연면적 한도, 주차 기준, 정북 일조 사선을 함께 검토했습니다. ALL(복합 완화 증축)·REBUILD(복합 완화 + 전체 재건축)는 프로젝트에서
-        가정한 완화안이며 현행법이 아닙니다.
-      </Lead>
+      <Lead>용적률 상한, 주택 층수·연면적 한도, 주차 기준을 현행법규와 완화 기준으로 비교했습니다.</Lead>
 
       <SubTitle>현행 → 완화</SubTitle>
-      <DataTable head={['항목', '현행', '완화', '완화 시나리오']} rows={r.relaxRows} />
+      <DataTable head={['항목', '현행', '완화']} rows={r.relaxRows} />
 
       <SubTitle>주차 산정</SubTitle>
       <DataTable
@@ -29,23 +26,6 @@ export default function SiteCh02Regulation({ report }: { report: SiteReport }) {
         rows={r.scenarioRows}
         highlightRow={r.selectedRow}
       />
-
-      <SubTitle>정북 일조</SubTitle>
-      <ul className="list-disc space-y-1 pl-5 text-sm text-ink-soft">
-        {r.sunlight.map((s) => (
-          <li key={s}>{s}</li>
-        ))}
-      </ul>
-
-      <SubTitle>추가 확인 항목</SubTitle>
-      <ul className="space-y-1.5 text-sm text-ink">
-        {r.checkItems.map((c) => (
-          <li key={c} className="flex gap-2">
-            <span className="text-accent">□</span>
-            {c}
-          </li>
-        ))}
-      </ul>
     </div>
   )
 }

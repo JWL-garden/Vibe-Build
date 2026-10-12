@@ -1,18 +1,12 @@
 import MassView from '@/components/three/MassView'
-import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from '@/lib/calc'
+import { LIMIT_LABEL } from '@/lib/calc'
 import { formatNumber } from '@/lib/format'
-import type { ExpansionCheck, SiteReport } from '@/types'
-import { Badge, DataTable, Lead, StatCard, SubTitle } from '../ReportParts'
-
-const TONE: Record<ExpansionCheck['status'], 'accent' | 'danger' | 'neutral'> = {
-  pass: 'accent',
-  fail: 'danger',
-  check: 'neutral',
-}
+import type { SiteReport } from '@/types'
+import { DataTable, Lead, StatCard, SubTitle } from '../ReportParts'
 
 const UNIT_TYPE = { S: '소형 (전용 30㎡ 이하)', M: '중형 (60㎡ 이하)', L: '대형 (60㎡ 초과)' } as const
 
-/** 3장: 증축 계획안 — 증축 면적은 expansion.addGfaM2(주차 기준) 그대로. 증축안이 없으면 대안 검토 */
+/** 3장: 증축(재건축) 계획안 — 증축 면적은 expansion.addGfaM2 그대로. 증축안이 없으면 대안 검토 */
 export default function SiteCh03Plan({ report }: { report: SiteReport }) {
   const { plan, summary, analysis } = report
   const f = (v: number) => formatNumber(v, 2)
@@ -23,9 +17,9 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
     return (
       <div>
         <Lead>
-          기존 건물을 철거하고 복합 완화(ALL) 규칙으로 같은 대지에 새로 지었을 때의 최대 규모입니다. 신축 연면적은 용적률
-          한도, 주택 층수 한도(최대 건축면적 × 층수), 주택 연면적 한도 중 가장 작은 값입니다
-          {r.rules.rebuild.pilotiFloor1 ? ' (1층 필로티 주차 + 2층부터 주택 가정)' : ''}.
+          기존 건물을 철거하고 같은 대지에 다시 지을 때의 계획안입니다. 신축 연면적은 용적률 한도, 주택 층수 한도(최대 건축면적 × 층수),
+          주택 연면적 한도 중 가장 작은 값으로 정했으며, 기존 건물과 증축분을 합친 전체를 새로 짓는 것으로 봅니다
+          {r.rules.rebuild.pilotiFloor1 ? ' (1층 필로티 주차 + 2층부터 주택).' : '.'}
         </Lead>
 
         <div className="mt-6 grid grid-cols-2 gap-4">
@@ -71,9 +65,6 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
             <li key={x}>{x}</li>
           ))}
         </ul>
-
-        <SubTitle>검토 항목</SubTitle>
-        <Checks checks={r.checks} />
       </div>
     )
   }
@@ -95,8 +86,6 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
             </li>
           ))}
         </ul>
-        <SubTitle>검토 항목</SubTitle>
-        <Checks checks={e.plan.checks} />
       </div>
     )
   }
@@ -156,25 +145,6 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
         numeric={[2, 3]}
         rows={p.addUnits.map((u, i) => [`${i + 1}`, UNIT_TYPE[u.type], `${f(u.netAreaM2)}㎡`, `${f(u.spaces)}대`])}
       />
-
-      <SubTitle>검토 항목</SubTitle>
-      <Checks checks={p.checks} />
     </div>
-  )
-}
-
-function Checks({ checks }: { checks: ExpansionCheck[] }) {
-  return (
-    <ul className="space-y-1.5 text-sm break-inside-avoid">
-      {checks.map((c) => (
-        <li key={c.item} className="flex items-start gap-3">
-          <span className="w-20 shrink-0">
-            <Badge tone={TONE[c.status]}>{CHECK_STATUS_LABEL[c.status]}</Badge>
-          </span>
-          <span className="w-24 shrink-0 font-medium text-ink">{CHECK_LABEL[c.item]}</span>
-          <span className="text-ink-soft">{c.detail}</span>
-        </li>
-      ))}
-    </ul>
   )
 }

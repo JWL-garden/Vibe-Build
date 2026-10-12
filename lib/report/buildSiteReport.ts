@@ -22,6 +22,7 @@ import type {
   FloorUseRow,
   HousingType,
   Kpi,
+  ViewScenarioId,
   LimitingFactor,
   ReportRow,
   LandValueResult,
@@ -75,7 +76,7 @@ export function relaxationRows(analysis: SiteAnalysis, zone: string): RelaxRow[]
   return [
     {
       label: '용적률 상한',
-      note: `${zone} — 상한 교체 (배수 아님)`,
+      note: zone,
       base: `${f(base.far, 0)}%`,
       relaxed: `${f(relaxed.far, 0)}%`,
       by: RELAXED_BY,
@@ -183,7 +184,7 @@ export function floorUseRows(units: ExcelUnit[], pilotiFloor1: boolean): { rows:
   return { rows, sharedCommonM2 }
 }
 
-const FLOOR_PLATE_METHOD = { option1: '옵션1: 최상층 전유 × 0.9', option2: '옵션2: 입력 엑셀', buildingArea: '건축면적 가정' } as const
+const FLOOR_PLATE_METHOD = { option1: '옵션1: 최상층 전용 × 0.9', option2: '옵션2: 입력 엑셀', buildingArea: '건축면적 가정' } as const
 
 /** 증축안이 없을 때 제한요인별 대안 검토 문장 */
 const ALTERNATIVES: Record<LimitingFactor, string[]> = {
@@ -213,7 +214,7 @@ function planSection(analysis: SiteAnalysis): SitePlanSection {
     const r = analysis.rebuild
     return {
       kind: 'rebuild',
-      heading: '전체 재건축안 (복합 완화 규칙)',
+      heading: '전체 재건축안',
       plan: null,
       rebuild: r,
       addSpaces: null,
@@ -245,10 +246,19 @@ function planSection(analysis: SiteAnalysis): SitePlanSection {
 }
 
 /** 1장 토지가액 (runAll의 analysis.land를 표시용으로만 바꾼다) */
-function landSection(land: LandValueResult): SiteLandSection {
+/** 필지 PNU(19자리)를 대지위치 주소로: 대표 건물 주소의 동까지 + 본번-부번 */
+function addressOfPnu(pnu: string, siteAddress: string): string {
+  const head = siteAddress.replace(/\s*산?\d+(-\d+)?번지\s*$/, '')
+  const mountain = pnu[10] === '1' ? '산' : ''
+  const main = Number(pnu.slice(11, 15))
+  const sub = Number(pnu.slice(15, 19))
+  return `${head} ${mountain}${main}${sub > 0 ? `-${sub}` : ''}번지`
+}
+
+function landSection(land: LandValueResult, siteAddress: string): SiteLandSection {
   const won = formatWonExact
   const areaSource = landAreaSource(land)
-  const rows: ReportRow[] = land.lots.map((l) => [l.pnu, `${f(l.areaM2)}㎡ (${areaSource})`, `${f(l.pricePerM2, 0)}원/㎡`, won(l.valueWon)])
+  const rows: ReportRow[] = land.lots.map((l) => [addressOfPnu(l.pnu, siteAddress), `${f(l.areaM2)}㎡ (${areaSource})`, `${f(l.pricePerM2, 0)}원/㎡`, won(l.valueWon)])
   if (land.lots.length > 1) rows.push(['합계', `${f(land.areaUsedM2)}㎡`, '', won(land.valueWon!)])
   const notes = [...land.reasons]
   if (land.siteAreaM2 !== null && land.basis !== 'estimated') {
@@ -433,13 +443,13 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ['다가구 가구별 전용면적', `연면적 × ${pk.multiFamilyNetRatio} ÷ 가구수`, '기준 엑셀 가정'],
     ['증축 층고', `${f(base.floorHeightM, 1)}m`, '프로젝트 가정'],
     [
-      '전체 재건축 (REBUILD)',
-      `ALL 규칙, 최대 건축면적 = 대지 × 건폐율 ${f(analysis.rebuild.bcrLimitPercent, 0)}%, 전용률 ${base.rebuild.netRatio}, 세대당 최소 전용 ${pk.minUnitNetM2}㎡, ${base.rebuild.pilotiFloor1 ? '1층 필로티 주차 + 2층부터 주택' : '1층부터 주택'}`,
+      '전체 재건축',
+      `복합 완화 규칙, 최대 건축면적 = 대지 × 건폐율 ${f(analysis.rebuild.bcrLimitPercent, 0)}%, 전용률 ${base.rebuild.netRatio}, 세대당 최소 전용 ${pk.minUnitNetM2}㎡, ${base.rebuild.pilotiFloor1 ? '1층 필로티 주차 + 2층부터 주택' : '1층부터 주택'}`,
       '기준 엑셀 빈땅_신축시나리오 산식 / 건폐율 서울시 조례 / 필로티는 프로젝트 가정',
     ],
     [
       '증축층 바닥면적',
-      `옵션1: 전유면적이 있는 최상층의 전유 × ${base.floorPlate.ratio} (최상층에 층 지정 공용면적이 없으면 지붕 확인 — ${base.floorPlate.nonFlatRoofKeywords.join('·')} 표기는 증축 불가) / 옵션2: 가정값 입력 엑셀 값`,
+      `옵션1: 전용면적이 있는 최상층의 전용 × ${base.floorPlate.ratio} (최상층에 층 지정 공용면적이 없으면 지붕 확인 — ${base.floorPlate.nonFlatRoofKeywords.join('·')} 표기는 증축 불가) / 옵션2: 가정값 입력 엑셀 값`,
       `적용 ${base.floorPlate.method === 'option1' ? '옵션1' : '옵션2'} — 2026-10-08 결정 (프로젝트 가정)`,
     ],
     [
@@ -458,7 +468,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
   const sourceRows: ReportRow[] = [
     ['대상 건축물 표제부 (대지·건축·연면적, 용적률, 높이, 층수, 구조, 사용승인일, 승강기, 주차대수)', sheet('건축물대장_2단계'), '기준 엑셀'],
     ['용도지역', sheet('지역지구구역_2단계'), '기준 엑셀'],
-    ['층별·호별 전유/공용 면적, 주택 층수·면적', sheet('전유공용면적_2단계'), '기준 엑셀'],
+    ['층별·호별 전용/공용 면적, 주택 층수·면적', sheet('전유공용면적_2단계'), '기준 엑셀'],
     ['호별 주차 산정 기준 (제5호·제4호·제3호·제2-1호)', sheet('주차대수_세대별'), '기준 엑셀'],
     ['전용률, 완화 후 허용연면적·주차 검토 (엑셀 대조 정답표)', sheet('용적률완화_주차검토'), '계산 엔진과 자동 대조 (±0.01)'],
     [
@@ -486,7 +496,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       analysis.selected.floorPlate.detail,
     ],
     ['1층 필로티 여부', 'lib/data/siteInputs.json', input?.pilotiFloor1 ? '필로티(가정)' : '필로티 아님'],
-    ['법규 기준·완화 시나리오', 'lib/rules (서울시 조례 기준 + 프로젝트 가정)', '현행법 아님 (ALL·REBUILD)'],
+    ['법규 기준', 'lib/rules (건축법 시행령·서울시 조례 + 8·13 대책 완화 기준)', '현행 법규와 완화 기준을 비교'],
     ['수익성 가정값 (값·범위·등급·출처)', "가정값 입력 엑셀 '가정값' 시트", '출처표: docs/assumption-sources.md'],
     [
       '임대 사례 (연립·다세대 전월세 실거래)',
@@ -496,11 +506,12 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
   ]
 
   return {
-    scenarioRows: viewScenarios.map((sc) => [
-      `${sc.id} ${sc.name}`,
+    // 현행 법규 + 이 보고서의 시나리오만 (2026-10-12)
+    scenarioRows: viewScenarios.filter((sc) => sc.id === 'BASE' || sc.id === analysis.scenarioId).map((sc) => [
+      sc.id === 'BASE' ? '현행 법규' : sc.name,
       sc.kind === 'rebuild' ? `${sc.rulesId} 규칙 + 기존 건물 철거 후 신축` : describeOverrides(getScenario(sc.rulesId).overrides),
       sc.rationale,
-      sc.isAssumption ? '프로젝트 가정' : '현행',
+      sc.isAssumption ? '완화 기준' : '현행',
     ]),
     ruleRows,
     sourceRows,
@@ -528,7 +539,6 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ],
     disclaimer: [
       '본 보고서는 기준 엑셀 자료와 예시 가정값 기반의 개략 검토이며 투자 권유가 아닙니다. 실제 사업성은 정밀 조사와 세무·법률·감정평가 전문가 검토에 따라 달라질 수 있습니다.',
-      '법규 완화 시나리오(ALL·REBUILD)는 프로젝트에서 가정한 정책안이며 현행법이 아닙니다.',
       '주차 기준 증축 면적은 기존 주차 여유 범위의 개략 산정이며, 주차 추가 확보 안은 대지 내 배치 가능 여부를 별도로 확인해야 합니다.',
       '실제 증축 가능성은 지구단위계획, 가로구역 높이제한, 고도지구, 주차장 기준, 구조안전 등에 따라 달라집니다.',
       '토지가액은 개별공시지가 기준(시세 아님)이고, 건물가치는 예시 가정값 기반 원가 추정으로 감정평가가 아닙니다.',
@@ -540,7 +550,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
 /** 재건축 2장 추가 확인 항목 (고정) */
 const REBUILD_CHECK_ITEMS = [
   '지구단위계획·가로구역별 최고높이·고도지구 등 높이 제한',
-  '기존 세대 이주·철거 일정과 구분소유자 동의 (집합건물이면 관리단 결의)',
+  '기존 세대 이주·철거 일정과 임차인 보상',
   '신축 시 현행 건축·주차·소방 기준 전체 재적용 여부',
 ]
 
@@ -564,7 +574,7 @@ function rebuildScenarioRow(r: RebuildResult, name: string): ReportRow {
   const verdict = { possible: '가능', check: '확인 필요', impossible: '불가' }[r.verdict]
   const diff = r.gfaM2 - r.existing.gfaM2
   return [
-    `REBUILD ${name}`,
+    name,
     `${f(r.farLimitPercent, 0)}% / 신축 한도 ${f(r.farGfaM2)}㎡`,
     `법정 ${f(r.parking.required)}대 (${r.households}세대, 확보 확인 필요)`,
     `한도 ${f(r.rules.housing.maxAreaM2[r.housingType], 0)}㎡ ${r.rules.housing.areaExclusive[r.housingType] ? '미만' : '이하'}`,
@@ -573,6 +583,17 @@ function rebuildScenarioRow(r: RebuildResult, name: string): ReportRow {
     LIMIT_LABEL[r.limitingFactor],
   ]
 }
+
+/** 표지·툴바에 표시하는 시나리오 이름 (2026-10-12 결정 — ALL·REBUILD 코드와 '프로젝트 가정'은 표시하지 않는다) */
+export const REPORT_SCENARIO_LABEL: Record<ViewScenarioId, string> = {
+  BASE: '현행 법규',
+  ALL: '일조권 사선제한 및 층수제한 완화',
+  REBUILD: '일조권 사선제한 및 층수제한 완화 + 전체 재건축',
+}
+
+/** 보고서 모든 쪽 바닥글 문구 (2026-10-12 결정) */
+export const REPORT_FOOTER =
+  '본 보고서는 국가 공공데이터 및 공식 행정 공부(건축물·토지대장 등)를 기준으로 작성된 검토 자료입니다. 단, 현장 여건에 따라 실제와 차이가 발생할 수 있으며 투자 권유를 의미하지 않습니다.'
 
 export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdAt: string): SiteReport {
   const { site, units, siteInput } = data
@@ -587,6 +608,15 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
 
   // 0장 표지
   const p = plan.plan
+  /** 표지 결론 한 문장 — 시나리오 코드(ALL·REBUILD)와 '프로젝트 가정'은 쓰지 않는다 */
+  const reportConclusion = () => {
+    const label = REPORT_SCENARIO_LABEL[analysis.scenarioId]
+    const prefix = `${scenario.name}(${analysis.scenarioId})`
+    if (plan.kind !== 'rebuild' && judge.status === 'possible' && p) {
+      return `${label} 적용 시 +${p.addFloors}층(${f(p.addGfaM2, 1)}㎡) 증축이 가능합니다. 제한요인: ${LIMIT_LABEL[p.limitingFactor]}`
+    }
+    return judge.reason.startsWith(prefix) ? label + judge.reason.slice(prefix.length) : judge.reason
+  }
   const verdictText = { possible: '증축 가능', conditional: '조건부 가능', check: '확인 필요', impossible: '증축 불가', pending: '판정 대기' }[judge.status]
   const kpis: Kpi[] = plan.kind === 'rebuild' ? rebuildKpis(rb, verdictText, analysis.scenarioId) : [
     {
@@ -616,19 +646,25 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
 
   const fin = analysis.finance.byScenario[analysis.finance.selected]
   if (fin.status === 'ok') {
-    const label = FINANCE_SCENARIO_LABEL[analysis.finance.selected]
     const c = analysis.finance.byScenario.CONSERVATIVE.metrics.roi
     const o = analysis.finance.byScenario.OPTIMISTIC.metrics.roi
     const pct = (v: number | null) => (v === null ? '–' : formatRate(v, 1))
     kpis.splice(
       1,
       3,
-      { label: '총사업비', value: formatWon(fin.totalCostWon), caption: `자기자본 ${formatWon(fin.equityWon)} · 대출 ${formatWon(fin.loanWon)}` },
-      { label: `ROI (${label})`, value: pct(fin.metrics.roi), caption: `보수 ${pct(c)} ~ 낙관 ${pct(o)}` },
+      {
+        label: '총사업비',
+        value: formatWon(fin.totalCostWon),
+        caption:
+          fin.totalCostWon && fin.equityWon !== null && fin.loanWon !== null
+            ? `자기자본 ${formatRate(fin.equityWon / fin.totalCostWon, 0)} · 대출 ${formatRate(fin.loanWon / fin.totalCostWon, 0)}`
+            : null,
+      },
+      { label: '연간 수익률(ROI)', value: pct(fin.metrics.roi), caption: `보수 ${pct(c)} ~ 낙관 ${pct(o)}` },
       {
         label: '투자회수기간',
         value: fin.metrics.paybackYears === null ? '–' : `${f(fin.metrics.paybackYears, 1)}년`,
-        caption: `연 NOI +${formatWon(fin.revenue.noiIncreaseWon)} · ${verdictText}`,
+        caption: null,
       },
     )
   }
@@ -638,37 +674,30 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
   const h = e.housing
   const stats: Kpi[] = [
     {
-      label: '현재 용적률',
+      label: '용적률',
       value: `${f(base.far.currentFarPercent)}%`,
-      caption: `현행 상한 ${f(base.far.farLimitPercent, 0)}%`,
+      caption: `현행 용적률 최대 ${f(base.far.farLimitPercent, 0)}%`,
     },
     {
-      label: '미활용 연면적 (현행)',
+      label: '추가확보 가능면적',
       value: `${f(base.far.remainingGfaM2)}㎡`,
-      caption: `완화(${f(analysis.byScenario.ALL.far.farLimitPercent, 0)}%) 시 ${f(analysis.byScenario.ALL.far.remainingGfaM2)}㎡`,
+      caption: `용적률 완화 시 ${f(analysis.byScenario.ALL.far.remainingGfaM2)}㎡`,
     },
     {
       label: '주택 현황',
       value: h.housingType ? `${h.housingFloors}개층 · ${f(h.housingAreaM2)}㎡` : '해당 없음',
-      caption: h.housingType ? `${h.housingType} (전유+공용)` : null,
+      caption: h.housingType ? `${h.housingType} (전용+공용)` : null,
     },
-    { label: '주차', value: `${f(e.parking.actual)}대`, caption: `현재 법정 ${f(e.parking.required.total)}대` },
+    { label: '주차', value: `${f(e.parking.actual)}대`, caption: `법정 ${f(e.parking.required.total)}대\n여유 주차 ${f(e.parking.spare)}대` },
   ]
-  const notes = [`건축물 숫자는 ${data.sourceLabel}의 '건축물대장_2단계'·'전유공용면적_2단계' 시트 기준입니다.`]
-  if (siteInput?.pilotiFloor1) {
-    notes.push(
-      floor.rows.some((r) => r.floorLabel === '1층')
-        ? '1층은 필로티(주차 전용)로 가정했습니다 — 전유 호가 없습니다.'
-        : '1층은 필로티(주차 전용, 가정)로 전유·공용면적 자료가 없어 표에 나오지 않습니다.',
-    )
-  }
+  const notes: string[] = []
   // 외필지는 행정상 묶인 필지일 수 있어 문제로 보지 않는다 (2026-10-08 결정 7) — 토지가액만 '추정'
   if (site.outsideParcels > 0 && analysis.land.basis === 'estimated') {
     notes.push(`외필지 ${site.outsideParcels}개 — 필지 목록이 없어 토지가액은 대표 필지 공시지가 × 대장 대지면적으로 추정했습니다.`)
   }
 
   // 2장 법규 검토
-  const relaxRows = relaxationRows(analysis, zone).map((r) => [`${r.label} (${r.note})`, r.base, r.relaxed, r.by])
+  const relaxRows = relaxationRows(analysis, zone).map((r) => [`${r.label} (${r.note})`, r.base, r.relaxed])
   const pr = e.rules.parking
   const req = e.parking.required
   const [s1, s2, s3] = pr.perUnit
@@ -687,19 +716,21 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
   parkingRows.push(
     ['현재 법정 대수', '주택은 세대기준·주택법 중 큰 값 + 비주택 합산', `${f(req.total)}대`],
     ['실제 주차 (대장)', '', `${f(e.parking.actual)}대`],
-    ['기존 여유', '실제 − 법정', `${f(e.parking.spare)}대`],
+    ['여유 주차대수', '실제 − 법정', `${f(e.parking.spare)}대`],
   )
   const parkingNote = req.mixedUse
     ? '복합용도 건축물: 비주택 용도별로 소수 첫째자리까지 산정(둘째자리 이하 절사) 후 합산, 주택(제5호)은 별도 합산 (서울시 주차장 조례 별표2 비고4)'
     : '서울시 주차장 조례 별표2 기준'
 
-  const scenarioRows: ReportRow[] = viewScenarios.map((sc) => {
+  // 현행법규(BASE) + 이 보고서의 시나리오(증축 = ALL, 재건축 = REBUILD)만 보인다 — 다른 완화안 행은 두지 않는다 (2026-10-12)
+  const shownScenarios = viewScenarios.filter((sc) => sc.id === 'BASE' || sc.id === analysis.scenarioId)
+  const scenarioRows: ReportRow[] = shownScenarios.map((sc) => {
     if (sc.kind === 'rebuild') return rebuildScenarioRow(rb, sc.name)
     const x = analysis.byScenario[sc.rulesId]
     const o = x.parkingOption
     const verdict = { possible: '가능', check: '확인 필요', impossible: '불가' }[x.plan.verdict]
     return [
-      `${sc.id} ${sc.name}`,
+      sc.id === 'BASE' ? '현행법규' : sc.name,
       `${f(x.far.farLimitPercent, 0)}% / ${f(x.far.remainingGfaM2)}㎡`,
       `${f(x.parking.plan.gfaM2)}㎡`,
       x.housing.limit.applies ? `${f(x.housing.limit.areaGfaM2!)}㎡` : '미적용',
@@ -747,12 +778,12 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
       jibunAddress: site.address,
       createdAt,
       scenarioId: analysis.scenarioId,
-      scenarioLabel: `${analysis.scenarioId} ${scenario.name}${scenario.isAssumption ? ' (프로젝트 가정)' : ''}`,
-      sourceLabel: `${data.sourceLabel} · 개략 검토 · 완화 시나리오는 프로젝트 가정 · 투자 권유 아님`,
+      scenarioLabel: REPORT_SCENARIO_LABEL[analysis.scenarioId],
+      sourceLabel: REPORT_FOOTER,
     },
     summary: {
       kpis,
-      conclusion: judge.reason,
+      conclusion: reportConclusion(),
       // 재건축은 그림에서 기존 층수 대비 늘어난 층만 강조한다
       addFloors: plan.kind === 'rebuild' ? Math.max(0, rb.totalFloors - site.floorsAbove) : (p?.addFloors ?? 0),
       floorsAbove: site.floorsAbove,
@@ -763,14 +794,14 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
       sharedCommonM2: floor.sharedCommonM2,
       stats,
       notes,
-      land: landSection(analysis.land),
+      land: landSection(analysis.land, site.address),
     },
     regulation: {
       relaxRows,
       parkingRows,
       parkingNote,
       scenarioRows,
-      selectedRow: scenarioRows.findIndex((r) => r[0].startsWith(`${analysis.scenarioId} `)),
+      selectedRow: analysis.scenarioId === 'BASE' ? 0 : scenarioRows.length - 1,
       sunlight,
       checkItems,
     },

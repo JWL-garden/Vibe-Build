@@ -10,20 +10,17 @@ export function Lead({ children }: { children: React.ReactNode }) {
   return <p className="mt-6 text-sm leading-relaxed text-ink-soft">{children}</p>
 }
 
-/** 단순 표: 첫 줄은 머리글, 숫자 열은 오른쪽 정렬 */
-export function DataTable({
-  head,
-  rows,
-  numeric = [],
-  highlightRow,
-}: {
+export interface DataTableProps {
   head: string[]
   rows: React.ReactNode[][]
   /** 오른쪽 정렬할 열 번호 */
   numeric?: number[]
   /** 강조할 행 번호 */
   highlightRow?: number
-}) {
+}
+
+/** 단순 표: 첫 줄은 머리글, 숫자 열은 오른쪽 정렬 */
+export function DataTable({ head, rows, numeric = [], highlightRow }: DataTableProps) {
   return (
     <table className="w-full border-collapse text-sm break-inside-avoid">
       <thead>
@@ -56,7 +53,7 @@ export function StatCard({ label, value, caption }: { label: string; value: stri
     <div className="rounded-card border border-line px-4 py-4 break-inside-avoid">
       <p className="text-xs text-ink-faint">{label}</p>
       <p className="mt-1.5 font-serif text-xl font-bold text-ink">{value}</p>
-      {caption && <p className="mt-1 text-xs text-ink-soft">{caption}</p>}
+      {caption && <p className="mt-1 whitespace-pre-line text-xs text-ink-soft">{caption}</p>}
     </div>
   )
 }

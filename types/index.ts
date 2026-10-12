@@ -1196,6 +1196,8 @@ export interface SiteAnalysis {
     sensitivity: SiteSensitivityResult | null
     /** 공사비 실적 요약 (기준 엑셀 '하우빌드 공사비') */
     construction: ConstructionCostSummary
+    /** 공사 기간: 층수별·연면적대별 실적 표와 이 사업의 추정 (층별·면적별 실적으로 갈음) */
+    duration: { tables: ConstructionDurationSummary; estimate: DurationEstimate | null }
   }
 }
 
@@ -1458,6 +1460,11 @@ export interface SiteScheduleSection {
   steps: ScheduleStep[]
   /** 전체 기간 (개월) */
   totalMonths: number
+  /** 층별·면적별 공사 기간 실적 — [구분, 사례, 중위, 빠름(25%) ~ 느림(75%)] 표 (공사 단계 기간의 근거) */
+  durationFloorRows: ReportRow[]
+  durationAreaRows: ReportRow[]
+  /** 이 사업에 적용한 공사 기간 설명 (예: '하우빌드 실적 지상 5~7층 … 중앙값 8.5개월') */
+  durationNote: string
   notes: string[]
 }
 
@@ -1524,6 +1531,35 @@ export interface ConstructionStat {
   monthsMedian: number | null
 }
 
+/** 공사 기간 한 집단의 통계 (개월) */
+export interface DurationStat {
+  label: string
+  count: number
+  /** 중앙값 · 하위(빠름) 사분위 · 상위(느림) 사분위 */
+  median: number | null
+  p25: number | null
+  p75: number | null
+}
+
+/** 층수별·연면적대별 공사 기간 (하우빌드 실적) */
+export interface ConstructionDurationSummary {
+  byFloors: DurationStat[]
+  byArea: DurationStat[]
+  /** 층당 공사 기간 (개월/층) — 증축 층수 환산용 */
+  perFloor: DurationStat
+}
+
+/** 이 사업의 공사 기간 추정 (개월) */
+export interface DurationEstimate {
+  base: number
+  /** 보수 = 상위 사분위(더 길다) */
+  conservative: number
+  /** 낙관 = 하위 사분위 */
+  optimistic: number
+  count: number
+  basis: string
+}
+
 export interface ConstructionCostSummary {
   /** 신축 단가에 적용한 집단 (표본이 없으면 null) */
   applied: ConstructionStat | null
@@ -1551,8 +1587,10 @@ export interface SiteScenarioSection {
   cashflow: CashflowYear[]
   /** [연차, NOI 증가, 누적 순증, 안 함 누적, 함 누적] — 기준 시나리오 */
   cashflowRows: ReportRow[]
-  /** [시나리오, NPV, IRR, 회수 연차, 10년 말 누적 순증] */
+  /** [시나리오, NPV, IRR, 회수 연차, 기간 말 누적 순증] */
   cashflowScenarioRows: ReportRow[]
+  /** 현금흐름 기간 (년) */
+  years: number
   notes: string[]
 }
 
@@ -1586,7 +1624,7 @@ export interface SiteFinanceSection {
   inputNotes: string[]
   /** 공사비 실적 근거 (기준 엑셀 '하우빌드 공사비') — 4장 표시 */
   construction: {
-    /** [집단, 현장수, ㎡당(연면적, 2026 환산) 중앙값, 평당(연면적) 중앙값, 평당(공사면적) 중앙값, 공사기간 중앙값] */
+    /** [집단, ㎡당(연면적, 2026 환산) 중앙값, 평당(연면적) 중앙값, 평당(공사면적) 중앙값, 공사기간 중앙값] */
     rows: ReportRow[]
     /** 적용 집단 행 번호 (없으면 -1) */
     appliedRow: number

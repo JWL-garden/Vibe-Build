@@ -1,8 +1,8 @@
 // 보고서 7장 리스크 — 규칙 기반 (설계서 7-1: runAll 결과·기준 엑셀 값에서만 만든다, AI 호출 없음)
 // 각 규칙은 "조건 → 위험도 → 설명(숫자 포함) → 대응 방안"이고, 판단 기준값(경과연수 30년·대출비율 60% 등)은 아래 RISK_RULE에 둔다.
 
-import { LIMIT_LABEL } from '@/lib/calc'
 import { formatNumber, formatRate, formatWon } from '@/lib/format'
+import { RELOCATION_MONTHS } from '@/lib/rules/projectSchedule'
 import type { Risk, SiteAnalysis, SiteData, SiteRiskSection } from '@/types'
 
 /** 위험도 판단 기준 (프로젝트 가정 — 설계서 7-1 [7-1]) */
@@ -55,35 +55,7 @@ export function buildSiteRisks(data: SiteData, analysis: SiteAnalysis): SiteRisk
     })
   }
 
-  // 2. 제도 미시행 — 완화 시나리오는 프로젝트 가정 (설계서 6-3)
-  if (analysis.scenarioId !== 'BASE') {
-    const baseOk = analysis.byScenario.BASE.plan.addGfaM2 > 0 && analysis.byScenario.BASE.plan.verdict !== 'impossible'
-    const basePlan = analysis.byScenario.BASE.plan
-    risks.push({
-      title: '법규 완화 미시행 (프로젝트 가정)',
-      level: baseOk && basePlan.verdict === 'possible' ? '중간' : '높음',
-      description: `이 보고서의 규모는 8·13 대책 등 완화안을 가정한 결과이며 현행법이 아닙니다. 현행 법규(BASE)에서는 ${
-        baseOk && basePlan.verdict === 'possible'
-          ? `+${basePlan.addFloors}층(+${formatNumber(basePlan.addGfaM2, 1)}㎡)이 가능합니다.`
-          : `증축이 "${basePlan.verdict === 'impossible' ? '불가' : '확인 필요'}"이며 제한 요인은 ${LIMIT_LABEL[basePlan.limitingFactor]}입니다.`
-      }`,
-      mitigation: '시행령·조례 개정 시기와 최종 내용(층수·연면적·일조 완화 범위)을 확인하고, 착공 판단은 현행 법규 결과를 최소 기준으로 두세요. 개정 전에는 현행 시나리오로 병기해 의사결정하세요.',
-    })
-  }
-
-  // 3. 구분소유·동의 — 집합건축물 (T1·T2는 다세대 → 옥상 증축은 공용부분 변경)
-  if (units.length > 1 || site.households > 1) {
-    risks.push({
-      title: '구분소유자 동의·권리관계',
-      level: '높음',
-      description: `${site.households > 0 ? site.households : units.length}세대(호) 규모의 공동주택입니다. ${
-        rebuild
-          ? '철거 후 재건축은 구분소유자의 재건축 결의(법정 비율 동의)와 이주·보상 합의가 선행되어야 합니다.'
-          : '옥상 등 공용부분을 쓰는 증축은 구분소유자 전원 또는 법정 비율의 동의, 증축 세대의 소유 귀속이 먼저 정리되어야 합니다.'
-      } 이 보고서는 사업주체를 대표 1인으로 가정했습니다.`,
-      mitigation: '등기부·집합건축물대장 전유부로 소유 구조를 확인하고, 동의 요건은 법률 전문가에게 확인하세요. 공동 사업이면 지분·수익 배분 방식을 먼저 합의하세요.',
-    })
-  }
+  // (2026-10-12) 법규 완화 미시행·구분소유자 동의 리스크는 두지 않는다 — 완화 법규는 시행되는 것으로 결정됨
 
   // 4. 일조·높이 — 정북 이격거리 미입력, 필요 이격거리
   {
@@ -173,7 +145,7 @@ export function buildSiteRisks(data: SiteData, analysis: SiteAnalysis): SiteRisk
         description: `단순 ROI는 기준 ${pct(baseRoi)}, 보수 ${pct(consRoi)}이고 투자회수기간은 기준 ${
           base.metrics.paybackYears === null ? '–' : `${formatNumber(base.metrics.paybackYears, 1)}년`
         }, 보수 ${payback === null ? '회수 불가' : `${formatNumber(payback, 1)}년`}입니다.${
-          cashflow ? ` 10년 NPV는 기준 ${formatWon(cashflow.npvWon)}, 보수 ${formatWon(cons.cashflow?.npvWon ?? null)}입니다.` : ''
+          cashflow ? ` ${cashflow.years.length}년 NPV는 기준 ${formatWon(cashflow.npvWon)}, 보수 ${formatWon(cons.cashflow?.npvWon ?? null)}입니다.` : ''
         }`,
         mitigation: '보수 시나리오에서도 회수 가능한지 확인하고, 공사비 견적·임대 사례를 보강해 불확실성을 줄인 뒤 결정하세요.',
       })
@@ -193,17 +165,23 @@ export function buildSiteRisks(data: SiteData, analysis: SiteAnalysis): SiteRisk
       }
     }
 
-    // 10. 공사 중 임대 손실·철거 — 입력 대기 항목
+    // 10. 공사 중 임대 손실 — 재건축은 계산한 금액을 보이고, 증축은 입력 대기 항목
     {
-      const pendingCosts = base.costs.filter((c) => c.amountWon === null).map((c) => c.label)
-      if (pendingCosts.length > 0 || rebuild) {
+      const loss = base.costs.find((c) => c.key === 'constructionLoss')
+      if (rebuild) {
+        const months = base.assumptions.find((a) => a.key === 'rebuildConstructionMonths')?.value ?? null
         risks.push({
-          title: rebuild ? '철거·이주·공사 중 임대 손실' : '공사 중 임대 손실·임차인',
-          level: rebuild ? '높음' : '중간',
-          description: rebuild
-            ? `재건축은 기존 ${units.length}호를 철거하므로 임차인 이주와 공사 기간(기준 시나리오 약 ${base.assumptions.find((a) => a.key === 'rebuildConstructionMonths')?.value ?? '–'}개월) 동안의 임대수입 단절이 발생합니다. 현재 사업비에서 ${pendingCosts.join('·') || '해당 항목'}은 미반영입니다.`
-            : `상부 증축 공사 중 소음·진동·동선 문제로 기존 임차인의 퇴거·임대료 협의가 생길 수 있습니다. 현재 사업비에서 ${pendingCosts.join('·')}은 입력 대기로 미반영입니다.`,
-          mitigation: '현재 임대차 계약(만기·갱신 조건)을 확인하고, 공사 중 손실과 철거비(재건축)를 가정값으로 입력해 사업비·현금흐름에 반영하세요.',
+          title: '이주·철거와 공사 중 임대 손실',
+          level: '높음',
+          description: `재건축은 기존 ${units.length}호를 철거하므로 임차인 이주·철거 ${RELOCATION_MONTHS}개월과 공사 ${months ?? '–'}개월 동안 임대수입이 끊깁니다. 공사 중 임대 손실 ${formatWon(loss?.amountWon ?? null)}(추정)을 총사업비에 포함했고, 철거비는 신축 공사비에 포함해 별도로 계산하지 않았습니다.`,
+          mitigation: '현재 임대차 계약(만기·갱신 조건)을 확인해 이주 계획과 보상 비용을 정하고, 실제 임대료로 손실 추정을 다시 계산하세요.',
+        })
+      } else if (loss && loss.amountWon === null) {
+        risks.push({
+          title: '공사 중 임대 손실·임차인',
+          level: '중간',
+          description: '상부 증축 공사 중 소음·진동·동선 문제로 기존 임차인의 퇴거·임대료 협의가 생길 수 있습니다. 현재 사업비에서 공사 중 임대 손실은 입력 대기로 미반영입니다.',
+          mitigation: '현재 임대차 계약(만기·갱신 조건)을 확인하고, 공사 중 손실을 가정값으로 입력해 사업비·현금흐름에 반영하세요.',
         })
       }
     }

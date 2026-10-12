@@ -18,7 +18,14 @@ import type {
 } from '@/types'
 import { calcExpansion } from './expansion'
 import { calcAssetValue, calcLandValue, calcSiteFinance } from './finance'
-import { summarizeConstruction, withConstructionUnitCost } from './constructionCost'
+import {
+  estimateAddFloorsMonths,
+  estimateNewBuildMonths,
+  summarizeConstruction,
+  summarizeDuration,
+  withConstructionMonths,
+  withConstructionUnitCost,
+} from './constructionCost'
 import { runSensitivity } from './sensitivity'
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from './labels'
 import { calcRebuild } from './rebuild'
@@ -117,7 +124,18 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
       }
   // 공사비 실적(기준 엑셀) → 신축 단가 가정값이 비어 있으면 채움 (사용자 입력 > 가정값 입력 엑셀 > 실적)
   const construction = summarizeConstruction(data.constructionCosts ?? [], constructionCostRule)
-  const assumptionRows = withConstructionUnitCost(data.assumptionRows, construction)
+  // 공사 기간은 층별·면적별 실적으로 갈음 (2026-10-12): 재건축 = 지상 층수·연면적, 증축 = 증축 층수 × 층당 공사 기간
+  const costRows = data.constructionCosts ?? []
+  const durationEstimate = isRebuild
+    ? rebuildOk
+      ? estimateNewBuildMonths(costRows, rebuild.totalFloors, financeInput.constructionAreaM2)
+      : null
+    : estimateAddFloorsMonths(costRows, adopted?.addFloors ?? 0)
+  const assumptionRows = withConstructionMonths(
+    withConstructionUnitCost(data.assumptionRows, construction),
+    isRebuild ? 'rebuildConstructionMonths' : 'constructionMonths',
+    durationEstimate,
+  )
   const financeByScenario = Object.fromEntries(
     FINANCE_SCENARIOS.map((fs) => [
       fs,
@@ -143,6 +161,7 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
     finance: {
       selected: 'BASE',
       construction,
+      duration: { tables: summarizeDuration(costRows), estimate: durationEstimate },
       byScenario: financeByScenario,
       sensitivity: runSensitivity({
         ...financeInput,
