@@ -14,21 +14,25 @@ const T2 = '1156011600001100019'
 const load = async (pnu: string, view: 'BASE' | 'ALL' | 'REBUILD') => runAll((await getSiteData(pnu))!, view)
 const sumCosts = (f: SiteFinanceResult) => f.costs.reduce((s, c) => s + (c.amountWon ?? 0), 0)
 
-describe('T1 ALL 증축 (+1층 53.829㎡, 3세대) — 기준 시나리오 손계산', () => {
-  it('사업비: 공사비 130,266,185 + 제반 15,000,000 + 취득세 4,116,411 + 예비비 7,469,130 + 금융 627,407(대출 80%, 금리 6.0%, 2개월) = 157,479,133원', async () => {
+describe('T1 ALL 증축 (+1층 53.829㎡ + 측면 보강 36.52㎡ = 90.349㎡, 3세대) — 기준 시나리오 손계산', () => {
+  it('사업비: 공사비(90.349㎡ ÷ 3.305785 × 800만원/평) + 제반 1,500만원 + 취득세 3.16% + 예비비 5% + 금융(대출 80%, 금리 6.0%, 2개월)', async () => {
     const f = (await load(T1, 'ALL')).finance.byScenario.BASE
     expect(f.status).toBe('ok')
     const by = Object.fromEntries(f.costs.map((c) => [c.key, c.amountWon]))
-    expect(by.construction).toBe(Math.round((53.829 / PYEONG_M2) * 8_000_000))
-    expect(by.construction).toBe(130_266_185)
+    const construction = Math.round((90.349 / PYEONG_M2) * 8_000_000)
+    expect(by.construction).toBe(construction)
+    expect(by.construction).toBe(218_644_588)
     expect(by.permit).toBe(15_000_000)
-    expect(by.tax).toBe(Math.round(130_266_185 * 0.0316))
-    expect(by.contingency).toBe(Math.round((130_266_185 + 15_000_000 + 4_116_411) * 0.05))
+    const tax = Math.round(construction * 0.0316)
+    expect(by.tax).toBe(tax)
     expect(by.constructionLoss).toBeNull() // 기존 임대 조건 입력 대기
-    expect(f.loanWon).toBe(Math.round(156_851_726 * 0.8))
-    expect(by.finance).toBe(Math.round(125_481_381 * 0.06 * (2 / 12) * 0.5))
-    expect(by.finance).toBe(627_407)
-    expect(f.totalCostWon).toBe(157_479_133)
+    const contingency = Math.round((construction + 15_000_000 + tax) * 0.05)
+    expect(by.contingency).toBe(contingency)
+    const beforeFinance = construction + 15_000_000 + tax + contingency
+    expect(f.loanWon).toBe(Math.round(beforeFinance * 0.8))
+    expect(by.finance).toBe(Math.round(Math.round(beforeFinance * 0.8) * 0.06 * (2 / 12) * 0.5))
+    expect(f.totalCostWon).toBe(beforeFinance + (by.finance as number))
+    expect(f.totalCostWon).toBe(253_591_771)
   })
 
   it('합계 검산: 항목 합 = 총사업비, 자기자본 + 대출 = 총사업비, 대출 = (금융비용 전 소계) × 대출 비율', async () => {
@@ -40,22 +44,34 @@ describe('T1 ALL 증축 (+1층 53.829㎡, 3세대) — 기준 시나리오 손�
     expect(f.loanWon).toBe(Math.round((f.totalCostWon! - finance) * loanRatio))
   })
 
-  it('수입: 3세대 × 전용 15.56㎡ (0~30㎡ 구간) × ㎡당 48,847원 × 12 → 관리비 +2% → NOI = × 0.95 × 0.90, ROI 15.2% · 회수 6.6년', async () => {
+  it('수입: 새 세대 3세대(전용 46.69㎡) + 측면 보강 전용 31.68㎡ — 모두 0~30㎡ 구간 ㎡당 48,847원 × 12, 관리비 +2%, NOI = × 0.95 × 0.90', async () => {
     const f = (await load(T1, 'ALL')).finance.byScenario.BASE
-    expect(f.project.units).toHaveLength(3)
+    expect(f.project.units).toHaveLength(3) // 측면 보강부는 세대 수에 넣지 않는다
     expect(f.project.units.every((u) => u.band === 'S')).toBe(true)
     const perM2 = f.rentBands.find((b) => b.band === 'S')!.monthlyEquivalentPerM2!
     expect(Math.round(perM2)).toBe(48_847)
     const net = f.project.units.reduce((s, u) => s + u.netAreaM2, 0)
-    expect(f.revenue.grossAnnualWon).toBe(Math.round(net * perM2 * 12))
-    expect(f.revenue.maintenanceWon).toBe(Math.round(net * perM2 * 12 * 0.02))
-    expect(f.revenue.noiWon).toBe(Math.round(net * perM2 * 12 * 1.02 * 0.95 * 0.9))
-    expect(f.revenue.noiWon).toBe(23_869_268)
+    expect(net).toBeCloseTo(46.6934, 3)
+    expect(f.project.sideNetM2).toBeCloseTo(31.6789, 3) // 36.52㎡ × 전용률 0.8674
+    expect(f.project.sideRentMonthlyWon).toBeCloseTo(f.project.sideNetM2 * perM2, 4)
+    const totalNet = net + f.project.sideNetM2
+    expect(f.revenue.grossAnnualWon).toBe(Math.round(totalNet * perM2 * 12))
+    expect(f.revenue.maintenanceWon).toBe(Math.round(totalNet * perM2 * 12 * 0.02))
+    expect(f.revenue.noiWon).toBe(Math.round(totalNet * perM2 * 12 * 1.02 * 0.95 * 0.9))
+    expect(f.revenue.noiWon).toBe(40_063_246)
     expect(f.revenue.noiIncreaseWon).toBe(f.revenue.noiWon) // 증축은 새 세대 NOI가 곧 증가분
     expect(f.metrics.roi).toBeCloseTo(f.revenue.noiIncreaseWon! / f.totalCostWon!, 8)
-    expect(f.metrics.roi!).toBeCloseTo(0.1517, 3)
-    expect(f.metrics.paybackYears!).toBeCloseTo(6.59, 1)
+    expect(f.metrics.roi!).toBeCloseTo(0.158, 3)
+    expect(f.metrics.paybackYears!).toBeCloseTo(6.33, 1)
     expect(f.metrics.roi! * f.metrics.paybackYears!).toBeCloseTo(1, 10)
+  })
+
+  it('측면 보강부는 일조 완화 시나리오(A·ALL)에서만 포함: C·B에서는 0', async () => {
+    const data = (await getSiteData(T1))!
+    const a = runAll(data, 'ALL').byScenario
+    expect(a.ALL.plan.sideGfaM2).toBeGreaterThan(0)
+    expect(a.A.plan.sideGfaM2).toBe(0) // A는 증축안 자체가 없음 (BASE와 같음)
+    for (const id of ['BASE', 'B', 'C'] as const) expect(a[id].plan.sideGfaM2).toBe(0)
   })
 
   it('수익 시나리오: 보수(전환율 법정 상한 5.0%, 공실 10%, 운영비 15%) < 기준 < 낙관', async () => {

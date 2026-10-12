@@ -516,7 +516,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       '현재 법정 주차 = 주택(세대기준·주택법 중 큰 값) + 비주택(용도별 시설면적 ÷ 기준면적, 복합용도는 소수 첫째자리 절사)',
       '기존 여유 = 실제 − 법정 (이미 부족한 대수는 증축 산정에서 제외, 비고5)',
       `주차 기준 최대 연면적 = 여유 주차 안에서 추가 전용이 최대가 되는 세대 조합(${s1.maxNetM2}㎡ ${s1.spaces}대 / ${s2.maxNetM2}㎡ ${s2.spaces}대 / 그 이상 ${s3.spaces}대)의 전용 합 ÷ 전용률`,
-      '증축 연면적 = min(주차 기준, 용적률 잔여, 주택 연면적 잔여) → 증축 층수 = 올림(연면적 ÷ 증축층 바닥면적) → 일조 높이·주택 층수 검토',
+      '증축 연면적 = min(주차 기준, 용적률 잔여, 주택 연면적 잔여) → 증축 층수 = 올림(연면적 ÷ 증축층 바닥면적) → 일조 높이·주택 층수 검토 → (일조 완화 시) 측면 보강부 면적(3D 모델 형상)을 용적률·주택 연면적 잔여 안에서 더함',
       `정북 필요 이격 = 높이 ${sun.lowHeightM}m 이하 ${sun.lowSetbackM}m, 초과 시 높이 × 사선 비율`,
       '토지가액 = Σ(구성 필지 면적 × 개별공시지가) — 외필지 자료가 없으면 대표 필지 공시지가 × 대장 대지면적 (추정)',
       '자산가치(원가 기준) = 토지가액 + 연면적 × 재조달단가 × 잔가율, 잔가율 = max(최저 잔가율, 1 − 경과연수 ÷ 내용연수), 증축분 = 증축 연면적 × 재조달단가',
@@ -592,7 +592,14 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     {
       label: '증축 규모',
       value: p ? `+${p.addFloors}층 · +${f(p.addGfaM2, 1)}㎡` : '증축안 없음',
-      caption: plan.kind === 'parkingOption' ? `주차 +${plan.addSpaces}대 조건` : p ? null : `제한: ${LIMIT_LABEL[e.plan.limitingFactor]}`,
+      caption:
+        plan.kind === 'parkingOption'
+          ? `주차 +${plan.addSpaces}대 조건`
+          : p
+            ? p.sideGfaM2 > 0
+              ? `측면 보강 ${f(p.sideGfaM2, 1)}㎡ 포함`
+              : null
+            : `제한: ${LIMIT_LABEL[e.plan.limitingFactor]}`,
     },
     {
       label: '추가 세대',
@@ -735,7 +742,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
 
   return {
     meta: {
-      title: `${name} 증축 사업 타당성 검토 보고서`,
+      title: `${name} ${analysis.scenarioId === 'REBUILD' ? '재건축 사업 검토 보고서' : '증축 사업 타당성 검토 보고서'}`,
       address: site.roadAddress ?? site.address,
       jibunAddress: site.address,
       createdAt,

@@ -212,6 +212,8 @@ export interface SiteFinanceInput {
   userInput?: Partial<Record<AssumptionKey, number>>
   /** 임대료 배수 (민감도용, 기본 1) — 모든 세대 월 환산 임대료에 곱한다 */
   rentFactor?: number
+  /** 측면 보강부 전용면적 (㎡) — 세대 수에는 넣지 않고 임대수입에만 더한다 (0~30㎡ 구간 ㎡당 임대료). 없으면 0 */
+  extraNetM2?: number
 }
 
 const wonR = (v: number) => Math.round(v)
@@ -245,10 +247,14 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     }
   }
   const units = newUnitNets.map(rentUnit)
+  const extraNet = input.extraNetM2 ?? 0
+  const sideBand = rentBands.find((b) => b.band === 'S')
+  const sideRentMonthly =
+    extraNet > 0 && sideBand?.monthlyEquivalentPerM2 != null ? extraNet * sideBand.monthlyEquivalentPerM2 * (input.rentFactor ?? 1) : null
   if (newUnitNets.some((n) => n > rentCompRule.bands[1].maxNetM2)) notes.push('전용 60㎡ 초과 세대는 30~60㎡ 사례로 추정했습니다.')
 
   const empty = {
-    project: { kind, gfaM2, constructionAreaM2, units },
+    project: { kind, gfaM2, constructionAreaM2, units, sideNetM2: extraNet, sideRentMonthlyWon: sideRentMonthly },
     costs: [],
     totalCostWon: null,
     loanWon: null,
@@ -282,6 +288,7 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   for (const b of rentBands.filter((x) => units.some((u) => u.band === x.band) && x.monthlyEquivalentPerM2 === null)) {
     missing.push(`임대 사례 (${b.label})`)
   }
+  if (extraNet > 0 && sideRentMonthly === null) missing.push('임대 사례 (전용 0~30㎡) — 측면 보강부')
   if (missing.length > 0) {
     return { ...empty, scenario, status: 'pending', missing, notes: [`입력 대기: ${missing.join(', ')}`] }
   }
@@ -373,7 +380,7 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   const maintRate = v('maintenanceFeePerUnit') ?? 0
   const withMaint = (rent: number) => rent * (1 + maintRate)
   const noiOf = (rent: number) => withMaint(rent) * (1 - vacancy) * (1 - opexRate)
-  const rentAnnual = units.reduce((s, u) => s + u.monthlyEquivalentWon! * 12, 0)
+  const rentAnnual = units.reduce((s, u) => s + u.monthlyEquivalentWon! * 12, 0) + (sideRentMonthly ?? 0) * 12
   const maintenance = rentAnnual * maintRate
   const gross = rentAnnual + maintenance
   const vacancyLoss = gross * vacancy
@@ -391,6 +398,9 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
       ? '관리비는 자료가 없어 임대수입에 넣지 않았습니다 (입력 대기).'
       : `관리비 수입 = 월 환산 임대료 × ${fmtPct(maintRate, 1)} (가정값 입력)`,
   )
+  if (extraNet > 0) {
+    notes.push(`측면 보강부 전용 ${extraNet.toFixed(2)}㎡는 세대 수에 넣지 않고 0~30㎡ 구간 ㎡당 임대료로 임대수입에 더했습니다 (기존 세대 확장분 가정).`)
+  }
   if (existingNoi !== null) notes.push('기존 세대 NOI는 같은 임대 사례로 추정한 값입니다 (실제 임대 조건 아님).')
   if (kind === 'rebuild') notes.push('재건축 NOI 증가 = 신축 세대 NOI − 철거되는 기존 세대 NOI(추정).')
 
@@ -403,7 +413,7 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     scenario,
     status: 'ok',
     missing: [],
-    project: { kind, gfaM2, constructionAreaM2, units },
+    project: { kind, gfaM2, constructionAreaM2, units, sideNetM2: extraNet, sideRentMonthlyWon: sideRentMonthly },
     costs,
     totalCostWon: totalCost,
     loanWon: loan,

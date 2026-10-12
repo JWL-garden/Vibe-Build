@@ -42,6 +42,7 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
           netRatio: data.review.netRatio!,
           siteInput: data.siteInput,
           floorPlateOption2M2: data.floorPlateOption2M2,
+          massSideAreaM2: data.massSideAreaM2,
         },
         getEffectiveRules(s.id),
       ),
@@ -112,6 +113,7 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
         gfaM2: adopted?.addGfaM2 ?? 0,
         constructionAreaM2: adopted?.addGfaM2 ?? 0,
         newUnitNets: adopted?.addUnits.map((u) => u.netAreaM2) ?? [],
+        extraNetM2: adopted?.sideNetM2 ?? 0,
       }
   // 공사비 실적(기준 엑셀) → 신축 단가 가정값이 비어 있으면 채움 (사용자 입력 > 가정값 입력 엑셀 > 실적)
   const construction = summarizeConstruction(data.constructionCosts ?? [], constructionCostRule)

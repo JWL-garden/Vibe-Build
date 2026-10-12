@@ -36,7 +36,7 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
                 mode={after ? 'after' : 'before'}
                 floorsAbove={summary.floorsAbove}
                 addFloors={summary.addFloors}
-                useModel={false}
+                rebuildFloors={r.verdict === 'impossible' ? 0 : r.totalFloors}
                 interactive={false}
                 className="h-36"
               />
@@ -119,6 +119,7 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
               mode={after ? 'after' : 'before'}
               floorsAbove={summary.floorsAbove}
               addFloors={p.addFloors}
+              sideAreaM2={p.sideGfaM2}
               interactive={false}
               className="h-36"
             />

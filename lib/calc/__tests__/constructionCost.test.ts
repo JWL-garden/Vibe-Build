@@ -97,6 +97,7 @@ describe('runAll — 재건축 단가에 반영', () => {
     const construction = f.costs.find((c) => c.key === 'construction')!.amountWon!
     expect(construction).toBe(Math.round(f.project.constructionAreaM2 * excel.value!))
     const all = runAll(data, 'ALL').finance.byScenario.BASE.costs.find((c) => c.key === 'construction')!.amountWon
-    expect(all).toBe(130_266_185)
+    // ALL: 새 층 53.829㎡ + 측면 보강부 36.52㎡ = 90.349㎡ → 평당 800만원
+    expect(all).toBe(Math.round((90.349 / 3.305785) * 8_000_000))
   })
 })

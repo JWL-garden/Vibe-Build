@@ -52,4 +52,7 @@ export const baseRules: Rules = {
     ratio: 0.9,
     nonFlatRoofKeywords: ['경사', '기와', '와즙', '판넬', '샌드위', '피판넬'],
   },
+
+  // 측면 보강부: 3D 모델의 REV_F{n}_SIDE (일조 사선 완화로 채우는 기존 층 측면). 일조 완화 시나리오(A·ALL)에서만 연면적에 포함
+  massSide: { includeInGfa: false },
 }

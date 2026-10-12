@@ -8,6 +8,7 @@ import assumptionsJson from '@/lib/data/inputs/assumptions.json'
 import floorPlateInputJson from '@/lib/data/inputs/floorPlate.json'
 import rentCompsJson from '@/lib/data/inputs/rentComps.json'
 import constructionJson from '@/lib/data/construction.json'
+import massAreasJson from '@/lib/data/massAreas.json'
 import landLotsJson from '@/lib/data/landLots.json'
 import landPriceJson from '@/lib/data/landPrice.json'
 import parkingReviewJson from '@/lib/data/parkingReview.json'
@@ -36,6 +37,13 @@ const registry = registryJson as BuildingRecord[]
 const examples = examplesJson as ExampleAddress[]
 /** 샘플 보고서 데이터 (손계산 예시값, 계산 엔진 완성 후 runAll 결과로 교체) */
 const sampleReports: Partial<Record<SampleId, ReportData>> = { S1: sampleReportS1 as ReportData }
+
+/** 3D 모델에서 추출한 필지의 측면 보강부(SIDE) 평면 면적 합 (㎡). 모델에 없으면 null */
+function sideAreaOf(pnu: string): number | null {
+  const item = (massAreasJson.items as { pnu: string; parts: { part: string | null; planAreaM2: number }[] }[]).find((i) => i.pnu === pnu)
+  const sides = item?.parts.filter((p) => p.part === 'SIDE') ?? []
+  return sides.length ? sides.reduce((s, p) => s + p.planAreaM2, 0) : null
+}
 
 /** 검색 비교용으로 주소를 정리: 공백·'번지'·시/구 이름·괄호 부분 제거 */
 function normalizeAddress(text: string): string {
@@ -122,5 +130,7 @@ export async function getSiteData(pnu: string): Promise<SiteData | null> {
     constructionCosts: constructionJson.items as ConstructionCostRow[],
     // 가정값 입력 엑셀 '증축층면적_옵션2' (빈칸이면 null → 옵션1)
     floorPlateOption2M2: floorPlateInputJson.items.find((i) => i.pnu === pnu)?.floorPlateM2 ?? null,
+    // 3D 모델에서 추출한 측면 보강부(SIDE) 평면 면적 합 (npm run model:trim)
+    massSideAreaM2: sideAreaOf(pnu),
   }
 }

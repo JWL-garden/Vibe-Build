@@ -62,7 +62,14 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
           conclusion={summary.conclusion}
           nextStep={null}
           massPnu={report.analysis.pnu}
-          massUseModel={report.analysis.scenarioId !== 'REBUILD'}
+          massSideAreaM2={report.plan.plan?.sideGfaM2 ?? 0}
+          massRebuildFloors={
+            report.analysis.scenarioId === 'REBUILD'
+              ? report.analysis.rebuild.verdict === 'impossible'
+                ? 0
+                : report.analysis.rebuild.totalFloors
+              : null
+          }
         />
       </ReportPage>
 

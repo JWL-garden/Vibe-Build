@@ -103,7 +103,19 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
       u.band === 'S' ? '0~30㎡' : '30~60㎡',
       u.monthlyEquivalentWon === null ? '–' : `${formatWonExact(u.monthlyEquivalentWon)}/월`,
       `${formatWon(u.depositWon)} / ${formatWon(u.monthlyWon)}`,
-    ]),
+    ]).concat(
+      f.project.sideNetM2 > 0
+        ? [
+            [
+              '측면 보강',
+              `${formatNumber(f.project.sideNetM2, 2)}㎡`,
+              '0~30㎡',
+              f.project.sideRentMonthlyWon === null ? '–' : `${formatWonExact(f.project.sideRentMonthlyWon)}/월`,
+              '기존 세대 확장분 (세대 수·인허가비 제외)',
+            ],
+          ]
+        : [],
+    ),
     revenueRows,
     kpis,
     scenarioRows: scenarios.map((x) => [

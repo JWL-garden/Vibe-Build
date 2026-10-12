@@ -383,7 +383,9 @@ d ≥ 5m           → 2 × d
 7) 층수 검토   (2026-10-07 변경) 현재 주택 층수 + addFloors 가 한도를 넘으면 한도에 맞는 층수까지 addFloors·addGFA 축소,
                한 층도 못 올리면 "주택 층수 한도 초과" → 신규 층 주택 불가(addGFA=0, 판정 "확인 필요").
                층수 검토를 일조 검토보다 먼저 해서 일조는 최종 층수로 판단
-8) 제한요인    = 최소값을 만든 항목: parking | far | housingArea | housingFloors | sunlight | other
+8) (2026-10-12) 측면 보강부 = rules.massSide.includeInGfa(일조 완화 A·ALL)이고 새 층이 1개층 이상이면, 3D 모델에서 추출한 SIDE 평면 면적을
+               min(용적률 잔여 − addGFA, 주택 연면적 잔여 − addGFA) 범위 안에서 addGFA에 더한다 (세대 수·층수는 그대로, 사업비·임대수입에는 반영)
+9) 제한요인    = 최소값을 만든 항목: parking | far | housingArea | housingFloors | sunlight | other
 출력: addUnits, addNetArea, addGFA, addFloors, newTotalFloors, newHeight, newFAR,
       limitingFactor, parkingOption(주차 추가 확보 시 안), checks[](항목별 통과/불가/확인필요), 근거 문장
 ```
@@ -608,13 +610,18 @@ financeScenarios = [
 ### 7-3. 좌표 규칙
 - 대상 건물 중심 (0,0), 미터 단위. x=동쪽, −z=북쪽, y=높이
 
-### 7-3b. (2026-10-08) GLB 매스 모델 사용
+### 7-3b. (2026-10-12) GLB 매스 모델 v4 사용
 
-- 모델: `public/models/261008_sunlight_test3.glb` (사용자 제작 테스트, 원본 `../261008_sunlight_test3.glb`). 노드 이름 규칙 `{PNU 19자리}_{EXIST|REV}_F{층}` — 토지 PNU(대지 = 1)라 앱 PNU(대지 = 0)와 11번째 자리만 다름 → `lib/geo/massModel.ts parcelKey()`로 비교
-- 현재 모델에 든 필지: 104-10(T1, EXIST 1~5 · REV 6~8), 110-21, 289-3. **T2(110-19)는 없음 → 일러스트**
-- 표시: 증축 전 = 대상 EXIST / 증축 후 = EXIST + REV **아래층부터 계산 엔진 증축 층수만큼** (`visibleRevFloors`, 숫자는 runAll 결과만). 모델 층수와 다르면 "3D 모델 증축 n개층 중 계산 결과 m개층 표시". 주변 필지 EXIST는 흐린 흰색, 주변 REV는 숨김. 재건축(REBUILD)은 모델이 증축안이라 일러스트
-- 좌표: TM 절대좌표 → 대상 필지 중심 (0,0)·바닥 y=0으로 이동 (7-3 규칙). 카메라 **북서쪽 위 45° 조감**(2026-10-08 변경, `lib/geo/cameraFit.ts MASS_VIEW`), 대상 건물(기존층 + 표시 증축층)이 화면 비율에 맞게 가득 차도록 거리·중심 자동 조정, 전·후 같은 범위, 방위는 화면 오른쪽 위 N 표시, 조명도 북서쪽
-- 컴포넌트: `components/three/ParcelMassView.tsx`(three.js, 인쇄 시 PNG 스냅샷) ← `MassView.tsx`(next/dynamic ssr:false, 모델 없으면 `BuildingIllustration`) — 분석 화면 3D 매스, 보고서 표지·3장
+- 모델: `public/models/261012_dangsan_sunlight_v4_T1T2.glb` — 원본 `../261012_dangsan_sunlight_v4.glb`(약 9.2MB, 835동)에서 T1·T2와 반경 165m 안 주변·지형만 남기고 primitive를 합친 경량판(약 1.7MB). 재생성: `npm run model:trim`(`scripts/trim-mass-model.mjs`, @gltf-transform 사용). 노드 이름 규칙 `{PNU 19자리}_{EXIST|REV}_F{층}[_SIDE|_TOP]` + `TERRAIN`. 필지 비교는 `lib/geo/massModel.ts parcelKey()`(11번째 자리 제외)
+- 모델에 든 대상 필지: 104-10(T1, EXIST 1~5 · REV F04·F05 SIDE + F06 TOP), 110-19(T2, EXIST 1~6 · REV F04~F06 SIDE + F07 TOP). 주변 EXIST 835동
+  - **TOP** = 기존 최상층 위의 새 층(증축 층수에 해당) / **SIDE** = 일조 사선으로 물러난 기존 층의 측면 보강부(기존 층과 같은 높이)
+  - (2026-10-12 결정) **SIDE 면적은 증축 연면적에 포함**한다 — 모델 형상에서 평면 면적을 추출(`lib/data/massAreas.json`: T1 36.52㎡, T2 83.98㎡)해 5-3 7)단계에서 일조 완화 시나리오(A·ALL)에만 더한다
+- 표시: 증축 전 = 대상 EXIST(회색) / 증축 후 = EXIST + REV(주황). REV는 계산 엔진 증축 층수가 0이면 모두 숨기고, 1 이상이면 (기존 최상층 + 증축 층수)까지의 층만 (`isRevShown`, 숫자는 runAll 결과만). 모델 층수와 다르면 "3D 모델 증축 n개층 중 계산 결과 m개층 표시"
+- **재건축(REBUILD)**: 증축 전 = 기존(회색) / 증축 후 = 기존 + 증축 전체를 **재건축 신축 매스(옅은 청록)** 로, 계산 엔진 신축 지상 층수(`rebuild.totalFloors`)까지만 (T2는 모델 7층 중 6층). 일러스트 대체 없음
+- 주변 건물: 회색 반투명(불투명도 0.35, depthWrite 끔), 대상 중심 반경 150m(`CONTEXT_RADIUS_M`) 안만. 주변 REV는 숨김. 지형(TERRAIN)은 지면으로 그리되 대상 건물 아래 지형이 건물 바닥보다 높으면 그만큼 내려 아래층을 덮지 않게 한다
+- 좌표: TM 절대좌표 → 대상 건물 중심 (0,0)·바닥 y=0으로 이동 (7-3 규칙). 카메라 **북서쪽 위 45° 조감**(`lib/geo/cameraFit.ts MASS_VIEW`), 대상 매스가 화면 비율에 맞게 가득 차도록 거리·중심 자동, 전·후 같은 범위
+- 컴포넌트: `components/three/ParcelMassView.tsx`(three.js, 인쇄 시 PNG 스냅샷) ← `MassView.tsx`(next/dynamic ssr:false, 범례·캡션, 모델 없으면 `BuildingIllustration`)
+- **Tailwind 주의**: GLB 같은 큰 바이너리가 `public/models`에 있으면 Tailwind v4 소스 검색이 메모리 오류를 낸다 → `app/globals.css`에 `@source not "../public/models";`
 - 패키지: three, @react-three/fiber 9, @react-three/drei 10
 
 ### 7-4. 보고서용 이미지 캡처
@@ -1038,6 +1045,7 @@ apiService.getTargetBuilding을 /api/building과 연결하고, 실패 시 mock�
 | 증축층 바닥면적 | (2026-10-08) 옵션1: 5층 전유 59.81 × 0.9 = **53.83㎡** (지붕 평스라브) | 옵션1: 6층 전유 73.17 × 0.9 = **65.85㎡** (지붕 (철근)콘크리트 → 평슬라브로 봄) |
 | 결론 문장(예) | ALL: "+1개층(+53.8㎡, 3세대) 증축 가능, 제한요인: 주택 층수" / 현행: "1세대 여유가 있으나 주택 1개층 증축 시 5개층으로 한도(4개층) 초과 — 대안 확인 필요" | ALL: "+1개층(+36.3㎡, 1세대) 증축 가능, 제한요인: 주차" / 현행: "1세대 여유가 있으나 주택 1개층 증축 시 5개층으로 한도(4개층) 초과 — 대안 확인 필요" |
 
+> (2026-10-12) ALL(복합 완화)의 증축 연면적에는 3D 모델 측면 보강부가 더해진다: T1 53.83 → **90.35㎡**(+36.52), T2 36.25 → **120.23㎡**(+83.98). 층수·세대 수는 그대로. 아래 표의 53.83·36.25는 새 층(TOP) 기준.
 > 12-3의 숫자는 기준 엑셀로 손계산한 기대값이다. 엔진 결과가 다르면 고치기 전에 "어느 항목이 왜 다른지" 먼저 보고한다.
 > ※ T1(104-10) 열은 2026-10-07 T1 변경 때 기준 엑셀 값(12-2 ★ 칸, 엑셀 대조 일치)과 계산 엔진 산정으로 채웠다. 손계산 재확인 필요.
 > (2026-10-07) C에 다세대 5개층(프로젝트 해석)을 넣어 T1·T2는 C·ALL에서 증축 가능. 다중주택인 104-48은 C에서 층수 완화가 없어 ALL + 주차 추가 확보 안도 "확인 필요".

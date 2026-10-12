@@ -88,15 +88,17 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(byLabel['기존 여유']).toBe('1.9대')
   })
 
-  it('3장 ALL: 기존 주차 증축안 +1층 · 53.83㎡(옵션1) · 3세대, 표지 증축 가능', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 새 층 53.83㎡(옵션1) + 측면 보강 36.52㎡ = 90.35㎡ · 3세대, 표지 증축 가능', async () => {
     const r = await build(T1)
     expect(r.plan.kind).toBe('existing')
-    expect(r.plan.plan!.addGfaM2).toBeCloseTo(53.829, 3)
-    expect(r.summary.kpis[0].value).toBe('+1층 · +53.8㎡')
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(90.349, 3)
+    expect(r.plan.plan!.sideGfaM2).toBeCloseTo(36.52, 2)
+    expect(r.summary.kpis[0].value).toBe('+1층 · +90.3㎡')
+    expect(r.summary.kpis[0].caption).toBe('측면 보강 36.5㎡ 포함')
     // 수익성이 계산되면 표지 KPI = 규모 · 총사업비 · ROI · 회수기간 (설계서 11장), 판정은 회수기간 보조 문구
     expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', 'ROI (기준)', '투자회수기간'])
-    expect(r.summary.kpis[1].value).toBe('1.6억원')
-    expect(r.summary.kpis[2].value).toBe('15.2%')
+    expect(r.summary.kpis[1].value).toBe('2.5억원')
+    expect(r.summary.kpis[2].value).toBe('15.8%')
     expect(r.summary.kpis[3].caption).toContain('증축 가능')
   })
 
@@ -127,10 +129,10 @@ describe('T2 보고서', () => {
     expect(byLabel['기존 여유']).toBe('0.5대')
   })
 
-  it('3장 ALL: 기존 주차 증축안 +1층 · 36.25㎡ · 1세대, 표지 증축 가능', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 새 층 36.25㎡ + 측면 보강 83.98㎡ · 1세대, 표지 증축 가능', async () => {
     const r = await build(T2)
     expect(r.plan.kind).toBe('existing')
-    expect(r.plan.plan!.addGfaM2).toBeCloseTo(36.25, 2)
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(36.2527 + 83.98, 2)
     expect(r.summary.kpis[3].caption).toContain('증축 가능')
   })
 
@@ -212,8 +214,8 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     const [landRow, , addRow, totalRow] = r.asset.rows
     expect(landRow[3]).toContain('시세 아님')
     expect(landRow[3]).toContain('[면적 확인 필요]')
-    expect(addRow[2]).toBe('107,658,000원')
-    expect(totalRow.slice(1, 3)).toEqual(['1,546,519,200원', '1,654,177,200원']) // 표는 원 단위 정확값 (항목 합 = 합계)
+    expect(addRow[2]).toBe('180,698,000원')
+    expect(totalRow.slice(1, 3)).toEqual(['1,546,519,200원', '1,727,217,200원']) // 표는 원 단위 정확값 (항목 합 = 합계)
     expect(r.asset.yieldNote).toContain('토지 포함 수익률')
   })
 })
@@ -221,9 +223,9 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
 describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', () => {
   it('T1·T2 5장 KPI = runAll asset 값', async () => {
     const t1 = (await build(T1)).asset.kpis.map((k) => k.value)
-    expect(t1).toEqual(['10.6억원', '15.5억원', '16.5억원', '1.1억원'])
+    expect(t1).toEqual(['10.6억원', '15.5억원', '17.3억원', '1.8억원'])
     const t2 = (await build(T2)).asset.kpis.map((k) => k.value)
-    expect(t2).toEqual(['17.8억원', '29.9억원', '30.6억원', '7,251만원'])
+    expect(t2).toEqual(['17.8억원', '29.9억원', '32.3억원', '2.4억원'])
   })
 
   it('부록 데이터 출처: 개별공시지가_2단계 + 기준연월·공시일·시세 아님', async () => {
@@ -239,10 +241,10 @@ describe('5장 표시 점검 (2026-10-07 숫자 점검 반영)', () => {
     expect(r.asset.rows[2][2]).toBe('–')
   })
 
-  it('T2 증축 면적은 0장과 같은 소수 첫째 자리 (36.3㎡)', async () => {
+  it('T2 증축 면적은 0장과 같은 소수 첫째 자리 (120.2㎡ = 새 층 36.3 + 측면 보강 84.0)', async () => {
     const r = await build(T2)
-    expect(r.asset.kpis[3].caption).toBe('증축 36.3㎡')
-    expect(r.summary.kpis[0].value).toContain('36.3㎡')
+    expect(r.asset.kpis[3].caption).toBe('증축 120.2㎡')
+    expect(r.summary.kpis[0].value).toContain('120.2㎡')
   })
 })
 
@@ -259,12 +261,12 @@ describe('4장 사업비 · 5장 수익 · 부록 가정값 (2026-10-08 결정 1
 
   it('T1 ALL: 5장 KPI·시나리오 표 = runAll 값, 보수 전환율은 법정 상한', async () => {
     const r = await build(T1)
-    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '15.2%' })
+    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '15.8%' })
     expect(r.finance.revenueRows.map((row) => row[0])).toContain('관리비 수입')
     expect(r.finance.inputNotes).toContain('증축공사비 단가는 층별로 달라지므로 엑셀데이터 참고할 것')
     expect(r.finance.scenarioRows.map((row) => row[0])).toEqual(['보수', '기준', '낙관'])
     expect(r.finance.scenarioRows[0][1]).toBe('5.0% (법정 상한)')
-    expect(r.finance.unitRows).toHaveLength(3)
+    expect(r.finance.unitRows).toHaveLength(4) // 새 세대 3 + 측면 보강 1행
     expect(r.finance.bandRows[0].slice(0, 3)).toEqual(['전용 0~30㎡', '120건', '당산동6가'])
   })
 
@@ -375,5 +377,13 @@ describe('8~10장 일정·협업·다음 단계', () => {
     const r = await build(T1, 'ALL')
     expect(r.nextStep.decisionNow).toContain('구분소유자')
     expect(r.nextStep.checklist.length).toBeGreaterThan(0)
+  })
+})
+
+describe('보고서 제목 (2026-10-12)', () => {
+  it('재건축 시나리오는 "재건축 사업 검토 보고서", 증축은 "증축 사업 타당성 검토 보고서"', async () => {
+    expect((await build(T1, 'ALL')).meta.title).toBe('렉스빌 증축 사업 타당성 검토 보고서')
+    expect((await build(T1, 'REBUILD')).meta.title).toBe('렉스빌 재건축 사업 검토 보고서')
+    expect((await build(T2, 'REBUILD')).meta.title).toContain('재건축 사업 검토 보고서')
   })
 })

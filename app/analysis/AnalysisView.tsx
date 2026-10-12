@@ -40,18 +40,18 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
 
   // 증축 후 그림: 기존 주차로 가능하면 그 안, 아니면 주차 추가 확보 안, 둘 다 아니면 0층
   const after = (() => {
-    if (!analysis) return { addFloors: null, caption: '법규 완화 적용 시 증축안' }
+    if (!analysis) return { addFloors: null, sideAreaM2: undefined, caption: '법규 완화 적용 시 증축안' }
     const { plan, parkingOption: option } = analysis.selected
     const id = analysis.scenarioId
     // 재건축: 기존 층수 대비 늘어난 층만 강조 (신축 지상 층수는 캡션에)
     if (id === 'REBUILD') {
       const r = analysis.rebuild
-      return { addFloors: Math.max(0, r.totalFloors - building.floorsAbove), caption: `${id} 전체 재건축 시 지상 ${r.totalFloors}층` }
+      return { addFloors: Math.max(0, r.totalFloors - building.floorsAbove), sideAreaM2: undefined, caption: `${id} 전체 재건축 시 지상 ${r.totalFloors}층` }
     }
-    if (plan.verdict === 'possible') return { addFloors: plan.addFloors, caption: `${id} 적용 시 +${plan.addFloors}층` }
+    if (plan.verdict === 'possible') return { addFloors: plan.addFloors, sideAreaM2: plan.sideGfaM2, caption: `${id} 적용 시 +${plan.addFloors}층` }
     if (option?.verdict === 'possible')
-      return { addFloors: option.addFloors, caption: `${id} + 주차 ${option.addSpaces}대 확보 시 +${option.addFloors}층` }
-    return { addFloors: 0, caption: `${id} 기준 증축안 없음` }
+      return { addFloors: option.addFloors, sideAreaM2: option.sideGfaM2, caption: `${id} + 주차 ${option.addSpaces}대 확보 시 +${option.addFloors}층` }
+    return { addFloors: 0, sideAreaM2: 0, caption: `${id} 기준 증축안 없음` }
   })()
 
   const selector =
@@ -83,9 +83,12 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
       infoCaption="건축물대장 표제부"
       floorsAbove={building.floorsAbove}
       addFloors={after.addFloors}
+      massSideAreaM2={after.sideAreaM2}
       afterCaption={after.caption}
       massPnu={pnu}
-      massUseModel={analysis?.scenarioId !== 'REBUILD'}
+      massRebuildFloors={
+        analysis?.scenarioId === 'REBUILD' ? (analysis.rebuild.verdict === 'impossible' ? 0 : analysis.rebuild.totalFloors) : null
+      }
       expandability={expandability}
       reportHref={`/report?pnu=${pnu}&b=${building.id}${analysis ? `&s=${analysis.scenarioId}` : ''}`}
       steps={

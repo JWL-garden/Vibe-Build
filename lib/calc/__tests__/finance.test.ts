@@ -78,26 +78,26 @@ describe('자산가치 — 원가 기준 (재조달단가 200만원/㎡, 내용�
     expect(fullYearsBetween('2018-10-08', '2026-10-07')).toBe(7)
   })
 
-  it('T1: 기존 378.24㎡ × 200만 × 0.64 = 484,147,200 / 전 1,546,519,200 / ALL +53.829㎡ → 후 1,654,177,200', async () => {
+  it('T1: 기존 378.24㎡ × 200만 × 0.64 = 484,147,200 / 전 1,546,519,200 / ALL +90.349㎡(새 층 53.829 + 측면 보강 36.52) → 후 1,727,217,200', async () => {
     const a = runAll(await site(T1), 'ALL').asset
     expect(a.existingBuilding.ageYears).toBe(18)
     expect(a.existingBuilding.residualRate).toBeCloseTo(0.64, 10)
     expect(a.existingBuilding.valueWon).toBe(484_147_200)
     expect(a.beforeWon).toBe(1_546_519_200)
-    expect(a.addBuilding.gfaM2).toBeCloseTo(53.829, 6)
-    expect(a.addBuilding.valueWon).toBe(107_658_000)
-    expect(a.afterWon).toBe(1_654_177_200)
+    expect(a.addBuilding.gfaM2).toBeCloseTo(90.349, 6)
+    expect(a.addBuilding.valueWon).toBe(180_698_000)
+    expect(a.afterWon).toBe(1_727_217_200)
   })
 
-  it('T2: 기존 722.02㎡ × 200만 × 0.84 = 1,212,993,600 / 전 2,990,068,900 / ALL +36.2527㎡ → 후 3,062,574,214', async () => {
+  it('T2: 기존 722.02㎡ × 200만 × 0.84 = 1,212,993,600 / 전 2,990,068,900 / ALL +120.2327㎡(36.2527 + 측면 보강 83.98) → 후 3,230,534,214', async () => {
     const a = runAll(await site(T2), 'ALL').asset
     expect(a.existingBuilding.ageYears).toBe(8)
     expect(a.existingBuilding.valueWon).toBe(1_212_993_600)
     expect(a.beforeWon).toBe(2_990_068_900)
-    // 증축 연면적 = 전용 30㎡ ÷ 전용률 0.8275… = 36.2527㎡ (손계산 36.25㎡로 하면 3,062,568,900)
-    expect(a.addBuilding.gfaM2).toBeCloseTo(36.2527, 4)
-    expect(a.addBuilding.valueWon).toBe(72_505_314)
-    expect(a.afterWon).toBe(3_062_574_214)
+    // 증축 연면적 = 전용 30㎡ ÷ 전용률 0.8275… = 36.2527㎡ + 측면 보강부 83.98㎡
+    expect(a.addBuilding.gfaM2).toBeCloseTo(120.2327, 4)
+    expect(a.addBuilding.valueWon).toBe(240_465_314)
+    expect(a.afterWon).toBe(3_230_534_214)
   })
 
   it('증축안이 없는 시나리오는 자산가치 후 = 전', async () => {

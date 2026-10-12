@@ -1,0 +1,148 @@
+{
+  "meta": {
+    "note": "3D 매스 모델 형상에서 추출한 평면 면적(위를 향한 면 합). 측면 보강부(SIDE) 면적이 증축 연면적에 포함된다. 재생성: npm run model:trim",
+    "sourceModel": "261012_dangsan_sunlight_v4.glb",
+    "trimmedModel": "261012_dangsan_sunlight_v4_T1T2.glb",
+    "contextRadiusM": 150
+  },
+  "items": [
+    {
+      "id": "T1",
+      "pnu": "1156011600001040010",
+      "parts": [
+        {
+          "name": "1156011600001040010_EXIST_F01",
+          "kind": "EXIST",
+          "floor": 1,
+          "part": null,
+          "planAreaM2": 98.92
+        },
+        {
+          "name": "1156011600001040010_EXIST_F02",
+          "kind": "EXIST",
+          "floor": 2,
+          "part": null,
+          "planAreaM2": 98.92
+        },
+        {
+          "name": "1156011600001040010_EXIST_F03",
+          "kind": "EXIST",
+          "floor": 3,
+          "part": null,
+          "planAreaM2": 98.92
+        },
+        {
+          "name": "1156011600001040010_EXIST_F04",
+          "kind": "EXIST",
+          "floor": 4,
+          "part": null,
+          "planAreaM2": 68.02
+        },
+        {
+          "name": "1156011600001040010_EXIST_F05",
+          "kind": "EXIST",
+          "floor": 5,
+          "part": null,
+          "planAreaM2": 50.47
+        },
+        {
+          "name": "1156011600001040010_REV_F04_SIDE",
+          "kind": "REV",
+          "floor": 4,
+          "part": "SIDE",
+          "planAreaM2": 9.48
+        },
+        {
+          "name": "1156011600001040010_REV_F05_SIDE",
+          "kind": "REV",
+          "floor": 5,
+          "part": "SIDE",
+          "planAreaM2": 27.04
+        },
+        {
+          "name": "1156011600001040010_REV_F06_TOP",
+          "kind": "REV",
+          "floor": 6,
+          "part": "TOP",
+          "planAreaM2": 32.64
+        }
+      ]
+    },
+    {
+      "id": "T2",
+      "pnu": "1156011600001100019",
+      "parts": [
+        {
+          "name": "1156011600001100019_EXIST_F01",
+          "kind": "EXIST",
+          "floor": 1,
+          "part": null,
+          "planAreaM2": 220.19
+        },
+        {
+          "name": "1156011600001100019_EXIST_F02",
+          "kind": "EXIST",
+          "floor": 2,
+          "part": null,
+          "planAreaM2": 220.19
+        },
+        {
+          "name": "1156011600001100019_EXIST_F03",
+          "kind": "EXIST",
+          "floor": 3,
+          "part": null,
+          "planAreaM2": 220.19
+        },
+        {
+          "name": "1156011600001100019_EXIST_F04",
+          "kind": "EXIST",
+          "floor": 4,
+          "part": null,
+          "planAreaM2": 186.56
+        },
+        {
+          "name": "1156011600001100019_EXIST_F05",
+          "kind": "EXIST",
+          "floor": 5,
+          "part": null,
+          "planAreaM2": 168.19
+        },
+        {
+          "name": "1156011600001100019_EXIST_F06",
+          "kind": "EXIST",
+          "floor": 6,
+          "part": null,
+          "planAreaM2": 144.43
+        },
+        {
+          "name": "1156011600001100019_REV_F04_SIDE",
+          "kind": "REV",
+          "floor": 4,
+          "part": "SIDE",
+          "planAreaM2": 7.85
+        },
+        {
+          "name": "1156011600001100019_REV_F05_SIDE",
+          "kind": "REV",
+          "floor": 5,
+          "part": "SIDE",
+          "planAreaM2": 26.09
+        },
+        {
+          "name": "1156011600001100019_REV_F06_SIDE",
+          "kind": "REV",
+          "floor": 6,
+          "part": "SIDE",
+          "planAreaM2": 50.04
+        },
+        {
+          "name": "1156011600001100019_REV_F07_TOP",
+          "kind": "REV",
+          "floor": 7,
+          "part": "TOP",
+          "planAreaM2": 118.46
+        }
+      ]
+    }
+  ]
+}

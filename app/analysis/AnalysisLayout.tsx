@@ -23,8 +23,12 @@ interface Props {
   afterCaption: string
   /** 3D 매스 모델(GLB)에서 찾을 필지 PNU — 없으면(샘플 등) 일러스트 */
   massPnu?: string | null
-  /** false면 GLB 대신 일러스트 (재건축: 모델은 증축안만 있음) */
+  /** false면 GLB 대신 일러스트 */
   massUseModel?: boolean
+  /** 재건축 시나리오: 계산 엔진의 신축 지상 층수 (0 = 신축 불가). 재건축이 아니면 생략 */
+  massRebuildFloors?: number | null
+  /** 증축 연면적에 포함된 측면 보강부 면적 (㎡, 계산 엔진). 0이면 3D에서 숨김, 생략하면 모델 그대로 */
+  massSideAreaM2?: number
   expandability: Expandability
   reportHref: string
   /** 아래쪽 상세 분석 단계 (⑤ 완화, ⑥ 증축 산정 …). 없으면 표시 안 함 */
@@ -58,14 +62,14 @@ export default function AnalysisLayout(p: Props) {
         <div className="grid gap-5 md:grid-cols-2">
           <ViewPanel label="증축 전" description="현재 건물">
             {p.massPnu ? (
-              <MassView pnu={p.massPnu} mode="before" floorsAbove={p.floorsAbove} addFloors={p.addFloors} useModel={p.massUseModel} />
+              <MassView pnu={p.massPnu} mode="before" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
             ) : (
               <BuildingIllustration floors={p.floorsAbove} className="h-56 w-full" />
             )}
           </ViewPanel>
           <ViewPanel label="증축 후" description={p.afterCaption} accent>
             {p.massPnu ? (
-              <MassView pnu={p.massPnu} mode="after" floorsAbove={p.floorsAbove} addFloors={p.addFloors} useModel={p.massUseModel} />
+              <MassView pnu={p.massPnu} mode="after" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
             ) : (
               <BuildingIllustration floors={p.floorsAbove} addFloors={p.addFloors} showAddition className="h-56 w-full" />
             )}

@@ -23,8 +23,12 @@ interface Props {
   nextStep: string | null
   /** 3D 매스 모델(GLB)에서 찾을 필지 PNU — 없으면 일러스트 */
   massPnu?: string | null
-  /** false면 GLB 대신 일러스트 (재건축) */
+  /** false면 GLB 대신 일러스트 */
   massUseModel?: boolean
+  /** 재건축 시나리오: 계산 엔진의 신축 지상 층수 (0 = 신축 불가). 재건축이 아니면 생략 */
+  massRebuildFloors?: number | null
+  /** 증축 연면적에 포함된 측면 보강부 면적 (㎡, 계산 엔진). 0이면 3D에서 숨김, 생략하면 모델 그대로 */
+  massSideAreaM2?: number
 }
 
 const PENDING_KPIS = ['증축 규모', '총사업비', 'ROI', '투자회수기간']
@@ -46,7 +50,7 @@ export default function Ch00Summary(p: Props) {
       <div className="mt-10 grid grid-cols-2 gap-4">
         {[
           { label: '증축 전', addition: false },
-          { label: '증축 후', addition: true },
+          { label: p.massRebuildFloors != null ? '재건축 후' : '증축 후', addition: true },
         ].map((v) => (
           <div key={v.label} className="rounded-card bg-mist px-6 pb-4 pt-6">
             {p.massPnu ? (
@@ -55,6 +59,8 @@ export default function Ch00Summary(p: Props) {
                 mode={v.addition ? 'after' : 'before'}
                 floorsAbove={p.floorsAbove}
                 addFloors={p.addFloors}
+                rebuildFloors={p.massRebuildFloors ?? null}
+                sideAreaM2={p.massSideAreaM2}
                 useModel={p.massUseModel}
                 interactive={false}
                 className="h-40"

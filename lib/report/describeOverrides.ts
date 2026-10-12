@@ -24,6 +24,7 @@ export function describeOverrides(o: DeepPartial<Rules>): string {
   for (const [zone, limit] of Object.entries(o.farLimitByZone ?? {})) {
     parts.push(`${zone.replace('지역', '')} 용적률 상한 ${limit}%`)
   }
+  if (o.massSide?.includeInGfa) parts.push('일조 완화로 채우는 측면 보강부를 증축 연면적에 포함')
   parts.push(...byType(o.housing?.maxFloors, (v, types) => `${types} 주택 층수 ${v}개층 이하`))
   const exclusive = o.housing?.areaExclusive ?? {}
   parts.push(

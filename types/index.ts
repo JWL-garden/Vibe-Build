@@ -235,6 +235,14 @@ export interface Rules {
   rebuild: RebuildRule
   /** 증축층 바닥면적 산정 (옵션1·2) */
   floorPlate: FloorPlateRule
+  /** 측면 보강부(3D 모델 REV_F{n}_SIDE) 처리 */
+  massSide: MassSideRule
+}
+
+/** 측면 보강부 규칙 (2026-10-12 결정) — 일조 사선 완화로 기존 층 측면을 채우는 면적 */
+export interface MassSideRule {
+  /** true면 3D 모델에서 추출한 측면 보강부 면적을 증축 연면적에 더한다 (용적률·주택 연면적 잔여 범위 안에서) */
+  includeInGfa: boolean
 }
 
 /** 증축층 바닥면적 산정 규칙 (2026-10-08 결정 8) */
@@ -1040,6 +1048,10 @@ export interface ExpansionPlan {
   limitingFactor: LimitingFactor
   /** 주택 층수 검토 전에 필요했던 증축 층수 (연면적 ÷ 증축층 바닥면적) */
   attemptedFloors: number
+  /** 측면 보강부 연면적 (㎡) — addGfaM2 에 포함됨. 없으면 0 */
+  sideGfaM2: number
+  /** 측면 보강부 전용면적 (㎡) = 연면적 × 전용률. 새 세대가 아니라 기존 세대 확장분이라 addUnits 에는 없다 */
+  sideNetM2: number
   /** 증축 후 주택 층수 (실제 증축 층수 기준, 주택이 아니거나 증축이 없으면 null) */
   housingFloorsAfter: number | null
   /** 종합 판정 — possible 증축 가능 / impossible 불가 / check 확인 필요(주택 층수 한도로 신규 층 주택만 불가, 대안 검토) */
@@ -1103,6 +1115,8 @@ export interface SiteData {
   constructionCosts?: ConstructionCostRow[]
   /** 증축층 바닥면적 옵션2 값 (가정값 입력 엑셀 '증축층면적_옵션2' → inputs/floorPlate.json). 없으면 null */
   floorPlateOption2M2: number | null
+  /** 3D 모델(lib/data/massAreas.json)에서 추출한 측면 보강부(SIDE) 평면 면적 합 (㎡). 모델에 없으면 null */
+  massSideAreaM2: number | null
 }
 
 /** 전체 재건축 산정 결과 (lib/calc/rebuild.ts) — 기존 건물 철거 후 같은 대지에 신축 */
@@ -1708,6 +1722,10 @@ export interface SiteFinanceResult {
     /** 공사 연면적 (㎡) — 재건축은 1층 필로티 포함 */
     constructionAreaM2: number
     units: SiteRentUnit[]
+    /** 측면 보강부 전용면적 (㎡) — 세대 수에는 들어가지 않고 임대수입에만 반영 */
+    sideNetM2: number
+    /** 측면 보강부 월 환산 임대료 (원) */
+    sideRentMonthlyWon: number | null
   }
   costs: SiteCostItem[]
   /** 총사업비 (원) = 반영된 항목 합 */

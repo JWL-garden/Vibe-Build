@@ -37,6 +37,8 @@ export interface ExpansionInput {
   siteInput: SiteInput | null
   /** 증축층 바닥면적 옵션2 값 (가정값 입력 엑셀). 없으면 옵션1 */
   floorPlateOption2M2?: number | null
+  /** 3D 모델에서 추출한 측면 보강부 평면 면적 합 (㎡). 규칙(massSide)이 허용할 때만 연면적에 더한다 */
+  massSideAreaM2?: number | null
 }
 
 const EPS = 1e-9
@@ -227,20 +229,36 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     }
     checks.push(sunCheck)
 
+    // 7) 측면 보강부 — 일조 완화로 기존 층 옆을 채우는 면적(3D 모델 형상). 새 층이 있을 때만, 용적률·주택 연면적 잔여 범위 안에서 더한다
+    //    세대 수를 늘리지 않는 기존 세대 확장분이라 addUnits 는 그대로 둔다
+    let sideGfa = 0
+    const sideModel = input.massSideAreaM2 ?? 0
+    if (rules.massSide.includeInGfa && sideModel > EPS && fitted.gfa > EPS && addFloors >= 1) {
+      const room = Math.min(far.remainingGfaM2 - fitted.gfa, housingGfa - fitted.gfa)
+      sideGfa = Math.max(0, Math.min(sideModel, room))
+      reasons.push(
+        `측면 보강부 ${f(sideModel)}㎡(3D 모델) 중 ${f(sideGfa)}㎡ 포함` +
+          (sideGfa + EPS < sideModel ? ' — 용적률·주택 연면적 잔여 한도로 축소' : ''),
+      )
+    }
+    const totalGfa = fitted.gfa + sideGfa
+
     reasons.push(
       fitted.gfa > EPS
-        ? `최종 증축 ${fitted.units.length}세대(전용 ${f(fitted.net)}㎡), 연면적 ${f(fitted.gfa)}㎡, +${addFloors}개층 — 제한요인: ${LIMIT_LABEL[limitingFactor]}`
+        ? `최종 증축 ${fitted.units.length}세대(전용 ${f(fitted.net)}㎡), 연면적 ${f(totalGfa)}㎡${sideGfa > 0 ? `(측면 보강 ${f(sideGfa)}㎡ 포함)` : ''}, +${addFloors}개층 — 제한요인: ${LIMIT_LABEL[limitingFactor]}`
         : `증축 불가 — 제한요인: ${LIMIT_LABEL[limitingFactor]}`,
     )
 
     return {
       addUnits: fitted.units,
       addNetM2: fitted.net,
-      addGfaM2: fitted.gfa,
+      addGfaM2: totalGfa,
+      sideGfaM2: sideGfa,
+      sideNetM2: sideGfa * netRatio,
       addFloors,
       newTotalFloors: site.floorsAbove + addFloors,
       newHeightM: height === null ? null : height + addFloors * fh,
-      newFarPercent: ((site.farFloorAreaM2 + fitted.gfa) / siteAreaM2) * 100,
+      newFarPercent: ((site.farFloorAreaM2 + totalGfa) / siteAreaM2) * 100,
       limitingFactor,
       attemptedFloors,
       housingFloorsAfter,

@@ -4,7 +4,8 @@
 import type { DeepPartial, Rules, Scenario, ScenarioId, ViewScenario, ViewScenarioId } from '@/types'
 import { baseRules } from './baseRules'
 
-const A: DeepPartial<Rules> = { sunlight: { ratio: 0.25 } }
+// 일조 사선이 완화되면 기존 층 측면을 채우는 보강부(3D 모델 SIDE)도 증축 연면적에 포함한다 (2026-10-12 결정)
+const A: DeepPartial<Rules> = { sunlight: { ratio: 0.25 }, massSide: { includeInGfa: true } }
 
 // 배수(×1.2)가 아니라 용도지역별 상한값 자체를 교체한다
 const B: DeepPartial<Rules> = { farLimitByZone: { 제2종일반주거지역: 250, 제3종일반주거지역: 300 } }
