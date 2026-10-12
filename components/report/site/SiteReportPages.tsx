@@ -8,12 +8,12 @@ import SiteCh03Plan from './SiteCh03Plan'
 import SiteCh04Cost from './SiteCh04Cost'
 import SiteCh05Return from './SiteCh05Return'
 import SiteCh06Scenario from './SiteCh06Scenario'
+import SiteCh07Risk from './SiteCh07Risk'
 import SiteToc, { type TocEntry } from './SiteToc'
 import SiteVerification from './SiteVerification'
 
 /** 아직 엔진·조립이 없는 장 (설계서 11장) — 목차에 "추후 작성"으로 표시 */
 const UPCOMING = [
-  { no: '7장', title: '리스크와 대응', note: '구조안전·제도 미시행·금리·임차인 리스크와 대응 방안' },
   { no: '8장', title: '추진 절차·일정', note: '단계별 기간·결정 시점·비용 지출 시점' },
   { no: '9장', title: '전문가 협업 구성', note: '설계·구조·시공·세무·감정평가·금융 역할' },
   { no: '10장', title: '다음 단계 제안', note: '상담 → 정밀 타당성 검토 → 설계 계약' },
@@ -30,9 +30,10 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
     { no: '4장', title: '사업비 추정', note: '항목별 사업비, 자기자본·대출 구성', body: <SiteCh04Cost report={report} /> },
     { no: '5장', title: '수익 분석', note: '임대수익·ROI·회수기간, 보수·기준·낙관, 자산가치', body: <SiteCh05Return report={report} /> },
     { no: '6장', title: '시나리오·민감도', note: '보수·기준·낙관 비교, 토네이도 차트, 10년 현금흐름·NPV·IRR', body: <SiteCh06Scenario report={report} /> },
+    { no: '7장', title: '리스크와 대응', note: '구조안전·제도 미시행·동의·금리·임차인 리스크와 대응 방안', body: <SiteCh07Risk report={report} /> },
   ]
 
-  // 쪽 번호: 목차 1 · 표지·요약 2 · 1~6장 3~8 · 부록 1 · 부록 2
+  // 쪽 번호: 목차 1 · 표지·요약 2 · 1~7장 3~9 · 부록 1 · 부록 2
   const firstChapterPage = 3
   const appendix1Page = firstChapterPage + chapters.length
   const appendix2Page = appendix1Page + 1

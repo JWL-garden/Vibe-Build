@@ -10,6 +10,7 @@ import { policyNotes } from '@/lib/rules/policies'
 import { getScenario, getViewScenario, viewScenarios } from '@/lib/rules/scenarios'
 import { describeOverrides } from './describeOverrides'
 import { FINANCE_SCENARIO_LABEL, assumptionRows, conversionRows, financeSection } from './financeSection'
+import { buildSiteRisks } from './risks'
 import { scenarioSection } from './scenarioSection'
 import { LAND_BADGE, landAreaSource, landBaseMonthText, landBasisNote } from './landText'
 import type {
@@ -760,6 +761,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     asset: assetSection(analysis),
     finance: { ...financeSection(analysis), inputNotes: data.assumptionNotes },
     scenario: scenarioSection(analysis),
+    risk: buildSiteRisks(data, analysis),
     verification: buildVerification(data, analysis),
     appendix: buildAppendix(data, analysis),
     analysis,

@@ -1393,6 +1393,8 @@ export interface SiteReport {
   finance: SiteFinanceSection
   /** 6장 시나리오·민감도 (lib/report/scenarioSection.ts) */
   scenario: SiteScenarioSection
+  /** 7장 리스크와 대응 (lib/report/risks.ts) */
+  risk: SiteRiskSection
   /** 데이터 검증: 기준 엑셀 대조 + 추가로 확인·수정할 데이터 */
   verification: {
     /** [항목, 엑셀값, 계산값, 결과] */
@@ -1423,6 +1425,15 @@ export interface SiteReport {
     assumptionNotes: string[]
   }
   analysis: SiteAnalysis
+}
+
+/** 7장 리스크와 대응 — 규칙 기반 (lib/report/risks.ts) */
+export interface SiteRiskSection {
+  /** 위험도 높은 순 */
+  items: Risk[]
+  summary: string
+  /** 위험도 판단 기준 문장 */
+  rules: string[]
 }
 
 /** 6장 시나리오·민감도 (보고서 표시용 — 계산은 runAll().finance) */

@@ -309,3 +309,27 @@ describe('6장 시나리오·민감도 (T1)', () => {
     }
   })
 })
+
+describe('7장 리스크 (규칙 기반)', () => {
+  it('T1 ALL: 위험도 높은 순 정렬, 구조·동의·일조(이격 미입력)·주차 포함, 숫자는 runAll 값', async () => {
+    const r = await build(T1, 'ALL')
+    const items = r.risk.items
+    const order = { 높음: 0, 중간: 1, 낮음: 2 } as const
+    for (let i = 1; i < items.length; i++) expect(order[items[i - 1].level]).toBeLessThanOrEqual(order[items[i].level])
+    const by = (t: string) => items.find((x) => x.title.startsWith(t))!
+    expect(by('구조안전').description).toContain('경과 18년')
+    expect(by('구분소유자').level).toBe('높음')
+    expect(by('일조').level).toBe('중간') // 정북 이격 미입력
+    expect(by('일조').description).toContain('확인 필요')
+    expect(by('법규 완화').title).toContain('프로젝트 가정')
+    expect(items.every((x) => x.mitigation.length > 0)).toBe(true)
+    expect(r.risk.summary).toContain('높음')
+  })
+
+  it('BASE: 법규 완화 리스크 없음. REBUILD: 철거·이주 리스크 높음', async () => {
+    const base = await build(T1, 'BASE')
+    expect(base.risk.items.some((x) => x.title.startsWith('법규 완화'))).toBe(false)
+    const rb = await build(T1, 'REBUILD')
+    expect(rb.risk.items.find((x) => x.title.startsWith('철거'))!.level).toBe('높음')
+  })
+})
