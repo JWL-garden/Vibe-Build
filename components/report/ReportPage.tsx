@@ -10,10 +10,12 @@ interface Props {
   children: React.ReactNode
   /** true면 A4 한 장 높이로 고정 (페이지 나눔을 직접 계산하는 보고서용). 넘치는 내용은 잘린다 */
   fixedHeight?: boolean
+  /** true면 장 제목을 쓰지 않는다 (한 장이 여러 쪽일 때 둘째 쪽부터) */
+  continued?: boolean
 }
 
 /** 보고서 A4 한 장 틀 (210×297mm). 화면에서는 종이처럼, 인쇄 시 장마다 페이지 나눔 */
-export default function ReportPage({ address, chapter, page, sourceLabel, children, fixedHeight = false }: Props) {
+export default function ReportPage({ address, chapter, page, sourceLabel, children, fixedHeight = false, continued = false }: Props) {
   // fixedHeight(쪽 나눔 보고서)는 본문 공간을 더 확보하려고 여백·제목을 조금 줄인다
   return (
     <article
@@ -28,10 +30,12 @@ export default function ReportPage({ address, chapter, page, sourceLabel, childr
         </header>
       )}
 
-      {chapter && (
+      {chapter && !continued && (
         <div className={fixedHeight ? 'mt-5' : 'mt-10'}>
-          <p className="text-sm font-medium text-accent">{chapter.no}</p>
-          <h2 className={`mt-1 font-serif font-bold text-ink ${fixedHeight ? 'text-2xl' : 'text-3xl'}`}>{chapter.title}</h2>
+          <h2 className={`font-serif font-bold text-ink ${fixedHeight ? 'text-2xl' : 'text-3xl'}`}>
+            {chapter.no !== chapter.title && <span className="mr-2 text-accent">{chapter.no}</span>}
+            {chapter.title}
+          </h2>
         </div>
       )}
 

@@ -354,10 +354,8 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
         <ReportPage
           key={`${pg.chapter}-${pg.part}`}
           {...pageProps}
-          chapter={{
-            no: chapters[pg.chapter].no,
-            title: pg.parts > 1 ? `${chapters[pg.chapter].title} (${pg.part}/${pg.parts})` : chapters[pg.chapter].title,
-          }}
+          chapter={{ no: chapters[pg.chapter].no, title: chapters[pg.chapter].title }}
+          continued={pg.part > 1}
           page={FIRST_CHAPTER_PAGE + i}
           fixedHeight
         >
