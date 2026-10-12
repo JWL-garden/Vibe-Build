@@ -157,7 +157,7 @@ describe('부록: 데이터 출처 (기준 엑셀 시트명)', () => {
       expect(sources).toContain(`'${sheet}' 시트`)
     }
     expect(r.appendix.sourceRows.find((row) => row[0] === '정북 이격거리')![2]).toBe('미입력 — 확인 필요')
-    expect(r.appendix.sourceFile).toContain('261007_데이터 통합')
+    expect(r.appendix.sourceFile).toContain('261012_데이터 통합')
     expect(r.appendix.excelNotes).toHaveLength(4)
   })
 

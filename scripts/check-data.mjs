@@ -130,7 +130,8 @@ for (const output of outputs) {
     warnings.push(`${output}이 지금 엑셀/버전과 다름 (${json.meta.version}) → npm run data:excel`)
   }
   // 기준 엑셀 출력에는 T1·T2가 반드시 있어야 한다 (입력 엑셀은 필지별 값이 비어 있을 수 있음)
-  if (source.id === 'base') {
+  // (필지 번호가 없는 통계 시트 — 예: 하우빌드 공사비 — 는 제외)
+  if (source.id === 'base' && json.items?.some((i) => 'pnu' in i)) {
     for (const t of targets) {
       if (!json.items?.some((i) => i.pnu === t.pnu)) errors.push(`${output}에 ${t.id}(${t.pnu}) 없음`)
     }

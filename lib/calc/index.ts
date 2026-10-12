@@ -2,7 +2,7 @@
 // TODO [3-4]: analyzeFinance(사업비·수익) 구현 후 runAll 결과에 추가 (토지가액·자산가치는 반영됨)
 
 import { formatNumber } from '@/lib/format'
-import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
+import { buildingValueRule, constructionCostRule, landValueRule } from '@/lib/rules/financeDefaults'
 import { getEffectiveRules, getViewScenario, scenarios } from '@/lib/rules/scenarios'
 import { getZoneRule } from '@/lib/rules/zoningTable'
 import type {
@@ -18,6 +18,7 @@ import type {
 } from '@/types'
 import { calcExpansion } from './expansion'
 import { calcAssetValue, calcLandValue, calcSiteFinance } from './finance'
+import { summarizeConstruction, withConstructionUnitCost } from './constructionCost'
 import { runSensitivity } from './sensitivity'
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from './labels'
 import { calcRebuild } from './rebuild'
@@ -112,13 +113,16 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
         constructionAreaM2: adopted?.addGfaM2 ?? 0,
         newUnitNets: adopted?.addUnits.map((u) => u.netAreaM2) ?? [],
       }
+  // 공사비 실적(기준 엑셀) → 신축 단가 가정값이 비어 있으면 채움 (사용자 입력 > 가정값 입력 엑셀 > 실적)
+  const construction = summarizeConstruction(data.constructionCosts ?? [], constructionCostRule)
+  const assumptionRows = withConstructionUnitCost(data.assumptionRows, construction)
   const financeByScenario = Object.fromEntries(
     FINANCE_SCENARIOS.map((fs) => [
       fs,
       calcSiteFinance({
         ...financeInput,
         existingUnitNets: existingHousingUnitNets(data),
-        assumptionRows: data.assumptionRows,
+        assumptionRows,
         rentComps: data.rentComps,
         scenario: fs,
         assetBeforeWon: asset.beforeWon,
@@ -136,11 +140,12 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
     asset,
     finance: {
       selected: 'BASE',
+      construction,
       byScenario: financeByScenario,
       sensitivity: runSensitivity({
         ...financeInput,
         existingUnitNets: existingHousingUnitNets(data),
-        assumptionRows: data.assumptionRows,
+        assumptionRows,
         rentComps: data.rentComps,
         assetBeforeWon: asset.beforeWon,
       }),

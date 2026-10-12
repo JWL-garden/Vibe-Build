@@ -49,6 +49,7 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
     yieldText: '',
     notes: f.notes,
     inputNotes: [],
+    construction: constructionSection(analysis),
   }
   if (f.status === 'none') return { ...base, statusText: '증축(재건축)안이 없어 사업비·수익성을 계산하지 않았습니다. 3장 대안 검토를 참고하세요.' }
   if (f.status === 'pending') return { ...base, statusText: `가정값 입력 대기로 계산하지 않았습니다: ${f.missing.join(', ')}` }
@@ -117,6 +118,35 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
       ? `토지 포함 수익률(보유 자산 전체 기준, 참고): 전 ${formatRate(ly.beforeRate, 2)} → 후 ${formatRate(ly.afterRate, 2)} — 기존 NOI는 임대 사례로 추정한 값입니다. 증축 판단의 핵심 지표는 단순 ROI입니다.`
       : '토지 포함 수익률: 증축 전 자산가치 또는 기존 NOI 추정이 없어 계산하지 않았습니다.',
   }
+}
+
+/** 4장 공사비 실적 근거 — 기준 엑셀 '하우빌드 공사비'(저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산) */
+function constructionSection(analysis: SiteAnalysis): SiteFinanceSection['construction'] {
+  const c = analysis.finance.construction
+  const base = analysis.finance.byScenario.BASE
+  const rows: ReportRow[] = c.compare.map((s) => [
+    s.label,
+    `${s.count}건`,
+    s.perM2Median === null ? '–' : `${formatNumber(s.perM2Median, 0)}원`,
+    s.pyeongGfaMedianManwon === null ? '–' : `${formatNumber(s.pyeongGfaMedianManwon, 0)}만원`,
+    s.pyeongWorkMedianManwon === null ? '–' : `${formatNumber(s.pyeongWorkMedianManwon, 0)}만원`,
+    s.monthsMedian === null ? '–' : `${formatNumber(s.monthsMedian, 1)}개월`,
+  ])
+  const notes: string[] = [c.basisNote]
+  const a = c.applied
+  const perPyeong = base.assumptions.find((x) => x.key === 'expansionCostPerPyeong')?.value ?? null
+  if (a && a.pyeongWorkMedianManwon !== null && perPyeong !== null) {
+    const ratio = perPyeong / 10_000 / a.pyeongWorkMedianManwon
+    notes.push(
+      `증축 공사비 가정값 평당 ${formatNumber(perPyeong / 10_000, 0)}만원은 같은 집단 신축 실적(공사면적 기준 평당 중앙값 ${formatNumber(a.pyeongWorkMedianManwon, 0)}만원)의 ${formatRate(ratio, 0)} 수준입니다. 실적은 신축 도급 공사비이며 증축 실적이 아닙니다.`,
+    )
+  }
+  const months = base.assumptions.find((x) => x.key === 'rebuildConstructionMonths')?.value ?? null
+  if (a && a.monthsMedian !== null && months !== null) {
+    notes.push(`재건축 공사 기간 가정 ${formatNumber(months, 0)}개월 — 같은 집단 실적 중앙값 ${formatNumber(a.monthsMedian, 1)}개월.`)
+  }
+  notes.push('하우빌드 공사비는 시공사 도급 공사비(VAT 포함)로 감리비·부담금 등 간접비가 빠져 있습니다. 건설공사비지수는 직접공사비 물가 기준이라 시공사 이윤·인력 수급 변동은 반영하지 못합니다.')
+  return { rows, appliedRow: a ? c.compare.findIndex((s) => s.label === a.label) : -1, notes }
 }
 
 function bandRows(f: SiteFinanceResult): ReportRow[] {

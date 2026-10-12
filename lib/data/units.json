@@ -1,11 +1,11 @@
 {
   "meta": {
     "source": "base",
-    "file": "261007_데이터 통합_토지 공시지가 추가.xlsx",
-    "version": "261007-b",
-    "sourceDate": "2026-10-07",
-    "fileHash": "93c743a98f711d21",
-    "convertedAt": "2026-10-07T07:04:03.126Z",
+    "file": "261012_데이터 통합_대출비율 80%·금리 6% 기본값.xlsx",
+    "version": "261012-a",
+    "sourceDate": "2026-10-12",
+    "fileHash": "c41d200761cfceb2",
+    "convertedAt": "2026-10-12T01:15:33.803Z",
     "sheets": [
       {
         "name": "전유공용면적_2단계",
@@ -2795,7 +2795,7 @@
         "facilityAreaM2": 39.254,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3355866666666667,
+        "housingActSpaces": 0.335586666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -4218,7 +4218,7 @@
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 2.660432835820896,
+        "neighborhoodSpaces": 2.6604328358209,
         "officeSpaces": null
       }
     },
@@ -4934,7 +4934,7 @@
       "parking": {
         "mainUse": "오피스텔",
         "netAreaM2": 37.419,
-        "facilityAreaM2": 58.07899999999999,
+        "facilityAreaM2": 58.079,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
         "housingActSpaces": 0.49892,
@@ -5513,7 +5513,7 @@
         "facilityAreaM2": 39.254,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3355866666666667,
+        "housingActSpaces": 0.335586666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -6513,7 +6513,7 @@
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 2.660440298507463,
+        "neighborhoodSpaces": 2.66044029850746,
         "officeSpaces": null
       }
     },
@@ -6593,7 +6593,7 @@
         "facilityAreaM2": 396.847,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 4.013707692307691,
+        "housingActSpaces": 4.01370769230769,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -7241,7 +7241,7 @@
         "facilityAreaM2": 39.254,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3355866666666667,
+        "housingActSpaces": 0.335586666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -7853,7 +7853,7 @@
         "facilityAreaM2": 32.63,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3738666666666667,
+        "housingActSpaces": 0.373866666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -7889,7 +7889,7 @@
         "facilityAreaM2": 33.17,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3801333333333334,
+        "housingActSpaces": 0.380133333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -7961,7 +7961,7 @@
         "facilityAreaM2": 33.5,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3837333333333334,
+        "housingActSpaces": 0.383733333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -7997,7 +7997,7 @@
         "facilityAreaM2": 33.79,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3870666666666667,
+        "housingActSpaces": 0.387066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8033,7 +8033,7 @@
         "facilityAreaM2": 26.98,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3090666666666667,
+        "housingActSpaces": 0.309066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8141,7 +8141,7 @@
         "facilityAreaM2": 33.17,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3801333333333334,
+        "housingActSpaces": 0.380133333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8285,7 +8285,7 @@
         "facilityAreaM2": 19.54,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2238666666666667,
+        "housingActSpaces": 0.223866666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8393,7 +8393,7 @@
         "facilityAreaM2": 26.98,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3090666666666667,
+        "housingActSpaces": 0.309066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8546,7 +8546,7 @@
         "facilityAreaM2": 67.35,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8005333333333333,
+        "housingActSpaces": 0.800533333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8591,7 +8591,7 @@
         "facilityAreaM2": 67.67,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8042666666666667,
+        "housingActSpaces": 0.804266666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8627,7 +8627,7 @@
         "facilityAreaM2": 67.54,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8026666666666668,
+        "housingActSpaces": 0.802666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8663,7 +8663,7 @@
         "facilityAreaM2": 67.35,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8005333333333333,
+        "housingActSpaces": 0.800533333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8699,7 +8699,7 @@
         "facilityAreaM2": 68.34,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8122666666666667,
+        "housingActSpaces": 0.812266666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8735,7 +8735,7 @@
         "facilityAreaM2": 67.45,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8017333333333334,
+        "housingActSpaces": 0.801733333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8771,7 +8771,7 @@
         "facilityAreaM2": 67.45,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8017333333333334,
+        "housingActSpaces": 0.801733333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8951,7 +8951,7 @@
         "facilityAreaM2": 66.25,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8002666666666667,
+        "housingActSpaces": 0.800266666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -8996,7 +8996,7 @@
         "facilityAreaM2": 66.25,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8002666666666667,
+        "housingActSpaces": 0.800266666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9050,7 +9050,7 @@
         "facilityAreaM2": 69.76,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8426666666666667,
+        "housingActSpaces": 0.842666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9149,7 +9149,7 @@
         "facilityAreaM2": 69.76,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8426666666666667,
+        "housingActSpaces": 0.842666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9191,12 +9191,12 @@
       "parking": {
         "mainUse": "사무소",
         "netAreaM2": 65.29,
-        "facilityAreaM2": 72.07000000000001,
+        "facilityAreaM2": 72.07,
         "basis": "제2-1호(일반업무 100㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
         "neighborhoodSpaces": null,
-        "officeSpaces": 0.7207000000000001
+        "officeSpaces": 0.7207
       }
     },
     {
@@ -9239,7 +9239,7 @@
         "facilityAreaM2": 66.25,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8002666666666667,
+        "housingActSpaces": 0.800266666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9284,7 +9284,7 @@
         "facilityAreaM2": 66.25,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 1,
-        "housingActSpaces": 0.8002666666666667,
+        "housingActSpaces": 0.800266666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9329,7 +9329,7 @@
         "facilityAreaM2": 51.35,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
-        "housingActSpaces": 0.5938666666666667,
+        "housingActSpaces": 0.593866666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9374,7 +9374,7 @@
         "facilityAreaM2": 51.75,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
-        "housingActSpaces": 0.5985333333333334,
+        "housingActSpaces": 0.598533333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9419,7 +9419,7 @@
         "facilityAreaM2": 51.75,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
-        "housingActSpaces": 0.5985333333333334,
+        "housingActSpaces": 0.598533333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9464,7 +9464,7 @@
         "facilityAreaM2": 51.35,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
-        "housingActSpaces": 0.5938666666666667,
+        "housingActSpaces": 0.593866666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9554,7 +9554,7 @@
         "facilityAreaM2": 34.26,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3962666666666667,
+        "housingActSpaces": 0.396266666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9599,7 +9599,7 @@
         "facilityAreaM2": 51.35,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
-        "housingActSpaces": 0.5938666666666667,
+        "housingActSpaces": 0.593866666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9644,7 +9644,7 @@
         "facilityAreaM2": 51.75,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
-        "housingActSpaces": 0.5985333333333334,
+        "housingActSpaces": 0.598533333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9690,7 +9690,7 @@
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 0.4200746268656717,
+        "neighborhoodSpaces": 0.420074626865672,
         "officeSpaces": null
       }
     },
@@ -9843,7 +9843,7 @@
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 0.3326865671641791,
+        "neighborhoodSpaces": 0.332686567164179,
         "officeSpaces": null
       }
     },
@@ -9893,11 +9893,11 @@
       "parking": {
         "mainUse": "사무소",
         "netAreaM2": 29.9,
-        "facilityAreaM2": 43.78999999999999,
+        "facilityAreaM2": 43.79,
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 0.3267910447761194,
+        "neighborhoodSpaces": 0.326791044776119,
         "officeSpaces": null
       }
     },
@@ -9932,7 +9932,7 @@
         "facilityAreaM2": 35.86,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3957333333333333,
+        "housingActSpaces": 0.395733333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -9968,7 +9968,7 @@
         "facilityAreaM2": 36.05,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3978666666666666,
+        "housingActSpaces": 0.397866666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -10037,7 +10037,7 @@
       "parking": {
         "mainUse": "다세대주택",
         "netAreaM2": 39.84,
-        "facilityAreaM2": 48.15000000000001,
+        "facilityAreaM2": 48.15,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
         "housingActSpaces": 0.5312,
@@ -10148,7 +10148,7 @@
         "facilityAreaM2": 30.91,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3410666666666666,
+        "housingActSpaces": 0.341066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -10220,7 +10220,7 @@
         "facilityAreaM2": 28.59,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3154666666666667,
+        "housingActSpaces": 0.315466666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -10253,7 +10253,7 @@
       "parking": {
         "mainUse": "다세대주택",
         "netAreaM2": 39.84,
-        "facilityAreaM2": 48.15000000000001,
+        "facilityAreaM2": 48.15,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
         "housingActSpaces": 0.5312,
@@ -10292,7 +10292,7 @@
         "facilityAreaM2": 35.86,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3957333333333333,
+        "housingActSpaces": 0.395733333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -10325,7 +10325,7 @@
       "parking": {
         "mainUse": "사무소",
         "netAreaM2": 43.56,
-        "facilityAreaM2": 52.65000000000001,
+        "facilityAreaM2": 52.65,
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
@@ -10365,7 +10365,7 @@
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 0.2670149253731343,
+        "neighborhoodSpaces": 0.267014925373134,
         "officeSpaces": null
       }
     },
@@ -10436,7 +10436,7 @@
         "facilityAreaM2": 35.86,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3957333333333333,
+        "housingActSpaces": 0.395733333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -10544,7 +10544,7 @@
         "facilityAreaM2": 28.59,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3154666666666667,
+        "housingActSpaces": 0.315466666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -10616,7 +10616,7 @@
         "facilityAreaM2": 35.29,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3894666666666667,
+        "housingActSpaces": 0.389466666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11147,7 +11147,7 @@
         "facilityAreaM2": 21.44,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2153333333333333,
+        "housingActSpaces": 0.215333333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11219,7 +11219,7 @@
         "facilityAreaM2": 21.44,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2153333333333333,
+        "housingActSpaces": 0.215333333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11255,7 +11255,7 @@
         "facilityAreaM2": 24.27,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2437333333333334,
+        "housingActSpaces": 0.243733333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11291,7 +11291,7 @@
         "facilityAreaM2": 24.27,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2437333333333334,
+        "housingActSpaces": 0.243733333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11363,7 +11363,7 @@
         "facilityAreaM2": 36.19,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3634666666666667,
+        "housingActSpaces": 0.363466666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11460,7 +11460,7 @@
           "floorType": "지상",
           "floor": 1,
           "floorLabel": "1층",
-          "use": "",
+          "use": null,
           "etcUse": "화장실",
           "areaM2": 2.27
         },
@@ -11469,7 +11469,7 @@
           "floorType": null,
           "floor": 0,
           "floorLabel": "전층",
-          "use": "",
+          "use": null,
           "etcUse": "계단실",
           "areaM2": 14.24
         }
@@ -11481,7 +11481,7 @@
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 0.7590298507462686,
+        "neighborhoodSpaces": 0.759029850746269,
         "officeSpaces": null
       }
     },
@@ -11505,7 +11505,7 @@
           "floorType": null,
           "floor": 0,
           "floorLabel": "1층",
-          "use": "",
+          "use": null,
           "etcUse": "화장실",
           "areaM2": 1.77
         },
@@ -11514,7 +11514,7 @@
           "floorType": null,
           "floor": 0,
           "floorLabel": "전층",
-          "use": "",
+          "use": null,
           "etcUse": "계단실",
           "areaM2": 11.08
         }
@@ -11522,12 +11522,12 @@
       "parking": {
         "mainUse": "사무소",
         "netAreaM2": 66.3,
-        "facilityAreaM2": 79.14999999999999,
+        "facilityAreaM2": 79.15,
         "basis": "제2-1호(일반업무 100㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
         "neighborhoodSpaces": null,
-        "officeSpaces": 0.7914999999999999
+        "officeSpaces": 0.7915
       }
     },
     {
@@ -11550,7 +11550,7 @@
           "floorType": "지상",
           "floor": 1,
           "floorLabel": "1층",
-          "use": "",
+          "use": null,
           "etcUse": "화장실",
           "areaM2": 0.72
         },
@@ -11559,7 +11559,7 @@
           "floorType": null,
           "floor": 0,
           "floorLabel": "전층",
-          "use": "",
+          "use": null,
           "etcUse": "계단실",
           "areaM2": 4.52
         }
@@ -11595,7 +11595,7 @@
           "floorType": null,
           "floor": 0,
           "floorLabel": "1층",
-          "use": "",
+          "use": null,
           "etcUse": "화장실",
           "areaM2": 0.61
         },
@@ -11604,7 +11604,7 @@
           "floorType": null,
           "floor": 0,
           "floorLabel": "전층",
-          "use": "",
+          "use": null,
           "etcUse": "계단실",
           "areaM2": 3.81
         }
@@ -11640,7 +11640,7 @@
           "floorType": "지상",
           "floor": 1,
           "floorLabel": "1층",
-          "use": "",
+          "use": null,
           "etcUse": "화장실",
           "areaM2": 0.88
         },
@@ -11649,7 +11649,7 @@
           "floorType": null,
           "floor": 0,
           "floorLabel": "전층",
-          "use": "",
+          "use": null,
           "etcUse": "계단실",
           "areaM2": 5.52
         }
@@ -11657,11 +11657,11 @@
       "parking": {
         "mainUse": "일반음식점",
         "netAreaM2": 33,
-        "facilityAreaM2": 39.40000000000001,
+        "facilityAreaM2": 39.4,
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 0.2940298507462687,
+        "neighborhoodSpaces": 0.294029850746269,
         "officeSpaces": null
       }
     },
@@ -11685,7 +11685,7 @@
           "floorType": null,
           "floor": 0,
           "floorLabel": "전층",
-          "use": "",
+          "use": null,
           "etcUse": "계단실",
           "areaM2": 9.79
         }
@@ -11732,7 +11732,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11768,7 +11768,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11804,7 +11804,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11876,7 +11876,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11912,7 +11912,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11948,7 +11948,7 @@
         "facilityAreaM2": 47.91,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
-        "housingActSpaces": 0.4449333333333333,
+        "housingActSpaces": 0.444933333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -11984,7 +11984,7 @@
         "facilityAreaM2": 29.39,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2729333333333333,
+        "housingActSpaces": 0.272933333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12020,7 +12020,7 @@
         "facilityAreaM2": 29.39,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2729333333333333,
+        "housingActSpaces": 0.272933333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12056,7 +12056,7 @@
         "facilityAreaM2": 17.52,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1626666666666667,
+        "housingActSpaces": 0.162666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12093,7 +12093,7 @@
         "basis": "제3호(근생 134㎡)",
         "perUnitSpaces": null,
         "housingActSpaces": null,
-        "neighborhoodSpaces": 1.529253731343283,
+        "neighborhoodSpaces": 1.52925373134328,
         "officeSpaces": null
       }
     },
@@ -12128,7 +12128,7 @@
         "facilityAreaM2": 29.39,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2729333333333333,
+        "housingActSpaces": 0.272933333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12164,7 +12164,7 @@
         "facilityAreaM2": 29.39,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2729333333333333,
+        "housingActSpaces": 0.272933333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12200,7 +12200,7 @@
         "facilityAreaM2": 17.52,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1626666666666667,
+        "housingActSpaces": 0.162666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12236,7 +12236,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12272,7 +12272,7 @@
         "facilityAreaM2": 17.52,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1626666666666667,
+        "housingActSpaces": 0.162666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12308,7 +12308,7 @@
         "facilityAreaM2": 33.75,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3134666666666667,
+        "housingActSpaces": 0.313466666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12344,7 +12344,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12380,7 +12380,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12416,7 +12416,7 @@
         "facilityAreaM2": 29.39,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2729333333333333,
+        "housingActSpaces": 0.272933333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12452,7 +12452,7 @@
         "facilityAreaM2": 17.52,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1626666666666667,
+        "housingActSpaces": 0.162666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12488,7 +12488,7 @@
         "facilityAreaM2": 33.75,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.3134666666666667,
+        "housingActSpaces": 0.313466666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12524,7 +12524,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12560,7 +12560,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12596,7 +12596,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12632,7 +12632,7 @@
         "facilityAreaM2": 29.39,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.2729333333333333,
+        "housingActSpaces": 0.272933333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12668,7 +12668,7 @@
         "facilityAreaM2": 17.52,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1626666666666667,
+        "housingActSpaces": 0.162666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12704,7 +12704,7 @@
         "facilityAreaM2": 17.56,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1630666666666667,
+        "housingActSpaces": 0.163066666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12740,7 +12740,7 @@
         "facilityAreaM2": 17.52,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.5,
-        "housingActSpaces": 0.1626666666666667,
+        "housingActSpaces": 0.162666666666667,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }
@@ -12776,7 +12776,7 @@
         "facilityAreaM2": 47.91,
         "basis": "제5호(공동주택·오피스텔)",
         "perUnitSpaces": 0.8,
-        "housingActSpaces": 0.4449333333333333,
+        "housingActSpaces": 0.444933333333333,
         "neighborhoodSpaces": null,
         "officeSpaces": null
       }

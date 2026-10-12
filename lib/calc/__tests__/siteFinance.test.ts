@@ -68,13 +68,18 @@ describe('T1 ALL 증축 (+1층 53.829㎡, 3세대) — 기준 시나리오 손�
 })
 
 describe('재건축 (REBUILD)', () => {
-  it('T1: 공사 연면적 = 498.75 + 필로티 119.7 = 618.45㎡ × 신축단가표 2,055,379원, 26세대 × 500만원, 철거비 입력 대기', async () => {
-    const f = (await load(T1, 'REBUILD')).finance.byScenario.BASE
+  it('T1: 공사 연면적 = 498.75 + 필로티 119.7 = 618.45㎡ × max(신축단가표 2,055,379원, 하우빌드 실적 중앙값 3,023,747원), 26세대 × 500만원, 철거비 입력 대기', async () => {
+    const a = await load(T1, 'REBUILD')
+    const f = a.finance.byScenario.BASE
     expect(f.project.kind).toBe('rebuild')
     expect(f.project.constructionAreaM2).toBeCloseTo(618.45, 6)
     const by = Object.fromEntries(f.costs.map((c) => [c.key, c]))
-    expect(by.construction.amountWon).toBe(Math.round(618.45 * 2_055_379))
-    expect(by.construction.basis).toContain('건물신축단가표')
+    // 가정값 입력 엑셀의 신축비용 칸이 비어 있어 기준 엑셀 하우빌드 공사비(서울 2023~2025, 6건)로 채워진다
+    const excelUnit = Math.round(a.finance.construction.applied!.perM2Median!)
+    expect(excelUnit).toBe(3_023_747)
+    expect(by.construction.amountWon).toBe(Math.round(618.45 * excelUnit))
+    expect(by.construction.basis).toContain('건물신축단가표 2,055,379원/㎡ vs 엑셀 신축비용 3,023,747원/㎡ 중 높은 값')
+    expect(by.construction.grade).toBe('B')
     expect(by.permit.amountWon).toBe(130_000_000)
     expect(by.demolition.amountWon).toBeNull()
     expect(by.finance.basis).toContain('10/12개월') // 재건축 공사 기간 기준 10개월 (증축은 2개월)

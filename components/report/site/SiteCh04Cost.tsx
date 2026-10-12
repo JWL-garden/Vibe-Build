@@ -32,6 +32,21 @@ export default function SiteCh04Cost({ report }: { report: SiteReport }) {
       <SubTitle>자금 구성</SubTitle>
       <DataTable head={['구분', '금액', '비고']} numeric={[1]} rows={fin.fundingRows} />
 
+      <div className="break-inside-avoid">
+        <SubTitle>공사비 근거 — 신축 실적 (2026 환산)</SubTitle>
+        <DataTable
+          head={['집단', '현장', '㎡당 (연면적)', '평당 (연면적)', '평당 (공사면적)', '공사 기간']}
+          numeric={[1, 2, 3, 4, 5]}
+          rows={fin.construction.rows}
+          highlightRow={fin.construction.appliedRow}
+        />
+        <ul className="mt-2 space-y-1 text-xs text-ink-faint">
+          {fin.construction.notes.map((n) => (
+            <li key={n}>· {n}</li>
+          ))}
+        </ul>
+      </div>
+
       <p className="mt-4 text-xs leading-relaxed text-ink-faint">
         &lsquo;입력 대기&rsquo; 항목(철거비·공사 중 임대 손실 등)은 금액이 없어 총사업비에 들어 있지 않습니다. 실제 사업비는 시공사 견적과
         세무 검토로 확정해야 합니다.

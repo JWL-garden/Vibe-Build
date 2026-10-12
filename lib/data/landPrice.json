@@ -1,11 +1,11 @@
 {
   "meta": {
     "source": "base",
-    "file": "261007_데이터 통합_토지 공시지가 추가.xlsx",
-    "version": "261007-b",
-    "sourceDate": "2026-10-07",
-    "fileHash": "93c743a98f711d21",
-    "convertedAt": "2026-10-07T07:04:03.126Z",
+    "file": "261012_데이터 통합_대출비율 80%·금리 6% 기본값.xlsx",
+    "version": "261012-a",
+    "sourceDate": "2026-10-12",
+    "fileHash": "c41d200761cfceb2",
+    "convertedAt": "2026-10-12T01:15:33.803Z",
     "sheets": [
       {
         "name": "개별공시지가_2단계",

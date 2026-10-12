@@ -462,6 +462,11 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ['호별 주차 산정 기준 (제5호·제4호·제3호·제2-1호)', sheet('주차대수_세대별'), '기준 엑셀'],
     ['전용률, 완화 후 허용연면적·주차 검토 (엑셀 대조 정답표)', sheet('용적률완화_주차검토'), '계산 엔진과 자동 대조 (±0.01)'],
     [
+      '신축 공사비 실적 (㎡당 연면적 기준, 건설공사비지수 2026 환산) — 재건축 신축 단가·공사기간 근거',
+      sheet('하우빌드 공사비'),
+      `기준 엑셀 · ${analysis.finance.construction.applied?.label ?? '표본 없음'} ${analysis.finance.construction.applied?.count ?? 0}건 중앙값 · VAT 포함 도급 공사비`,
+    ],
+    [
       '개별공시지가 (원/㎡) — 토지가액',
       `${sheet('개별공시지가_2단계')} (브이월드 개별공시지가)`,
       analysis.land.priceBasis

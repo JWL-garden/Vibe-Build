@@ -81,3 +81,22 @@ export const rentCompRule = {
     { band: 'M', label: '전용 30~60㎡', maxNetM2: 60 },
   ],
 } as const
+
+/**
+ * 공사비 실적 산정 규칙 (2026-10-12) — 기준 엑셀 '하우빌드 공사비'(저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산)
+ * 재건축 신축 단가(가정값 newBuildCostExcel)가 비어 있을 때 이 규칙으로 자동 산정한다. 우선순위: 사용자 입력 > 가정값 입력 엑셀 > 이 규칙
+ */
+export const constructionCostRule = {
+  /** 적용 권역 */
+  region: '서울',
+  /** 착공연도 범위 (최근 3개년) */
+  startYearFrom: 2023,
+  startYearTo: 2025,
+  /** 표본이 이 값 미만이면 같은 권역 전체 기간으로 대체 (엑셀 유의: 5건 미만은 대표성 낮음) */
+  minSamples: 5,
+  /** 보수(ROI에 불리 = 비싼 쪽) = 상위 사분위, 낙관 = 하위 사분위 */
+  conservativePercentile: 0.75,
+  optimisticPercentile: 0.25,
+  grade: 'B',
+  note: '시공사 도급 공사비(VAT 포함) — 감리비·부담금 등 간접비 미포함',
+} as const

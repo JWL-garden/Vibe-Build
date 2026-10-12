@@ -1,11 +1,11 @@
 {
   "meta": {
     "source": "base",
-    "file": "261007_데이터 통합_토지 공시지가 추가.xlsx",
-    "version": "261007-b",
-    "sourceDate": "2026-10-07",
-    "fileHash": "93c743a98f711d21",
-    "convertedAt": "2026-10-07T07:04:03.126Z",
+    "file": "261012_데이터 통합_대출비율 80%·금리 6% 기본값.xlsx",
+    "version": "261012-a",
+    "sourceDate": "2026-10-12",
+    "fileHash": "c41d200761cfceb2",
+    "convertedAt": "2026-10-12T01:15:33.803Z",
     "sheets": [
       {
         "name": "건축물대장_2단계",
@@ -2519,13 +2519,13 @@
       }
     },
     {
-      "id": "",
+      "id": "null",
       "pnu": "1156011600003500010",
       "address": "서울특별시 영등포구 당산동6가 350-10번지",
       "roadAddress": null,
       "buildingName": null,
       "dongName": null,
-      "registerType": "",
+      "registerType": null,
       "outsideParcels": 0,
       "zone": "제3종일반주거지역",
       "zones": [
@@ -2537,8 +2537,8 @@
       "totalFloorAreaM2": 0,
       "farFloorAreaM2": 0,
       "farPercent": null,
-      "structure": "",
-      "mainUse": "",
+      "structure": null,
+      "mainUse": null,
       "etcUse": null,
       "households": 0,
       "families": 0,
@@ -2568,13 +2568,13 @@
       }
     },
     {
-      "id": "",
+      "id": "null",
       "pnu": "1156011600003510002",
       "address": "서울특별시 영등포구 당산동6가 351-2번지",
       "roadAddress": null,
       "buildingName": null,
       "dongName": null,
-      "registerType": "",
+      "registerType": null,
       "outsideParcels": 0,
       "zone": "제3종일반주거지역",
       "zones": [
@@ -2586,8 +2586,8 @@
       "totalFloorAreaM2": 0,
       "farFloorAreaM2": 0,
       "farPercent": null,
-      "structure": "",
-      "mainUse": "",
+      "structure": null,
+      "mainUse": null,
       "etcUse": null,
       "households": 0,
       "families": 0,
@@ -2617,13 +2617,13 @@
       }
     },
     {
-      "id": "",
+      "id": "null",
       "pnu": "1156011600003510005",
       "address": "서울특별시 영등포구 당산동6가 351-5번지",
       "roadAddress": null,
       "buildingName": null,
       "dongName": null,
-      "registerType": "",
+      "registerType": null,
       "outsideParcels": 0,
       "zone": "제3종일반주거지역",
       "zones": [
@@ -2635,8 +2635,8 @@
       "totalFloorAreaM2": 0,
       "farFloorAreaM2": 0,
       "farPercent": null,
-      "structure": "",
-      "mainUse": "",
+      "structure": null,
+      "mainUse": null,
       "etcUse": null,
       "households": 0,
       "families": 0,

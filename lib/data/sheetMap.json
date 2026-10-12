@@ -525,6 +525,217 @@
       "columns": {}
     },
     {
+      "sheet": "하우빌드 공사비",
+      "output": "construction.json",
+      "builder": "generic",
+      "purpose": "하우빌드 공사비 실적(저층 주택·상가주택 신축 도급 공사비, VAT 포함) + 건설공사비지수 2026 환산 — 재건축 신축 단가(수익성 가정값 newBuildCostExcel)와 공사비·공사기간 근거",
+      "enabled": true,
+      "required": false,
+      "key": [
+        "현장ID"
+      ],
+      "unique": true,
+      "notePattern": "^\\d+$",
+      "columns": {
+        "현장ID": {
+          "field": "id",
+          "type": "str"
+        },
+        "현장명": {
+          "field": "name",
+          "type": "str"
+        },
+        "권역": {
+          "field": "region",
+          "type": "str",
+          "values": [
+            "서울",
+            "수도권",
+            "광역시",
+            "기타 지방"
+          ]
+        },
+        "용도": {
+          "field": "use",
+          "type": "str"
+        },
+        "층수": {
+          "field": "floorsText",
+          "type": "str"
+        },
+        "연면적(㎡)": {
+          "field": "gfaM2",
+          "type": "numOrNull",
+          "min": 10,
+          "max": 5000
+        },
+        "공사면적(㎡)": {
+          "field": "workAreaM2",
+          "type": "numOrNull",
+          "min": 0,
+          "max": 5000
+        },
+        "착공연도": {
+          "field": "startYear",
+          "type": "numOrNull",
+          "min": 2000,
+          "max": 2030
+        },
+        "공사기간(개월)": {
+          "field": "months",
+          "type": "numOrNull",
+          "min": 1,
+          "max": 36
+        },
+        "최종 공사비(원,VAT포함)": {
+          "field": "finalCostWon",
+          "type": "numOrNull",
+          "min": 10000000.0,
+          "max": 10000000000.0
+        },
+        "통계제외": {
+          "field": "excluded",
+          "type": "str"
+        },
+        "보정계수(2026)": {
+          "field": "indexFactor",
+          "type": "numOrNull",
+          "min": 0.5,
+          "max": 3
+        },
+        "㎡당공사비_연면적_2026환산(원)": {
+          "field": "perM2Gfa2026Won",
+          "type": "numOrNull",
+          "min": 500000,
+          "max": 8000000
+        },
+        "평당공사비_공사면적_2026환산(만원)": {
+          "field": "pyeongWork2026Manwon",
+          "type": "numOrNull",
+          "min": 100,
+          "max": 3000
+        }
+      }
+    },
+    {
+      "sheet": "빈땅_사업비",
+      "output": null,
+      "builder": null,
+      "purpose": "빈땅 신축 사업비·대출 상환액 시나리오 — 등록만, 사용 안 함 (대출 80%·금리 6.0%·20년 원리금균등 기본값, 총공사비 단가 공란)",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "지번",
+        "건축유형"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "하우빌드 2026환산",
+      "output": null,
+      "builder": null,
+      "purpose": "하우빌드 공사비 2026 환산 집계표 — 보고서·엑셀 확인용, 변환 안 함 (집계는 construction.json에서 코드로 재계산하고 테스트로 대조)",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "구분"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "건설공사비지수",
+      "output": null,
+      "builder": null,
+      "purpose": "건설공사비지수(주거용건물) 연도별 가중치 — 하우빌드 공사비 시트의 보정계수에 이미 반영, 변환 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "착공연도"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "필지분류",
+      "output": null,
+      "builder": null,
+      "purpose": "필지 분류 — 등록만, 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "협소필지",
+      "output": null,
+      "builder": null,
+      "purpose": "협소필지(30~90㎡) 목록 — 등록만, 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "토지이용계획_2단계",
+      "output": null,
+      "builder": null,
+      "purpose": "토지이용계획 — 등록만, 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "토지이용계획_원본",
+      "output": null,
+      "builder": null,
+      "purpose": "토지이용계획 원본 — 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "부속지번_2단계",
+      "output": null,
+      "builder": null,
+      "purpose": "부속지번 — 등록만, 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
+      "sheet": "부속지번_원본",
+      "output": null,
+      "builder": null,
+      "purpose": "부속지번 원본 — 사용 안 함",
+      "enabled": false,
+      "required": false,
+      "key": [
+        "PNU"
+      ],
+      "unique": false,
+      "columns": {}
+    },
+    {
       "sheet": "토지임야목록_원본",
       "output": null,
       "builder": null,

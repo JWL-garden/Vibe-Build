@@ -1099,6 +1099,8 @@ export interface SiteData {
   assumptionNotes: string[]
   /** 임대 사례 (가정값 입력 엑셀 '임대사례' → inputs/rentComps.json) */
   rentComps: RentComp[]
+  /** 기준 엑셀 '하우빌드 공사비' (없으면 빈 배열) */
+  constructionCosts?: ConstructionCostRow[]
   /** 증축층 바닥면적 옵션2 값 (가정값 입력 엑셀 '증축층면적_옵션2' → inputs/floorPlate.json). 없으면 null */
   floorPlateOption2M2: number | null
 }
@@ -1178,6 +1180,8 @@ export interface SiteAnalysis {
     byScenario: Record<FinanceScenarioId, SiteFinanceResult>
     /** 6장 민감도 (기준 시나리오 중심, 수익성을 계산하지 못했으면 null) */
     sensitivity: SiteSensitivityResult | null
+    /** 공사비 실적 요약 (기준 엑셀 '하우빌드 공사비') */
+    construction: ConstructionCostSummary
   }
 }
 
@@ -1467,6 +1471,53 @@ export interface SiteRiskSection {
   rules: string[]
 }
 
+/** 기준 엑셀 '하우빌드 공사비' 한 현장 (lib/data/construction.json) — 저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산 */
+export interface ConstructionCostRow {
+  id: string | null
+  name: string | null
+  region: string | null
+  use: string | null
+  floorsText: string | null
+  gfaM2: number | null
+  workAreaM2: number | null
+  startYear: number | null
+  /** 공사 기간 (개월) */
+  months: number | null
+  /** 최종 공사비 (원, VAT 포함, 환산 전) */
+  finalCostWon: number | null
+  /** 'Y'면 통계에서 제외 (중복 의심 등) */
+  excluded: string | null
+  indexFactor: number | null
+  /** ㎡당 공사비 (연면적 기준, 2026 환산, 원) */
+  perM2Gfa2026Won: number | null
+  /** 평당 공사비 (공사면적 기준, 2026 환산, 만원) */
+  pyeongWork2026Manwon: number | null
+}
+
+/** 공사비 실적 한 집단의 통계 */
+export interface ConstructionStat {
+  label: string
+  count: number
+  /** ㎡당 공사비 (연면적 기준, 2026 환산) 중앙값 · 보수(상위 사분위) · 낙관(하위 사분위), 원 */
+  perM2Median: number | null
+  perM2Conservative: number | null
+  perM2Optimistic: number | null
+  /** 연면적 기준 평당 중앙값 (만원) = ㎡당 × 3.305785 ÷ 1만 */
+  pyeongGfaMedianManwon: number | null
+  /** 공사면적 기준 평당 중앙값 (만원) */
+  pyeongWorkMedianManwon: number | null
+  /** 공사 기간 중앙값 (개월) */
+  monthsMedian: number | null
+}
+
+export interface ConstructionCostSummary {
+  /** 신축 단가에 적용한 집단 (표본이 없으면 null) */
+  applied: ConstructionStat | null
+  /** 비교용 집단 (서울 최근 3년 · 서울 전체 · 서울 외 최근 3년 · 서울 외 전체) */
+  compare: ConstructionStat[]
+  basisNote: string
+}
+
 /** 6장 시나리오·민감도 (보고서 표시용 — 계산은 runAll().finance) */
 export interface SiteScenarioSection {
   status: 'ok' | 'none' | 'pending'
@@ -1517,6 +1568,14 @@ export interface SiteFinanceSection {
   notes: string[]
   /** 가정값 입력 엑셀 메모 (예: 층별 공사비 단가 안내) — 4장 아래 표시 */
   inputNotes: string[]
+  /** 공사비 실적 근거 (기준 엑셀 '하우빌드 공사비') — 4장 표시 */
+  construction: {
+    /** [집단, 현장수, ㎡당(연면적, 2026 환산) 중앙값, 평당(연면적) 중앙값, 평당(공사면적) 중앙값, 공사기간 중앙값] */
+    rows: ReportRow[]
+    /** 적용 집단 행 번호 (없으면 -1) */
+    appliedRow: number
+    notes: string[]
+  }
 }
 
 // ═════════════════════════════════════════════
