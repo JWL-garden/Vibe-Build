@@ -1,11 +1,11 @@
 {
   "meta": {
     "source": "input",
-    "file": "261008_가정값 입력-데이터 입력완료.xlsx",
-    "version": "261008-b",
-    "sourceDate": "2026-10-08",
-    "fileHash": "1e18ab781535259c",
-    "convertedAt": "2026-10-08T03:44:31.114Z",
+    "file": "261012_가정값 입력.xlsx",
+    "version": "261012-a",
+    "sourceDate": "2026-10-12",
+    "fileHash": "0876d756de37fc31",
+    "convertedAt": "2026-10-12T01:39:00.797Z",
     "sheets": [
       {
         "name": "가정값",
@@ -135,15 +135,15 @@
       "key": "loanInterestRate",
       "label": "대출 금리",
       "unit": "비율",
-      "low": 0.0516,
-      "base": 0.0466,
-      "high": 0.043,
-      "grade": "B",
-      "sourceTitle": "금융기관 가중평균금리 (2026년 8월, 신규취급액)",
-      "publisher": "한국은행",
-      "baseDate": "2026-08-31",
-      "url": "https://biz.newdaily.co.kr/site/data/html/2026/09/30/2026093000176.html",
-      "memo": "기준 = 주택담보대출 4.66%, 낙관 = 기업대출 4.30%, 보수 = 기준 +0.5%p(금리 상승 가정, C)"
+      "low": 0.065,
+      "base": 0.06,
+      "high": 0.06,
+      "grade": "C",
+      "sourceTitle": "사업자 대출 금리 기본값 6.0% (시중 사업자 대출 가정, 2026년 기준금리 3.00%·코픽스 3.18% 고려)",
+      "publisher": "프로젝트 가정 (261012 기준 엑셀 빈땅_사업비 시트 기본값, 사용자 확정)",
+      "baseDate": "2026-10-12",
+      "url": null,
+      "memo": "기준 = 6.0%, 보수 = 기준 +0.5%p(금리 상승 가정), 낙관 = 기준과 같음(단일 가정). 이전 값: 주택담보대출 4.66%(한국은행 2026-08, B)"
     },
     {
       "key": "loanRatio",

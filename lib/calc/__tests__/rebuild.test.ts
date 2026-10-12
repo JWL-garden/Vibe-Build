@@ -119,7 +119,7 @@ describe('REBUILD 판정·보고서', () => {
     const r = buildSiteReport(data, runAll(data, 'REBUILD'), '2026-10-08')
     expect(r.summary.kpis[0].value).toBe('지상 6층 · 932.8㎡')
     expect(r.summary.kpis.map((k) => k.label)).toEqual(['재건축 규모', '총사업비', 'ROI (기준)', '투자회수기간'])
-    expect(r.summary.kpis[1].value).toBe('41.1억원') // 신축 단가 = 하우빌드 실적 중앙값 (2026-10-12, 이전 28.8억원은 신축단가표만 사용)
+    expect(r.summary.kpis[1].value).toBe('41.3억원') // 신축 단가 = 하우빌드 실적 중앙값, 대출 금리 6.0% (2026-10-12; 이전 28.8억원은 신축단가표 + 금리 4.66%)
     expect(r.summary.addFloors).toBe(0) // 기존도 지상 6층
     expect(r.plan.kind).toBe('rebuild')
     expect(r.plan.rebuild).toBe(r.analysis.rebuild)

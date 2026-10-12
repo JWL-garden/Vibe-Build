@@ -47,11 +47,11 @@ describe('가정값 레지스트리 검사', () => {
 })
 
 describe('시나리오 값', () => {
-  it('보수 = low, 기준 = base, 낙관 = high — 공실률 10% / 5% / 3%, 대출금리 5.16% / 4.66% / 4.30%', () => {
+  it('보수 = low, 기준 = base, 낙관 = high — 공실률 10% / 5% / 3%, 대출금리 6.5% / 6.0% / 6.0% (2026-10-12 사용자 결정)', () => {
     expect(resolveAssumptions(rows, 'CONSERVATIVE').vacancyRate.value).toBe(0.1)
     expect(resolveAssumptions(rows, 'BASE').vacancyRate.value).toBe(0.05)
-    expect(resolveAssumptions(rows, 'OPTIMISTIC').loanInterestRate.value).toBe(0.043)
-    expect(resolveAssumptions(rows, 'BASE').loanInterestRate.grade).toBe('B')
+    expect(resolveAssumptions(rows, 'OPTIMISTIC').loanInterestRate.value).toBe(0.06)
+    expect(resolveAssumptions(rows, 'BASE').loanInterestRate.grade).toBe('C')
   })
 
   it('사용자 입력이 엑셀보다 우선 (등급 C · 사용자 입력 표기)', () => {

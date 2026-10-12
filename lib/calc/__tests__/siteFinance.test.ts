@@ -15,7 +15,7 @@ const load = async (pnu: string, view: 'BASE' | 'ALL' | 'REBUILD') => runAll((aw
 const sumCosts = (f: SiteFinanceResult) => f.costs.reduce((s, c) => s + (c.amountWon ?? 0), 0)
 
 describe('T1 ALL 증축 (+1층 53.829㎡, 3세대) — 기준 시나리오 손계산', () => {
-  it('사업비: 공사비 130,266,185 + 제반 15,000,000 + 취득세 4,116,411 + 예비비 7,469,130 + 금융 487,286(대출 80%, 2개월) = 157,339,012원', async () => {
+  it('사업비: 공사비 130,266,185 + 제반 15,000,000 + 취득세 4,116,411 + 예비비 7,469,130 + 금융 627,407(대출 80%, 금리 6.0%, 2개월) = 157,479,133원', async () => {
     const f = (await load(T1, 'ALL')).finance.byScenario.BASE
     expect(f.status).toBe('ok')
     const by = Object.fromEntries(f.costs.map((c) => [c.key, c.amountWon]))
@@ -26,9 +26,9 @@ describe('T1 ALL 증축 (+1층 53.829㎡, 3세대) — 기준 시나리오 손�
     expect(by.contingency).toBe(Math.round((130_266_185 + 15_000_000 + 4_116_411) * 0.05))
     expect(by.constructionLoss).toBeNull() // 기존 임대 조건 입력 대기
     expect(f.loanWon).toBe(Math.round(156_851_726 * 0.8))
-    expect(by.finance).toBe(Math.round(125_481_381 * 0.0466 * (2 / 12) * 0.5))
-    expect(by.finance).toBe(487_286)
-    expect(f.totalCostWon).toBe(157_339_012)
+    expect(by.finance).toBe(Math.round(125_481_381 * 0.06 * (2 / 12) * 0.5))
+    expect(by.finance).toBe(627_407)
+    expect(f.totalCostWon).toBe(157_479_133)
   })
 
   it('합계 검산: 항목 합 = 총사업비, 자기자본 + 대출 = 총사업비, 대출 = (금융비용 전 소계) × 대출 비율', async () => {

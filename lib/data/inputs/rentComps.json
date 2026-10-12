@@ -1,11 +1,11 @@
 {
   "meta": {
     "source": "input",
-    "file": "261008_가정값 입력-데이터 입력완료.xlsx",
-    "version": "261008-b",
-    "sourceDate": "2026-10-08",
-    "fileHash": "1e18ab781535259c",
-    "convertedAt": "2026-10-08T03:44:31.114Z",
+    "file": "261012_가정값 입력.xlsx",
+    "version": "261012-a",
+    "sourceDate": "2026-10-12",
+    "fileHash": "0876d756de37fc31",
+    "convertedAt": "2026-10-12T01:39:00.797Z",
     "sheets": [
       {
         "name": "임대사례",
