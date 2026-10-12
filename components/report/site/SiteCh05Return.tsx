@@ -11,8 +11,9 @@ export default function SiteCh05Return({ report }: { report: SiteReport }) {
   return (
     <div>
       <Lead>
-        임대 모델(보증금 + 월세, 사업주체 대표 1인) 기준 수익성입니다. 임대료는 당산동6가 연립·다세대 신규 전월세 실거래(최근 12개월)의
-        ㎡당 월 환산 임대료 중위값으로 추정했습니다. {fin.status === 'ok' ? fin.scenarioLabel : fin.statusText}
+        임대 모델(보증금 + 월세, 사업주체 대표 1인) 기준 수익성입니다. 임대료는 당산동6가 연립·다세대 신규 월세 실거래(최근 12개월)를
+        전용면적(평)에 대한 회귀직선으로 추정했습니다: 월 환산 임대료 = 고정분 + 평당 증가분 × 전용(평), 보증금은 전환율 6%(1,000만원당 월 5만원)로
+        월세에 더하고 전용면적 구간은 나누지 않습니다. {fin.status === 'ok' ? fin.scenarioLabel : fin.statusText}
       </Lead>
 
       {fin.status === 'ok' && (
@@ -31,8 +32,8 @@ export default function SiteCh05Return({ report }: { report: SiteReport }) {
           <div className="break-inside-avoid">
             <SubTitle>세대별 예상 임대료</SubTitle>
             <DataTable
-              head={['세대', '전용', '사례 구간', '월 환산 임대료', '참고: 구간 중위 보증금 / 월세']}
-              numeric={[1, 3]}
+              head={['세대', '전용', '월 환산 임대료 (고정분 + 평당 × 평)', '참고: 보증금 / 월세 (회귀 추정)']}
+              numeric={[1, 2]}
               rows={fin.unitRows}
             />
           </div>
@@ -46,15 +47,21 @@ export default function SiteCh05Return({ report }: { report: SiteReport }) {
               highlightRow={1}
             />
             <p className="mt-2 text-xs text-ink-faint">
-              보수 = 전환율 법정 상한 · 공실·운영비·예비비·금리 불리한 값 / 낙관 = 유리한 값 (부록 가정값 표의 범위)
+              전환율은 모든 시나리오 6.0% 고정 · 보수 = 공실·운영비·예비비·금리 불리한 값 / 낙관 = 유리한 값 (부록 가정값 표의 범위)
             </p>
           </div>
         </>
       )}
 
       <div className="break-inside-avoid">
-        <SubTitle>임대 사례 (신규 계약, 최근 12개월)</SubTitle>
-        <DataTable head={['전용 구간', '사례', '지역', '중위 보증금', '중위 월세', '㎡당 월 환산 (기준)']} numeric={[1, 3, 4, 5]} rows={fin.bandRows} />
+        <SubTitle>임대 사례 — 전용면적(평)별 임대료 회귀 (신규 월세 계약, 최근 12개월)</SubTitle>
+        <DataTable
+          head={['항목', '사례 평균', '회귀식 (전용 평 기준)', '1평 증가당', '최소 임대면적 값']}
+          numeric={[1, 2, 3, 4]}
+          rows={fin.bandRows}
+          highlightRow={2}
+        />
+        <p className="mt-2 text-xs leading-relaxed text-ink-faint">{fin.bandNote}</p>
       </div>
 
       <div className="mt-6 grid grid-cols-4 gap-3">

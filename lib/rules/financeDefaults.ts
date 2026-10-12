@@ -63,23 +63,31 @@ export type AssumptionKey = keyof typeof ASSUMPTION_SPEC
  * 수익 시나리오: 보수 = 법정 상한, 기준·낙관 = 시장 전환율 (상가는 시장값이 없으면 입력 대기)
  */
 export const conversionRule = {
-  housing: { maxRate: 0.1, addToBaseRate: 0.02, law: '주택임대차보호법 제7조의2·시행령 제9조' },
+  // fixedRate = true: 주택 전월세 전환율은 시나리오와 무관하게 가정값(marketConversionHousing, 연 6.0%)으로 고정한다 (2026-10-12 사용자 결정).
+  // 법정 상한(5.0%)은 참고로만 표시 — false면 보수 시나리오에서 법정 상한을 쓴다
+  housing: { maxRate: 0.1, addToBaseRate: 0.02, law: '주택임대차보호법 제7조의2·시행령 제9조', fixedRate: true },
   commercial: { maxRate: 0.12, baseRateMultiple: 4.5, law: '상가건물 임대차보호법 제12조·시행령 제5조' },
 } as const
 
 /**
- * 임대 사례 산정 규칙 (결정 5) — 연립·다세대 전월세 실거래, 최근 12개월, 당산동6가(부족하면 영등포구)
- * 구간별 중위값을 쓴다. 사례 수가 minSamples 미만이면 "사례 부족" 표시.
+ * 임대 사례 산정 규칙 — 연립·다세대 신규 월세 실거래, 최근 12개월, 당산동6가(부족하면 영등포구)
+ * (2026-10-12 변경) 전용면적 구간을 나누지 않고, 사례의 전용면적(평)에 대한 보증금·월세의 **회귀직선(평균 기준 최소제곱)** 을 쓴다.
+ *   보증금 = a + b × 평,  월세 = c + d × 평,  월 환산 임대료 = 월세 + 보증금 × 전환율 ÷ 12  (전환율 6.0% 고정)
+ *   → 세대 임대료 = (월 환산 고정분) + (평당 증가분) × 전용(평). 최소 임대면적(표본 최소) 값과 1평당 증가분을 보고서에 보인다.
+ * 회귀는 전용 regressionMaxPyeong 이하 사례로 맞추고 모든 면적에 적용한다 (그보다 큰 면적은 외삽 — 보고서에 표시).
+ * 월세 계약만 쓴다 (전세는 월세가 없어 보증금이 섞이면 부풀려진다).
  */
 export const rentCompRule = {
   months: 12,
+  /** 당산동6가 사례가 이 값 이상이면 당산동6가만, 아니면 영등포구까지 */
   minSamples: 10,
   /** 신규 계약만 사용 (2026-10-08 결정 — 갱신 계약은 인상률 5% 상한으로 시장 임대료보다 낮을 수 있음) */
   contractTypes: ['신규'] as readonly string[],
-  bands: [
-    { band: 'S', label: '전용 0~30㎡', maxNetM2: 30 },
-    { band: 'M', label: '전용 30~60㎡', maxNetM2: 60 },
-  ],
+  /** 회귀에 쓰는 계약 형태 */
+  rentTypes: ['월세'] as readonly string[],
+  /** 회귀를 맞추는 전용면적 상한 (평). 이 값을 넘는 사례는 회귀에서 뺀다 (큰 평형은 평당 단가가 꺾임). null이면 전체 */
+  regressionMaxPyeong: 10 as number | null,
+  label: '전용면적 구분 없음 (회귀)',
 } as const
 
 /**

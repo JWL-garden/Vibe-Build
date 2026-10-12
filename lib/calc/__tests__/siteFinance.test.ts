@@ -44,26 +44,47 @@ describe('T1 ALL 증축 (+1층 53.829㎡ + 측면 보강 36.52㎡ = 90.349㎡, 3
     expect(f.loanWon).toBe(Math.round((f.totalCostWon! - finance) * loanRatio))
   })
 
-  it('수입: 새 세대 3세대(전용 46.69㎡) + 측면 보강 전용 31.68㎡ — 모두 0~30㎡ 구간 ㎡당 48,847원 × 12, 관리비 +2%, NOI = × 0.95 × 0.90', async () => {
+  it('수입: 세대별 월 환산 = 11.4만원 + 15.2만원 × 전용(평) (사례 회귀), 측면 보강은 평당 증가분만, 관리비 +2%, NOI = × 0.95 × 0.90', async () => {
     const f = (await load(T1, 'ALL')).finance.byScenario.BASE
     expect(f.project.units).toHaveLength(3) // 측면 보강부는 세대 수에 넣지 않는다
-    expect(f.project.units.every((u) => u.band === 'S')).toBe(true)
-    const perM2 = f.rentBands.find((b) => b.band === 'S')!.monthlyEquivalentPerM2!
-    expect(Math.round(perM2)).toBe(48_847)
+    expect(f.rentBands).toHaveLength(1)
+    const [b] = f.rentBands
+    expect(b.band).toBe('ALL')
+    expect(b.count).toBe(113) // 당산동6가 신규 월세 계약 (전세 27건 제외)
+    expect(b.fitCount).toBe(100) // 회귀는 전용 10평 이하 사례
+    expect(b.minPyeong!).toBeCloseTo(2.172, 3) // 최소 임대면적 7.18㎡
+    expect(Math.round(b.equivalentBaseWon!)).toBe(114_012) // 월 환산 고정분 11.4만원
+    expect(Math.round(b.equivalentPerPyeongWon!)).toBe(152_047) // 1평 증가당 15.2만원
+    expect(b.r2!).toBeCloseTo(0.49, 2)
+    for (const u of f.project.units) {
+      expect(u.monthlyEquivalentWon).toBeCloseTo(b.equivalentBaseWon! + b.equivalentPerPyeongWon! * (u.netAreaM2 / PYEONG_M2), 4)
+      expect(u.extrapolated).toBe(false) // 3.5·7.1평 — 회귀 범위(10평) 안
+    }
+    // 전환율 6% 고정이면 월 환산 = 월세 회귀 + 보증금 회귀 × 0.005
+    expect(b.equivalentBaseWon!).toBeCloseTo(b.monthlyBaseWon! + b.depositBaseWon! * 0.005, 3)
+    expect(b.equivalentPerPyeongWon!).toBeCloseTo(b.monthlyPerPyeongWon! + b.depositPerPyeongWon! * 0.005, 3)
     const net = f.project.units.reduce((s, u) => s + u.netAreaM2, 0)
     expect(net).toBeCloseTo(46.6934, 3)
     expect(f.project.sideNetM2).toBeCloseTo(31.6789, 3) // 36.52㎡ × 전용률 0.8674
-    expect(f.project.sideRentMonthlyWon).toBeCloseTo(f.project.sideNetM2 * perM2, 4)
-    const totalNet = net + f.project.sideNetM2
-    expect(f.revenue.grossAnnualWon).toBe(Math.round(totalNet * perM2 * 12))
-    expect(f.revenue.maintenanceWon).toBe(Math.round(totalNet * perM2 * 12 * 0.02))
-    expect(f.revenue.noiWon).toBe(Math.round(totalNet * perM2 * 12 * 1.02 * 0.95 * 0.9))
-    expect(f.revenue.noiWon).toBe(40_063_246)
+    // 측면 보강: 세대 고정분 없이 평당 증가분만
+    expect(f.project.sideRentMonthlyWon).toBeCloseTo((f.project.sideNetM2 / PYEONG_M2) * b.equivalentPerPyeongWon!, 4)
+    const rentMonthly = f.project.units.reduce((s, u) => s + u.monthlyEquivalentWon!, 0) + f.project.sideRentMonthlyWon!
+    expect(f.revenue.grossAnnualWon).toBe(Math.round(rentMonthly * 12))
+    expect(f.revenue.maintenanceWon).toBe(Math.round(rentMonthly * 12 * 0.02))
+    expect(f.revenue.noiWon).toBe(Math.round(rentMonthly * 12 * 1.02 * 0.95 * 0.9))
+    expect(f.revenue.noiWon).toBe(41_303_051)
     expect(f.revenue.noiIncreaseWon).toBe(f.revenue.noiWon) // 증축은 새 세대 NOI가 곧 증가분
     expect(f.metrics.roi).toBeCloseTo(f.revenue.noiIncreaseWon! / f.totalCostWon!, 8)
-    expect(f.metrics.roi!).toBeCloseTo(0.158, 3)
-    expect(f.metrics.paybackYears!).toBeCloseTo(6.33, 1)
+    expect(f.metrics.roi!).toBeCloseTo(0.1629, 3)
+    expect(f.metrics.paybackYears!).toBeCloseTo(6.14, 1)
     expect(f.metrics.roi! * f.metrics.paybackYears!).toBeCloseTo(1, 10)
+  })
+
+  it('회귀직선은 세대마다 고정분이 있어 ㎡당 임대료가 일정하지 않다: 작은 세대(11.7㎡)가 큰 세대(23.3㎡)보다 ㎡당 높다', async () => {
+    const f = (await load(T1, 'ALL')).finance.byScenario.BASE
+    const small = f.project.units.reduce((a, u) => (u.netAreaM2 < a.netAreaM2 ? u : a))
+    const large = f.project.units.reduce((a, u) => (u.netAreaM2 > a.netAreaM2 ? u : a))
+    expect(small.monthlyEquivalentWon! / small.netAreaM2).toBeGreaterThan(large.monthlyEquivalentWon! / large.netAreaM2)
   })
 
   it('측면 보강부는 일조 완화 시나리오(A·ALL)에서만 포함: C·B에서는 0', async () => {
@@ -74,10 +95,12 @@ describe('T1 ALL 증축 (+1층 53.829㎡ + 측면 보강 36.52㎡ = 90.349㎡, 3
     for (const id of ['BASE', 'B', 'C'] as const) expect(a[id].plan.sideGfaM2).toBe(0)
   })
 
-  it('수익 시나리오: 보수(전환율 법정 상한 5.0%, 공실 10%, 운영비 15%) < 기준 < 낙관', async () => {
+  it('수익 시나리오: 전환율은 모든 시나리오 6.0% 고정, 보수(공실 10%, 운영비 15%, 금리 6.5%) < 기준 < 낙관', async () => {
     const fin = (await load(T1, 'ALL')).finance.byScenario
-    expect(fin.CONSERVATIVE.conversion.housing.applied).toBeCloseTo(0.05, 10)
-    expect(fin.BASE.conversion.housing.applied).toBeCloseTo(0.05625, 10)
+    expect(fin.CONSERVATIVE.conversion.housing.applied).toBeCloseTo(0.06, 10) // 법정 상한 5.0%보다 높지만 사용자 지정으로 고정
+    expect(fin.CONSERVATIVE.conversion.housing.legalCap).toBeCloseTo(0.05, 10)
+    expect(fin.BASE.conversion.housing.applied).toBeCloseTo(0.06, 10) // 보증금 1,000만원당 월 5만원 (2026-10-12)
+    expect(fin.OPTIMISTIC.conversion.housing.applied).toBeCloseTo(0.06, 10)
     expect(fin.CONSERVATIVE.metrics.roi!).toBeLessThan(fin.BASE.metrics.roi!)
     expect(fin.BASE.metrics.roi!).toBeLessThan(fin.OPTIMISTIC.metrics.roi!)
   })
@@ -105,7 +128,8 @@ describe('재건축 (REBUILD)', () => {
   it('NOI 증가 = 신축 NOI − 철거되는 기존 세대 NOI(추정)', async () => {
     const f = (await load(T2, 'REBUILD')).finance.byScenario.BASE
     expect(f.revenue.existingNoiWon).toBeGreaterThan(0)
-    expect(f.revenue.noiIncreaseWon).toBe(f.revenue.noiWon! - f.revenue.existingNoiWon!)
+    // 원 단위 반올림 차이 ±1원
+    expect(Math.abs(f.revenue.noiIncreaseWon! - (f.revenue.noiWon! - f.revenue.existingNoiWon!))).toBeLessThanOrEqual(1)
   })
 
   it('신축 단가 = max(건물신축단가표, 엑셀 신축비용) — 엑셀 값이 더 크면 엑셀 값과 근거를 쓴다', async () => {
@@ -167,6 +191,6 @@ describe('계산 생략·입력 대기', () => {
       assetBeforeWon: null,
     })
     expect(f.status).toBe('pending')
-    expect(f.missing).toContain('임대 사례 (전용 0~30㎡)')
+    expect(f.missing).toContain('임대 사례 (전용면적 구분 없음 (회귀))')
   })
 })

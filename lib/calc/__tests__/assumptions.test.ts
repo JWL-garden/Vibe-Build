@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import assumptionsJson from '@/lib/data/inputs/assumptions.json'
 import { ASSUMPTION_SPEC, PYEONG_M2, type AssumptionKey } from '@/lib/rules/financeDefaults'
 import type { AssumptionRow, RentComp } from '@/types'
-import { calcConversionRates, missingAssumptions, resolveAssumptions, summarizeRentComps } from '../assumptions'
+import { calcConversionRates, leastSquares, missingAssumptions, resolveAssumptions, summarizeRentComps } from '../assumptions'
 
 const rows = assumptionsJson.items as AssumptionRow[]
 
@@ -75,10 +75,12 @@ describe('전월세 전환율 (결정 6)', () => {
     expect(r.commercial.legalCap).toBeCloseTo(0.12, 10)
   })
 
-  it('주택: 보수 = 법정 상한 5.0%, 기준·낙관 = 시장 5.625% (영등포구 연립다세대 4개 분기 평균)', () => {
-    expect(calcConversionRates(resolveAssumptions(rows, 'CONSERVATIVE'), 'CONSERVATIVE').housing.applied).toBeCloseTo(0.05, 10)
-    expect(calcConversionRates(resolveAssumptions(rows, 'BASE'), 'BASE').housing.applied).toBeCloseTo(0.05625, 10)
-    expect(calcConversionRates(resolveAssumptions(rows, 'OPTIMISTIC'), 'OPTIMISTIC').housing.applied).toBeCloseTo(0.05625, 10)
+  it('주택: 모든 시나리오 6.0% 고정 (보증금 1,000만원당 월 5만원, 2026-10-12 사용자 지정), 법정 상한 5.0%는 참고', () => {
+    const cons = calcConversionRates(resolveAssumptions(rows, 'CONSERVATIVE'), 'CONSERVATIVE').housing
+    expect(cons.legalCap).toBeCloseTo(0.05, 10)
+    expect(cons.applied).toBeCloseTo(0.06, 10)
+    expect(calcConversionRates(resolveAssumptions(rows, 'BASE'), 'BASE').housing.applied).toBeCloseTo(0.06, 10)
+    expect(calcConversionRates(resolveAssumptions(rows, 'OPTIMISTIC'), 'OPTIMISTIC').housing.applied).toBeCloseTo(0.06, 10)
   })
 
   it('상가: 시장 전환율 미확보 → 입력 대기(null). 값이 있으면 보수 = min(시장, 법정 상한)', () => {
@@ -88,46 +90,66 @@ describe('전월세 전환율 (결정 6)', () => {
   })
 })
 
-describe('임대 사례 요약 (결정 5)', () => {
+describe('임대 사례 요약 — 전용면적(평) 회귀직선 (2026-10-12)', () => {
   const comp = (dong: string, area: number, type: '전세' | '월세', deposit: number, monthly: number, maint: number | null = null): RentComp => ({
     source: '테스트', contractDate: '2026-05-01', district: '영등포구', dong, jibun: null, floor: 3, rentType: type,
     netAreaM2: area, depositManwon: deposit, monthlyManwon: monthly, maintenanceManwon: maint,
     buildingUse: '연립다세대', builtYear: 2010, newOrRenewal: '신규', memo: null,
   })
+  /** 전용 평 → ㎡ */
+  const m2 = (py: number) => py * PYEONG_M2
 
-  it('당산동6가 사례가 10건 이상이면 당산동6가만, 중위 보증금·월세·관리비, ㎡당 월 환산 = (월세 + 보증금 × 5% ÷ 12) ÷ 전용', () => {
-    const comps = [
-      ...Array.from({ length: 10 }, (_, i) => comp('당산동6가', 25, '월세', 1000 + i * 100, 60 + i, 5)),
-      comp('문래동2가', 20, '월세', 9999, 999),
-    ]
-    const [s, m] = summarizeRentComps(comps, 0.05)
-    expect(s.count).toBe(10)
-    expect(s.area).toBe('당산동6가')
-    expect(s.depositWon).toBe(14_500_000) // (1400 + 1500) / 2 만원
-    expect(s.monthlyWon).toBe(645_000)
-    expect(s.maintenanceWon).toBe(50_000)
-    // 각 사례 (월세 + 보증금 × 0.05 / 12) / 25㎡ 의 중위값 = (64.5만 + 1450만 × 0.05 / 12) / 25
-    expect(s.monthlyEquivalentPerM2).toBeCloseTo((645_000 + (14_500_000 * 0.05) / 12) / 25, 6)
-    expect(m.count).toBe(0)
-    expect(m.area).toBe('사례 없음')
+  it('최소제곱 직선: y = 2 + 3x 점들은 그대로 복원, 점이 1개면 null', () => {
+    const r = leastSquares([1, 2, 3, 4], [5, 8, 11, 14])!
+    expect(r.a).toBeCloseTo(2, 10)
+    expect(r.b).toBeCloseTo(3, 10)
+    expect(r.r2).toBeCloseTo(1, 10)
+    expect(leastSquares([1], [1])).toBeNull()
+    expect(leastSquares([2, 2, 2], [1, 2, 3])).toBeNull()
   })
 
-  it('갱신 계약·구분 없는 계약은 빼고 신규 계약만 쓴다 (2026-10-08 결정)', () => {
-    const renewal = { ...comp('당산동6가', 25, '월세', 500, 30), newOrRenewal: '갱신' }
-    const unknown = { ...comp('당산동6가', 25, '월세', 500, 30), newOrRenewal: null }
-    const [s] = summarizeRentComps([comp('당산동6가', 25, '월세', 1000, 60), renewal, unknown], 0.05)
-    expect(s.count).toBe(1)
-    expect(s.monthlyWon).toBe(600_000)
+  it('보증금 = 1,000 + 500×평, 월세 = 30 + 2×평(만원)인 사례 12건 → 회귀가 그대로 복원, 월 환산 = 월세 + 보증금 × 6% ÷ 12', () => {
+    const comps = [2, 3, 4, 5, 6, 7, 8, 9, 3.5, 4.5, 5.5, 6.5].map((py) => comp('당산동6가', m2(py), '월세', 1000 + 500 * py, 30 + 2 * py))
+    const [s] = summarizeRentComps(comps, 0.06)
+    expect(s.band).toBe('ALL')
+    expect(s.count).toBe(12)
+    expect(s.depositBaseWon).toBeCloseTo(10_000_000, 0)
+    expect(s.depositPerPyeongWon).toBeCloseTo(5_000_000, 0)
+    expect(s.monthlyBaseWon).toBeCloseTo(300_000, 0)
+    expect(s.monthlyPerPyeongWon).toBeCloseTo(20_000, 0)
+    // 월 환산 = 월세 + 보증금 × 0.06 / 12 = 월세 + 보증금 × 0.005
+    expect(s.equivalentBaseWon).toBeCloseTo(300_000 + 10_000_000 * 0.005, 0)
+    expect(s.equivalentPerPyeongWon).toBeCloseTo(20_000 + 5_000_000 * 0.005, 0)
+    expect(s.r2).toBeCloseTo(1, 8)
+    expect(s.minPyeong).toBeCloseTo(2, 8) // 최소 임대면적
   })
 
-  it('당산동6가가 10건 미만이면 영등포구 사례 포함, 전세는 보증금만으로 환산', () => {
-    const comps = [comp('당산동6가', 45, '전세', 20000, 0), comp('문래동2가', 50, '월세', 3000, 100)]
-    const [, m] = summarizeRentComps(comps, 0.06)
-    expect(m.count).toBe(2)
-    expect(m.area).toBe('당산동6가 + 영등포구')
-    expect(m.depositWon).toBe(30_000_000) // 월세 계약만
-    const e1 = (200_000_000 * 0.06) / 12 / 45
-    const e2 = (1_000_000 + (30_000_000 * 0.06) / 12) / 50
-    expect(m.monthlyEquivalentPerM2).toBeCloseTo((e1 + e2) / 2, 6)
+  it('회귀는 전용 10평 이하 사례로만 맞춘다 (10평 초과 사례는 건수에만 포함, 면적 범위 maxPyeong에는 반영)', () => {
+    const small = [2, 3, 4, 5, 6, 7, 8, 9, 10].map((py) => comp('당산동6가', m2(py), '월세', 1000 + 500 * py, 30 + 2 * py))
+    const big = [comp('당산동6가', m2(15), '월세', 100, 10), comp('당산동6가', m2(20), '월세', 100, 10)]
+    const [s] = summarizeRentComps([...small, ...big], 0.06)
+    expect(s.count).toBe(11)
+    expect(s.fitCount).toBe(9)
+    expect(s.fitMaxPyeong).toBe(10)
+    expect(s.maxPyeong).toBeCloseTo(20, 8)
+    expect(s.depositPerPyeongWon).toBeCloseTo(5_000_000, 0) // 큰 평형의 낮은 보증금이 섞이지 않음
+  })
+
+  it('갱신·구분 없음·전세 계약은 빼고 신규 월세만, 당산동6가가 10건 미만이면 영등포구 포함', () => {
+    const renewal = { ...comp('당산동6가', m2(5), '월세', 500, 30), newOrRenewal: '갱신' }
+    const unknown = { ...comp('당산동6가', m2(5), '월세', 500, 30), newOrRenewal: null }
+    const jeonse = comp('당산동6가', m2(5), '전세', 20000, 0)
+    const [s] = summarizeRentComps([comp('당산동6가', m2(5), '월세', 1000, 60), comp('문래동2가', m2(8), '월세', 2000, 70), renewal, unknown, jeonse], 0.06)
+    expect(s.count).toBe(2)
+    expect(s.area).toBe('당산동6가 + 영등포구')
+  })
+
+  it('사례가 점 하나뿐이면 평당 평균(원점 통과)으로 대체, 전환율이 없으면 월 환산은 null', () => {
+    const [s] = summarizeRentComps([comp('당산동6가', m2(5), '월세', 1000, 60)], 0.06)
+    expect(s.depositBaseWon).toBe(0)
+    expect(s.monthlyPerPyeongWon).toBeCloseTo(600_000 / 5, 3)
+    const [n] = summarizeRentComps([comp('당산동6가', m2(5), '월세', 1000, 60)], null)
+    expect(n.equivalentBaseWon).toBeNull()
+    expect(n.depositPerPyeongWon).not.toBeNull()
   })
 })

@@ -52,7 +52,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
   const rows: ReportRow[] = []
   rows.push([
     '전월세 전환율 (주택)',
-    ...IDS.map((id) => `${pctOrDash(f[id].conversion.housing.applied, 2)} (${id === 'CONSERVATIVE' ? '법정 상한' : '시장'})`),
+    ...IDS.map((id) => `${pctOrDash(f[id].conversion.housing.applied, 2)} (${f[id].conversion.housing.basis.startsWith('법정') ? '법정 상한' : '고정'})`),
   ])
   for (const key of COMPARE_KEYS) {
     const sample = base.assumptions.find((a) => a.key === key)
@@ -131,7 +131,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
   const g = cf?.growthRate
   const d = cf?.discountRate
   const notes = [
-    '수익 시나리오: 가정값 입력 엑셀의 보수·기준·낙관 값을 그대로 적용 (전월세 전환율은 보수 = 법정 상한).',
+    '수익 시나리오: 가정값 입력 엑셀의 보수·기준·낙관 값을 그대로 적용 (주택 전월세 전환율은 모든 시나리오 6.0% 고정).',
     '토네이도: 기준 시나리오에서 변수 하나만 불리한 값·유리한 값으로 바꾸고 나머지는 기준값 그대로 두었습니다. 임대료는 ±10%(설계서 5-5). 값이 하나뿐인 가정값(예: 취득세율)은 제외했습니다.',
     `10년 현금흐름: 총사업비는 0년차에 지출, NOI 증가는 1년차부터 연 ${g == null ? '0%(가정값 없음)' : formatRate(g, 1)} 상승, 할인율 ${d == null ? '없음' : formatRate(d, 1)}. 10년 말 잔존가치(자산가치 증가)와 공사 중 임대 손실은 반영하지 않은 보수적 단순화입니다.`,
     kind === 'rebuild'

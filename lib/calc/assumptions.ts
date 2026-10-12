@@ -1,9 +1,9 @@
 // 수익성 가정값 정리 (2026-10-08 결정 1~6·12) — 순수 함수
 // 1) resolveAssumptions: 가정값 입력 엑셀 행 → 수익 시나리오(보수/기준/낙관) 값. 우선순위: 사용자 입력 > 입력 엑셀
 // 2) calcConversionRates: 전월세 전환율 — 보수 = 법정 상한, 기준·낙관 = 시장 전환율. 주거 외 용도는 상가법 기준
-// 3) summarizeRentComps: 임대 사례(신규 계약만) → 전용 구간(0~30 / 30~60㎡)별 중위 보증금·월세·관리비·㎡당 월 환산 임대료
+// 3) summarizeRentComps: 임대 사례(신규 월세 계약) → 전용면적(평) 회귀직선 (세대 고정분 + 평당 증가분), 전용면적 구간 없음
 
-import { ASSUMPTION_SPEC, conversionRule, rentCompRule, type AssumptionKey } from '@/lib/rules/financeDefaults'
+import { ASSUMPTION_SPEC, PYEONG_M2, conversionRule, rentCompRule, type AssumptionKey } from '@/lib/rules/financeDefaults'
 import type {
   AssumptionRow,
   ConversionRates,
@@ -61,12 +61,18 @@ export function calcConversionRates(a: ResolvedAssumptions, scenario: FinanceSce
   const housingMarket = pct(a.marketConversionHousing.value)
   const commercialMarket = pct(a.marketConversionCommercial.value)
   const conservative = scenario === 'CONSERVATIVE'
+  // 주택: fixedRate면 모든 시나리오에서 가정값(연 6.0%)으로 고정, 아니면 보수 = 법정 상한
+  const housingUseCap = conservative && !h.fixedRate
   return {
     housing: {
       legalCap: housingCap,
       market: housingMarket,
-      applied: conservative ? housingCap : housingMarket,
-      basis: conservative ? `법정 상한 (${h.law})` : '시장 전환율',
+      applied: housingUseCap ? housingCap : housingMarket,
+      basis: housingUseCap
+        ? `법정 상한 (${h.law})`
+        : h.fixedRate
+          ? '전환율 고정 (보증금 1,000만원당 월 5만원)'
+          : '시장 전환율',
     },
     commercial: {
       legalCap: commercialCap,
@@ -82,50 +88,91 @@ export function calcConversionRates(a: ResolvedAssumptions, scenario: FinanceSce
   }
 }
 
-function median(values: number[]): number | null {
-  if (values.length === 0) return null
-  const s = [...values].sort((x, y) => x - y)
-  const m = Math.floor(s.length / 2)
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
-}
-
 const MANWON = 10_000
 
+/** 최소제곱 직선 y = a + b·x. 점이 2개 미만이거나 x가 모두 같으면 null */
+export function leastSquares(xs: number[], ys: number[]): { a: number; b: number; r2: number } | null {
+  const n = xs.length
+  if (n < 2) return null
+  const mx = xs.reduce((s, v) => s + v, 0) / n
+  const my = ys.reduce((s, v) => s + v, 0) / n
+  let sxx = 0
+  let sxy = 0
+  let syy = 0
+  for (let i = 0; i < n; i++) {
+    sxx += (xs[i] - mx) ** 2
+    sxy += (xs[i] - mx) * (ys[i] - my)
+    syy += (ys[i] - my) ** 2
+  }
+  if (sxx === 0) return null
+  const b = sxy / sxx
+  return { a: my - b * mx, b, r2: syy === 0 ? 1 : (sxy * sxy) / (sxx * syy) }
+}
+
+const mean = (v: number[]) => (v.length ? v.reduce((s, x) => s + x, 0) / v.length : null)
+
 /**
- * 임대 사례 구간 요약. conversionRate(소수)로 보증금을 월세로 환산해 ㎡당 월 환산 임대료를 구한다.
- * 당산동6가 사례가 구간별 minSamples 이상이면 당산동6가만, 아니면 영등포구 사례까지 쓴다.
+ * 임대 사례 요약 (2026-10-12 변경: 전용면적 구간 없음, 평 기준 회귀직선).
+ * 신규 월세 계약의 전용면적(평)에 대해 보증금·월세를 최소제곱 직선으로 맞춘다 (평균 기준).
+ *   월 환산 임대료 = 월세 + 보증금 × conversionRate(연, 소수) ÷ 12  → 고정분(원/월) + 평당 증가분(원/평·월) × 전용(평)
+ * 당산동6가 사례가 minSamples 이상이면 당산동6가만, 아니면 영등포구 사례까지 쓴다.
+ * 회귀는 regressionMaxPyeong 이하 사례로 맞춘다. 점이 부족하면 평당 평균(원점 통과)으로 대체한다.
  */
 export function summarizeRentComps(comps: RentComp[], conversionRate: number | null): RentBandSummary[] {
   const valid = comps.filter(
     (c) =>
       (c.netAreaM2 ?? 0) > 0 &&
       c.depositManwon !== null &&
-      (c.rentType === '전세' || c.rentType === '월세') &&
+      rentCompRule.rentTypes.includes(c.rentType ?? '') &&
       rentCompRule.contractTypes.includes(c.newOrRenewal ?? ''),
   )
-  let lower = 0
-  return rentCompRule.bands.map(({ band, label, maxNetM2 }) => {
-    const inBand = valid.filter((c) => c.netAreaM2! > lower && c.netAreaM2! <= maxNetM2)
-    lower = maxNetM2
-    const dong = inBand.filter((c) => c.dong === '당산동6가')
-    const used = dong.length >= rentCompRule.minSamples ? dong : inBand
-    const area = used === dong ? '당산동6가' : '당산동6가 + 영등포구'
-    const monthly = used.filter((c) => c.rentType === '월세')
-    const maint = used.map((c) => c.maintenanceManwon).filter((v): v is number => v !== null)
-    const equivalents =
-      conversionRate === null
-        ? []
-        : used.map((c) => ((c.monthlyManwon ?? 0) * MANWON + (c.depositManwon! * MANWON * conversionRate) / 12) / c.netAreaM2!)
-    const wonOrNull = (v: number | null) => (v === null ? null : v * MANWON)
-    return {
-      band,
-      label,
+  const dong = valid.filter((c) => c.dong === '당산동6가')
+  const used = dong.length >= rentCompRule.minSamples ? dong : valid
+  const area = used === dong ? '당산동6가' : '당산동6가 + 영등포구'
+  const pyeong = (c: RentComp) => c.netAreaM2! / PYEONG_M2
+  const maxPy = rentCompRule.regressionMaxPyeong
+  const fit = used.filter((c) => maxPy === null || pyeong(c) <= maxPy)
+  const xs = fit.map(pyeong)
+  const deposit = fit.map((c) => c.depositManwon! * MANWON)
+  const monthly = fit.map((c) => (c.monthlyManwon ?? 0) * MANWON)
+
+  // 점이 부족하면 평당 평균을 원점을 지나는 직선으로
+  const proportional = (ys: number[]) => {
+    const m = mean(ys.map((y, i) => y / xs[i]))
+    return m === null ? null : { a: 0, b: m, r2: 0 }
+  }
+  const depositLine = leastSquares(xs, deposit) ?? proportional(deposit)
+  const monthlyLine = leastSquares(xs, monthly) ?? proportional(monthly)
+  const rate = conversionRate
+  const equiv =
+    depositLine && monthlyLine && rate !== null
+      ? {
+          a: monthlyLine.a + (depositLine.a * rate) / 12,
+          b: monthlyLine.b + (depositLine.b * rate) / 12,
+          r2: leastSquares(xs, monthly.map((m, i) => m + (deposit[i] * rate) / 12))?.r2 ?? null,
+        }
+      : null
+  const allPy = used.map(pyeong)
+  return [
+    {
+      band: 'ALL',
+      label: rentCompRule.label,
       count: used.length,
+      fitCount: fit.length,
       area: used.length ? area : '사례 없음',
-      depositWon: wonOrNull(median(monthly.map((c) => c.depositManwon!))),
-      monthlyWon: wonOrNull(median(monthly.map((c) => c.monthlyManwon ?? 0))),
-      maintenanceWon: wonOrNull(median(maint)),
-      monthlyEquivalentPerM2: median(equivalents),
-    }
-  })
+      minPyeong: allPy.length ? Math.min(...allPy) : null,
+      maxPyeong: allPy.length ? Math.max(...allPy) : null,
+      meanPyeong: mean(allPy),
+      fitMaxPyeong: maxPy,
+      meanDepositWon: mean(used.map((c) => c.depositManwon! * MANWON)),
+      meanMonthlyWon: mean(used.map((c) => (c.monthlyManwon ?? 0) * MANWON)),
+      depositBaseWon: depositLine?.a ?? null,
+      depositPerPyeongWon: depositLine?.b ?? null,
+      monthlyBaseWon: monthlyLine?.a ?? null,
+      monthlyPerPyeongWon: monthlyLine?.b ?? null,
+      equivalentBaseWon: equiv?.a ?? null,
+      equivalentPerPyeongWon: equiv?.b ?? null,
+      r2: equiv?.r2 ?? null,
+    },
+  ]
 }

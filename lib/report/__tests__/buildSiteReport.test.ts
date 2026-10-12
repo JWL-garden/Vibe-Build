@@ -98,7 +98,7 @@ describe('T1 104-10 렉스빌 보고서', () => {
     // 수익성이 계산되면 표지 KPI = 규모 · 총사업비 · ROI · 회수기간 (설계서 11장), 판정은 회수기간 보조 문구
     expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', 'ROI (기준)', '투자회수기간'])
     expect(r.summary.kpis[1].value).toBe('2.5억원')
-    expect(r.summary.kpis[2].value).toBe('15.8%')
+    expect(r.summary.kpis[2].value).toBe('16.3%')
     expect(r.summary.kpis[3].caption).toContain('증축 가능')
   })
 
@@ -261,13 +261,18 @@ describe('4장 사업비 · 5장 수익 · 부록 가정값 (2026-10-08 결정 1
 
   it('T1 ALL: 5장 KPI·시나리오 표 = runAll 값, 보수 전환율은 법정 상한', async () => {
     const r = await build(T1)
-    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '15.8%' })
+    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '16.3%' })
     expect(r.finance.revenueRows.map((row) => row[0])).toContain('관리비 수입')
     expect(r.finance.inputNotes).toContain('증축공사비 단가는 층별로 달라지므로 엑셀데이터 참고할 것')
     expect(r.finance.scenarioRows.map((row) => row[0])).toEqual(['보수', '기준', '낙관'])
-    expect(r.finance.scenarioRows[0][1]).toBe('5.0% (법정 상한)')
+    expect(r.finance.scenarioRows[0][1]).toBe('6.0% (고정)') // 보수도 6.0% 고정 (법정 상한 5.0%는 참고)
     expect(r.finance.unitRows).toHaveLength(4) // 새 세대 3 + 측면 보강 1행
-    expect(r.finance.bandRows[0].slice(0, 3)).toEqual(['전용 0~30㎡', '120건', '당산동6가'])
+    expect(r.finance.bandRows).toHaveLength(3) // 보증금·월세·월 환산 (전용면적 구간 없음)
+    expect(r.finance.bandRows.map((row) => row[0])).toEqual(['보증금', '월세', '월 환산 임대료 (보증금 1,000만원당 월 5만원)'])
+    expect(r.finance.bandRows[2].slice(2, 4)).toEqual(['11.4만원 + 15.2만원 × 평', '+15.2만원'])
+    expect(r.finance.bandNote).toContain('113건')
+    expect(r.finance.bandNote).toContain('R² 0.49')
+    expect(r.finance.bandNote).toContain('최소 임대면적 2.17평')
   })
 
   it('증축안이 없으면(T1 BASE) 4·5장은 계산 생략 안내, 표지 KPI는 규모·세대·주차·판정 유지', async () => {
@@ -284,7 +289,7 @@ describe('4장 사업비 · 5장 수익 · 부록 가정값 (2026-10-08 결정 1
     const rate = a.assumptionRows.find((row) => row[0] === '한국은행 기준금리')!
     expect(rate[3]).toBe('A 공식')
     expect(a.conversionRows.map((row) => row[0])).toEqual(['주택 (연립·다세대)', '상가·사무실 (주거 외)'])
-    expect(a.conversionRows[0].slice(1, 3)).toEqual(['5.0%', '5.6%'])
+    expect(a.conversionRows[0].slice(1, 5)).toEqual(['5.0%', '6.0%', '6.0%', '6.0%']) // 법정 상한(참고), 시장 입력값, 보수·기준 적용 모두 6.0% 고정
   })
 })
 

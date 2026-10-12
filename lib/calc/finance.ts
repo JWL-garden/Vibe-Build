@@ -3,7 +3,7 @@
 //       [A] 사업비·[B] 임대수익·[C] 지표 (calcSiteFinance, 2026-10-08 결정 1·2·6·12)
 //       [D] 10년 현금흐름·NPV·IRR (calcCashflow10y, 2026-10-12) — 민감도는 sensitivity.ts
 
-import { PYEONG_M2, rentCompRule, type AssumptionKey, type BuildingValueRule, type LandValueRule } from '@/lib/rules/financeDefaults'
+import { PYEONG_M2, type AssumptionKey, type BuildingValueRule, type LandValueRule } from '@/lib/rules/financeDefaults'
 import type {
   AssetValueResult,
   AssumptionRow,
@@ -212,7 +212,7 @@ export interface SiteFinanceInput {
   userInput?: Partial<Record<AssumptionKey, number>>
   /** 임대료 배수 (민감도용, 기본 1) — 모든 세대 월 환산 임대료에 곱한다 */
   rentFactor?: number
-  /** 측면 보강부 전용면적 (㎡) — 세대 수에는 넣지 않고 임대수입에만 더한다 (0~30㎡ 구간 ㎡당 임대료). 없으면 0 */
+  /** 측면 보강부 전용면적 (㎡) — 세대 수에는 넣지 않고 임대수입에만 더한다 (같은 평당 임대료). 없으면 0 */
   extraNetM2?: number
 }
 
@@ -224,7 +224,7 @@ const fmtPct = (v: number, d = 2) => `${(v * 100).toFixed(d)}%`
  * 임대 모델 수익성 (대표 1인 사업주체)
  * 증축 사업비 = 공사비(연면적 ÷ 3.305785 × 평당 단가) + 세대당 제반비용 + 취득세 등 + 예비비 + 금융비용
  * 재건축 사업비 = 공사비(공사 연면적 × max(신축단가표, 엑셀 신축비용)) + 세대당 제반비용(증축 기준 준용) + 취득세 등 + 예비비 + 금융비용
- * 임대수입 = Σ 세대 전용 × ㎡당 월 환산 임대료(신규 실거래 중위, 보증금은 전환율로 월세 환산) × 12
+ * 임대수입 = Σ 세대 월 환산 임대료 × 12, 월 환산 = 고정분 + 평당 증가분 × 전용(평) (신규 월세 실거래 회귀, 보증금은 전환율로 월세 환산)
  * NOI = 임대수입 × (1 − 공실률) × (1 − 운영비율), 재건축은 기존 세대 NOI(추정)를 뺀 증가분
  */
 export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
@@ -235,23 +235,26 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   const notes: string[] = []
   const v = (k: AssumptionKey) => a[k].value
 
-  const bandOf = (net: number): 'S' | 'M' => (net <= rentCompRule.bands[0].maxNetM2 ? 'S' : 'M')
+  // 전용면적 구간 없음 — 사례 회귀직선: 월 환산 임대료 = 고정분(세대당) + 평당 증가분 × 전용(평) (2026-10-12)
+  const band = rentBands[0]
+  const rentFactor = input.rentFactor ?? 1
+  const fitted = band.equivalentBaseWon !== null && band.equivalentPerPyeongWon !== null
   const rentUnit = (net: number): SiteRentUnit => {
-    const b = rentBands.find((x) => x.band === bandOf(net))!
+    const py = net / PYEONG_M2
+    const at = (base: number | null, per: number | null) => (base === null || per === null ? null : Math.max(0, base + per * py))
     return {
       netAreaM2: net,
-      band: b.band,
-      monthlyEquivalentWon: b.monthlyEquivalentPerM2 === null ? null : b.monthlyEquivalentPerM2 * net * (input.rentFactor ?? 1),
-      depositWon: b.depositWon,
-      monthlyWon: b.monthlyWon,
+      netAreaPyeong: py,
+      monthlyEquivalentWon: fitted ? Math.max(0, band.equivalentBaseWon! + band.equivalentPerPyeongWon! * py) * rentFactor : null,
+      depositWon: at(band.depositBaseWon, band.depositPerPyeongWon),
+      monthlyWon: at(band.monthlyBaseWon, band.monthlyPerPyeongWon),
+      extrapolated: band.fitMaxPyeong !== null && py > band.fitMaxPyeong,
     }
   }
   const units = newUnitNets.map(rentUnit)
+  // 측면 보강부는 새 세대가 아니라 기존 세대 확장분 — 세대 고정분 없이 평당 증가분만 더한다
   const extraNet = input.extraNetM2 ?? 0
-  const sideBand = rentBands.find((b) => b.band === 'S')
-  const sideRentMonthly =
-    extraNet > 0 && sideBand?.monthlyEquivalentPerM2 != null ? extraNet * sideBand.monthlyEquivalentPerM2 * (input.rentFactor ?? 1) : null
-  if (newUnitNets.some((n) => n > rentCompRule.bands[1].maxNetM2)) notes.push('전용 60㎡ 초과 세대는 30~60㎡ 사례로 추정했습니다.')
+  const sideRentMonthly = extraNet > 0 && fitted ? (extraNet / PYEONG_M2) * band.equivalentPerPyeongWon! * rentFactor : null
 
   const empty = {
     project: { kind, gfaM2, constructionAreaM2, units, sideNetM2: extraNet, sideRentMonthlyWon: sideRentMonthly },
@@ -285,10 +288,7 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   const newBuildCost = Math.max(v('newBuildCostTable') ?? -Infinity, v('newBuildCostExcel') ?? -Infinity)
   if (kind === 'rebuild' && !Number.isFinite(newBuildCost)) missing.push('신축 단가 (건물신축단가표 또는 엑셀 신축비용)')
   if (conversion.housing.applied === null) missing.push('주택 전월세 전환율')
-  for (const b of rentBands.filter((x) => units.some((u) => u.band === x.band) && x.monthlyEquivalentPerM2 === null)) {
-    missing.push(`임대 사례 (${b.label})`)
-  }
-  if (extraNet > 0 && sideRentMonthly === null) missing.push('임대 사례 (전용 0~30㎡) — 측면 보강부')
+  if (!fitted) missing.push(`임대 사례 (${band.label})`)
   if (missing.length > 0) {
     return { ...empty, scenario, status: 'pending', missing, notes: [`입력 대기: ${missing.join(', ')}`] }
   }
@@ -391,17 +391,24 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   const noiIncrease = kind === 'rebuild' ? noi - (existingNoi ?? 0) : noi
   const deposits = units.reduce((s, u) => s + (u.depositWon ?? 0), 0)
   notes.push(
-    `임대수입 = 세대 전용 × ㎡당 월 환산 임대료 (신규 실거래 중위, 보증금 × 전환율 ${fmtPct(conversion.housing.applied!)} ÷ 12 + 월세) × 12 — ${conversion.housing.basis}`,
+    `임대수입 = Σ 세대 월 환산 임대료 × 12, 월 환산 = ${(band.equivalentBaseWon! / 1e4).toFixed(1)}만원 + ${(band.equivalentPerPyeongWon! / 1e4).toFixed(1)}만원 × 전용(평) (신규 월세 실거래 ${band.fitCount}건 회귀, 월세 + 보증금 × 전환율 ${fmtPct(conversion.housing.applied!)} ÷ 12, 전용면적 구간 구분 없음) — ${conversion.housing.basis}`,
   )
   notes.push(
     v('maintenanceFeePerUnit') === null
       ? '관리비는 자료가 없어 임대수입에 넣지 않았습니다 (입력 대기).'
       : `관리비 수입 = 월 환산 임대료 × ${fmtPct(maintRate, 1)} (가정값 입력)`,
   )
+  if (units.some((u) => u.extrapolated)) {
+    notes.push(`전용 ${band.fitMaxPyeong}평을 넘는 세대는 회귀식을 외삽한 값입니다 (표본의 ${band.fitMaxPyeong}평 초과 사례는 평당 단가가 낮아 과대 추정일 수 있음).`)
+  }
   if (extraNet > 0) {
-    notes.push(`측면 보강부 전용 ${extraNet.toFixed(2)}㎡는 세대 수에 넣지 않고 0~30㎡ 구간 ㎡당 임대료로 임대수입에 더했습니다 (기존 세대 확장분 가정).`)
+    notes.push(`측면 보강부 전용 ${extraNet.toFixed(2)}㎡는 세대 수·세대 고정분 없이 평당 증가분(${(band.equivalentPerPyeongWon! / 1e4).toFixed(1)}만원/평)만 임대수입에 더했습니다 (기존 세대 확장분 가정).`)
   }
   if (existingNoi !== null) notes.push('기존 세대 NOI는 같은 임대 사례로 추정한 값입니다 (실제 임대 조건 아님).')
+  if (band.fitMaxPyeong !== null && existingUnitNets.some((n) => n / PYEONG_M2 > band.fitMaxPyeong!)) {
+    const n = existingUnitNets.filter((x) => x / PYEONG_M2 > band.fitMaxPyeong!).length
+    notes.push(`기존 세대 ${n}호는 전용 ${band.fitMaxPyeong}평을 넘어 회귀식을 외삽해 기존 NOI를 추정했습니다 (큰 평형은 평당 단가가 낮아 과대 추정일 수 있음).`)
+  }
   if (kind === 'rebuild') notes.push('재건축 NOI 증가 = 신축 세대 NOI − 철거되는 기존 세대 NOI(추정).')
 
   // [C] 지표

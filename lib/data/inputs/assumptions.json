@@ -2,10 +2,10 @@
   "meta": {
     "source": "input",
     "file": "261012_가정값 입력.xlsx",
-    "version": "261012-a",
+    "version": "261012-b",
     "sourceDate": "2026-10-12",
-    "fileHash": "0876d756de37fc31",
-    "convertedAt": "2026-10-12T01:39:00.797Z",
+    "fileHash": "f6d0cb6d338094cb",
+    "convertedAt": "2026-10-12T03:00:21.923Z",
     "sheets": [
       {
         "name": "가정값",
@@ -37,15 +37,15 @@
       "key": "marketConversionHousing",
       "label": "시장 전월세전환율 (주택·연립다세대)",
       "unit": "%",
-      "low": 5.625,
-      "base": 5.625,
-      "high": 5.625,
-      "grade": "A",
-      "sourceTitle": "전월세 전환율 — 영등포구 연립다세대 (분기)",
-      "publisher": "서울특별시 서울주택정보마당",
-      "baseDate": "2026-09-30",
-      "url": "https://housinginfo.seoul.go.kr/hmpg/rent/rent/rentDetail.do",
-      "memo": "최근 12개월(4개 분기) 평균: 2025 4분기 5.8 · 2026 1분기 5.5 · 2분기 5.5 · 3분기 5.7 (서울 전체 3분기 5.4)"
+      "low": 6,
+      "base": 6,
+      "high": 6,
+      "grade": "C",
+      "sourceTitle": "보증금 1,000만원당 월세 5만원 환산 (연 6.0%) — 사용자 지정",
+      "publisher": "프로젝트 가정 (사용자 지정 2026-10-12)",
+      "baseDate": "2026-10-12",
+      "url": null,
+      "memo": "보수 시나리오는 법정 상한(주택 min(10%, 기준금리+2%p) = 5.0%) 적용. 이전 값: 서울주택정보마당 영등포구 연립다세대 최근 12개월 평균 5.625%(A)"
     },
     {
       "key": "marketConversionCommercial",

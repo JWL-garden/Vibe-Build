@@ -2,6 +2,7 @@
 // runAll().finance 결과를 표·문장으로 바꾸기만 한다 (새로 계산하지 않음).
 
 import { formatNumber, formatRate, formatWon, formatWonExact } from '@/lib/format'
+import { PYEONG_M2 } from '@/lib/rules/financeDefaults'
 import type { FinanceScenarioId, Kpi, ReportRow, ResolvedAssumption, SiteAnalysis, SiteFinanceResult, SiteFinanceSection } from '@/types'
 
 export const FINANCE_SCENARIO_LABEL: Record<FinanceScenarioId, string> = {
@@ -28,6 +29,7 @@ export function formatAssumptionValue(unit: string, v: number | null): string {
   }
 }
 
+const man = (v: number | null, d = 1) => (v === null ? '–' : `${formatNumber(v / 10_000, d)}만원`)
 const pctOrDash = (v: number | null) => (v === null ? '–' : formatRate(v, 1))
 const yearsOrDash = (v: number | null) => (v === null ? '–' : `${formatNumber(v, 1)}년`)
 
@@ -46,6 +48,7 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
     kpis: [],
     scenarioRows: [],
     bandRows: bandRows(f),
+    bandNote: bandNote(f),
     yieldText: '',
     notes: f.notes,
     inputNotes: [],
@@ -95,32 +98,32 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
     fundingRows: [
       ['자기자본', formatWonExact(f.equityWon), '총사업비 − 대출'],
       ['대출', formatWonExact(f.loanWon), `금융비용 전 소계 × 대출 비율 ${formatRate(f.assumptions.find((a) => a.key === 'loanRatio')!.value, 0)}`],
-      ['참고: 새 세대 보증금 합계', formatWonExact(r.depositTotalWon), '구간 중위 보증금 × 세대 수 — 사업비 조달에 쓸 수 있으나 반환 의무가 있는 돈'],
+      ['참고: 새 세대 보증금 합계', formatWonExact(r.depositTotalWon), '회귀로 추정한 세대별 보증금 합 — 사업비 조달에 쓸 수 있으나 반환 의무가 있는 돈'],
     ],
-    unitRows: f.project.units.map((u, i) => [
-      `${i + 1}`,
-      `${formatNumber(u.netAreaM2, 2)}㎡`,
-      u.band === 'S' ? '0~30㎡' : '30~60㎡',
-      u.monthlyEquivalentWon === null ? '–' : `${formatWonExact(u.monthlyEquivalentWon)}/월`,
-      `${formatWon(u.depositWon)} / ${formatWon(u.monthlyWon)}`,
-    ]).concat(
-      f.project.sideNetM2 > 0
-        ? [
-            [
-              '측면 보강',
-              `${formatNumber(f.project.sideNetM2, 2)}㎡`,
-              '0~30㎡',
-              f.project.sideRentMonthlyWon === null ? '–' : `${formatWonExact(f.project.sideRentMonthlyWon)}/월`,
-              '기존 세대 확장분 (세대 수·인허가비 제외)',
-            ],
-          ]
-        : [],
-    ),
+    unitRows: f.project.units
+      .map((u, i) => [
+        `${i + 1}`,
+        `${formatNumber(u.netAreaM2, 2)}㎡ (${formatNumber(u.netAreaPyeong, 2)}평)${u.extrapolated ? ' · 회귀 범위 초과' : ''}`,
+        u.monthlyEquivalentWon === null ? '–' : `${formatWonExact(u.monthlyEquivalentWon)}/월`,
+        `${formatWon(u.depositWon)} / ${formatWon(u.monthlyWon)}`,
+      ])
+      .concat(
+        f.project.sideNetM2 > 0
+          ? [
+              [
+                '측면 보강 (기존 세대 확장분, 평당 증가분만)',
+                `${formatNumber(f.project.sideNetM2, 2)}㎡ (${formatNumber(f.project.sideNetM2 / PYEONG_M2, 2)}평)`,
+                f.project.sideRentMonthlyWon === null ? '–' : `${formatWonExact(f.project.sideRentMonthlyWon)}/월`,
+                '–',
+              ],
+            ]
+          : [],
+      ),
     revenueRows,
     kpis,
     scenarioRows: scenarios.map((x) => [
       FINANCE_SCENARIO_LABEL[x.scenario],
-      `${pctOrDash(x.conversion.housing.applied)} (${x.scenario === 'CONSERVATIVE' ? '법정 상한' : '시장'})`,
+      `${pctOrDash(x.conversion.housing.applied)} (${x.conversion.housing.basis.startsWith('법정') ? '법정 상한' : '고정'})`,
       formatWon(x.totalCostWon),
       formatWon(x.revenue.noiIncreaseWon),
       pctOrDash(x.metrics.roi),
@@ -161,15 +164,37 @@ function constructionSection(analysis: SiteAnalysis): SiteFinanceSection['constr
   return { rows, appliedRow: a ? c.compare.findIndex((s) => s.label === a.label) : -1, notes }
 }
 
+/** 임대 사례 회귀 표 — [항목, 사례 평균, 회귀식(전용 평 기준), 1평 증가당, 최소 임대면적 값] */
 function bandRows(f: SiteFinanceResult): ReportRow[] {
-  return f.rentBands.map((b) => [
-    b.label,
-    `${b.count}건`,
-    b.area,
-    formatWon(b.depositWon),
-    formatWon(b.monthlyWon),
-    b.monthlyEquivalentPerM2 === null ? '–' : `${formatNumber(b.monthlyEquivalentPerM2, 0)}원/㎡`,
-  ])
+  return f.rentBands.flatMap((b) => {
+    const at = (base: number | null, per: number | null) =>
+      base === null || per === null || b.minPyeong === null ? null : Math.max(0, base + per * b.minPyeong)
+    const line = (base: number | null, per: number | null, d: number) =>
+      base === null || per === null ? '–' : `${man(base, d)} + ${man(per, d)} × 평`
+    return [
+      ['보증금', man(b.meanDepositWon, 0), line(b.depositBaseWon, b.depositPerPyeongWon, 0), `+${man(b.depositPerPyeongWon, 0)}`, man(at(b.depositBaseWon, b.depositPerPyeongWon), 0)],
+      ['월세', man(b.meanMonthlyWon, 1), line(b.monthlyBaseWon, b.monthlyPerPyeongWon, 1), `+${man(b.monthlyPerPyeongWon, 1)}`, man(at(b.monthlyBaseWon, b.monthlyPerPyeongWon), 1)],
+      [
+        '월 환산 임대료 (보증금 1,000만원당 월 5만원)',
+        man(b.meanMonthlyWon === null || b.meanDepositWon === null ? null : b.meanMonthlyWon + (b.meanDepositWon * 0.06) / 12, 1),
+        line(b.equivalentBaseWon, b.equivalentPerPyeongWon, 1),
+        `+${man(b.equivalentPerPyeongWon, 1)}`,
+        man(at(b.equivalentBaseWon, b.equivalentPerPyeongWon), 1),
+      ],
+    ]
+  })
+}
+
+/** 임대 사례 표 아래 설명 한 줄 */
+function bandNote(f: SiteFinanceResult): string {
+  const b = f.rentBands[0]
+  if (!b || b.minPyeong === null || b.maxPyeong === null) return '임대 사례가 없습니다.'
+  const fr = (v: number | null) => (v === null ? '–' : formatNumber(v, 2))
+  return (
+    `${b.area} 신규 월세 ${b.count}건(전용 ${fr(b.minPyeong)}~${fr(b.maxPyeong)}평, 평균 ${fr(b.meanPyeong)}평). ` +
+    `회귀는 전용 ${b.fitMaxPyeong ?? '전체'}평 이하 ${b.fitCount}건 기준, 설명력 R² ${b.r2 === null ? '–' : formatNumber(b.r2, 2)}. ` +
+    `최소 임대면적 ${fr(b.minPyeong)}평(${fr(b.minPyeong * PYEONG_M2)}㎡) 기준으로 1평 늘 때마다 월 환산 임대료가 약 ${man(b.equivalentPerPyeongWon)} 늘어납니다.`
+  )
 }
 
 /** 부록: 수익성 가정값 표 (결정 4 — 등급 C도 범위와 함께 출력) */

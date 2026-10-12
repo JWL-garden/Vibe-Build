@@ -1575,8 +1575,10 @@ export interface SiteFinanceSection {
   kpis: Kpi[]
   /** [수익 시나리오, 전환율, 총사업비, 연 NOI 증가, ROI, 회수기간] */
   scenarioRows: ReportRow[]
-  /** [구간, 사례(신규), 지역, 중위 보증금, 중위 월세, ㎡당 월 환산] */
+  /** [항목, 사례 평균, 회귀식(전용 평 기준), 1평 증가당, 최소 임대면적 값] — 보증금·월세·월 환산 3행 */
   bandRows: ReportRow[]
+  /** 임대 사례 표 아래 설명 (표본·회귀 범위·1평 증가당 임대료) */
+  bandNote: string
   /** 토지 포함 수익률 문장 */
   yieldText: string
   notes: string[]
@@ -1662,23 +1664,37 @@ export interface ConversionRates {
   commercial: { legalCap: number | null; market: number | null; applied: number | null; basis: string }
 }
 
-/** 임대 사례 전용 구간 요약 (결정 5) */
+/** 임대 사례 요약 — 전용면적 구간 없이 평 기준 회귀직선 하나 (2026-10-12) */
 export interface RentBandSummary {
-  /** 'S' = 전용 0~30㎡, 'M' = 30~60㎡ */
-  band: 'S' | 'M'
+  /** 구간 구분 없음 */
+  band: 'ALL'
   label: string
-  /** 사용한 사례 수 (전세 + 월세) */
+  /** 사용한 신규 월세 계약 수 (회귀 적용 면적 상한 밖 사례 포함) */
   count: number
+  /** 회귀를 맞춘 사례 수 (전용 fitMaxPyeong 이하) */
+  fitCount: number
   /** 지역 — 당산동6가 사례가 부족하면 영등포구 포함 */
   area: string
-  /** 중위 보증금 (원) — 월세 계약 */
-  depositWon: number | null
-  /** 중위 월세 (원) — 월세 계약 */
-  monthlyWon: number | null
-  /** 중위 관리비 (원/월) — 사례에 있으면, 없으면 null */
-  maintenanceWon: number | null
-  /** 중위 ㎡당 월 환산 임대료 (원/㎡·월) = (월세 + 보증금 × 전환율 ÷ 12) ÷ 전용면적, 전세·월세 사례 모두 */
-  monthlyEquivalentPerM2: number | null
+  /** 사례의 전용면적 범위·평균 (평) — 최소 임대면적은 minPyeong */
+  minPyeong: number | null
+  maxPyeong: number | null
+  meanPyeong: number | null
+  /** 회귀를 맞춘 면적 상한 (평). null이면 전체 */
+  fitMaxPyeong: number | null
+  /** 사례 평균 보증금·월세 (원) */
+  meanDepositWon: number | null
+  meanMonthlyWon: number | null
+  /** 보증금 = base + perPyeong × 평 (원, 원/평) */
+  depositBaseWon: number | null
+  depositPerPyeongWon: number | null
+  /** 월세 = base + perPyeong × 평 (원/월, 원/평·월) */
+  monthlyBaseWon: number | null
+  monthlyPerPyeongWon: number | null
+  /** 월 환산 임대료 = 월세 + 보증금 × 전환율 ÷ 12 = base + perPyeong × 평 (원/월, 원/평·월) */
+  equivalentBaseWon: number | null
+  equivalentPerPyeongWon: number | null
+  /** 월 환산 회귀의 설명력 R² (0~1) */
+  r2: number | null
 }
 
 // ═════════════════════════════════════════════
@@ -1700,13 +1716,15 @@ export interface SiteCostItem {
 /** 새 세대 하나의 예상 임대 조건 */
 export interface SiteRentUnit {
   netAreaM2: number
-  /** 임대 사례 구간 ('S' 0~30㎡ / 'M' 30~60㎡, 60㎡ 초과는 M 사례로 추정) */
-  band: 'S' | 'M'
-  /** 월 환산 임대료 (원) = ㎡당 월 환산 임대료 × 전용 */
+  /** 전용면적 (평) = ㎡ ÷ 3.305785 */
+  netAreaPyeong: number
+  /** 월 환산 임대료 (원) = 고정분 + 평당 증가분 × 전용(평) (회귀직선) */
   monthlyEquivalentWon: number | null
-  /** 참고: 구간 중위 보증금·월세 (원) */
+  /** 참고: 같은 회귀로 추정한 보증금·월세 (원, 0 미만이면 0) */
   depositWon: number | null
   monthlyWon: number | null
+  /** 회귀를 맞춘 면적 상한(평)을 넘어 외삽한 세대인지 */
+  extrapolated: boolean
 }
 
 export interface SiteFinanceResult {
