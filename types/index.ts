@@ -527,6 +527,9 @@ export interface CashflowYear {
   cumulativeWithWon: number
   /** "증축 안 함" 누적 순수익 (원, 기존 임대수익 기준) */
   cumulativeWithoutWon: number
+  /** 자산가치를 더한 순자산 (원) — 함 / 안 함. 자산가치를 계산하지 못했으면 없음 */
+  netWorthWithWon?: number
+  netWorthWithoutWon?: number
 }
 
 /** 수익성 계산 결과 (설계서 5-4) */
@@ -1196,6 +1199,12 @@ export interface SiteAnalysis {
     sensitivity: SiteSensitivityResult | null
     /** 공사비 실적 요약 (기준 엑셀 '하우빌드 공사비') */
     construction: ConstructionCostSummary
+    /** 재건축 신축 단가에 적용한 지상 N층 공사면적 기준 평당 공사비 (실적이 없으면 null) */
+    floorWorkCost: FloorWorkCostStat | null
+    /** 층수별 공사면적 기준 평당 공사비 표 (엑셀 '하우빌드 2026환산' 4장 층수별 표와 같은 값, 층수 오름차순) */
+    floorWorkCostTable: FloorWorkCostStat[]
+    /** 자산가치 연차별 경로에 쓴 상승률과 근거 */
+    assetGrowth: AssetGrowthBasis
     /** 공사 기간: 층수별·연면적대별 실적 표와 이 사업의 추정 (층별·면적별 실적으로 갈음) */
     duration: { tables: ConstructionDurationSummary; estimate: DurationEstimate | null }
   }
@@ -1271,19 +1280,29 @@ export interface AssetValueResult {
   existingBuilding: {
     /** 연면적 (㎡) */
     gfaM2: number
-    /** 재조달단가 (원/㎡, 예시 가정값) */
-    unitCostWon: number
+    /** 필로티 면적 (㎡) — 1층 필로티 가정이면 건축면적, 아니면 0 */
+    pilotiAreaM2: number
+    /** 공사 연면적 = 연면적 + 필로티 (㎡) — 단가표 '실공사면적' 기준 */
+    constructionAreaM2: number
+    /** 신축 단가 (원/㎡) — 건물신축단가표 용도별 평균 (가정값 입력 엑셀). 없으면 null */
+    unitCostWon: number | null
     /** 경과연수 (년, 기준일까지 만 연수). 사용승인일 없으면 null */
     ageYears: number | null
-    usefulLifeYears: number
-    /** 잔가율 (소수) = max(최저잔가율, 1 − 경과연수 ÷ 내용연수) */
+    /** 연 감가율 (소수) */
+    depreciationRatePerYear: number
+    /** 잔가율 (소수) = max(최저잔가율, exp(−연 감가율 × 경과연수)) */
     residualRate: number
+    /** 재조달원가 = 공사 연면적 × 신축 단가 (원, 감가 전). 단가가 없으면 null */
+    replacementCostWon: number | null
     valueWon: number
   }
   addBuilding: {
     /** 증축 연면적 (㎡) — 선택 시나리오에서 채택된 증축안, 없으면 0 */
     gfaM2: number
+    /** 증축·신축 건물가치 (원) = 해당 공사의 공사비 전액 (공사비를 계산하지 못했으면 연면적 × 신축 단가) */
     valueWon: number
+    /** 건물가치 산정 근거 */
+    basis: 'construction' | 'unitCost' | 'none'
   }
   /** 증축 전 자산가치 (원). 토지가액이 없으면 null */
   beforeWon: number | null
@@ -1568,6 +1587,26 @@ export interface ConstructionCostSummary {
   basisNote: string
 }
 
+/** 지상 N층 현장의 공사면적 기준 평당 공사비 (2026 환산, 만원) — 재건축 신축 단가 */
+export interface FloorWorkCostStat {
+  floors: number
+  /** 평당 공사비 계산에 쓴 현장수 (공사면적이 없는 현장 제외) */
+  count: number
+  /** 그 층수의 전체 현장수 (통계제외 'Y' 제외, 엑셀 '현장수'와 같음) */
+  siteCount: number
+  /** 평균 · 중앙값 · 최소 · 최대 (만원/평, 공사면적 기준) — 엑셀 '하우빌드 2026환산' 4장 층수별 표의 F·G열 */
+  meanManwon: number
+  medianManwon: number
+  minManwon: number
+  maxManwon: number
+  /** 공사 기간 중앙값 (개월), 자료가 없으면 null */
+  monthsMedian: number | null
+  /** 사례 이름 */
+  sites: string[]
+  /** 이 값이 5건 미만이면 true — 대표성이 낮음 */
+  fewSamples: boolean
+}
+
 /** 6장 시나리오·민감도 (보고서 표시용 — 계산은 runAll().finance) */
 export interface SiteScenarioSection {
   status: 'ok' | 'none' | 'pending'
@@ -1585,8 +1624,16 @@ export interface SiteScenarioSection {
   dependencyText: string
   /** 10년 누적 차트용 (기존 CashflowChart 형식) */
   cashflow: CashflowYear[]
-  /** [연차, NOI 증가, 누적 순증, 안 함 누적, 함 누적] — 기준 시나리오 */
+  /** cashflowRows의 머리글 (자산가치 반영이면 7열, 아니면 5열) */
+  cashflowHead: string[]
+  /** 연차별 표 — 기준 시나리오 (자산가치 반영: [연차, NOI 증가, 누적 순증, 자산가치 차이, 자산가치 반영 순증, 안 함 순자산, 함 순자산]) */
   cashflowRows: ReportRow[]
+  /** 자산가치 반영 지표를 계산했는지 */
+  assetAdjusted: boolean
+  /** 교차 지점 설명 한 문장 */
+  assetCrossoverText: string
+  /** [시나리오, 자산가치 반영 회수 연차, NPV, IRR, 기간 말 자산가치 반영 순증] */
+  assetScenarioRows: ReportRow[]
   /** [시나리오, NPV, IRR, 회수 연차, 기간 말 누적 순증] */
   cashflowScenarioRows: ReportRow[]
   /** 현금흐름 기간 (년) */
@@ -1628,6 +1675,10 @@ export interface SiteFinanceSection {
     rows: ReportRow[]
     /** 적용 집단 행 번호 (없으면 -1) */
     appliedRow: number
+    /** [층수, 현장수, 평당(공사면적) 평균, 중앙값, 범위, ㎡당(공사면적) 평균 환산, 공사기간 중앙값] — 층수별 표 */
+    floorRows: ReportRow[]
+    /** 신축 단가에 적용한 층수 행 번호 (재건축이 아니거나 적용하지 않았으면 -1) */
+    floorAppliedRow: number
     notes: string[]
   }
 }
@@ -1841,6 +1892,24 @@ export interface SiteCashflowYear {
   withoutWon: number
   /** "함": 기존 NOI 누적 + 순증 누적 */
   withWon: number
+  /** 자산가치(토지 + 건물, 원가 기준·상승률·감가 반영) — 안 함 / 함. 자산가치를 계산하지 못했으면 null */
+  assetWithoutWon: number | null
+  assetWithWon: number | null
+  /** 순자산 = 자산가치 + 누적 NOI (함은 총사업비 차감) — 안 함 / 함 */
+  netWorthWithoutWon: number | null
+  netWorthWithWon: number | null
+  /** 자산가치 반영 순증 = (함 자산 − 안 함 자산) + NOI 증가 누적 − 총사업비 */
+  assetAdjustedNetWon: number | null
+}
+
+/** 자산가치 연차별 경로의 근거 (보고서 주석·부록) */
+export interface AssetGrowthBasis {
+  /** 건물(재조달단가) 연 상승률 — 건설공사비지수(주거용건물) 연평균 */
+  buildingRate: number
+  buildingBasis: string
+  /** 토지 연 상승률 — 입력 전에는 0% */
+  landRate: number
+  landBasis: string
 }
 
 export interface SiteCashflow {
@@ -1859,6 +1928,24 @@ export interface SiteCashflow {
   cumulativeNetWon: number
   /** 기존 NOI 추정이 없어 "안 함"을 0으로 둔 경우 true */
   existingNoiMissing: boolean
+  /**
+   * 자산가치 반영 (2026-10-12): 자산가치 증가분을 더한 회수·교차·NPV·IRR. 자산가치를 계산하지 못했으면 null.
+   * 순자산(함) − 순자산(안 함) = 자산가치 차이 + NOI 증가 누적 − 총사업비.
+   */
+  assetAdjusted: {
+    /** 자산가치 반영 순증이 처음 0 이상이 되는 해 (0 = 착공 직후부터 0 이상). 기간 안에 없으면 null */
+    paybackYear: number | null
+    /** 선형 보간한 회수 시점 (년, 소수). paybackYear가 null이면 null. 순자산 곡선(함·안 함)이 교차하는 시점과 같다 */
+    paybackYearsExact: number | null
+    /** 기간 말 자산가치 반영 순증 */
+    cumulativeNetWon: number
+    /** NPV·IRR — 기간 말에 자산가치 차이를 회수(잔존가치)한다고 보고 현금흐름에 더함 */
+    npvWon: number | null
+    irr: number | null
+    /** 기간 말 자산가치 차이 (함 − 안 함) */
+    terminalAssetDiffWon: number
+    growth: AssetGrowthBasis
+  } | null
 }
 
 /** 민감도 — 가정값 하나만 불리한 값 / 유리한 값으로 바꿨을 때 ROI (6장 토네이도) */

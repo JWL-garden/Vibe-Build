@@ -102,7 +102,7 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(r.summary.kpis[0].value).toBe('+1층 · +90.3㎡')
     expect(r.summary.kpis[0].caption).toBe('측면 보강 36.5㎡ 포함')
     // 수익성이 계산되면 표지 KPI = 규모 · 총사업비 · ROI · 회수기간 (설계서 11장), 판정은 회수기간 보조 문구
-    expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', '연간 수익률(ROI)', '투자회수기간'])
+    expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', '연간 수익률(ROI)', '투자회수기간 (자산가치 반영)'])
     expect(r.summary.kpis[1].value).toBe('2.5억원')
     expect(r.summary.kpis[2].value).toBe('16.3%')
     expect(r.summary.kpis[3].caption).toBeNull() // 투자회수기간 하단 작은 글자 삭제
@@ -223,8 +223,9 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     const [landRow, , addRow, totalRow] = r.asset.rows
     expect(landRow[3]).toContain('시세 아님')
     expect(landRow[3]).toContain('[면적 확인 필요]')
-    expect(addRow[2]).toBe('180,698,000원')
-    expect(totalRow.slice(1, 3)).toEqual(['1,546,519,200원', '1,727,217,200원']) // 표는 원 단위 정확값 (항목 합 = 합계)
+    expect(addRow[2]).toBe('218,644,588원') // 증축 공사비 전액 = 90.349㎡ ÷ 3.305785 × 800만원
+    expect(addRow[3]).toContain('증축 공사비 전액')
+    expect(totalRow.slice(1, 3)).toEqual(['1,867,535,499원', '2,086,180,087원']) // 표는 원 단위 정확값 (항목 합 = 합계)
     expect(r.asset.yieldNote).toContain('토지 포함 수익률')
   })
 })
@@ -232,9 +233,9 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
 describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', () => {
   it('T1·T2 5장 KPI = runAll asset 값', async () => {
     const t1 = (await build(T1)).asset.kpis.map((k) => k.value)
-    expect(t1).toEqual(['10.6억원', '15.5억원', '17.3억원', '1.8억원'])
+    expect(t1).toEqual(['10.6억원', '18.7억원', '20.9억원', '2.2억원'])
     const t2 = (await build(T2)).asset.kpis.map((k) => k.value)
-    expect(t2).toEqual(['17.8억원', '29.9억원', '32.3억원', '2.4억원'])
+    expect(t2).toEqual(['17.8억원', '35.5억원', '38.4억원', '2.9억원'])
   })
 
   it('부록 데이터 출처: 개별공시지가_2단계 + 기준연월·공시일·시세 아님', async () => {

@@ -13,6 +13,7 @@ const yearsOrDash = (v: number | null) => (v === null ? '–' : `${formatNumber(
 const COMPARE_KEYS: AssumptionKey[] = [
   'expansionCostPerPyeong',
   'newBuildCostTable',
+  'newBuildCostExcel',
   'loanInterestRate',
   'loanRatio',
   'constructionMonths',
@@ -22,6 +23,15 @@ const COMPARE_KEYS: AssumptionKey[] = [
   'contingencyRate',
   'capRate',
 ]
+
+/** 자산가치 반영 회수 시점 표시 — 0년 = 착공 직후, 없으면 기간 초과 */
+function assetPaybackText(c: SiteAnalysis['finance']['byScenario'][FinanceScenarioId]['cashflow']): string {
+  const a = c?.assetAdjusted ?? null
+  if (!c || !a) return '–'
+  if (a.paybackYear === null) return `${c.years.length}년 초과`
+  if (a.paybackYear === 0) return '착공 직후'
+  return `${a.paybackYear}년차 (약 ${formatNumber(a.paybackYearsExact ?? a.paybackYear, 1)}년)`
+}
 
 export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
   const fin = analysis.finance
@@ -37,8 +47,12 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     tornadoRows: [],
     dependencyText: '',
     cashflow: [],
+    cashflowHead: [],
     cashflowRows: [],
     cashflowScenarioRows: [],
+    assetAdjusted: false,
+    assetCrossoverText: '',
+    assetScenarioRows: [],
     years: cashflowRule.years,
     notes: [],
   }
@@ -58,7 +72,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
   for (const key of COMPARE_KEYS) {
     const sample = base.assumptions.find((a) => a.key === key)
     if (!sample) continue
-    if (kind === 'expansion' && (key === 'newBuildCostTable' || key === 'rebuildConstructionMonths')) continue
+    if (kind === 'expansion' && (key === 'newBuildCostTable' || key === 'newBuildCostExcel' || key === 'rebuildConstructionMonths')) continue
     if (kind === 'rebuild' && (key === 'expansionCostPerPyeong' || key === 'constructionMonths' || key === 'opexRate')) continue
     rows.push([
       `${sample.label} · ${gradeText(sample.grade)}`,
@@ -70,7 +84,8 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     ['총사업비', ...IDS.map((id) => formatWon(f[id].totalCostWon))],
     ['연 NOI 증가', ...IDS.map((id) => formatWon(f[id].revenue.noiIncreaseWon))],
     ['단순 ROI', ...IDS.map((id) => pctOrDash(f[id].metrics.roi))],
-    ['투자회수기간', ...IDS.map((id) => yearsOrDash(f[id].metrics.paybackYears))],
+    ['투자회수기간 (임대수익만)', ...IDS.map((id) => yearsOrDash(f[id].metrics.paybackYears))],
+    ['투자회수기간 (자산가치 반영)', ...IDS.map((id) => assetPaybackText(f[id].cashflow))],
     ['자기자본수익률 (ROE)', ...IDS.map((id) => pctOrDash(f[id].metrics.roe))],
     ['자산가치 증가 (수익 기준)', ...IDS.map((id) => formatWon(f[id].metrics.valueIncreaseWon))],
   )
@@ -113,14 +128,26 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     netWon: y.noiIncreaseWon,
     cumulativeWithWon: y.withWon,
     cumulativeWithoutWon: y.withoutWon,
+    netWorthWithWon: y.netWorthWithWon ?? undefined,
+    netWorthWithoutWon: y.netWorthWithoutWon ?? undefined,
   }))
-  const cashflowRows: ReportRow[] = (cf?.years ?? []).filter((y) => shownYear(y.year)).map((y) => [
-    `${y.year}년차`,
-    formatWonExact(y.noiIncreaseWon),
-    formatWonExact(y.cumulativeNetWon),
-    formatWonExact(y.withoutWon),
-    formatWonExact(y.withWon),
-  ])
+  const aa = cf?.assetAdjusted ?? null
+  const cashflowHead = aa
+    ? ['연차', 'NOI 증가', '누적 순증 (임대수익만)', '자산가치 차이 (함−안 함)', '자산가치 반영 순증', '안 함 순자산', '함 순자산']
+    : ['연차', 'NOI 증가', '누적 순증', '안 함 누적', '함 누적']
+  const cashflowRows: ReportRow[] = (cf?.years ?? []).filter((y) => shownYear(y.year)).map((y) =>
+    aa && y.assetWithWon !== null && y.assetWithoutWon !== null
+      ? [
+          `${y.year}년차`,
+          formatWonExact(y.noiIncreaseWon),
+          formatWonExact(y.cumulativeNetWon),
+          formatWonExact(y.assetWithWon - y.assetWithoutWon),
+          formatWonExact(y.assetAdjustedNetWon),
+          formatWonExact(y.netWorthWithoutWon),
+          formatWonExact(y.netWorthWithWon),
+        ]
+      : [`${y.year}년차`, formatWonExact(y.noiIncreaseWon), formatWonExact(y.cumulativeNetWon), formatWonExact(y.withoutWon), formatWonExact(y.withWon)],
+  )
   const cashflowScenarioRows: ReportRow[] = IDS.map((id) => {
     const c = f[id].cashflow
     return [
@@ -132,12 +159,33 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     ]
   })
 
+  const assetScenarioRows: ReportRow[] = IDS.map((id) => {
+    const a = f[id].cashflow?.assetAdjusted ?? null
+    return [
+      FINANCE_SCENARIO_LABEL[id],
+      assetPaybackText(f[id].cashflow),
+      a?.npvWon == null ? '–' : formatWon(a.npvWon),
+      pctOrDash(a?.irr ?? null),
+      a ? formatWon(a.cumulativeNetWon) : '–',
+    ]
+  })
+  const assetCrossoverText = aa
+    ? aa.paybackYear === null
+      ? `${years}년 안에는 함 순자산이 안 함 순자산을 넘지 못합니다.`
+      : aa.paybackYear === 0
+        ? '착공 직후부터 함 순자산이 안 함 순자산보다 큽니다.'
+        : `함 순자산이 안 함 순자산을 처음 넘는 시점은 ${aa.paybackYear}년차(약 ${formatNumber(aa.paybackYearsExact ?? aa.paybackYear, 1)}년)입니다. 임대수익만 보면 ${cf?.paybackYear == null ? `${years}년 안에 회수하지 못합니다` : `${cf.paybackYear}년차에 회수합니다`}.`
+    : ''
+
   const g = cf?.growthRate
   const d = cf?.discountRate
   const notes = [
     '수익 시나리오: 가정값 입력 엑셀의 보수·기준·낙관 값을 그대로 적용 (주택 전월세 전환율은 모든 시나리오 6.0% 고정).',
     '토네이도: 기준 시나리오에서 변수 하나만 불리한 값·유리한 값으로 바꾸고 나머지는 기준값 그대로 두었습니다. 임대료는 ±10%(설계서 5-5). 값이 하나뿐인 가정값(예: 취득세율)은 제외했습니다.',
-    `${years}년 현금흐름: 총사업비는 0년차에 지출, NOI 증가는 1년차부터 연 ${g == null ? '0%(가정값 없음)' : formatRate(g, 1)} 상승, 할인율 ${d == null ? '없음' : formatRate(d, 1)}. ${years}년 말 잔존가치(자산가치 증가)는 반영하지 않은 보수적 단순화이며, 표는 1~5년과 5년 단위 연차만 보입니다.`,
+    `${years}년 현금흐름: 총사업비는 0년차에 지출, NOI 증가는 1년차부터 연 ${g == null ? '0%(가정값 없음)' : formatRate(g, 1)} 상승, 할인율 ${d == null ? '없음' : formatRate(d, 1)}. 표는 1~5년과 5년 단위 연차만 보입니다.`,
+    aa
+      ? `자산가치 반영: 순자산 = 자산가치(토지 + 건물, 원가 기준) + 누적 NOI (함은 총사업비 차감). 건물가치 = 연면적 × 재조달단가 × 잔가율에 연 ${formatRate(aa.growth.buildingRate, 2)} 상승(${aa.growth.buildingBasis})과 연차별 감가를 적용했고, 토지는 ${aa.growth.landBasis}. NPV·IRR은 ${years}년 말 자산가치 차이 ${formatWon(aa.terminalAssetDiffWon)}를 회수하는 것으로 보았습니다. 원가 기준 참고값이며 시장 가격·감정평가가 아닙니다.`
+      : '자산가치(토지가액)를 계산하지 못해 자산가치 반영 지표는 생략했습니다. 누적 순증·NPV·IRR은 기간 말 잔존가치를 반영하지 않은 값입니다.',
     kind === 'rebuild'
       ? '재건축은 이주·철거와 공사 기간 동안의 기존 임대수입 중단을 총사업비(공사 중 임대 손실)에 포함했습니다. "함"은 신축 NOI, "안 함"은 기존 NOI(추정)입니다.'
       : '"안 함" 누적은 기존 세대 NOI(같은 임대 사례로 추정)이며 실제 임대 조건이 아닙니다.',
@@ -154,8 +202,12 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     tornadoRows,
     dependencyText,
     cashflow,
+    cashflowHead,
     cashflowRows,
     cashflowScenarioRows,
+    assetAdjusted: aa !== null,
+    assetCrossoverText,
+    assetScenarioRows,
     years,
     notes,
   }

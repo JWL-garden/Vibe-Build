@@ -33,15 +33,22 @@ export default function SiteCh06Scenario({ report }: { report: SiteReport }) {
       )}
 
       <div className="break-inside-avoid">
-        <SubTitle>{sc.years}년 현금흐름 — {kindWord} 안 함 vs 함 (기준 시나리오)</SubTitle>
-        <CashflowChart cashflow={sc.cashflow} />
+        <SubTitle>
+          {sc.years}년 {sc.assetAdjusted ? '순자산' : '현금흐름'} — {kindWord} 안 함 vs 함 (기준 시나리오)
+        </SubTitle>
+        <CashflowChart cashflow={sc.cashflow} label={kindWord} />
+        {sc.assetCrossoverText && <p className="mt-2 text-sm font-medium text-ink">{sc.assetCrossoverText}</p>}
       </div>
       <div className="mt-4 break-inside-avoid">
-        <DataTable head={['연차', 'NOI 증가', '누적 순증', '안 함 누적', '함 누적']} numeric={[1, 2, 3, 4]} rows={sc.cashflowRows} />
+        <DataTable
+          head={sc.cashflowHead}
+          numeric={sc.cashflowHead.map((_, i) => i).slice(1)}
+          rows={sc.cashflowRows}
+        />
       </div>
 
       <div className="break-inside-avoid">
-        <SubTitle>시나리오별 NPV · IRR</SubTitle>
+        <SubTitle>시나리오별 NPV · IRR (임대수익 기준)</SubTitle>
         <DataTable
           head={['시나리오', `NPV (${sc.years}년)`, `IRR (${sc.years}년)`, '회수 연차', `${sc.years}년 말 누적 순증`]}
           numeric={[1, 2, 3, 4]}
@@ -49,6 +56,18 @@ export default function SiteCh06Scenario({ report }: { report: SiteReport }) {
           highlightRow={1}
         />
       </div>
+
+      {sc.assetAdjusted && (
+        <div className="mt-4 break-inside-avoid">
+          <SubTitle>시나리오별 자산가치 반영 지표</SubTitle>
+          <DataTable
+            head={['시나리오', '회수 연차', `NPV (${sc.years}년 말 자산가치 회수)`, 'IRR', `${sc.years}년 말 순증`]}
+            numeric={[1, 2, 3, 4]}
+            rows={sc.assetScenarioRows}
+            highlightRow={1}
+          />
+        </div>
+      )}
 
       <ul className="mt-6 space-y-1 text-xs text-ink-faint">
         {sc.notes.map((n) => (

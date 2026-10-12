@@ -32,6 +32,14 @@ export function formatAssumptionValue(unit: string, v: number | null): string {
 const man = (v: number | null, d = 1) => (v === null ? '–' : `${formatNumber(v / 10_000, d)}만원`)
 const pctOrDash = (v: number | null) => (v === null ? '–' : formatRate(v, 1))
 const yearsOrDash = (v: number | null) => (v === null ? '–' : `${formatNumber(v, 1)}년`)
+/** 자산가치 반영 회수기간 표시 (0 = 착공 직후, null = 기간 초과, 계산 못함 = –) */
+export function assetPaybackValue(c: SiteFinanceResult['cashflow']): string {
+  const a = c?.assetAdjusted ?? null
+  if (!c || !a) return '–'
+  if (a.paybackYear === null) return `${c.years.length}년 초과`
+  if (a.paybackYear === 0) return '착공 직후'
+  return `${formatNumber(a.paybackYearsExact ?? a.paybackYear, 1)}년`
+}
 
 export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
   const fin = analysis.finance
@@ -95,9 +103,15 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
     `${FINANCE_SCENARIO_LABEL.CONSERVATIVE} ${fmt(pick(scenarios[0]))} ~ ${FINANCE_SCENARIO_LABEL.OPTIMISTIC} ${fmt(pick(scenarios[2]))}`
   const kpis: Kpi[] = [
     { label: '단순 ROI', value: pctOrDash(m.roi), caption: range((x) => x.metrics.roi, pctOrDash) },
-    { label: '투자회수기간', value: yearsOrDash(m.paybackYears), caption: '총사업비 ÷ 연 NOI 증가' },
+    { label: '투자회수기간 (임대수익만)', value: yearsOrDash(m.paybackYears), caption: '총사업비 ÷ 연 NOI 증가' },
+    {
+      label: '투자회수기간 (자산가치 반영)',
+      value: assetPaybackValue(f.cashflow),
+      caption: f.cashflow?.assetAdjusted
+        ? `자산가치 증가분 포함 · 보수 ${assetPaybackValue(scenarios[0].cashflow)} ~ 낙관 ${assetPaybackValue(scenarios[2].cashflow)}`
+        : '토지가액이 없어 계산하지 않음',
+    },
     { label: '자기자본수익률 (ROE)', value: pctOrDash(m.roe), caption: `자기자본 ${formatWon(f.equityWon)}` },
-    { label: '자산가치 증가 (수익 기준)', value: formatWon(m.valueIncreaseWon), caption: `NOI 증가 ÷ 환원율 · 순증 ${formatWon(m.netValueIncreaseWon)}` },
   ]
 
   const ly = f.landInclusiveYield
@@ -164,12 +178,41 @@ function constructionSection(analysis: SiteAnalysis): SiteFinanceSection['constr
       `증축 공사비 가정값 평당 ${formatNumber(perPyeong / 10_000, 0)}만원은 같은 집단 신축 실적(공사면적 기준 평당 중앙값 ${formatNumber(a.pyeongWorkMedianManwon, 0)}만원)의 ${formatRate(ratio, 0)} 수준입니다. 실적은 신축 도급 공사비이며 증축 실적이 아닙니다.`,
     )
   }
+  const fw = analysis.finance.floorWorkCost
+  if (fw && analysis.finance.byScenario.BASE.project.kind === 'rebuild') {
+    notes.unshift(
+      `재건축 신축 단가: 지상 ${fw.floors}층 현장 ${fw.count}건(${fw.sites.join(', ')})의 공사면적 기준 평당 공사비 평균 ${formatNumber(fw.meanManwon, 0)}만원(범위 ${formatNumber(fw.minManwon, 0)}~${formatNumber(fw.maxManwon, 0)}만원, 건설공사비지수 2026 환산)을 엑셀 신축비용으로 넣고, 건물신축단가표와 비교해 높은 값을 적용했습니다. 보수는 표본 최대, 낙관은 표본 최소입니다.${fw.fewSamples ? ' 표본이 5건 미만이라 대표성이 낮고 착공이 2012~2017년으로 최근 서울 실적보다 낮을 수 있습니다.' : ''} 도급 공사비이며 토지·간접비는 포함하지 않습니다.`,
+    )
+  }
   const months = base.assumptions.find((x) => x.key === 'rebuildConstructionMonths')?.value ?? null
   if (a && a.monthsMedian !== null && months !== null) {
     notes.push(`재건축 공사 기간 가정 ${formatNumber(months, 0)}개월 — 같은 집단 실적 중앙값 ${formatNumber(a.monthsMedian, 1)}개월.`)
   }
   notes.push('하우빌드 공사비는 시공사 도급 공사비(VAT 포함)로 감리비·부담금 등 간접비가 빠져 있습니다. 건설공사비지수는 직접공사비 물가 기준이라 시공사 이윤·인력 수급 변동은 반영하지 못합니다.')
-  return { rows, appliedRow: a ? c.compare.findIndex((s) => s.label === a.label) : -1, notes }
+  const floorRows: ReportRow[] = analysis.finance.floorWorkCostTable.map((s) => [
+    `지상 ${s.floors}층${s.fewSamples ? ' (표본 적음)' : ''}`,
+    s.siteCount === s.count ? `${s.siteCount}건` : `${s.siteCount}건 (평당 ${s.count}건)`,
+    `${formatNumber(s.meanManwon, 1)}만원`,
+    `${formatNumber(s.medianManwon, 1)}만원`,
+    `${formatNumber(s.minManwon, 0)} ~ ${formatNumber(s.maxManwon, 0)}만원`,
+    `${formatNumber((s.meanManwon * 10_000) / PYEONG_M2, 0)}원`,
+    s.monthsMedian === null ? '–' : `${formatNumber(s.monthsMedian, 1)}개월`,
+  ])
+  const applied = analysis.finance.floorWorkCost
+  const usedFloor = applied && base.project.kind === 'rebuild' ? applied.floors : null
+  const floorAppliedRow = usedFloor === null ? -1 : analysis.finance.floorWorkCostTable.findIndex((s) => s.floors === usedFloor)
+  if (applied && usedFloor !== null && applied.fewSamples) {
+    // 표본이 적을 때 가장 가까운 충분한 표본의 층수 평균을 비교로 보여 준다
+    const near = analysis.finance.floorWorkCostTable
+      .filter((s) => !s.fewSamples)
+      .sort((x, y) => Math.abs(x.floors - applied.floors) - Math.abs(y.floors - applied.floors))[0]
+    if (near) {
+      notes.push(
+        `지상 ${applied.floors}층은 표본이 ${applied.count}건이라 대표성이 낮습니다. 표본이 충분한 가장 가까운 지상 ${near.floors}층(${near.count}건)의 평균은 ${formatNumber(near.meanManwon, 1)}만원/평으로, 적용 단가와 ${formatNumber(Math.abs(near.meanManwon - applied.meanManwon), 1)}만원 차이입니다.`,
+      )
+    }
+  }
+  return { rows, appliedRow: a ? c.compare.findIndex((s) => s.label === a.label) : -1, floorRows, floorAppliedRow, notes }
 }
 
 /** 임대 사례 회귀 표 — [항목, 사례 평균, 회귀식(전용 평 기준), 1평 증가당, 최소 임대면적 값] */

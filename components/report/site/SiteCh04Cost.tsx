@@ -16,7 +16,7 @@ export default function SiteCh04Cost({ report }: { report: SiteReport }) {
     <div>
       <Lead>
         {kind === 'rebuild'
-          ? '기존 건물을 철거하고 신축하는 사업비입니다. 철거비는 신축 공사비에 포함했고, 이주·철거와 공사 기간 동안의 임대수입 중단은 공사 중 임대 손실로 반영했습니다. 신축 단가는 한국부동산원 건물신축단가표와 공사비 실적 중 높은 값을 씁니다.'
+          ? '기존 건물을 철거하고 신축하는 사업비입니다. 철거비는 신축 공사비에 포함했고, 이주·철거와 공사 기간 동안의 임대수입 중단은 공사 중 임대 손실로 반영했습니다. 신축 단가는 같은 층수 현장의 공사비 실적(하우빌드, 2026 환산) 평균과 한국부동산원 건물신축단가표 중 높은 값을 씁니다.'
           : '증축 사업비입니다. 증축 공사는 상부 건식 조립식(목구조·각재 형식)으로 보고 평당 단가와 세대당 제반비용을 적용했습니다.'}{' '}
         금액은 {fin.scenarioLabel} 기준이며, 근거 등급 C는 프로젝트 가정입니다.
       </Lead>
@@ -33,7 +33,14 @@ export default function SiteCh04Cost({ report }: { report: SiteReport }) {
       <DataTable head={['구분', '금액', '비고']} numeric={[1]} rows={fin.fundingRows} />
 
       <div className="break-inside-avoid">
-        <SubTitle>공사비 근거 — 신축 실적 (2026 환산)</SubTitle>
+        <SubTitle>공사비 근거 — 층수별 평당 공사비 (공사면적 기준, 2026 환산)</SubTitle>
+        <DataTable
+          head={['층수', '현장수', '평당 평균', '평당 중앙값', '범위(최소~최대)', '㎡당 환산(평균)', '공사 기간']}
+          numeric={[1, 2, 3, 4, 5, 6]}
+          rows={fin.construction.floorRows}
+          highlightRow={fin.construction.floorAppliedRow}
+        />
+        <p className="mt-4 mb-1 text-xs font-medium text-ink-soft">참고: 권역·기간별 (연면적 기준 중앙값)</p>
         <DataTable
           head={['집단', '㎡당 (연면적)', '평당 (연면적)', '평당 (공사면적)', '공사 기간']}
           numeric={[1, 2, 3, 4]}

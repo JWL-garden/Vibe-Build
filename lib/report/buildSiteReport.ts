@@ -9,7 +9,7 @@ import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
 import { policyNotes } from '@/lib/rules/policies'
 import { getScenario, getViewScenario, viewScenarios } from '@/lib/rules/scenarios'
 import { describeOverrides } from './describeOverrides'
-import { FINANCE_SCENARIO_LABEL, assumptionRows, conversionRows, financeSection } from './financeSection'
+import { FINANCE_SCENARIO_LABEL, assetPaybackValue, assumptionRows, conversionRows, financeSection } from './financeSection'
 import { buildSiteNextStep } from './nextStep'
 import { sitePartners } from './partners'
 import { buildSiteRisks } from './risks'
@@ -279,9 +279,15 @@ function landSection(land: LandValueResult, siteAddress: string): SiteLandSectio
 function assetSection(analysis: SiteAnalysis): SiteAssetSection {
   const a = analysis.asset
   const b = a.existingBuilding
-  const cost = `재조달단가 ${f(b.unitCostWon / 1e4, 0)}만원/㎡`
+  const unitText = b.unitCostWon === null ? '신축 단가 입력 대기' : `신축단가표 ${f(b.unitCostWon / 1e4, 1)}만원/㎡`
   const hasAdd = a.addBuilding.gfaM2 > 0
   const rebuild = a.demolished
+  // 증축과 재건축은 각각 자기 공사비 전액을 건물가치로 인정한다 (2026-10-12 결정)
+  const addNote = !hasAdd
+    ? '증축안 없음'
+    : a.addBuilding.basis === 'construction'
+      ? `${rebuild ? '신축 공사비' : '증축 공사비'} 전액 (연면적 ${f(a.addBuilding.gfaM2, 1)}㎡)`
+      : `${rebuild ? '재건축' : '증축'} ${f(a.addBuilding.gfaM2, 1)}㎡ × ${unitText} (공사비 미산정)`
   // 표는 원 단위 정확값 (억 단위 반올림이면 항목 합과 합계가 어긋나 보임), 억 단위 요약은 KPI 카드에만
   const rows: ReportRow[] = [
     ['토지가액', formatWonExact(a.land.valueWon), formatWonExact(a.land.valueWon), `${landBasisNote(a.land)} [${LAND_BADGE[a.land.basis].badge}]`],
@@ -289,19 +295,19 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
       '기존 건물가치',
       formatWonExact(b.valueWon),
       rebuild ? '– (철거)' : formatWonExact(b.valueWon),
-      `연면적 ${f(b.gfaM2)}㎡ × ${cost} × 잔가율 ${formatRate(b.residualRate)} (경과 ${b.ageYears ?? '–'}년 / 내용연수 ${b.usefulLifeYears}년)`,
+      `(연면적 ${f(b.gfaM2)}㎡${b.pilotiAreaM2 > 0 ? ` + 필로티 ${f(b.pilotiAreaM2)}㎡` : ''}) × ${unitText} = 재조달원가 ${formatWon(b.replacementCostWon)} × 잔가율 ${formatRate(b.residualRate)} (경과 ${b.ageYears ?? '–'}년, 연 ${formatRate(b.depreciationRatePerYear, 1)} 감가·지수형)`,
     ],
     [
       rebuild ? '신축 건물가치' : '증축 건물가치',
       '–',
       hasAdd ? formatWonExact(a.addBuilding.valueWon) : '–',
-      hasAdd ? `${rebuild ? '재건축' : '증축'} ${f(a.addBuilding.gfaM2, 1)}㎡ × ${cost} (신축)` : '증축안 없음',
+      addNote,
     ],
     ['자산가치 합계', formatWonExact(a.beforeWon), formatWonExact(a.afterWon), '토지가액 + 건물가치 (원가 기준 참고값)'],
   ]
   const kpis: Kpi[] = [
     { label: '토지가액', value: formatWon(a.land.valueWon), caption: `${LAND_BADGE[a.land.basis].badge} · 공시지가 기준` },
-    { label: '자산가치 (증축 전)', value: formatWon(a.beforeWon), caption: '토지 + 기존 건물' },
+    { label: rebuild ? '자산가치 (재건축 전)' : '자산가치 (증축 전)', value: formatWon(a.beforeWon), caption: '토지 + 기존 건물' },
     {
       label: rebuild ? '자산가치 (재건축 후)' : '자산가치 (증축 후)',
       value: formatWon(a.afterWon),
@@ -326,6 +332,7 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
     notes: [
       ...a.reasons,
       `${buildingValueRule.note}. 수익 기준 가치(NOI ÷ 환원율)와 더하면 토지를 두 번 세게 되므로 따로 봅니다.`,
+      `기존 건물 면적은 신축 공사비와 같은 기준(실공사면적: 연면적 + 필로티)입니다. 연 ${formatRate(buildingValueRule.depreciationRatePerYear, 1)} 감가는 서울 연립다세대 헤도닉 모형의 건물연식 계수(−0.011, 국토연구 125호, 2025)로, 토지 + 건물 합산 매매가의 연식 효과라 건물만의 감가율보다 낮을 수 있습니다.`,
       `경과연수 기준일: ${a.baseDate} (기준 데이터 기준일)`,
     ],
   }
@@ -379,7 +386,7 @@ function buildVerification(data: SiteData, analysis: SiteAnalysis): SiteReport['
   }
   todoRows.push([
     '건물가치 가정 (재조달단가·내용연수·잔가율)',
-    `${f(buildingValueRule.replacementCostPerM2Won / 1e4, 0)}만원/㎡ · ${analysis.asset.existingBuilding.usefulLifeYears}년 · 최저 ${formatRate(buildingValueRule.minResidualRate, 0)}`,
+    `신축단가표 단가 · 연 ${formatRate(buildingValueRule.depreciationRatePerYear, 1)} 감가(지수형) · 최저 잔가율 ${formatRate(buildingValueRule.minResidualRate, 0)}`,
     '예시 가정값',
     'lib/rules/financeDefaults.ts → buildingValueRule',
   ])
@@ -459,7 +466,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ],
     [
       '건물가치 (원가 기준)',
-      `재조달단가 ${f(buildingValueRule.replacementCostPerM2Won / 1e4, 0)}만원/㎡, 내용연수 ${analysis.asset.existingBuilding.usefulLifeYears}년, 최저 잔가율 ${formatRate(buildingValueRule.minResidualRate, 0)}`,
+      `기존 = (연면적 + 필로티) × 신축단가표 단가 × exp(−${formatRate(buildingValueRule.depreciationRatePerYear, 1)} × 경과연수), 최저 잔가율 ${formatRate(buildingValueRule.minResidualRate, 0)} / 증축·신축 = 해당 공사비 전액`,
       '예시 가정값 — 감정평가 아님',
     ],
   ]
@@ -660,10 +667,22 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
             ? `자기자본 ${formatRate(fin.equityWon / fin.totalCostWon, 0)} · 대출 ${formatRate(fin.loanWon / fin.totalCostWon, 0)}`
             : null,
       },
-      { label: '연간 수익률(ROI)', value: pct(fin.metrics.roi), caption: `보수 ${pct(c)} ~ 낙관 ${pct(o)}` },
+      // 재건축은 임대수익(NOI)만으로 회수기간이 길어지므로, 토지+건물 자산가치 전·후를 함께 보여준다 (원가 기준 참고값)
+      plan.kind === 'rebuild' && analysis.asset.beforeWon !== null && analysis.asset.afterWon !== null
+        ? {
+            label: '자산가치 (재건축 후)',
+            value: formatWon(analysis.asset.afterWon),
+            caption: `재건축 전 ${formatWon(analysis.asset.beforeWon)} (${analysis.asset.afterWon >= analysis.asset.beforeWon ? '+' : '−'}${formatWon(Math.abs(analysis.asset.afterWon - analysis.asset.beforeWon))})`,
+          }
+        : { label: '연간 수익률(ROI)', value: pct(fin.metrics.roi), caption: `보수 ${pct(c)} ~ 낙관 ${pct(o)}` },
       {
-        label: '투자회수기간',
-        value: fin.metrics.paybackYears === null ? '–' : `${f(fin.metrics.paybackYears, 1)}년`,
+        // 자산가치 증가분을 반영한 회수기간 (없으면 임대수익만 본 값). 임대수익만 본 값은 5장·6장에 병기
+        label: fin.cashflow?.assetAdjusted ? '투자회수기간 (자산가치 반영)' : '투자회수기간',
+        value: fin.cashflow?.assetAdjusted
+          ? assetPaybackValue(fin.cashflow)
+          : fin.metrics.paybackYears === null
+            ? '–'
+            : `${f(fin.metrics.paybackYears, 1)}년`,
         caption: null,
       },
     )

@@ -47,12 +47,16 @@ describe('T1 104-10 렉스빌 전체 재건축', () => {
     expect(r.checks.find((c) => c.item === 'parking')!.status).toBe('check')
   })
 
-  it('자산가치: 후 = 토지 1,062,372,000 + 신축 498.75㎡ × 200만 = 2,059,872,000 (기존 건물 철거)', async () => {
-    const a = (await load(T1)).asset
+  it('자산가치: 후 = 토지 1,062,372,000 + 신축 공사비 전액 (기존 건물 철거), 전 = 토지 + 기존 건물(필로티 포함, 지수 감가)', async () => {
+    const analysis = await load(T1)
+    const a = analysis.asset
+    const construction = analysis.finance.byScenario.BASE.costs.find((c) => c.key === 'construction')!.amountWon!
     expect(a.demolished).toBe(true)
-    expect(a.beforeWon).toBe(1_546_519_200)
-    expect(a.addBuilding.valueWon).toBe(997_500_000)
-    expect(a.afterWon).toBe(2_059_872_000)
+    expect(a.beforeWon).toBe(1_062_372_000 + a.existingBuilding.valueWon)
+    expect(a.existingBuilding.constructionAreaM2).toBeCloseTo(378.24 + 99.27, 2)
+    expect(a.addBuilding.valueWon).toBe(construction) // 618.45㎡(필로티 포함) × 2,055,379원/㎡
+    expect(construction).toBe(Math.round(618.45 * 2_055_379))
+    expect(a.afterWon).toBe(1_062_372_000 + construction)
   })
 })
 
@@ -118,8 +122,10 @@ describe('REBUILD 판정·보고서', () => {
     const data = (await getSiteData(T2))!
     const r = buildSiteReport(data, runAll(data, 'REBUILD'), '2026-10-08')
     expect(r.summary.kpis[0].value).toBe('지상 6층 · 932.8㎡')
-    expect(r.summary.kpis.map((k) => k.label)).toEqual(['재건축 규모', '총사업비', '연간 수익률(ROI)', '투자회수기간'])
-    expect(r.summary.kpis[1].value).toBe('43.5억원') // 신축 단가 = 하우빌드 실적 중앙값, 대출 금리 6.0%, 공사 중 임대 손실 포함(철거비는 공사비에 포함), 2026-10-12
+    // 표지: 규모 · 총사업비 · 자산가치(재건축 후, 전 금액은 작은 글자) · 투자회수기간(자산가치 반영) — 2026-10-12
+    expect(r.summary.kpis.map((k) => k.label)).toEqual(['재건축 규모', '총사업비', '자산가치 (재건축 후)', '투자회수기간 (자산가치 반영)'])
+    expect(r.summary.kpis[2].caption).toContain('재건축 전')
+    expect(r.summary.kpis[1].value).toBe('31.2억원') // 신축 단가 = max(신축단가표 205.5만원/㎡, 지상 6층 하우빌드 실적 564.2만원/평 환산 170.7만원/㎡) = 단가표, 대출 금리 6.0%, 공사 중 임대 손실 포함(철거비는 공사비에 포함), 2026-10-12
     expect(r.summary.addFloors).toBe(0) // 기존도 지상 6층
     expect(r.plan.kind).toBe('rebuild')
     expect(r.plan.rebuild).toBe(r.analysis.rebuild)

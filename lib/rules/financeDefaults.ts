@@ -9,15 +9,19 @@ export const landValueRule = {
   label: '개별공시지가 기준 (시세 아님)',
 } as const
 
-/** 건물가치(원가 기준) 가정 (설계서 5-4 [C']) — 예시 가정값, 감정평가 아님 */
+/**
+ * 건물가치(원가 기준) 가정 (설계서 5-4 [C']) — 예시 가정값, 감정평가 아님 (2026-10-12 개정)
+ *  - 기존 건물가치 = (기존 연면적 + 필로티 면적) × 신축단가표 단가 × 잔가율, 잔가율 = exp(−연 감가율 × 경과연수)
+ *  - 신축·증축 건물가치 = 해당 공사의 공사비 전액 (재건축은 신축 공사비, 증축은 증축 공사비를 각각 적용)
+ *  - 연 감가율 1.1%: 소하영 외, 국토연구 125호(2025) 서울 연립다세대 헤도닉 모형의 건물연식 계수 −0.011 (준로그 → 복리 감소).
+ *    토지 + 건물 합산 면적당 매매가의 연식 효과이므로 건물만의 감가율보다 낮다.
+ */
 export const buildingValueRule = {
-  /** 재조달단가 (원/㎡) — 같은 건물을 지금 새로 짓는 단가 */
-  replacementCostPerM2Won: 2_000_000,
-  /** 구조별 내용연수 (년). 목록에 없으면 default */
-  usefulLifeYears: { 철근콘크리트구조: 50, default: 50 } as Record<string, number>,
+  /** 연 감가율 (소수) — 잔가율 = exp(−연 감가율 × 경과연수) */
+  depreciationRatePerYear: 0.011,
   /** 최저 잔가율 (소수) — 오래돼도 이 비율 아래로 내려가지 않음 */
   minResidualRate: 0.1,
-  note: '예시 가정값 (재조달단가·내용연수·잔가율) — 감정평가 아님',
+  note: '예시 가정값 (신축단가표 단가 · 연 1.1% 감가 · 잔가율) — 감정평가 아님',
 } as const
 
 export type LandValueRule = typeof landValueRule
@@ -107,6 +111,27 @@ export const constructionCostRule = {
   optimisticPercentile: 0.25,
   grade: 'B',
   note: '시공사 도급 공사비(VAT 포함) — 감리비·부담금 등 간접비 미포함',
+} as const
+
+/**
+ * 재건축 신축 단가 — 지상 N층 현장의 공사면적 기준 평당 공사비 평균 (2026-10-12 결정)
+ * 기준 엑셀 '하우빌드 2026환산' 4장 층수별 표 (예: 지상 6층 평균 564만원/평). 재건축 신축 단가는 이 값(공사면적 기준)과 건물신축단가표 중 높은 값.
+ * 보수 = 표본 최대(비싼 쪽), 낙관 = 표본 최소. 표본이 minSamples 미만이면 보고서에 대표성 낮음을 표기한다.
+ */
+export const newBuildCostByFloorRule = {
+  grade: 'C',
+  minSamples: 5,
+  note: '시공사 도급 공사비(VAT 포함, 토지 제외) — 감리비·부담금 등 간접비 미포함, 공사면적(지하·필로티 포함) 기준',
+} as const
+
+/**
+ * 자산가치 연차별 경로의 상승률 (2026-10-12 결정)
+ *  - 건물: 건설공사비지수(주거용건물) 연평균 상승률 — 기준 엑셀 '하우빌드 공사비'의 착공연도별 보정계수에서 계산 (calcBuildingCostGrowth)
+ *  - 토지: 영등포구 지가변동률 시계열을 받기 전까지 0% (보수적). 값이 들어오면 landAnnualRate만 바꾼다.
+ */
+export const assetGrowthRule = {
+  landAnnualRate: 0,
+  landBasis: '영등포구 지가변동률 시계열 입력 대기 — 상승 없음(0%)으로 보수적 계산',
 } as const
 
 /** 현금흐름 기간 (2026-10-12 결정: 10년 → 20년). NPV·IRR·누적 비교의 기준 기간 */

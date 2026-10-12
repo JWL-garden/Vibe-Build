@@ -18,7 +18,7 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
   const { land, asset } = analysis
   const badge = LAND_BADGE[land.basis]
   const b = asset.existingBuilding
-  const unitCost = `${formatNumber(b.unitCostWon / 1e4, 0)}만원/㎡`
+  const unitCost = b.unitCostWon === null ? '입력 대기' : `${formatNumber(b.unitCostWon / 1e4, 1)}만원/㎡`
   const work = asset.demolished ? '재건축' : '증축'
 
   return (

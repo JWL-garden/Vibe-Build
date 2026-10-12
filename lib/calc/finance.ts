@@ -6,6 +6,7 @@
 import { RELOCATION_MONTHS } from '@/lib/rules/projectSchedule'
 import { PYEONG_M2, cashflowRule, type AssumptionKey, type BuildingValueRule, type LandValueRule } from '@/lib/rules/financeDefaults'
 import type {
+  AssetGrowthBasis,
   AssetValueResult,
   AssumptionRow,
   FinanceScenarioId,
@@ -126,49 +127,82 @@ export interface AssetValueInput {
   land: LandValueResult
   /** 기존 연면적 (㎡) */
   gfaM2: number
-  /** 구조 (예: '철근콘크리트구조') */
-  structure: string
+  /** 필로티 면적 (㎡) — 신축 공사비와 같은 기준(실공사면적)으로 기존 건물 재조달원가에 더한다. 없으면 0 */
+  pilotiAreaM2: number
+  /** 신축 단가 (원/㎡, 건물신축단가표). 없으면 null → 건물가치 계산 불가 */
+  unitCostWon: number | null
   /** 사용승인일 (YYYY-MM-DD). 없으면 null */
   approvalDate: string | null
   /** 경과연수 기준일 (YYYY-MM-DD) */
   baseDate: string
-  /** 증축 연면적 (㎡). 증축안이 없으면 0. 재건축이면 신축 연면적 */
+  /** 증축 연면적 또는 신축 연면적 (㎡). 증축안이 없으면 0 */
   addGfaM2: number
+  /** 증축·신축 공사비 (원) — 건물가치로 전액 인정. 아직 계산하지 못했으면 null → 연면적 × 신축 단가 */
+  addConstructionCostWon: number | null
   /** true면 재건축: 기존 건물을 철거하므로 후 자산가치에 기존 건물가치를 넣지 않는다 */
   demolishExisting?: boolean
 }
 
+/** 잔가율 = max(최저 잔가율, exp(−연 감가율 × 경과연수)). 경과연수가 없으면 최저 잔가율 */
+export function residualRateAt(
+  ageYears: number | null,
+  rule: { depreciationRatePerYear: number; minResidualRate: number },
+): number {
+  return ageYears === null ? rule.minResidualRate : Math.max(rule.minResidualRate, Math.exp(-rule.depreciationRatePerYear * ageYears))
+}
+
 /**
- * 증축 전·후 자산가치(원가 기준 참고값)
- * 기존건물가치 = 연면적 × 재조달단가 × 잔가율, 증축건물가치 = 증축 연면적 × 재조달단가
+ * 증축 전·후 자산가치(원가 기준 참고값, 2026-10-12 개정)
+ * 기존건물가치 = (연면적 + 필로티) × 신축 단가 × exp(−1.1% × 경과연수)
+ * 증축(신축)건물가치 = 해당 공사의 공사비 전액 (증축은 증축 공사비, 재건축은 신축 공사비)
  * 자산가치(전) = 토지가액 + 기존건물가치, 자산가치(후) = 자산가치(전) + 증축건물가치
  * 재건축(demolishExisting)이면 자산가치(후) = 토지가액 + 신축건물가치
  */
 export function calcAssetValue(input: AssetValueInput, rule: BuildingValueRule): AssetValueResult {
-  const unitCostWon = rule.replacementCostPerM2Won
-  const usefulLifeYears = rule.usefulLifeYears[input.structure] ?? rule.usefulLifeYears.default
+  const unitCostWon = input.unitCostWon
   const ageYears = input.approvalDate ? Math.max(0, fullYearsBetween(input.approvalDate, input.baseDate)) : null
   // 사용승인일이 없으면 최저 잔가율로 보수적으로 본다
-  const residualRate =
-    ageYears === null ? rule.minResidualRate : Math.max(rule.minResidualRate, 1 - ageYears / usefulLifeYears)
-  const existingValue = won(input.gfaM2 * unitCostWon * residualRate)
-  const addValue = won(input.addGfaM2 * unitCostWon)
+  const residualRate = residualRateAt(ageYears, rule)
+  const constructionAreaM2 = input.gfaM2 + input.pilotiAreaM2
+  const replacementCost = unitCostWon === null ? null : won(constructionAreaM2 * unitCostWon)
+  const existingValue = replacementCost === null ? 0 : won(replacementCost * residualRate)
+  const hasAdd = input.addGfaM2 > 0
+  const addBasis: AssetValueResult['addBuilding']['basis'] = !hasAdd ? 'none' : input.addConstructionCostWon !== null ? 'construction' : 'unitCost'
+  const addValue = !hasAdd
+    ? 0
+    : input.addConstructionCostWon !== null
+      ? won(input.addConstructionCostWon)
+      : unitCostWon === null
+        ? 0
+        : won(input.addGfaM2 * unitCostWon)
   const land = input.land.valueWon
   const reasons = [
     ageYears === null
       ? `사용승인일이 없어 잔가율을 최저 ${rule.minResidualRate * 100}%로 보았습니다.`
-      : `경과 ${ageYears}년 / 내용연수 ${usefulLifeYears}년 → 잔가율 ${Math.round(residualRate * 1000) / 10}%`,
-    '건물가치는 재조달단가 기준 원가 추정(예시 가정값)이며 감정평가가 아닙니다.',
+      : `경과 ${ageYears}년 · 연 ${(rule.depreciationRatePerYear * 100).toFixed(1)}% 감가(지수형) → 잔가율 ${Math.round(residualRate * 1000) / 10}%`,
+    '건물가치는 신축단가표 단가 기준 원가 추정(예시 가정값)이며 감정평가가 아닙니다.',
   ]
+  if (unitCostWon === null) reasons.push('신축 단가(건물신축단가표)가 없어 기존 건물가치를 계산하지 못했습니다.')
   if (land === null) reasons.push('토지가액이 없어 자산가치를 합산하지 않았습니다.')
+  if (addBasis === 'unitCost') reasons.push('공사비를 계산하지 못해 증축(신축) 건물가치를 연면적 × 신축 단가로 보았습니다.')
   const demolished = input.demolishExisting ?? false
   if (demolished) reasons.push('재건축: 기존 건물을 철거하므로 후 자산가치 = 토지가액 + 신축 건물가치입니다 (철거비는 신축 공사비에 포함).')
   return {
     land: input.land,
-    existingBuilding: { gfaM2: input.gfaM2, unitCostWon, ageYears, usefulLifeYears, residualRate, valueWon: existingValue },
-    addBuilding: { gfaM2: input.addGfaM2, valueWon: addValue },
-    beforeWon: land === null ? null : land + existingValue,
-    afterWon: land === null ? null : land + (demolished ? 0 : existingValue) + addValue,
+    existingBuilding: {
+      gfaM2: input.gfaM2,
+      pilotiAreaM2: input.pilotiAreaM2,
+      constructionAreaM2,
+      unitCostWon,
+      ageYears,
+      depreciationRatePerYear: rule.depreciationRatePerYear,
+      residualRate,
+      replacementCostWon: replacementCost,
+      valueWon: existingValue,
+    },
+    addBuilding: { gfaM2: input.addGfaM2, valueWon: addValue, basis: addBasis },
+    beforeWon: land === null || unitCostWon === null ? null : land + existingValue,
+    afterWon: land === null || unitCostWon === null ? null : land + (demolished ? 0 : existingValue) + addValue,
     demolished,
     baseDate: input.baseDate,
     reasons,
@@ -215,6 +249,8 @@ export interface SiteFinanceInput {
   rentFactor?: number
   /** 측면 보강부 전용면적 (㎡) — 세대 수에는 넣지 않고 임대수입에만 더한다 (같은 평당 임대료). 없으면 0 */
   extraNetM2?: number
+  /** 자산가치 연차별 경로 입력 (20년 현금흐름의 자산가치 반영). 신축·증축 건물가치는 이 계산의 공사비로 채운다. 없으면 자산가치 반영 지표 생략 */
+  assetModel?: Omit<AssetModelInput, 'newBuildingValueWon'> | null
 }
 
 const wonR = (v: number) => Math.round(v)
@@ -485,6 +521,8 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
       existingNoiWon: existingNoi,
       growthRate: v('rentGrowthRate'),
       discountRate: v('discountRate'),
+      // 신축·증축 건물가치 = 이 시나리오의 공사비 전액 (재건축은 신축 공사비, 증축은 증축 공사비)
+      assetModel: input.assetModel ? { ...input.assetModel, newBuildingValueWon: construction } : null,
     }),
     conversion,
     rentBands,
@@ -494,6 +532,40 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
 }
 
 // ── [D] 10년 현금흐름 · NPV · IRR ───────────────────────────────────────
+
+export interface AssetModelInput {
+  /** 토지가액 (원, 현재). 없으면 자산가치 경로를 계산하지 않는다 */
+  landWon: number | null
+  /** 기존 건물 공사 연면적 = 연면적 + 필로티 (㎡) */
+  existingConstructionAreaM2: number
+  /** 사용승인 후 경과연수 (년, 현재). 없으면 최저 잔가율 */
+  existingAgeYears: number | null
+  /** 연 감가율 (소수) — 잔가율 = exp(−감가율 × 경과연수) */
+  depreciationRatePerYear: number
+  /** 신축 단가 (원/㎡, 현재) */
+  unitCostWon: number
+  minResidualRate: number
+  /** 증축·신축 건물가치 (원, 현재) = 그 공사의 공사비 전액. 증축(신축)안이 없으면 0 */
+  newBuildingValueWon: number
+  /** true면 재건축 — 기존 건물을 철거 */
+  demolishExisting: boolean
+  growth: AssetGrowthBasis
+}
+
+/**
+ * t년 뒤 자산가치 (원). 건물 = 현재 가치 × (1+건물 상승률)^t × 잔가율(경과연수 + t), 토지 = 현재 × (1+토지 상승률)^t
+ * 기존 건물은 재조달원가(현재)에서, 증축·신축분은 준공 직후 공사비에서 출발해 같은 지수·감가를 적용한다.
+ */
+export function calcAssetPathAt(m: AssetModelInput, t: number): { withoutWon: number; withWon: number } {
+  const land = (m.landWon ?? 0) * Math.pow(1 + m.growth.landRate, t)
+  const index = Math.pow(1 + m.growth.buildingRate, t)
+  const residual = (age: number | null) =>
+    residualRateAt(age, { depreciationRatePerYear: m.depreciationRatePerYear, minResidualRate: m.minResidualRate })
+  const existing =
+    m.existingConstructionAreaM2 * m.unitCostWon * index * residual(m.existingAgeYears === null ? null : m.existingAgeYears + t)
+  const added = m.newBuildingValueWon * index * residual(t)
+  return { withoutWon: land + existing, withWon: land + (m.demolishExisting ? 0 : existing) + added }
+}
 
 export interface CashflowInput {
   totalCostWon: number
@@ -507,12 +579,15 @@ export interface CashflowInput {
   discountRate: number | null
   /** 기간 (년, 기본 cashflowRule.years = 20) */
   horizonYears?: number
+  /** 자산가치 경로 입력. 없거나 토지가액이 없으면 자산가치 반영 지표는 null */
+  assetModel?: AssetModelInput | null
 }
 
 /**
  * 10년 현금흐름 — 총사업비는 0년차(착공 전)에 한 번 지출, NOI 증가는 1년차부터 매년 상승률만큼 증가.
- * 10년 말 잔존가치(자산가치 증가)와 공사 중 임대 손실은 반영하지 않는다 (보수적 단순화).
+ * 단순 지표(누적 순증·NPV·IRR)는 기간 말 잔존가치와 공사 중 임대 손실을 반영하지 않는다 (보수적 단순화).
  * 안 함 = 기존 NOI 누적(추정), 함 = 기존 NOI 누적 + (−총사업비 + NOI 증가 누적).
+ * assetModel이 있으면 자산가치 증가분(원가 기준, 상승률·감가 반영)을 더한 순자산·회수 연차·NPV·IRR을 assetAdjusted로 함께 계산한다.
  */
 export function calcCashflow(input: CashflowInput): SiteCashflow {
   const horizon = input.horizonYears ?? cashflowRule.years
@@ -522,6 +597,13 @@ export function calcCashflow(input: CashflowInput): SiteCashflow {
   let existCum = 0
   let paybackYear: number | null = null
   const flows: number[] = [-input.totalCostWon]
+  const am = input.assetModel && input.assetModel.landWon !== null ? input.assetModel : null
+  // 자산가치 반영 순증 = (함 자산 − 안 함 자산) + NOI 증가 누적 − 총사업비. 0년차 = 착공 직후 자산가치 차이 − 총사업비
+  const adj: number[] = []
+  if (am) {
+    const p0 = calcAssetPathAt(am, 0)
+    adj.push(p0.withWon - p0.withoutWon - input.totalCostWon)
+  }
   for (let t = 1; t <= horizon; t++) {
     const growth = Math.pow(1 + g, t - 1)
     const inc = input.noiIncreaseWon * growth
@@ -530,6 +612,28 @@ export function calcCashflow(input: CashflowInput): SiteCashflow {
     const net = incCum - input.totalCostWon
     if (paybackYear === null && net >= -1e-6) paybackYear = t
     flows.push(inc)
+    let asset: Pick<SiteCashflowYear, 'assetWithoutWon' | 'assetWithWon' | 'netWorthWithoutWon' | 'netWorthWithWon' | 'assetAdjustedNetWon'> = {
+      assetWithoutWon: null,
+      assetWithWon: null,
+      netWorthWithoutWon: null,
+      netWorthWithWon: null,
+      assetAdjustedNetWon: null,
+    }
+    if (am) {
+      const p = calcAssetPathAt(am, t)
+      const assetWithout = wonR(p.withoutWon)
+      const assetWith = wonR(p.withWon)
+      const adjusted = p.withWon - p.withoutWon + incCum - input.totalCostWon
+      adj.push(adjusted)
+      asset = {
+        assetWithoutWon: assetWithout,
+        assetWithWon: assetWith,
+        netWorthWithoutWon: assetWithout + wonR(existCum),
+        // 순자산(함) = 함 자산 + 기존 NOI 누적 + 순증 누적(총사업비 차감) — 안 함과의 차이가 자산가치 반영 순증이 된다
+        netWorthWithWon: assetWith + wonR(existCum) + wonR(net),
+        assetAdjustedNetWon: wonR(adjusted),
+      }
+    }
     years.push({
       year: t,
       noiIncreaseWon: wonR(inc),
@@ -537,9 +641,37 @@ export function calcCashflow(input: CashflowInput): SiteCashflow {
       withoutWon: wonR(existCum),
       // 표에서 안 함 + 순증 = 함이 1원 단위까지 맞도록 반올림한 값끼리 더한다
       withWon: wonR(existCum) + wonR(net),
+      ...asset,
     })
   }
   const npvAt = (r: number) => flows.reduce((s, f, t) => s + f / Math.pow(1 + r, t), 0)
+
+  let assetAdjusted: SiteCashflow['assetAdjusted'] = null
+  if (am) {
+    // 회수 시점: 0년차(착공 직후)부터 0 이상이면 0, 아니면 처음 0 이상이 되는 해 (해 사이는 선형 보간)
+    const idx = adj.findIndex((x) => x >= -1e-6)
+    let exact: number | null = null
+    if (idx === 0) exact = 0
+    else if (idx > 0) {
+      const lo = adj[idx - 1]
+      const hi = adj[idx]
+      exact = idx - 1 + (hi === lo ? 1 : -lo / (hi - lo))
+    }
+    const end = calcAssetPathAt(am, horizon)
+    const terminalDiff = end.withWon - end.withoutWon
+    // NPV·IRR: 기간 말에 자산가치 차이를 회수한다고 보고 마지막 해 현금흐름에 더한다 (원가 기준 참고값)
+    const flowsAsset = flows.map((x, t) => (t === horizon ? x + terminalDiff : x))
+    const npvAssetAt = (r: number) => flowsAsset.reduce((s, x, t) => s + x / Math.pow(1 + r, t), 0)
+    assetAdjusted = {
+      paybackYear: idx < 0 ? null : idx,
+      paybackYearsExact: exact,
+      cumulativeNetWon: wonR(adj[adj.length - 1]),
+      npvWon: input.discountRate === null ? null : wonR(npvAssetAt(input.discountRate)),
+      irr: solveIrr(npvAssetAt),
+      terminalAssetDiffWon: wonR(terminalDiff),
+      growth: am.growth,
+    }
+  }
   return {
     years,
     growthRate: input.growthRate,
@@ -549,6 +681,7 @@ export function calcCashflow(input: CashflowInput): SiteCashflow {
     paybackYear,
     cumulativeNetWon: years[years.length - 1].cumulativeNetWon,
     existingNoiMissing: input.existingNoiWon === null,
+    assetAdjusted,
   }
 }
 

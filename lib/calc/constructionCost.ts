@@ -10,6 +10,7 @@ import type {
   ConstructionStat,
   DurationEstimate,
   DurationStat,
+  FloorWorkCostStat,
 } from '@/types'
 
 type Rule = typeof constructionCostRule
@@ -92,6 +93,94 @@ export function withConstructionUnitCost(rows: AssumptionRow[], summary: Constru
     memo: `${rule.note}. 보수 = 상위 사분위, 낙관 = 하위 사분위. ${summary.basisNote}`,
   }
   return existing ? rows.map((r) => (r.key === 'newBuildCostExcel' ? filled : r)) : [...rows, filled]
+}
+
+// ── 신축 단가: 지상 N층 공사면적 기준 평당 공사비 (2026-10-12) ──────────────
+
+const floorsOfRow = (r: ConstructionCostRow) => {
+  const m = /지상\s*(\d+)\s*층/.exec(r.floorsText ?? '')
+  return m ? Number(m[1]) : null
+}
+
+/**
+ * 지상 N층 현장의 평당 공사비(공사면적 기준, 2026 환산, 만원) 평균·최소·최대.
+ * 엑셀 '하우빌드 2026환산' 4장 층수별 표의 "평당공사비 공사면적 평균"과 같은 값이어야 한다. 사례가 없으면 null.
+ */
+export function summarizeFloorWorkCost(all: ConstructionCostRow[], floors: number, minSamples = 5): FloorWorkCostStat | null {
+  const sameFloor = all.filter((r) => (r.excluded === null || r.excluded === '') && floorsOfRow(r) === floors)
+  const rows = sameFloor.filter((r) => (r.pyeongWork2026Manwon ?? 0) > 0)
+  if (rows.length === 0) return null
+  const v = rows.map((r) => r.pyeongWork2026Manwon!)
+  return {
+    floors,
+    count: rows.length,
+    siteCount: sameFloor.length,
+    meanManwon: v.reduce((s, x) => s + x, 0) / v.length,
+    medianManwon: percentile(v, 0.5)!,
+    minManwon: Math.min(...v),
+    maxManwon: Math.max(...v),
+    monthsMedian: percentile(nums(rows.map((r) => r.months)), 0.5),
+    sites: rows.map((r) => r.name ?? r.id ?? '이름 없음'),
+    fewSamples: rows.length < minSamples,
+  }
+}
+
+/** 층수별 표 — 자료가 있는 모든 지상 층수(오름차순). 엑셀 '하우빌드 2026환산' 4장 층수별 표(F43~F48)와 같은 값 */
+export function summarizeFloorWorkCostTable(all: ConstructionCostRow[], minSamples = 5): FloorWorkCostStat[] {
+  const floorNos = [...new Set(all.map((r) => floorsOfRow(r)).filter((n): n is number => n !== null))].sort((a, b) => a - b)
+  return floorNos.map((n) => summarizeFloorWorkCost(all, n, minSamples)).filter((s): s is FloorWorkCostStat => s !== null)
+}
+
+/**
+ * 재건축 신축 단가(가정값 newBuildCostExcel)를 지상 N층 공사면적 기준 평당 공사비로 채운다 (원/㎡ = 만원/평 × 1만 ÷ 3.305785).
+ * 보수 = 표본 최대, 기준 = 평균, 낙관 = 표본 최소. 가정값 입력 엑셀에 값이 있으면 그대로 둔다.
+ * 반환 applied = 이 값을 단독으로 적용했는지 (true면 신축단가표와의 max 규칙을 쓰지 않는다)
+ */
+export function withFloorWorkUnitCost(
+  rows: AssumptionRow[],
+  stat: FloorWorkCostStat | null,
+  grade: AssumptionRow['grade'],
+  note: string,
+): { rows: AssumptionRow[]; applied: boolean } {
+  const existing = rows.find((r) => r.key === 'newBuildCostExcel')
+  if (!stat || (existing && existing.base !== null)) return { rows, applied: false }
+  const perM2 = (manwon: number) => (manwon * 10_000) / PYEONG_M2
+  const filled: AssumptionRow = {
+    key: 'newBuildCostExcel',
+    label: existing?.label ?? '신축 단가 — 건축물 신축비용 자료 (엑셀)',
+    unit: existing?.unit ?? '원/㎡',
+    low: Math.round(perM2(stat.maxManwon)),
+    base: Math.round(perM2(stat.meanManwon)),
+    high: Math.round(perM2(stat.minManwon)),
+    grade,
+    sourceTitle: `하우빌드 실적 지상 ${stat.floors}층 ${stat.count}건 공사면적 기준 평당 공사비 평균 ${stat.meanManwon.toFixed(1)}만원/평 (범위 ${stat.minManwon.toFixed(0)}~${stat.maxManwon.toFixed(0)}만원) · 건설공사비지수 2026 환산`,
+    publisher: '하우빌드 준공 현장 · 건설공사비지수(KOSIS, 한국건설기술연구원 주거용건물)',
+    baseDate: '2026-08',
+    url: null,
+    memo: `${note}. 보수 = 표본 최대, 낙관 = 표본 최소. 사례: ${stat.sites.join(', ')}${stat.fewSamples ? ' — 표본 5건 미만, 대표성 낮음' : ''}`,
+  }
+  return { rows: existing ? rows.map((r) => (r.key === 'newBuildCostExcel' ? filled : r)) : [...rows, filled], applied: true }
+}
+
+// ── 건물 재조달단가 상승률: 건설공사비지수 (2026-10-12) ───────────────────
+
+/**
+ * 착공연도별 보정계수(= 2026 기준 지수 ÷ 해당연도 지수)로 건설공사비지수(주거용건물)의 연평균 상승률(CAGR)을 구한다.
+ * 연도별 지수 ∝ 1 ÷ 보정계수. 엑셀 '건설공사비지수' 시트의 연평균 지수(2011 78.24 → 2025 130.07, 약 3.7%/년)와 같다.
+ * 연도가 2개 미만이면 null.
+ */
+export function calcBuildingCostGrowth(all: ConstructionCostRow[]): { rate: number; fromYear: number; toYear: number } | null {
+  const byYear = new Map<number, number>()
+  for (const r of all) {
+    if (r.startYear !== null && r.indexFactor !== null && r.indexFactor > 0) byYear.set(r.startYear, r.indexFactor)
+  }
+  const years = [...byYear.keys()].sort((a, b) => a - b)
+  if (years.length < 2) return null
+  const fromYear = years[0]
+  const toYear = years[years.length - 1]
+  // 지수(toYear) ÷ 지수(fromYear) = 보정계수(fromYear) ÷ 보정계수(toYear)
+  const ratio = byYear.get(fromYear)! / byYear.get(toYear)!
+  return { rate: Math.pow(ratio, 1 / (toYear - fromYear)) - 1, fromYear, toYear }
 }
 
 // ── 공사 기간: 층별·면적별 실적 (2026-10-12) ─────────────────────────────
