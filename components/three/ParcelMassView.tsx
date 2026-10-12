@@ -115,7 +115,7 @@ export default function ParcelMassView({
       <div className={`h-full w-full ${shot ? 'print:hidden' : ''}`}>
         <Canvas
           frameloop="demand"
-          dpr={[1, 2]}
+          dpr={[2, 3]}
           camera={{ fov: MASS_VIEW.fovDeg, near: 0.5, far: 5000 }}
           gl={{ preserveDrawingBuffer: true, antialias: true }}
         >
