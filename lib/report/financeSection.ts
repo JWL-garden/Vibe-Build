@@ -68,15 +68,24 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
   const r = f.revenue
   const vacancy = f.assumptions.find((a) => a.key === 'vacancyRate')!
   const opex = f.assumptions.find((a) => a.key === 'opexRate')!
+  const rebuild = f.project.kind === 'rebuild'
+  const maintRate = formatRate(f.assumptions.find((a) => a.key === 'maintenanceFeePerUnit')!.value ?? 0, 1)
+  // 재건축은 운영비 행 없음 (2026-10-12 결정)
   const revenueRows: ReportRow[] = [
-    ['연 임대수입 (공실 전)', formatWonExact(r.grossAnnualWon), `${f.project.units.length}세대 월 환산 임대료 합 × 12`],
-    ['관리비 수입', formatWonExact(r.maintenanceWon), `임대수입 × ${formatRate(f.assumptions.find((a) => a.key === 'maintenanceFeePerUnit')!.value ?? 0, 1)}`],
+    [rebuild ? '신축 세대 연 임대수입 (공실 전)' : '연 임대수입 (공실 전)', formatWonExact(r.grossAnnualWon), `${f.project.units.length}세대 월 환산 임대료 합 × 12`],
+    ['관리비 수입', formatWonExact(r.maintenanceWon), `임대수입 × ${maintRate}`],
     ['공실 손실', `−${formatWonExact(r.vacancyLossWon)}`, `(임대수입 + 관리비) × 공실률 ${formatRate(vacancy.value, 1)}`],
-    ['운영비', `−${formatWonExact(r.opexWon)}`, `× 운영비율 ${formatRate(opex.value, 1)}`],
-    ['신규 세대 연 NOI', formatWonExact(r.noiWon), '임대수입 − 공실 − 운영비'],
+    ...(rebuild ? [] : [['운영비', `−${formatWonExact(r.opexWon)}`, `× 운영비율 ${formatRate(opex.value, 1)}`] as ReportRow]),
+    [rebuild ? '신축 세대 연 NOI' : '신규 세대 연 NOI', formatWonExact(r.noiWon), rebuild ? '임대수입 + 관리비 − 공실' : '임대수입 − 공실 − 운영비'],
   ]
-  if (f.project.kind === 'rebuild') {
-    revenueRows.push(['철거되는 기존 세대 NOI (추정)', `−${formatWonExact(r.existingNoiWon)}`, '같은 임대 사례로 추정 — 실제 임대 조건 아님'])
+  if (rebuild && r.existingGrossAnnualWon !== null) {
+    // 철거되는 기존 세대의 임대수익도 같은 구조로 표시 (실제 임대 조건이 아닌 사례 회귀 추정)
+    revenueRows.push(
+      ['철거되는 기존 세대 연 임대수입 (공실 전, 추정)', formatWonExact(r.existingGrossAnnualWon), `기존 세대 전용면적별 월 환산 임대료 합 × 12 — 같은 임대 사례 회귀 추정, 실제 임대 조건 아님`],
+      ['철거되는 기존 세대 관리비 수입', formatWonExact(r.existingMaintenanceWon), `임대수입 × ${maintRate}`],
+      ['철거되는 기존 세대 공실 손실', `−${formatWonExact(r.existingVacancyLossWon)}`, `(임대수입 + 관리비) × 공실률 ${formatRate(vacancy.value, 1)}`],
+      ['철거되는 기존 세대 연 NOI (추정)', `−${formatWonExact(r.existingNoiWon)}`, '임대수입 + 관리비 − 공실 (철거로 사라지는 수입)'],
+    )
   }
   revenueRows.push(['연 NOI 증가', formatWonExact(r.noiIncreaseWon), f.project.kind === 'rebuild' ? '신축 NOI − 기존 NOI' : '증축 세대 NOI'])
 
@@ -200,7 +209,7 @@ function bandNote(f: SiteFinanceResult): string {
 /** 이 보고서(증축 또는 재건축)에서 쓰지 않는 공사 관련 가정값 — 부록 표에서 뺀다 */
 const UNUSED_BY_KIND: Record<'expansion' | 'rebuild', string[]> = {
   expansion: ['rebuildConstructionMonths', 'newBuildCostTable', 'newBuildCostExcel'],
-  rebuild: ['constructionMonths', 'expansionCostPerPyeong'],
+  rebuild: ['constructionMonths', 'expansionCostPerPyeong', 'opexRate'],
 }
 
 export function assumptionRows(f: SiteFinanceResult): ReportRow[] {

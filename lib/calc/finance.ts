@@ -268,6 +268,9 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
       maintenanceWon: null,
       vacancyLossWon: null,
       opexWon: null,
+      existingGrossAnnualWon: null,
+      existingMaintenanceWon: null,
+      existingVacancyLossWon: null,
       noiWon: null,
       existingNoiWon: null,
       noiIncreaseWon: null,
@@ -391,7 +394,8 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
 
   // [B] 임대수익
   const vacancy = v('vacancyRate')!
-  const opexRate = v('opexRate')!
+  // 재건축 보고서는 운영비를 반영하지 않는다 (2026-10-12 결정) — 증축은 가정값 그대로
+  const opexRate = kind === 'rebuild' ? 0 : v('opexRate')!
   // 관리비 수입 = 월 환산 임대료 × 비율 (2026-10-08 결정, 없으면 0)
   const maintRate = v('maintenanceFeePerUnit') ?? 0
   const withMaint = (rent: number) => rent * (1 + maintRate)
@@ -404,6 +408,8 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   const noi = noiOf(rentAnnual)
   const existingRent = existingUnitNets.map(rentUnit).reduce((s, u) => s + (u.monthlyEquivalentWon ?? 0) * 12, 0)
   const existingNoi = existingUnitNets.length ? noiOf(existingRent) : null
+  const existingMaintenance = existingRent * maintRate
+  const existingVacancyLoss = (existingRent + existingMaintenance) * vacancy
   const noiIncrease = kind === 'rebuild' ? noi - (existingNoi ?? 0) : noi
   const deposits = units.reduce((s, u) => s + (u.depositWon ?? 0), 0)
   notes.push(
@@ -425,7 +431,10 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     const n = existingUnitNets.filter((x) => x / PYEONG_M2 > band.fitMaxPyeong!).length
     notes.push(`기존 세대 ${n}호는 전용 ${band.fitMaxPyeong}평을 넘어 회귀식을 외삽해 기존 NOI를 추정했습니다 (큰 평형은 평당 단가가 낮아 과대 추정일 수 있음).`)
   }
-  if (kind === 'rebuild') notes.push('재건축 NOI 증가 = 신축 세대 NOI − 철거되는 기존 세대 NOI(추정).')
+  if (kind === 'rebuild') {
+    notes.push('재건축 NOI 증가 = 신축 세대 NOI − 철거되는 기존 세대 NOI(추정).')
+    notes.push('재건축 보고서는 운영비를 반영하지 않았습니다 (NOI = 임대수입 + 관리비 − 공실 손실).')
+  }
 
   // [C] 지표
   const interest = loan * rate
@@ -446,6 +455,9 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
       maintenanceWon: wonR(maintenance),
       vacancyLossWon: wonR(vacancyLoss),
       opexWon: wonR(opex),
+      existingGrossAnnualWon: existingUnitNets.length ? wonR(existingRent) : null,
+      existingMaintenanceWon: existingUnitNets.length ? wonR(existingMaintenance) : null,
+      existingVacancyLossWon: existingUnitNets.length ? wonR(existingVacancyLoss) : null,
       noiWon: wonR(noi),
       existingNoiWon: existingNoi === null ? null : wonR(existingNoi),
       noiIncreaseWon: wonR(noiIncrease),

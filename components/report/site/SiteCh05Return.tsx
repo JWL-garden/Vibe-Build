@@ -47,7 +47,7 @@ export default function SiteCh05Return({ report }: { report: SiteReport }) {
               highlightRow={1}
             />
             <p className="mt-2 text-xs text-ink-faint">
-              전환율은 모든 시나리오 6.0% 고정 · 보수 = 공실·운영비·예비비·금리 불리한 값 / 낙관 = 유리한 값 (부록 가정값 표의 범위)
+              전환율은 모든 시나리오 6.0% 고정 · 보수 = {work === '재건축' ? '공실' : '공실·운영비'}·예비비·금리 불리한 값 / 낙관 = 유리한 값 (부록 가정값 표의 범위)
             </p>
           </div>
         </>

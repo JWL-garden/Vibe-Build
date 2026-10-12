@@ -59,7 +59,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     const sample = base.assumptions.find((a) => a.key === key)
     if (!sample) continue
     if (kind === 'expansion' && (key === 'newBuildCostTable' || key === 'rebuildConstructionMonths')) continue
-    if (kind === 'rebuild' && (key === 'expansionCostPerPyeong' || key === 'constructionMonths')) continue
+    if (kind === 'rebuild' && (key === 'expansionCostPerPyeong' || key === 'constructionMonths' || key === 'opexRate')) continue
     rows.push([
       `${sample.label} · ${gradeText(sample.grade)}`,
       ...IDS.map((id) => formatAssumptionValue(sample.unit, f[id].assumptions.find((a) => a.key === key)!.value)),

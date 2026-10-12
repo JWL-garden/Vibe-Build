@@ -1795,6 +1795,10 @@ export interface SiteFinanceResult {
     maintenanceWon: number | null
     vacancyLossWon: number | null
     opexWon: number | null
+    /** 기존 세대 연 임대수입·관리비·공실 손실 추정 (원, 공실 전) — 재건축 표의 기존 세대 행용 */
+    existingGrossAnnualWon: number | null
+    existingMaintenanceWon: number | null
+    existingVacancyLossWon: number | null
     /** 새 세대 연 NOI (원) */
     noiWon: number | null
     /** 기존 세대 연 NOI 추정 (원) — 같은 임대 사례로 추정, 재건축이면 철거로 사라지는 수입 */
