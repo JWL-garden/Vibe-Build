@@ -333,3 +333,47 @@ describe('7장 리스크 (규칙 기반)', () => {
     expect(rb.risk.items.find((x) => x.title.startsWith('철거'))!.level).toBe('높음')
   })
 })
+
+describe('8~10장 일정·협업·다음 단계', () => {
+  it('T1 ALL: 증축 일정 — 공사 기간은 가정값(2개월), 단계가 연속, 공사비 금액은 runAll 값', async () => {
+    const data = (await getSiteData(T1))!
+    const a = runAll(data, 'ALL')
+    const r = buildSiteReport(data, a, '2026-10-12')
+    const s = r.schedule
+    expect(s.status).toBe('ok')
+    expect(s.steps.some((x) => x.name === '이주·철거')).toBe(false)
+    const construction = s.steps.find((x) => x.name === '공사')!
+    expect(construction.durationMonths).toBe(a.finance.byScenario.BASE.assumptions.find((x) => x.key === 'constructionMonths')!.value)
+    for (let i = 1; i < s.steps.length; i++) expect(s.steps[i].startMonth).toBe(s.steps[i - 1].startMonth + s.steps[i - 1].durationMonths)
+    const last = s.steps[s.steps.length - 1]
+    expect(s.totalMonths).toBe(last.startMonth + last.durationMonths)
+    expect(construction.costNote).toContain('공사비')
+    expect(construction.costNote).toContain('금융비용')
+  })
+
+  it('REBUILD: 이주·철거 단계 포함, 공사 기간 = 재건축 공사 기간', async () => {
+    const data = (await getSiteData(T1))!
+    const a = runAll(data, 'REBUILD')
+    const s = buildSiteReport(data, a, '2026-10-12').schedule
+    expect(s.steps.some((x) => x.name === '이주·철거')).toBe(true)
+    expect(s.steps.find((x) => x.name === '공사')!.durationMonths).toBe(
+      a.finance.byScenario.BASE.assumptions.find((x) => x.key === 'rebuildConstructionMonths')!.value,
+    )
+  })
+
+  it('BASE(증축안 없음): 일정 생략. 협업·다음 단계는 항상 있음', async () => {
+    const r = await build(T1, 'BASE')
+    if (r.finance.status === 'none') {
+      expect(r.schedule.status).toBe('none')
+      expect(r.nextStep.decisionNow).toContain('제한한 요인')
+    }
+    expect(r.partners.length).toBeGreaterThanOrEqual(6)
+    expect(r.nextStep.steps).toHaveLength(3)
+  })
+
+  it('T1 ALL: 지금 결정할 한 가지 = 구분소유자 동의 확인', async () => {
+    const r = await build(T1, 'ALL')
+    expect(r.nextStep.decisionNow).toContain('구분소유자')
+    expect(r.nextStep.checklist.length).toBeGreaterThan(0)
+  })
+})

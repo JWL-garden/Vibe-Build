@@ -10,7 +10,10 @@ import { policyNotes } from '@/lib/rules/policies'
 import { getScenario, getViewScenario, viewScenarios } from '@/lib/rules/scenarios'
 import { describeOverrides } from './describeOverrides'
 import { FINANCE_SCENARIO_LABEL, assumptionRows, conversionRows, financeSection } from './financeSection'
+import { buildSiteNextStep } from './nextStep'
+import { sitePartners } from './partners'
 import { buildSiteRisks } from './risks'
+import { buildSiteSchedule } from './schedule'
 import { scenarioSection } from './scenarioSection'
 import { LAND_BADGE, landAreaSource, landBaseMonthText, landBasisNote } from './landText'
 import type {
@@ -723,6 +726,8 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     ...(plan.kind === 'parkingOption' ? [`주차 ${plan.addSpaces}대 추가 확보 시 대지 내 배치 가능 여부`] : []),
   ]
 
+  const risk = buildSiteRisks(data, analysis)
+
   return {
     meta: {
       title: `${name} 증축 사업 타당성 검토 보고서`,
@@ -761,7 +766,10 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     asset: assetSection(analysis),
     finance: { ...financeSection(analysis), inputNotes: data.assumptionNotes },
     scenario: scenarioSection(analysis),
-    risk: buildSiteRisks(data, analysis),
+    risk,
+    schedule: buildSiteSchedule(analysis),
+    partners: sitePartners,
+    nextStep: buildSiteNextStep(analysis, risk),
     verification: buildVerification(data, analysis),
     appendix: buildAppendix(data, analysis),
     analysis,

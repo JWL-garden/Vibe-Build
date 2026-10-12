@@ -1395,6 +1395,12 @@ export interface SiteReport {
   scenario: SiteScenarioSection
   /** 7장 리스크와 대응 (lib/report/risks.ts) */
   risk: SiteRiskSection
+  /** 8장 추진 절차·일정 (lib/report/schedule.ts) */
+  schedule: SiteScheduleSection
+  /** 9장 전문가 협업 구성 (lib/report/partners.ts) */
+  partners: SitePartner[]
+  /** 10장 다음 단계 제안 (lib/report/nextStep.ts) */
+  nextStep: SiteNextStepSection
   /** 데이터 검증: 기준 엑셀 대조 + 추가로 확인·수정할 데이터 */
   verification: {
     /** [항목, 엑셀값, 계산값, 결과] */
@@ -1425,6 +1431,31 @@ export interface SiteReport {
     assumptionNotes: string[]
   }
   analysis: SiteAnalysis
+}
+
+/** 8장 추진 절차·일정 — 단계·기간은 lib/rules/projectSchedule.ts (프로젝트 가정) */
+export interface SiteScheduleSection {
+  status: 'ok' | 'none'
+  statusText: string | null
+  steps: ScheduleStep[]
+  /** 전체 기간 (개월) */
+  totalMonths: number
+  notes: string[]
+}
+
+/** 9장 협업 전문가 한 분야 */
+export interface SitePartner extends Partner {
+  /** 이 보고서에서 그 전문가가 확인해야 하는 항목 */
+  focus: string
+}
+
+/** 10장 다음 단계 제안 */
+export interface SiteNextStepSection {
+  steps: NextStep[]
+  /** 지금 결정할 한 가지 */
+  decisionNow: string
+  /** 정밀 검토 전에 확인할 항목 (위험도 중간 이상) */
+  checklist: string[]
 }
 
 /** 7장 리스크와 대응 — 규칙 기반 (lib/report/risks.ts) */

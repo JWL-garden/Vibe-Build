@@ -9,15 +9,11 @@ import SiteCh04Cost from './SiteCh04Cost'
 import SiteCh05Return from './SiteCh05Return'
 import SiteCh06Scenario from './SiteCh06Scenario'
 import SiteCh07Risk from './SiteCh07Risk'
+import SiteCh08Schedule from './SiteCh08Schedule'
+import SiteCh09Partners from './SiteCh09Partners'
+import SiteCh10NextStep from './SiteCh10NextStep'
 import SiteToc, { type TocEntry } from './SiteToc'
 import SiteVerification from './SiteVerification'
-
-/** 아직 엔진·조립이 없는 장 (설계서 11장) — 목차에 "추후 작성"으로 표시 */
-const UPCOMING = [
-  { no: '8장', title: '추진 절차·일정', note: '단계별 기간·결정 시점·비용 지출 시점' },
-  { no: '9장', title: '전문가 협업 구성', note: '설계·구조·시공·세무·감정평가·금융 역할' },
-  { no: '10장', title: '다음 단계 제안', note: '상담 → 정밀 타당성 검토 → 설계 계약' },
-]
 
 /** 기준 엑셀 필지 보고서: 목차(1쪽) + 표지·요약 + 1·2·3·4·5장 + 부록 1(근거) + 부록 2(데이터 검증) (SiteReport만 읽고 계산하지 않음) */
 export default function SiteReportPages({ report }: { report: SiteReport }) {
@@ -31,16 +27,18 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
     { no: '5장', title: '수익 분석', note: '임대수익·ROI·회수기간, 보수·기준·낙관, 자산가치', body: <SiteCh05Return report={report} /> },
     { no: '6장', title: '시나리오·민감도', note: '보수·기준·낙관 비교, 토네이도 차트, 10년 현금흐름·NPV·IRR', body: <SiteCh06Scenario report={report} /> },
     { no: '7장', title: '리스크와 대응', note: '구조안전·제도 미시행·동의·금리·임차인 리스크와 대응 방안', body: <SiteCh07Risk report={report} /> },
+    { no: '8장', title: '추진 절차·일정', note: '단계별 기간·결정 시점·비용 지출 시점', body: <SiteCh08Schedule report={report} /> },
+    { no: '9장', title: '전문가 협업 구성', note: '설계·구조·시공·법무·세무·감정평가·금융 역할과 투입 시점', body: <SiteCh09Partners report={report} /> },
+    { no: '10장', title: '다음 단계 제안', note: '상담 → 정밀 타당성 검토 → 설계 계약, 지금 결정할 한 가지', body: <SiteCh10NextStep report={report} /> },
   ]
 
-  // 쪽 번호: 목차 1 · 표지·요약 2 · 1~7장 3~9 · 부록 1 · 부록 2
+  // 쪽 번호: 목차 1 · 표지·요약 2 · 1~10장 3~12 · 부록 1 · 부록 2
   const firstChapterPage = 3
   const appendix1Page = firstChapterPage + chapters.length
   const appendix2Page = appendix1Page + 1
   const tocEntries: TocEntry[] = [
     { no: '표지', title: '표지·한 장 요약', note: '핵심 숫자·결론·3D 전후', page: 2 },
     ...chapters.map((c, i) => ({ no: c.no, title: c.title, note: c.note, page: firstChapterPage + i })),
-    ...UPCOMING.map((u) => ({ ...u, page: null })),
     { no: '부록 1', title: '근거·가정·데이터 출처', note: '적용 법규·가정값 표, 계산식, 출처, 면책', page: appendix1Page },
     { no: '부록 2', title: '데이터 검증', note: '기준 엑셀 대조, 수정할 데이터 목록', page: appendix2Page },
   ]
