@@ -285,3 +285,27 @@ describe('4장 사업비 · 5장 수익 · 부록 가정값 (2026-10-08 결정 1
     expect(a.conversionRows[0].slice(1, 3)).toEqual(['5.0%', '5.6%'])
   })
 })
+
+describe('6장 시나리오·민감도 (T1)', () => {
+  it('ALL: 비교표 ROI 행·NPV 표·토네이도 기준 ROI가 runAll 값과 같다', async () => {
+    const data = (await getSiteData(T1))!
+    const a = runAll(data, 'ALL')
+    const r = buildSiteReport(data, a, '2026-10-12')
+    const s = r.scenario
+    expect(s.status).toBe('ok')
+    const roi = (id: 'CONSERVATIVE' | 'BASE' | 'OPTIMISTIC') => `${(a.finance.byScenario[id].metrics.roi! * 100).toFixed(1)}%`
+    expect(s.compareRows.find((row) => row[0] === '단순 ROI')!.slice(1)).toEqual([roi('CONSERVATIVE'), roi('BASE'), roi('OPTIMISTIC')])
+    expect(s.baseRoi).toBe(a.finance.byScenario.BASE.metrics.roi)
+    expect(s.tornado.length).toBe(a.finance.sensitivity!.items.length)
+    expect(s.cashflow).toHaveLength(10)
+    expect(s.cashflowScenarioRows).toHaveLength(3)
+  })
+
+  it('BASE(증축안 없음): 계산 생략 안내', async () => {
+    const r = await build(T1, 'BASE')
+    if (r.finance.status === 'none') {
+      expect(r.scenario.status).toBe('none')
+      expect(r.scenario.statusText).toContain('3장 대안 검토')
+    }
+  })
+})

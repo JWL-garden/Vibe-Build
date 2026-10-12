@@ -1173,7 +1173,12 @@ export interface SiteAnalysis {
   /** 선택 시나리오의 증축 전·후 자산가치 (원가 기준, 참고) */
   asset: AssetValueResult
   /** 수익성 (임대 모델) — 수익 시나리오 보수·기준·낙관 (결정 1·6) */
-  finance: { selected: FinanceScenarioId; byScenario: Record<FinanceScenarioId, SiteFinanceResult> }
+  finance: {
+    selected: FinanceScenarioId
+    byScenario: Record<FinanceScenarioId, SiteFinanceResult>
+    /** 6장 민감도 (기준 시나리오 중심, 수익성을 계산하지 못했으면 null) */
+    sensitivity: SiteSensitivityResult | null
+  }
 }
 
 // ═════════════════════════════════════════════
@@ -1386,6 +1391,8 @@ export interface SiteReport {
   asset: SiteAssetSection
   /** 4장 사업비 · 5장 임대수익·지표 (lib/report/financeSection.ts) */
   finance: SiteFinanceSection
+  /** 6장 시나리오·민감도 (lib/report/scenarioSection.ts) */
+  scenario: SiteScenarioSection
   /** 데이터 검증: 기준 엑셀 대조 + 추가로 확인·수정할 데이터 */
   verification: {
     /** [항목, 엑셀값, 계산값, 결과] */
@@ -1416,6 +1423,30 @@ export interface SiteReport {
     assumptionNotes: string[]
   }
   analysis: SiteAnalysis
+}
+
+/** 6장 시나리오·민감도 (보고서 표시용 — 계산은 runAll().finance) */
+export interface SiteScenarioSection {
+  status: 'ok' | 'none' | 'pending'
+  statusText: string | null
+  /** [항목, 보수, 기준, 낙관] — 가정값 행 다음에 결과 행 */
+  compareRows: ReportRow[]
+  /** compareRows 중 가정값 행 수 (결과 행은 그 다음부터) */
+  assumptionRowCount: number
+  /** 토네이도 차트용 (기존 TornadoChart 형식) */
+  tornado: SensitivityItem[]
+  baseRoi: number | null
+  /** [변수, 불리한 값 → ROI, 유리한 값 → ROI, 변동폭, 등급] */
+  tornadoRows: ReportRow[]
+  /** ROI 변동 중 등급 C·D 가정 비중 문장 */
+  dependencyText: string
+  /** 10년 누적 차트용 (기존 CashflowChart 형식) */
+  cashflow: CashflowYear[]
+  /** [연차, NOI 증가, 누적 순증, 안 함 누적, 함 누적] — 기준 시나리오 */
+  cashflowRows: ReportRow[]
+  /** [시나리오, NPV, IRR, 회수 연차, 10년 말 누적 순증] */
+  cashflowScenarioRows: ReportRow[]
+  notes: string[]
 }
 
 /** 4장 사업비 · 5장 임대수익 (보고서 표시용 — 계산은 runAll().finance) */
@@ -1613,7 +1644,65 @@ export interface SiteFinanceResult {
   landInclusiveYield: LandInclusiveYield | null
   conversion: ConversionRates
   rentBands: RentBandSummary[]
+  /** 10년 현금흐름·NPV·IRR (설계서 5-4 [D]). 계산하지 못했으면 null */
+  cashflow: SiteCashflow | null
   /** 사용한 가정값 (부록 표) */
   assumptions: ResolvedAssumption[]
   notes: string[]
+}
+
+/** 10년 현금흐름 한 해 (원) — 1년차 = NOI 증가, 2년차부터 임대료 상승률 반영 */
+export interface SiteCashflowYear {
+  year: number
+  /** 그 해 NOI 증가 */
+  noiIncreaseWon: number
+  /** 증축(재건축) 순증 누적 = −총사업비 + NOI 증가 누적 */
+  cumulativeNetWon: number
+  /** "안 함": 기존 세대 NOI 누적 (추정, 상승률 반영) */
+  withoutWon: number
+  /** "함": 기존 NOI 누적 + 순증 누적 */
+  withWon: number
+}
+
+export interface SiteCashflow {
+  years: SiteCashflowYear[]
+  /** 임대료 상승률 (소수). 가정값이 없으면 null → 0% 적용 */
+  growthRate: number | null
+  /** 할인율 (소수). 없으면 NPV null */
+  discountRate: number | null
+  /** NPV = Σ NOI 증가 ÷ (1 + 할인율)^t − 총사업비 (10년 말 잔존가치 미반영) */
+  npvWon: number | null
+  /** IRR (총사업비 기준, 10년 말 잔존가치 미반영). 부호가 바뀌지 않으면 null */
+  irr: number | null
+  /** 누적 순증이 처음 0 이상이 되는 해. 10년 안에 회수하지 못하면 null */
+  paybackYear: number | null
+  /** 10년 말 누적 순증 */
+  cumulativeNetWon: number
+  /** 기존 NOI 추정이 없어 "안 함"을 0으로 둔 경우 true */
+  existingNoiMissing: boolean
+}
+
+/** 민감도 — 가정값 하나만 불리한 값 / 유리한 값으로 바꿨을 때 ROI (6장 토네이도) */
+export interface SiteSensitivityItem {
+  /** 가정값 키 또는 'rentFactor' */
+  key: string
+  label: string
+  unit: string
+  grade: EvidenceGrade | null
+  /** ROI가 낮아지는 쪽 값 / 높아지는 쪽 값 (rentFactor는 배수 0.9 / 1.1) */
+  unfavorableValue: number
+  favorableValue: number
+  roiUnfavorable: number
+  roiFavorable: number
+  /** ROI 변동폭 = roiFavorable − roiUnfavorable (항상 0 이상) */
+  swing: number
+}
+
+export interface SiteSensitivityResult {
+  /** 기준 시나리오 ROI */
+  baseRoi: number
+  /** 변동폭 큰 순 */
+  items: SiteSensitivityItem[]
+  /** 변동폭 합 중 등급 C·D 가정에서 오는 비율 (0~1) */
+  gradeCShare: number | null
 }

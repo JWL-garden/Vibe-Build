@@ -1,7 +1,7 @@
 // 수익성 계산 모듈 (순수 함수, 설계서 5-4)
 // 구현: [0] 토지가액(공시지가 기준), [C'] 증축 전·후 자산가치(원가 기준), [C''] 토지 포함 수익률,
 //       [A] 사업비·[B] 임대수익·[C] 지표 (calcSiteFinance, 2026-10-08 결정 1·2·6·12)
-// TODO (P1): [D] 10년 현금흐름·NPV·IRR, 민감도
+//       [D] 10년 현금흐름·NPV·IRR (calcCashflow10y, 2026-10-12) — 민감도는 sensitivity.ts
 
 import { PYEONG_M2, rentCompRule, type AssumptionKey, type BuildingValueRule, type LandValueRule } from '@/lib/rules/financeDefaults'
 import type {
@@ -10,6 +10,8 @@ import type {
   FinanceScenarioId,
   LandInclusiveYield,
   RentComp,
+  SiteCashflow,
+  SiteCashflowYear,
   SiteCostItem,
   SiteFinanceResult,
   SiteRentUnit,
@@ -208,6 +210,8 @@ export interface SiteFinanceInput {
   /** 증축 전 자산가치 (원, 토지 포함 수익률용). 없으면 null */
   assetBeforeWon: number | null
   userInput?: Partial<Record<AssumptionKey, number>>
+  /** 임대료 배수 (민감도용, 기본 1) — 모든 세대 월 환산 임대료에 곱한다 */
+  rentFactor?: number
 }
 
 const wonR = (v: number) => Math.round(v)
@@ -235,7 +239,7 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     return {
       netAreaM2: net,
       band: b.band,
-      monthlyEquivalentWon: b.monthlyEquivalentPerM2 === null ? null : b.monthlyEquivalentPerM2 * net,
+      monthlyEquivalentWon: b.monthlyEquivalentPerM2 === null ? null : b.monthlyEquivalentPerM2 * net * (input.rentFactor ?? 1),
       depositWon: b.depositWon,
       monthlyWon: b.monthlyWon,
     }
@@ -261,6 +265,7 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     },
     metrics: { roi: null, paybackYears: null, roe: null, valueIncreaseWon: null, netValueIncreaseWon: null },
     landInclusiveYield: null,
+    cashflow: null,
     conversion,
     rentBands,
     assumptions: Object.values(a),
@@ -429,9 +434,88 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
             totalCostWon: totalCost,
           })
         : null,
+    cashflow: calcCashflow10y({
+      totalCostWon: totalCost,
+      noiIncreaseWon: noiIncrease,
+      existingNoiWon: existingNoi,
+      growthRate: v('rentGrowthRate'),
+      discountRate: v('discountRate'),
+    }),
     conversion,
     rentBands,
     assumptions: Object.values(a),
     notes,
   }
+}
+
+// ── [D] 10년 현금흐름 · NPV · IRR ───────────────────────────────────────
+
+export interface CashflowInput {
+  totalCostWon: number
+  /** 1년차 NOI 증가 (원) */
+  noiIncreaseWon: number
+  /** 기존 세대 NOI 추정 (원). 없으면 null → "안 함" 0 */
+  existingNoiWon: number | null
+  /** 임대료 상승률 (소수). null이면 0 */
+  growthRate: number | null
+  /** 할인율 (소수). null이면 NPV 계산 안 함 */
+  discountRate: number | null
+  /** 기간 (년, 기본 10) */
+  horizonYears?: number
+}
+
+/**
+ * 10년 현금흐름 — 총사업비는 0년차(착공 전)에 한 번 지출, NOI 증가는 1년차부터 매년 상승률만큼 증가.
+ * 10년 말 잔존가치(자산가치 증가)와 공사 중 임대 손실은 반영하지 않는다 (보수적 단순화).
+ * 안 함 = 기존 NOI 누적(추정), 함 = 기존 NOI 누적 + (−총사업비 + NOI 증가 누적).
+ */
+export function calcCashflow10y(input: CashflowInput): SiteCashflow {
+  const horizon = input.horizonYears ?? 10
+  const g = input.growthRate ?? 0
+  const years: SiteCashflowYear[] = []
+  let incCum = 0
+  let existCum = 0
+  let paybackYear: number | null = null
+  const flows: number[] = [-input.totalCostWon]
+  for (let t = 1; t <= horizon; t++) {
+    const growth = Math.pow(1 + g, t - 1)
+    const inc = input.noiIncreaseWon * growth
+    incCum += inc
+    existCum += (input.existingNoiWon ?? 0) * growth
+    const net = incCum - input.totalCostWon
+    if (paybackYear === null && net >= -1e-6) paybackYear = t
+    flows.push(inc)
+    years.push({
+      year: t,
+      noiIncreaseWon: wonR(inc),
+      cumulativeNetWon: wonR(net),
+      withoutWon: wonR(existCum),
+      // 표에서 안 함 + 순증 = 함이 1원 단위까지 맞도록 반올림한 값끼리 더한다
+      withWon: wonR(existCum) + wonR(net),
+    })
+  }
+  const npvAt = (r: number) => flows.reduce((s, f, t) => s + f / Math.pow(1 + r, t), 0)
+  return {
+    years,
+    growthRate: input.growthRate,
+    discountRate: input.discountRate,
+    npvWon: input.discountRate === null ? null : wonR(npvAt(input.discountRate)),
+    irr: solveIrr(npvAt),
+    paybackYear,
+    cumulativeNetWon: years[years.length - 1].cumulativeNetWon,
+    existingNoiMissing: input.existingNoiWon === null,
+  }
+}
+
+/** NPV(r)가 r에 대해 감소하는 구간 [−90%, 1000%]에서 이분법. 해가 없으면 null */
+function solveIrr(npvAt: (r: number) => number): number | null {
+  let lo = -0.9
+  let hi = 10
+  if (npvAt(lo) < 0 || npvAt(hi) > 0) return null
+  for (let i = 0; i < 200; i++) {
+    const mid = (lo + hi) / 2
+    if (npvAt(mid) > 0) lo = mid
+    else hi = mid
+  }
+  return (lo + hi) / 2
 }

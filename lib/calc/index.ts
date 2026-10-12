@@ -18,6 +18,7 @@ import type {
 } from '@/types'
 import { calcExpansion } from './expansion'
 import { calcAssetValue, calcLandValue, calcSiteFinance } from './finance'
+import { runSensitivity } from './sensitivity'
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from './labels'
 import { calcRebuild } from './rebuild'
 
@@ -133,7 +134,17 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
     rebuild,
     land,
     asset,
-    finance: { selected: 'BASE', byScenario: financeByScenario },
+    finance: {
+      selected: 'BASE',
+      byScenario: financeByScenario,
+      sensitivity: runSensitivity({
+        ...financeInput,
+        existingUnitNets: existingHousingUnitNets(data),
+        assumptionRows: data.assumptionRows,
+        rentComps: data.rentComps,
+        assetBeforeWon: asset.beforeWon,
+      }),
+    },
   }
 }
 
