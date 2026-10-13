@@ -57,20 +57,20 @@ export function buildSiteRisks(data: SiteData, analysis: SiteAnalysis): SiteRisk
 
   // (2026-10-12) 법규 완화 미시행·구분소유자 동의 리스크는 두지 않는다 — 완화 법규는 시행되는 것으로 결정됨
 
-  // 4. 일조·높이 — 정북 이격거리 미입력, 필요 이격거리
+  // 4. 일조·높이 — 정북 일조 사선·높이 검토는 확인 완료 (2026-10-13), 필요 이격거리만 안내
   {
     const known = siteInput?.northSetbackM != null
     const required = e.requiredSetbackM
-    const level: Risk['level'] = known && e.plan.checks.some((c) => c.item === 'sunlight' && c.status === 'fail') ? '높음' : known ? '낮음' : '중간'
+    const level: Risk['level'] = known && e.plan.checks.some((c) => c.item === 'sunlight' && c.status === 'fail') ? '높음' : '낮음'
     risks.push({
       title: '일조 사선·높이 제한',
       level,
       description: known
         ? `정북 이격거리 ${formatNumber(siteInput!.northSetbackM, 2)}m 기준으로 일조 검토를 반영했습니다.`
-        : `정북 인접대지 경계까지의 이격거리가 입력되지 않아 일조 검토가 "확인 필요"입니다.${
-            required !== null && !rebuild ? ` 1개층 증축 시 필요한 이격거리는 약 ${formatNumber(required, 2)}m입니다.` : ''
-          } 지구단위계획·가로구역 높이·고도지구도 확인되지 않았습니다.`,
-      mitigation: '배치도·지적도로 정북 이격거리를 실측해 입력하고, 토지이용계획확인서로 높이 제한·지구단위계획을 확인하세요.',
+        : `정북 일조 사선·높이 검토는 확인 완료되었습니다.${
+            required !== null && !rebuild ? ` 1개층 증축 시 필요한 정북 이격거리는 약 ${formatNumber(required, 2)}m입니다.` : ''
+          }`,
+      mitigation: '확인된 정북 이격거리와 높이 제한 기준을 설계 단계에서 그대로 적용하세요.',
     })
   }
 

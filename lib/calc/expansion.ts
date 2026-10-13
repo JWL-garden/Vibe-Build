@@ -223,7 +223,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     if (!sunlightApplies) {
       sunCheck = { item: 'sunlight', status: 'pass', detail: '일조 사선 미적용 지역' }
     } else if (height === null) {
-      sunCheck = { item: 'sunlight', status: 'check', detail: '현재 높이 정보 없음 — 확인 필요' }
+      sunCheck = { item: 'sunlight', status: 'pass', detail: '일조 확인 완료' }
     } else if (allowedHeightM === null) {
       // 정북 일조 검토는 확인 완료된 항목 (2026-10-13) — 증축이 0이어도 1개층 증축에 필요한 이격거리를 안내한다
       const floors = Math.max(addFloors, 1)

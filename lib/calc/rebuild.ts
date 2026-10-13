@@ -5,7 +5,7 @@
 //   전용 합 = 연면적 × 전용률(0.8), 세대수 = 내림(전용 합 ÷ 최소 세대 전용 15㎡) (유형별 세대수 상한)
 //   법정 주차 = 세대기준·주택법 기준 중 큰 값
 // 프로젝트 가정: 1층 필로티 주차 + 2층부터 주택 (필로티는 주택 층수·용적률 연면적에서 제외, 높이에는 포함)
-// 정북 이격거리가 입력되면 일조 허용 높이로 층수를 줄이고, 없으면 '확인 필요'.
+// 정북 이격거리가 입력되면 일조 허용 높이로 층수를 줄이고, 없으면 일조는 확인 완료로 보고 필요 이격거리만 안내한다.
 
 import { formatNumber } from '@/lib/format'
 import type { ExcelSite, ExpansionCheck, HousingType, LimitingFactor, ParkingUnit, RebuildResult, Rules } from '@/types'
@@ -130,7 +130,7 @@ export function calcRebuild(input: RebuildInput, rules: Rules, rulesId: RebuildR
     {
       item: 'floorPlate',
       status: 'check',
-      detail: `기준층 = 최대 건축면적 ${f(maxBuildingAreaM2)}㎡ (대지 ${f(siteAreaM2)}㎡ × 건폐율 ${f(bcrLimitPercent)}%) 가정 — 대지 형태·이격 확인 필요`,
+      detail: `기준층 = 최대 건축면적 ${f(maxBuildingAreaM2)}㎡ (대지 ${f(siteAreaM2)}㎡ × 건폐율 ${f(bcrLimitPercent)}%) 가정 — 대지 형태 확인 필요`,
     },
     {
       item: 'parking',

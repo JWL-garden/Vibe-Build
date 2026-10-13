@@ -167,7 +167,7 @@ describe('부록: 데이터 출처 (기준 엑셀 시트명)', () => {
     for (const sheet of ['건축물대장_2단계', '지역지구구역_2단계', '전유공용면적_2단계', '주차대수_세대별', '용적률완화_주차검토']) {
       expect(sources).toContain(`'${sheet}' 시트`)
     }
-    expect(r.appendix.sourceRows.find((row) => row[0] === '정북 이격거리')![2]).toBe('미입력 — 확인 필요')
+    expect(r.appendix.sourceRows.find((row) => row[0] === '정북 이격거리')![2]).toBe('확인 완료 (일조 사선·높이)')
     expect(r.appendix.sourceFile).toContain('261012_데이터 통합')
     expect(r.appendix.excelNotes).toHaveLength(4)
   })
@@ -189,10 +189,10 @@ describe('부록 2: 데이터 검증', () => {
     }
   })
 
-  it('T1: 수정할 데이터 목록에 정북 이격(미입력)·증축층 면적(옵션1 자동 산정 53.83㎡)', async () => {
+  it('T1: 수정할 데이터 목록에 정북 이격은 없음(확인 완료)·증축층 면적(옵션1 자동 산정 53.83㎡)', async () => {
     const todo = (await build(T1)).verification.todoRows
-    expect(todo[0]).toEqual(['정북 인접대지 이격거리', '미입력', '확인 완료 (일조 검토)', 'lib/data/siteInputs.json → northSetbackM'])
-    expect(todo[1].slice(1, 3)).toEqual(['53.83㎡ (옵션1: 최상층 전용 × 0.9)', '자동 산정 (옵션1)'])
+    expect(todo.some((row) => row[0] === '정북 인접대지 이격거리')).toBe(false)
+    expect(todo[0].slice(1, 3)).toEqual(['53.83㎡ (옵션1: 최상층 전용 × 0.9)', '자동 산정 (옵션1)'])
   })
 
   it('T2: 외필지 3개는 문제로 제기하지 않는다 (2026-10-08 결정 7) — 확인 항목·추가 확인 목록에 없음', async () => {
@@ -338,8 +338,8 @@ describe('7장 리스크 (규칙 기반)', () => {
     expect(by('구조안전').description).toContain('경과 18년')
     expect(items.some((x) => x.title.includes('구분소유자'))).toBe(false)
     expect(items.some((x) => x.title.startsWith('법규 완화'))).toBe(false)
-    expect(by('일조').level).toBe('중간') // 정북 이격 미입력
-    expect(by('일조').description).toContain('확인 필요')
+    expect(by('일조').level).toBe('낮음') // 정북 일조 확인 완료
+    expect(by('일조').description).toContain('확인 완료')
     expect(items.every((x) => x.mitigation.length > 0)).toBe(true)
     expect(r.risk.summary).toContain('높음')
   })

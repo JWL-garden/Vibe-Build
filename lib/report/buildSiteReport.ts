@@ -196,7 +196,7 @@ const ALTERNATIVES: Record<LimitingFactor, string[]> = {
   housingArea: ['주택 연면적 한도 완화(C·ALL) 적용 시 재검토', '증축층을 비주택 용도로 계획하는 방안'],
   parking: ['대지 내 주차 추가 배치(기계식 포함) 또는 인근 부설주차장 확보 방안 검토'],
   far: ['용적률 상향(B·ALL) 시나리오가 시행될 경우 재검토'],
-  sunlight: ['정북 이격거리 실측 후 재검토', '상부를 북쪽에서 물려 짓는 계단식(셋백) 증축안 검토'],
+  sunlight: ['확인된 정북 이격거리 기준으로 증축 층수·형태 재검토', '상부를 북쪽에서 물려 짓는 계단식(셋백) 증축안 검토'],
   roof: ['현장·도면으로 지붕 형태와 계단실 위치 확인 후 재검토', '기존 건물 위 증축 대신 전체 재건축(REBUILD) 검토'],
   other: [],
 }
@@ -204,7 +204,6 @@ const ALWAYS_ALTERNATIVE = '증축 대신 리모델링·용도변경으로 임�
 
 /** 보고서 2장 추가 확인 항목 (고정 항목) */
 const FIXED_CHECK_ITEMS = [
-  '지구단위계획·가로구역별 최고높이·고도지구 등 높이 제한',
   '수직증축 구조안전(기초·기둥 하중) — 구조기술사 검토',
 ]
 
@@ -345,12 +344,6 @@ function buildVerification(data: SiteData, analysis: SiteAnalysis): SiteReport['
   const fp = analysis.selected.floorPlate
   const C = analysis.byScenario.C.rules
   const todoRows: ReportRow[] = [
-    [
-      '정북 인접대지 이격거리',
-      input?.northSetbackM != null ? `${f(input.northSetbackM)}m` : '미입력',
-      input?.northSetbackM != null ? '수기입력' : '확인 완료 (일조 검토)',
-      'lib/data/siteInputs.json → northSetbackM',
-    ],
     [
       '증축층 바닥면적',
       fp.areaM2 === null ? '계산 보류' : `${f(fp.areaM2)}㎡ (${FLOOR_PLATE_METHOD[fp.method]})`,
@@ -495,7 +488,11 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       'lib/data/siteInputs.json → lots',
       input?.lots?.length ? `${input.lots.length}필지 (수기입력)` : '미입력 — 외필지 없으면 대표 필지',
     ],
-    ['정북 이격거리', 'lib/data/siteInputs.json', inputText(input?.northSetbackM ?? null, 'm')],
+    [
+      '정북 이격거리',
+      'lib/data/siteInputs.json',
+      input?.northSetbackM != null ? `${f(input.northSetbackM)}m (수기입력)` : '확인 완료 (일조 사선·높이)',
+    ],
     [
       '증축층 바닥면적',
       `${sheet('전유공용면적_2단계')}·${sheet('건축물대장_2단계')}(지붕) / 옵션2: 가정값 입력 엑셀 '증축층면적_옵션2'`,
@@ -546,7 +543,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     disclaimer: [
       '본 보고서는 기준 엑셀 자료와 예시 가정값 기반의 개략 검토이며 투자 권유가 아닙니다. 실제 사업성은 정밀 조사와 세무·법률·감정평가 전문가 검토에 따라 달라질 수 있습니다.',
       '주차 기준 증축 면적은 기존 주차 여유 범위의 개략 산정이며, 주차 추가 확보 안은 대지 내 배치 가능 여부를 별도로 확인해야 합니다.',
-      '실제 증축 가능성은 지구단위계획, 가로구역 높이제한, 고도지구, 주차장 기준, 구조안전 등에 따라 달라집니다.',
+      '실제 증축 가능성은 주차장 기준, 구조안전 등에 따라 달라집니다.',
       '토지가액은 개별공시지가 기준(시세 아님)이고, 건물가치는 예시 가정값 기반 원가 추정으로 감정평가가 아닙니다.',
       '수익성은 임대 모델(보증금 + 월세, 사업주체 대표 1인) 기준 개략 추정입니다. 등급 C(프로젝트 가정) 값은 범위와 함께 표시했으며, 세무·금융·감정평가 전문가 확인이 필요합니다.',
     ],
@@ -555,7 +552,6 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
 
 /** 재건축 2장 추가 확인 항목 (고정) */
 const REBUILD_CHECK_ITEMS = [
-  '지구단위계획·가로구역별 최고높이·고도지구 등 높이 제한',
   '기존 세대 이주·철거 일정과 임차인 보상',
   '신축 시 현행 건축·주차·소방 기준 전체 재적용 여부',
 ]
