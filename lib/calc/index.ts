@@ -54,6 +54,7 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
           siteInput: data.siteInput,
           floorPlateOption2M2: data.floorPlateOption2M2,
           massSideAreaM2: data.massSideAreaM2,
+          plannedGfaM2: data.plannedGfaM2,
         },
         getEffectiveRules(s.id),
       ),

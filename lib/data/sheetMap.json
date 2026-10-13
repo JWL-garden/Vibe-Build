@@ -948,6 +948,31 @@
           "type": "str"
         }
       }
+    },
+    {
+      "sheet": "sunlight_result",
+      "source": "plan",
+      "output": "inputs/plannedGfa.json",
+      "builder": "generic",
+      "purpose": "증축계획안 증축 가능 연면적 (T1·T2). 일조 완화 시나리오 증축 연면적으로 적용",
+      "enabled": true,
+      "required": true,
+      "key": [
+        "PNU"
+      ],
+      "unique": true,
+      "columns": {
+        "PNU": {
+          "field": "pnu",
+          "type": "pnu"
+        },
+        "증축 가능 연면적 ㎡": {
+          "field": "plannedGfaM2",
+          "type": "num",
+          "min": 1,
+          "max": 10000
+        }
+      }
     }
   ]
 }

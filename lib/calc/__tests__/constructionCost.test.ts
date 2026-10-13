@@ -123,8 +123,8 @@ describe('runAll — 재건축 단가에 반영', () => {
     const cons = a.finance.byScenario.CONSERVATIVE.costs.find((c) => c.key === 'construction')!
     expect(cons.amountWon).toBe(Math.round(f.project.constructionAreaM2 * Math.round((755.0273480367 * 10_000) / 3.305785)))
     const all = runAll(data, 'ALL').finance.byScenario.BASE.costs.find((c) => c.key === 'construction')!.amountWon
-    // ALL: 새 층 53.829㎡ + 측면 보강부 36.52㎡ = 90.349㎡ → 평당 800만원
-    expect(all).toBe(Math.round((90.349 / 3.305785) * 8_000_000))
+    // ALL: 증축계획안 엑셀 증축 가능 연면적 29.8㎡ (2026-10-13) → 평당 800만원
+    expect(all).toBe(Math.round((29.8 / 3.305785) * 8_000_000))
   })
 })
 

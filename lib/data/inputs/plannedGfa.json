@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "source": "plan",
+    "file": "261013_증축계획안 증축연면적 데이터.xlsx",
+    "version": "261013-a",
+    "sourceDate": "2026-10-13",
+    "fileHash": "e90e7916fbd7939b",
+    "convertedAt": "2026-10-13T01:31:37.988Z",
+    "sheets": [
+      {
+        "name": "sunlight_result",
+        "rows": 2
+      }
+    ],
+    "itemCount": 2
+  },
+  "items": [
+    {
+      "pnu": "1156011600001040000",
+      "plannedGfaM2": 29.8
+    },
+    {
+      "pnu": "1156011600001100000",
+      "plannedGfaM2": 69.3
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import floorPlateInputJson from '@/lib/data/inputs/floorPlate.json'
 import rentCompsJson from '@/lib/data/inputs/rentComps.json'
 import constructionJson from '@/lib/data/construction.json'
 import massAreasJson from '@/lib/data/massAreas.json'
+import plannedGfaJson from '@/lib/data/inputs/plannedGfa.json'
 import landLotsJson from '@/lib/data/landLots.json'
 import landPriceJson from '@/lib/data/landPrice.json'
 import parkingReviewJson from '@/lib/data/parkingReview.json'
@@ -132,5 +133,7 @@ export async function getSiteData(pnu: string): Promise<SiteData | null> {
     floorPlateOption2M2: floorPlateInputJson.items.find((i) => i.pnu === pnu)?.floorPlateM2 ?? null,
     // 3D 모델에서 추출한 측면 보강부(SIDE) 평면 면적 합 (npm run model:trim)
     massSideAreaM2: sideAreaOf(pnu),
+    // 증축계획안 엑셀 '증축 가능 연면적' (siteInputs.json plannedGfaPnu로 연결)
+    plannedGfaM2: plannedGfaJson.items.find((i) => i.pnu === siteInput?.plannedGfaPnu)?.plannedGfaM2 ?? null,
   }
 }

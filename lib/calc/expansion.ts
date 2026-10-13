@@ -39,6 +39,11 @@ export interface ExpansionInput {
   floorPlateOption2M2?: number | null
   /** 3D 모델에서 추출한 측면 보강부 평면 면적 합 (㎡). 규칙(massSide)이 허용할 때만 연면적에 더한다 */
   massSideAreaM2?: number | null
+  /**
+   * 증축계획안 엑셀의 증축 가능 연면적 (㎡, 새 층 + 측면 보강 합계). 일조 완화(massSide.includeInGfa) 시나리오에서
+   * 증축이 가능할 때 3D 모델 면적 대신 이 값을 증축 연면적으로 쓴다. 세대 수는 주차·최소 면적 기준으로 따로 정한다.
+   */
+  plannedGfaM2?: number | null
 }
 
 const EPS = 1e-9
@@ -231,9 +236,23 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
 
     // 7) 측면 보강부 — 일조 완화로 기존 층 옆을 채우는 면적(3D 모델 형상). 새 층이 있을 때만, 용적률·주택 연면적 잔여 범위 안에서 더한다
     //    세대 수를 늘리지 않는 기존 세대 확장분이라 addUnits 는 그대로 둔다
+    //    증축계획안 엑셀 값(plannedGfaM2)이 있으면 그 값이 증축 연면적 합계다 (2026-10-13 결정)
     let sideGfa = 0
+    const planned = input.plannedGfaM2 ?? null
     const sideModel = input.massSideAreaM2 ?? 0
-    if (rules.massSide.includeInGfa && sideModel > EPS && fitted.gfa > EPS && addFloors >= 1) {
+    if (planned !== null && rules.massSide.includeInGfa && fitted.gfa > EPS && addFloors >= 1) {
+      const room = Math.min(far.remainingGfaM2, housingGfa)
+      const target = Math.min(planned, room)
+      // 세대는 계획 면적 안에서 다시 맞추고(주차 세대 수·최소 세대 면적), 세대로 못 쓰는 나머지는 기존 세대 확장분으로 본다
+      fitted = fitUnits(plan, target)
+      if (fitted.gfa <= EPS) addFloors = 0
+      sideGfa = Math.max(0, target - fitted.gfa)
+      reasons.push(
+        `증축계획안 증축 가능 연면적 ${f(planned)}㎡ 적용` +
+          (target + EPS < planned ? ` — 용적률·주택 연면적 잔여 한도로 ${f(target)}㎡로 축소` : '') +
+          ` (세대 ${f(fitted.gfa)}㎡ + 측면·확장분 ${f(sideGfa)}㎡)`,
+      )
+    } else if (rules.massSide.includeInGfa && sideModel > EPS && fitted.gfa > EPS && addFloors >= 1) {
       const room = Math.min(far.remainingGfaM2 - fitted.gfa, housingGfa - fitted.gfa)
       sideGfa = Math.max(0, Math.min(sideModel, room))
       reasons.push(

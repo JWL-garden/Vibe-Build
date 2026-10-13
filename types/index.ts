@@ -1023,6 +1023,8 @@ export interface SiteInput {
    * 없으면(null) 외필지수 0일 때 대표 필지 하나로 보고, 외필지가 있으면 '추정'으로 계산한다.
    */
   lots?: string[] | null
+  /** 증축계획안 증축 연면적 엑셀(inputs/plannedGfa.json)에서 이 필지 값을 찾는 PNU (엑셀 PNU가 본번 단위로 적혀 있어 직접 연결) */
+  plannedGfaPnu?: string | null
   source: '수기입력' | '확인필요'
 }
 
@@ -1120,6 +1122,8 @@ export interface SiteData {
   floorPlateOption2M2: number | null
   /** 3D 모델(lib/data/massAreas.json)에서 추출한 측면 보강부(SIDE) 평면 면적 합 (㎡). 모델에 없으면 null */
   massSideAreaM2: number | null
+  /** 증축계획안 엑셀의 증축 가능 연면적 (㎡, inputs/plannedGfa.json). 일조 완화 시나리오(A·ALL)의 증축 연면적으로 적용. 없으면 null */
+  plannedGfaM2?: number | null
 }
 
 /** 전체 재건축 산정 결과 (lib/calc/rebuild.ts) — 기존 건물 철거 후 같은 대지에 신축 */

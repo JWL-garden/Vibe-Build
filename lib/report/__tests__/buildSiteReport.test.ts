@@ -94,20 +94,20 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(byLabel['여유 주차대수']).toBe('1.9대')
   })
 
-  it('3장 ALL: 기존 주차 증축안 +1층 · 새 층 53.83㎡(옵션1) + 측면 보강 36.52㎡ = 90.35㎡ · 3세대, 표지 증축 가능', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 증축계획안 엑셀 29.8㎡ · 1세대, 표지 증축 가능', async () => {
     const r = await build(T1)
     expect(r.plan.kind).toBe('existing')
-    expect(r.plan.plan!.addGfaM2).toBeCloseTo(90.349, 3)
-    expect(r.plan.plan!.sideGfaM2).toBeCloseTo(36.52, 2)
-    expect(r.summary.kpis[0].value).toBe('+1층 · +90.3㎡')
-    expect(r.summary.kpis[0].caption).toBe('측면 보강 36.5㎡ 포함')
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(29.8, 3)
+    expect(r.plan.plan!.sideGfaM2).toBe(0)
+    expect(r.summary.kpis[0].value).toBe('+1층 · +29.8㎡')
+    expect(r.summary.kpis[0].caption).toBeNull()
     // 수익성이 계산되면 표지 KPI = 규모 · 총사업비 · ROI · 회수기간 (설계서 11장), 판정은 회수기간 보조 문구
     expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', '연간 수익률(ROI)', '투자회수기간 (자산가치 반영)'])
-    expect(r.summary.kpis[1].value).toBe('2.4억원')
+    expect(r.summary.kpis[1].value).toBe('7,831만원')
     expect(r.summary.kpis[2].value).toBe('17.4%')
     expect(r.summary.kpis[3].caption).toBeNull() // 투자회수기간 하단 작은 글자 삭제
     expect(r.summary.kpis[1].caption).toBe('자기자본 20% · 대출 80%') // 금액 대신 퍼센트
-    expect(r.summary.conclusion).toBe('일조권 사선제한 및 층수제한 완화 적용 시 +1층(90.3㎡) 증축이 가능합니다. 제한요인: 주택 층수')
+    expect(r.summary.conclusion).toBe('일조권 사선제한 및 층수제한 완화 적용 시 +1층(29.8㎡) 증축이 가능합니다. 제한요인: 주택 층수')
     expect(r.meta.scenarioLabel).toBe('일조권 사선제한 및 층수제한 완화')
   })
 
@@ -138,10 +138,10 @@ describe('T2 보고서', () => {
     expect(byLabel['여유 주차대수']).toBe('0.5대')
   })
 
-  it('3장 ALL: 기존 주차 증축안 +1층 · 새 층 36.25㎡ + 측면 보강 83.98㎡ · 1세대, 표지 증축 가능', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 증축계획안 엑셀 69.3㎡(세대 36.25 + 확장 33.05) · 1세대, 표지 증축 가능', async () => {
     const r = await build(T2)
     expect(r.plan.kind).toBe('existing')
-    expect(r.plan.plan!.addGfaM2).toBeCloseTo(36.2527 + 83.98, 2)
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(69.3, 2)
     expect(r.summary.kpis[3].caption).toBeNull() // 투자회수기간 하단 작은 글자 삭제
   })
 
@@ -223,9 +223,9 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     const [landRow, , addRow, totalRow] = r.asset.rows
     expect(landRow[3]).toContain('시세 아님')
     expect(landRow[3]).toContain('[면적 확인 필요]')
-    expect(addRow[2]).toBe('218,644,588원') // 증축 공사비 전액 = 90.349㎡ ÷ 3.305785 × 800만원
+    expect(addRow[2]).toBe('72,116,003원') // 증축 공사비 전액 = 29.8㎡ ÷ 3.305785 × 800만원
     expect(addRow[3]).toContain('증축 공사비 전액')
-    expect(totalRow.slice(1, 3)).toEqual(['1,867,535,499원', '2,086,180,087원']) // 표는 원 단위 정확값 (항목 합 = 합계)
+    expect(totalRow.slice(1, 3)).toEqual(['1,867,535,499원', '1,939,651,502원']) // 표는 원 단위 정확값 (항목 합 = 합계)
     expect(r.asset.yieldNote).toContain('토지 포함 수익률')
   })
 })
@@ -233,9 +233,9 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
 describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', () => {
   it('T1·T2 5장 KPI = runAll asset 값', async () => {
     const t1 = (await build(T1)).asset.kpis.map((k) => k.value)
-    expect(t1).toEqual(['10.6억원', '18.7억원', '20.9억원', '2.2억원'])
+    expect(t1).toEqual(['10.6억원', '18.7억원', '19.4억원', '7,212만원'])
     const t2 = (await build(T2)).asset.kpis.map((k) => k.value)
-    expect(t2).toEqual(['17.8억원', '35.5억원', '38.4억원', '2.9억원'])
+    expect(t2).toEqual(['17.8억원', '35.5억원', '37.2억원', '1.7억원'])
   })
 
   it('부록 데이터 출처: 개별공시지가_2단계 + 기준연월·공시일·시세 아님', async () => {
@@ -251,10 +251,10 @@ describe('5장 표시 점검 (2026-10-07 숫자 점검 반영)', () => {
     expect(r.asset.rows[2][2]).toBe('–')
   })
 
-  it('T2 증축 면적은 0장과 같은 소수 첫째 자리 (120.2㎡ = 새 층 36.3 + 측면 보강 84.0)', async () => {
+  it('T2 증축 면적은 0장과 같은 소수 첫째 자리 (69.3㎡ = 증축계획안 엑셀)', async () => {
     const r = await build(T2)
-    expect(r.asset.kpis[3].caption).toBe('증축 120.2㎡')
-    expect(r.summary.kpis[0].value).toContain('120.2㎡')
+    expect(r.asset.kpis[3].caption).toBe('증축 69.3㎡')
+    expect(r.summary.kpis[0].value).toContain('69.3㎡')
   })
 })
 
@@ -276,7 +276,7 @@ describe('4장 사업비 · 5장 수익 · 부록 가정값 (2026-10-08 결정 1
     expect(r.finance.inputNotes).toContain('증축공사비 단가는 층별로 달라지므로 엑셀데이터 참고할 것')
     expect(r.finance.scenarioRows.map((row) => row[0])).toEqual(['보수', '기준', '낙관'])
     expect(r.finance.scenarioRows[0][1]).toBe('6.0% (고정)') // 보수도 6.0% 고정 (법정 상한 5.0%는 참고)
-    expect(r.finance.unitRows).toHaveLength(4) // 새 세대 3 + 측면 보강 1행
+    expect(r.finance.unitRows).toHaveLength(1) // 새 세대 1 (T1은 측면 확장분 없음)
     expect(r.finance.bandRows).toHaveLength(3) // 보증금·월세·월 환산 (전용면적 구간 없음)
     expect(r.finance.bandRows.map((row) => row[0])).toEqual(['보증금', '월세', '월 환산 임대료 (보증금 1,000만원당 월 5만원)'])
     expect(r.finance.bandRows[2].slice(2, 4)).toEqual(['11.4만원 + 15.2만원 × 평', '+15.2만원'])
