@@ -126,7 +126,9 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
     : {
         kind: 'expansion' as const,
         gfaM2: adopted?.addGfaM2 ?? 0,
-        constructionAreaM2: adopted?.addGfaM2 ?? 0,
+        // 공사비는 세대로 확보되는 면적만 — 기존 세대 확장분(측면·확장)은 제외 (2026-10-13 결정)
+        constructionAreaM2: (adopted?.addGfaM2 ?? 0) - (adopted?.sideGfaM2 ?? 0),
+        excludedExtensionGfaM2: adopted?.sideGfaM2 ?? 0,
         newUnitNets: adopted?.addUnits.map((u) => u.netAreaM2) ?? [],
         extraNetM2: adopted?.sideNetM2 ?? 0,
       }

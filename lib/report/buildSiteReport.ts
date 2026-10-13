@@ -286,7 +286,7 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
   const addNote = !hasAdd
     ? '증축안 없음'
     : a.addBuilding.basis === 'construction'
-      ? `${rebuild ? '신축 공사비' : '증축 공사비'} 전액 (연면적 ${f(a.addBuilding.gfaM2, 1)}㎡)`
+      ? `${rebuild ? '신축 공사비' : '증축 공사비'} 전액 (${rebuild ? '연면적' : '세대 면적'} ${f(analysis.finance.byScenario[analysis.finance.selected].project.constructionAreaM2, 1)}㎡${!rebuild && a.addBuilding.gfaM2 > analysis.finance.byScenario[analysis.finance.selected].project.constructionAreaM2 + 0.05 ? ` — 기존 세대 확장분 ${f(a.addBuilding.gfaM2 - analysis.finance.byScenario[analysis.finance.selected].project.constructionAreaM2, 1)}㎡ 제외` : ''})`
       : `${rebuild ? '재건축' : '증축'} ${f(a.addBuilding.gfaM2, 1)}㎡ × ${unitText} (공사비 미산정)`
   // 표는 원 단위 정확값 (억 단위 반올림이면 항목 합과 합계가 어긋나 보임), 억 단위 요약은 KPI 카드에만
   const rows: ReportRow[] = [
@@ -539,7 +539,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       '토지가액 = Σ(구성 필지 면적 × 개별공시지가) — 외필지 자료가 없으면 대표 필지 공시지가 × 대장 대지면적 (추정)',
       '자산가치(원가 기준) = 토지가액 + 연면적 × 재조달단가 × 잔가율, 잔가율 = max(최저 잔가율, 1 − 경과연수 ÷ 내용연수), 증축분 = 증축 연면적 × 재조달단가',
       '재건축 연면적 = min(대지 × 용적률 상한, 대지 × 건폐율 × 주택 층수 한도, 주택 연면적 한도), 세대수 = 내림(연면적 × 전용률 ÷ 최소 세대 전용), 재건축 후 자산가치 = 토지가액 + 신축 연면적 × 재조달단가',
-      '사업비(증축) = 연면적 ÷ 3.305785 × 평당 단가 + 제반비용(공사비 × 5%) + 취득세 등 + 금융비용(대출 × 금리 × 공사기간 ÷ 12 × 0.5) / 재건축 공사비 = 공사 연면적(필로티 포함) × max(건물신축단가표, 엑셀 신축비용)',
+      '사업비(증축) = 세대 연면적(기존 세대 확장분 제외) ÷ 3.305785 × 평당 단가 + 제반비용(공사비 × 5%) + 취득세 등 + 금융비용(대출 × 금리 × 공사기간 ÷ 12 × 0.5) / 재건축 공사비 = 공사 연면적(필로티 포함) × max(건물신축단가표, 엑셀 신축비용)',
       '연 임대수입 = Σ 세대 월 환산 임대료 × 12, 월 환산 임대료 = 고정분 + 평당 증가분 × 전용(평) (신규 월세 실거래의 전용면적 회귀, 월세 + 보증금 × 전환율 ÷ 12, 구간 구분 없음), NOI = 임대수입 × (1 − 공실률) × (1 − 운영비율)',
       '전환율: 주택은 모든 시나리오 연 6.0% 고정(보증금 1,000만원당 월 5만원, 사용자 지정, 법정 상한 5.0%는 참고), 상가 = 보수는 min(시장, 법정 상한 12%·기준금리 × 4.5), 기준·낙관은 시장 전환율',
       'ROI = 연 NOI 증가 ÷ 총사업비, 회수기간 = 총사업비 ÷ 연 NOI 증가, ROE = (NOI 증가 − 대출 × 금리) ÷ 자기자본, 자산가치 증가 = NOI 증가 ÷ 환원율',

@@ -235,7 +235,7 @@ describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', 
     const t1 = (await build(T1)).asset.kpis.map((k) => k.value)
     expect(t1).toEqual(['10.6억원', '18.7억원', '19.4억원', '7,212만원'])
     const t2 = (await build(T2)).asset.kpis.map((k) => k.value)
-    expect(t2).toEqual(['17.8억원', '35.5억원', '37.2억원', '1.7억원'])
+    expect(t2).toEqual(['17.8억원', '35.5억원', '36.2억원', '7,260만원'])
   })
 
   it('부록 데이터 출처: 개별공시지가_2단계 + 기준연월·공시일·시세 아님', async () => {

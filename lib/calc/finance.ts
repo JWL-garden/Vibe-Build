@@ -233,8 +233,10 @@ export interface SiteFinanceInput {
   kind: 'expansion' | 'rebuild'
   /** 증축(신축) 연면적 (㎡, 용적률 기준). 증축안이 없으면 0 */
   gfaM2: number
-  /** 공사 연면적 (㎡) — 재건축은 1층 필로티 포함 */
+  /** 공사 연면적 (㎡) — 재건축은 1층 필로티 포함. 증축은 세대로 확보되는 면적만(기존 세대 확장분 제외) */
   constructionAreaM2: number
+  /** 공사비에서 뺀 기존 세대 확장분 연면적 (㎡) — 근거 문장 표기용. 없으면 0 */
+  excludedExtensionGfaM2?: number
   /** 새 세대 전용면적 (㎡) */
   newUnitNets: number[]
   /** 기존 주택 세대 전용면적 (㎡) — 기존 NOI 추정용 (임대 사례로 추정) */
@@ -259,7 +261,7 @@ const fmtPct = (v: number, d = 2) => `${(v * 100).toFixed(d)}%`
 
 /**
  * 임대 모델 수익성 (대표 1인 사업주체)
- * 증축 사업비 = 공사비(연면적 ÷ 3.305785 × 평당 단가) + 세대당 제반비용(공사비 × 5%) + 취득세 등 + 금융비용 (예비비 미합산)
+ * 증축 사업비 = 공사비(세대 연면적 ÷ 3.305785 × 평당 단가, 기존 세대 확장분 제외) + 세대당 제반비용(공사비 × 5%) + 취득세 등 + 금융비용 (예비비 미합산)
  * 재건축 사업비 = 공사비(공사 연면적 × max(신축단가표, 엑셀 신축비용)) + 제반비용(공사비 × 5%) + 취득세 등 + 공사 중 임대 손실 + 금융비용 (예비비 미합산)
  * 임대수입 = Σ 세대 월 환산 임대료 × 12, 월 환산 = 고정분 + 평당 증가분 × 전용(평) (신규 월세 실거래 회귀, 보증금은 전환율로 월세 환산)
  * NOI = 임대수입 × (1 − 공실률) × (1 − 운영비율), 재건축은 기존 세대 NOI(추정)를 뺀 증가분
@@ -344,7 +346,9 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
       key: 'construction',
       label: '증축 공사비',
       amountWon: wonR((constructionAreaM2 / PYEONG_M2) * perPyeong),
-      basis: `${constructionAreaM2.toFixed(2)}㎡ ÷ ${PYEONG_M2}㎡/평 × ${fmtWon(perPyeong)}/평`,
+      basis:
+        `${(input.excludedExtensionGfaM2 ?? 0) > 0 ? `세대 면적 ${constructionAreaM2.toFixed(2)}㎡ (기존 세대 확장분 ${input.excludedExtensionGfaM2!.toFixed(2)}㎡ 제외)` : `${constructionAreaM2.toFixed(2)}㎡`}` +
+        ` ÷ ${PYEONG_M2}㎡/평 × ${fmtWon(perPyeong)}/평`,
       grade: a.expansionCostPerPyeong.grade,
     })
   } else {
