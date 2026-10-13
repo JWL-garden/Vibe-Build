@@ -105,8 +105,6 @@ export default function ParcelMassView({
 }: Props) {
   const [status, setStatus] = useState<Status>('loading')
   const [shot, setShot] = useState<string | null>(null)
-  /** 화면에서 북쪽이 가리키는 각도 (도, 위 = 0, 시계 방향) — 방위 표시용 */
-  const [northDeg, setNorthDeg] = useState<number | null>(null)
 
   if (status === 'missing' && fallback) return <>{fallback}</>
 
@@ -133,7 +131,6 @@ export default function ParcelMassView({
               interactive={interactive}
               onStatus={setStatus}
               onInfo={onInfo}
-              onNorth={setNorthDeg}
               onSnapshot={(d) => {
                 setShot(d)
                 onSnapshot?.(d)
@@ -151,15 +148,6 @@ export default function ParcelMassView({
           alt={mode === 'before' ? '증축 전 3D 매스' : rebuildFloors !== null ? '재건축 후 3D 매스' : '증축 후 3D 매스'}
           className="absolute inset-0 hidden h-full w-full object-contain print:block"
         />
-      )}
-
-      {status === 'ready' && northDeg !== null && (
-        <div className="pointer-events-none absolute right-2 top-2 flex flex-col items-center text-[10px] font-medium text-ink-soft">
-          <svg viewBox="0 0 20 20" className="h-5 w-5" style={{ transform: `rotate(${northDeg}deg)` }} aria-hidden>
-            <path d="M10 1 L15 17 L10 13 L5 17 Z" fill="currentColor" />
-          </svg>
-          N
-        </div>
       )}
 
       {status !== 'ready' && (
@@ -350,7 +338,6 @@ function MassModel({
   interactive,
   onStatus,
   onInfo,
-  onNorth,
   onSnapshot,
 }: {
   url: string
@@ -362,7 +349,6 @@ function MassModel({
   interactive: boolean
   onStatus: (s: Status) => void
   onInfo?: (info: MassInfo) => void
-  onNorth: (deg: number) => void
   onSnapshot: (dataUrl: string) => void
 }) {
   const { scene: source } = useGLTF(url)
@@ -386,21 +372,12 @@ function MassModel({
     }
   }, [built, aspect])
 
-  /** 화면에서 북쪽(-z)이 가리키는 각도 → 방위 표시 */
-  const updateNorth = () => {
-    const a = target.clone().project(camera)
-    const b = target.clone().add(new THREE.Vector3(0, 0, -1)).project(camera)
-    onNorth(THREE.MathUtils.radToDeg(Math.atan2(b.x - a.x, (b.y - a.y) / Math.max(aspect, 1e-6))))
-  }
-
   useLayoutEffect(() => {
     camera.position.copy(position)
     camera.lookAt(target)
     camera.updateProjectionMatrix()
     camera.updateMatrixWorld()
-    updateNorth()
     invalidate()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [camera, position, target, invalidate])
 
   // 상태 알림 + 인쇄용 스냅샷 (카메라 세팅 후 한 번 직접 렌더해서 캡처)
@@ -425,13 +402,11 @@ function MassModel({
         </mesh>
       )}
 
-      {/* 방위는 화면 오른쪽 위 N 표시 (카메라를 돌리면 함께 돈다) */}
       <OrbitControls
         target={target}
         enabled={interactive}
         enableDamping={false}
         maxPolarAngle={Math.PI / 2 - 0.05}
-        onChange={updateNorth}
       />
     </>
   )
