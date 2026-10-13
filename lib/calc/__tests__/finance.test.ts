@@ -126,7 +126,7 @@ describe('자산가치 — 원가 기준 (신축단가표 2,055,379원/㎡ · �
     expect(a.existingBuilding.constructionAreaM2).toBeCloseTo(942.11, 2)
     expect(a.existingBuilding.valueWon).toBe(Math.round(Math.round(942.11 * UNIT) * Math.exp(-0.011 * 8)))
     expect(a.beforeWon).toBe(1_777_075_300 + a.existingBuilding.valueWon)
-    expect(a.addBuilding.gfaM2).toBeCloseTo(69.3, 4) // 증축계획안 엑셀 값
+    expect(a.addBuilding.gfaM2).toBeCloseTo(30, 4) // 증축계획안 69.3㎡ 중 세대 면적만 (확장분 39.3㎡ 제외)
   })
 
   it('증축안이 없는 시나리오는 자산가치 후 = 전', async () => {

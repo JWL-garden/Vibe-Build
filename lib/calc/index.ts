@@ -108,7 +108,8 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
     approvalDate: data.site.approvalDate,
     // 경과연수 기준일 = 기준 데이터 기준일 (같은 데이터면 언제 열어도 같은 결과)
     baseDate: data.source.date,
-    addGfaM2: isRebuild ? (rebuild.verdict === 'impossible' ? 0 : rebuild.gfaM2) : (adopted?.addGfaM2 ?? 0),
+    // 증축은 세대로 확보되는 면적만 계산한다 — 기존 세대 확장분(sideGfaM2)은 공사비·임대수입·자산가치에서 제외 (2026-10-13 결정)
+    addGfaM2: isRebuild ? (rebuild.verdict === 'impossible' ? 0 : rebuild.gfaM2) : (adopted?.addGfaM2 ?? 0) - (adopted?.sideGfaM2 ?? 0),
     demolishExisting: isRebuild && rebuild.verdict !== 'impossible',
   }
   const assetBefore = calcAssetValue({ ...assetInput, addConstructionCostWon: null }, buildingValueRule)
@@ -125,12 +126,11 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
       }
     : {
         kind: 'expansion' as const,
-        gfaM2: adopted?.addGfaM2 ?? 0,
-        // 공사비는 세대로 확보되는 면적만 — 기존 세대 확장분(측면·확장)은 제외 (2026-10-13 결정)
+        gfaM2: (adopted?.addGfaM2 ?? 0) - (adopted?.sideGfaM2 ?? 0),
+        // 공사비·임대수입은 세대로 확보되는 면적만 — 기존 세대 확장분(측면·확장)은 계산에서 제외 (2026-10-13 결정)
         constructionAreaM2: (adopted?.addGfaM2 ?? 0) - (adopted?.sideGfaM2 ?? 0),
         excludedExtensionGfaM2: adopted?.sideGfaM2 ?? 0,
         newUnitNets: adopted?.addUnits.map((u) => u.netAreaM2) ?? [],
-        extraNetM2: adopted?.sideNetM2 ?? 0,
       }
   // 공사비 실적(기준 엑셀) → 신축 단가 가정값이 비어 있으면 채움 (사용자 입력 > 가정값 입력 엑셀 > 실적)
   const construction = summarizeConstruction(data.constructionCosts ?? [], constructionCostRule)

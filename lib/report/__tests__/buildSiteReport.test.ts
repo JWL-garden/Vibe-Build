@@ -251,9 +251,9 @@ describe('5장 표시 점검 (2026-10-07 숫자 점검 반영)', () => {
     expect(r.asset.rows[2][2]).toBe('–')
   })
 
-  it('T2 증축 면적은 0장과 같은 소수 첫째 자리 (69.3㎡ = 증축계획안 엑셀)', async () => {
+  it('T2 0장은 증축 가능 연면적 69.3㎡, 5장 자산가치·사업비는 세대 면적 30㎡만 (확장분 제외)', async () => {
     const r = await build(T2)
-    expect(r.asset.kpis[3].caption).toBe('증축 69.3㎡')
+    expect(r.asset.kpis[3].caption).toBe('증축 30㎡')
     expect(r.summary.kpis[0].value).toContain('69.3㎡')
   })
 })
