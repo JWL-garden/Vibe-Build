@@ -94,7 +94,7 @@ describe('T1 104-10 렉스빌 보고서', () => {
     expect(byLabel['여유 주차대수']).toBe('1.9대')
   })
 
-  it('3장 ALL: 기존 주차 증축안 +1층 · 증축계획안 엑셀 29.8㎡ · 1세대, 표지 증축 가능', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 증축계획안 엑셀 29.8㎡ · 옥탑 2세대, 표지 증축 가능', async () => {
     const r = await build(T1)
     expect(r.plan.kind).toBe('existing')
     expect(r.plan.plan!.addGfaM2).toBeCloseTo(29.8, 3)
@@ -104,7 +104,7 @@ describe('T1 104-10 렉스빌 보고서', () => {
     // 수익성이 계산되면 표지 KPI = 규모 · 총사업비 · ROI · 회수기간 (설계서 11장), 판정은 회수기간 보조 문구
     expect(r.summary.kpis.map((k) => k.label)).toEqual(['증축 규모', '총사업비', '연간 수익률(ROI)', '투자회수기간 (자산가치 반영)'])
     expect(r.summary.kpis[1].value).toBe('7,831만원')
-    expect(r.summary.kpis[2].value).toBe('17.4%')
+    expect(r.summary.kpis[2].value).toBe('21.4%')
     expect(r.summary.kpis[3].caption).toBeNull() // 투자회수기간 하단 작은 글자 삭제
     expect(r.summary.kpis[1].caption).toBe('자기자본 20% · 대출 80%') // 금액 대신 퍼센트
     expect(r.summary.conclusion).toBe('일조권 사선제한 및 층수제한 완화 적용 시 +1층(29.8㎡) 증축이 가능합니다. 제한요인: 주택 층수')
@@ -138,7 +138,7 @@ describe('T2 보고서', () => {
     expect(byLabel['여유 주차대수']).toBe('0.5대')
   })
 
-  it('3장 ALL: 기존 주차 증축안 +1층 · 증축계획안 엑셀 69.3㎡(세대 36.25 + 확장 33.05) · 1세대, 표지 증축 가능', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 증축계획안 엑셀 69.3㎡(세대 30 + 확장 39.3) · 1세대, 표지 증축 가능', async () => {
     const r = await build(T2)
     expect(r.plan.kind).toBe('existing')
     expect(r.plan.plan!.addGfaM2).toBeCloseTo(69.3, 2)
@@ -271,12 +271,12 @@ describe('4장 사업비 · 5장 수익 · 부록 가정값 (2026-10-08 결정 1
 
   it('T1 ALL: 5장 KPI·시나리오 표 = runAll 값, 보수 전환율은 법정 상한', async () => {
     const r = await build(T1)
-    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '17.4%' })
+    expect(r.finance.kpis[0]).toMatchObject({ label: '단순 ROI', value: '21.4%' })
     expect(r.finance.revenueRows.map((row) => row[0])).toContain('관리비 수입')
     expect(r.finance.inputNotes).toContain('증축공사비 단가는 층별로 달라지므로 엑셀데이터 참고할 것')
     expect(r.finance.scenarioRows.map((row) => row[0])).toEqual(['보수', '기준', '낙관'])
     expect(r.finance.scenarioRows[0][1]).toBe('6.0% (고정)') // 보수도 6.0% 고정 (법정 상한 5.0%는 참고)
-    expect(r.finance.unitRows).toHaveLength(1) // 새 세대 1 (T1은 측면 확장분 없음)
+    expect(r.finance.unitRows).toHaveLength(2) // 새 세대 2 (T1은 측면 확장분 없음)
     expect(r.finance.bandRows).toHaveLength(3) // 보증금·월세·월 환산 (전용면적 구간 없음)
     expect(r.finance.bandRows.map((row) => row[0])).toEqual(['보증금', '월세', '월 환산 임대료 (보증금 1,000만원당 월 5만원)'])
     expect(r.finance.bandRows[2].slice(2, 4)).toEqual(['11.4만원 + 15.2만원 × 평', '+15.2만원'])

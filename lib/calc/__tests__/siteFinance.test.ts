@@ -14,7 +14,7 @@ const T2 = '1156011600001100019'
 const load = async (pnu: string, view: 'BASE' | 'ALL' | 'REBUILD') => runAll((await getSiteData(pnu))!, view)
 const sumCosts = (f: SiteFinanceResult) => f.costs.reduce((s, c) => s + (c.amountWon ?? 0), 0)
 
-describe('T1 ALL 증축 (증축계획안 엑셀 29.8㎡, 1세대) — 기준 시나리오 손계산', () => {
+describe('T1 ALL 증축 (증축계획안 엑셀 29.8㎡, 옥탑 2세대 14.9㎡) — 기준 시나리오 손계산', () => {
   it('사업비: 공사비(29.8㎡ ÷ 3.305785 × 800만원/평) + 제반 공사비 5% + 취득세 3.16% + 금융(예비비 미합산)(대출 80%, 금리 6.0%, 2개월)', async () => {
     const f = (await load(T1, 'ALL')).finance.byScenario.BASE
     expect(f.status).toBe('ok')
@@ -45,7 +45,7 @@ describe('T1 ALL 증축 (증축계획안 엑셀 29.8㎡, 1세대) — 기준 시
 
   it('수입: 세대별 월 환산 = 11.4만원 + 15.2만원 × 전용(평) (사례 회귀), 측면 보강은 평당 증가분만, 관리비 +2%, NOI = × 0.95 × 0.90', async () => {
     const f = (await load(T1, 'ALL')).finance.byScenario.BASE
-    expect(f.project.units).toHaveLength(1) // 증축계획안 29.8㎡ → 전용 25.85㎡ 1세대
+    expect(f.project.units).toHaveLength(2) // 증축계획안 29.8㎡ ÷ 최소 14㎡ = 2세대 (옥탑세대, 연면적 = 전용)
     expect(f.rentBands).toHaveLength(1)
     const [b] = f.rentBands
     expect(b.band).toBe('ALL')
@@ -63,7 +63,7 @@ describe('T1 ALL 증축 (증축계획안 엑셀 29.8㎡, 1세대) — 기준 시
     expect(b.equivalentBaseWon!).toBeCloseTo(b.monthlyBaseWon! + b.depositBaseWon! * 0.005, 3)
     expect(b.equivalentPerPyeongWon!).toBeCloseTo(b.monthlyPerPyeongWon! + b.depositPerPyeongWon! * 0.005, 3)
     const net = f.project.units.reduce((s, u) => s + u.netAreaM2, 0)
-    expect(net).toBeCloseTo(25.8497, 3) // 29.8㎡ × 전용률 0.8674
+    expect(net).toBeCloseTo(29.8, 6) // 연면적 = 전용 (옥탑세대)
     expect(f.project.sideNetM2).toBe(0) // T1은 측면 확장분 없음
     // 측면 보강: 세대 고정분 없이 평당 증가분만
     expect(f.project.sideRentMonthlyWon).toBeCloseTo((f.project.sideNetM2 / PYEONG_M2) * b.equivalentPerPyeongWon!, 4)
@@ -71,15 +71,15 @@ describe('T1 ALL 증축 (증축계획안 엑셀 29.8㎡, 1세대) — 기준 시
     expect(f.revenue.grossAnnualWon).toBe(Math.round(rentMonthly * 12))
     expect(f.revenue.maintenanceWon).toBe(Math.round(rentMonthly * 12 * 0.02))
     expect(f.revenue.noiWon).toBe(Math.round(rentMonthly * 12 * 1.02 * 0.95 * 0.9))
-    expect(f.revenue.noiWon).toBe(13_635_604)
+    expect(f.revenue.noiWon).toBe(16_730_208)
     expect(f.revenue.noiIncreaseWon).toBe(f.revenue.noiWon) // 증축은 새 세대 NOI가 곧 증가분
     expect(f.metrics.roi).toBeCloseTo(f.revenue.noiIncreaseWon! / f.totalCostWon!, 6)
-    expect(f.metrics.roi!).toBeCloseTo(0.174, 3)
-    expect(f.metrics.paybackYears!).toBeCloseTo(5.74, 1)
+    expect(f.metrics.roi!).toBeCloseTo(0.2136, 3)
+    expect(f.metrics.paybackYears!).toBeCloseTo(4.68, 1)
     expect(f.metrics.roi! * f.metrics.paybackYears!).toBeCloseTo(1, 10)
   })
 
-  it('회귀직선은 세대마다 고정분이 있어 ㎡당 임대료가 평당 증가분보다 높다 (T1 1세대 25.85㎡)', async () => {
+  it('회귀직선은 세대마다 고정분이 있어 ㎡당 임대료가 평당 증가분보다 높다 (T1 옥탑 14.9㎡)', async () => {
     const f = (await load(T1, 'ALL')).finance.byScenario.BASE
     const [u] = f.project.units
     const perM2Slope = f.rentBands[0].equivalentPerPyeongWon! / PYEONG_M2
@@ -89,7 +89,7 @@ describe('T1 ALL 증축 (증축계획안 엑셀 29.8㎡, 1세대) — 기준 시
   it('측면 보강부는 일조 완화 시나리오(A·ALL)에서만 포함: C·B에서는 0', async () => {
     const data = (await getSiteData(T2))!
     const a = runAll(data, 'ALL').byScenario
-    expect(a.ALL.plan.sideGfaM2).toBeCloseTo(69.3 - 36.2527, 3) // 증축계획안 69.3㎡ − 세대분 36.25㎡ (T1은 전부 세대분이라 0)
+    expect(a.ALL.plan.sideGfaM2).toBeCloseTo(69.3 - 30, 3) // 증축계획안 69.3㎡ − 세대분 30㎡(주차 0.5대 = 1세대, 연면적 = 전용) (T1은 전부 세대분이라 0)
     expect(a.A.plan.sideGfaM2).toBe(0) // A는 증축안 자체가 없음 (BASE와 같음)
     for (const id of ['BASE', 'B', 'C'] as const) expect(a[id].plan.sideGfaM2).toBe(0)
   })

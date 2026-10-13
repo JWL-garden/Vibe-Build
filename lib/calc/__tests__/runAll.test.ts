@@ -97,13 +97,13 @@ describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
     expect(p.housingFloorsAfter).toBe(5)
   })
 
-  it('ALL: +3개층 필요 → 주택 7개층 > 5 → 한도에 맞춰 +1개층(증축층 바닥면적 옵션1 53.83㎡)으로 축소. 연면적은 증축계획안 엑셀 29.8㎡(1세대, 측면 확장 0)', async () => {
+  it('ALL: +3개층 필요 → 주택 7개층 > 5 → 한도에 맞춰 +1개층(증축층 바닥면적 옵션1 53.83㎡)으로 축소. 연면적은 증축계획안 엑셀 29.8㎡ ÷ 최소 14㎡ = 2세대(옥탑세대, 측면 확장 0)', async () => {
     const p = (await load(T1)).byScenario.ALL.plan
     expect(p.attemptedFloors).toBe(3)
     expect(p.addFloors).toBe(1)
     expect(p.addGfaM2).toBeCloseTo(29.8, 6) // 증축계획안 엑셀(261013-a) 증축 가능 연면적 — 일조 완화 시나리오에서만
     expect(p.sideGfaM2).toBeCloseTo(0, 6) // 29.8㎡ 전부 새 세대(전용 25.85㎡, 최소 15㎡ 이상 1세대)
-    expect(p.addUnits).toHaveLength(1)
+    expect(p.addUnits).toHaveLength(2) // 14.9㎡ × 2 (연면적 = 전용, 주차 0.5대씩)
     expect(p.housingFloorsAfter).toBe(5)
     expect(p.limitingFactor).toBe('housingFloors')
     expect(p.verdict).toBe('possible')
@@ -117,7 +117,7 @@ describe('T1 당산동6가 104-10 렉스빌 (2026-10-07 변경)', () => {
     expect(b.reason).toContain('주택 1개층 증축 시 주택 층수가 5개층으로 한도(4개층)')
     const all = judgeSite(runAll(data, 'ALL'))
     expect(all.status).toBe('possible')
-    expect(all.reason).toContain('+1개층(+29.8㎡, 1세대)')
+    expect(all.reason).toContain('+1개층(+29.8㎡, 2세대)')
   })
 })
 

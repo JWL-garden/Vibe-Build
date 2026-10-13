@@ -212,6 +212,10 @@ export interface ParkingRule {
   nonHousingDecimals: number
   /** 추가 세대의 최소 전용면적 (㎡) — 15 미만이면 추가 불가 */
   minUnitNetM2: number
+  /** 증축분(옥탑세대) 세대당 최소 면적 (㎡) — 연면적 = 전용면적으로 보고 이 값으로 나눠 최대 세대 수를 정한다 */
+  addedUnitMinNetM2: number
+  /** 증축분(옥탑세대) 전용률 (0~1) — 1 = 연면적과 전용면적을 구분하지 않음 */
+  addedUnitNetRatio: number
   /** 단독주택·다중주택(제4호): 시설면적 minM2 초과 ~ baseM2 이하 baseSpaces대, baseM2 초과분은 extraM2PerSpace㎡당 1대 */
   detached: { minM2: number; baseM2: number; baseSpaces: number; extraM2PerSpace: number }
   /** 주택법 기준(제5호 비교용): 전용 smallMaxNetM2 이하 smallM2PerSpace㎡당 1대, 초과 largeM2PerSpace㎡당 1대 */

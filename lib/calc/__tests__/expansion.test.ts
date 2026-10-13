@@ -60,7 +60,7 @@ describe('당산동6가 104-48 당산빌 (참고 — 2026-10-07 T1에서 제외,
 
   it('[테스트 규칙: 다중주택 4개층] ALL + 주차 1대 추가: 주차 기준 100.9㎡지만 증축층 바닥면적(옵션1 32.81 × 0.9 = 29.53㎡)·주택 층수로 1개층 29.53㎡', () => {
     const o = run(DANGSAN, 'ALL', undefined, ALL_WITH_MULTI4).parkingOption!
-    expect(o.addUnits).toHaveLength(1)
+    expect(o.addUnits).toHaveLength(2) // 옥탑세대: 29.53㎡ ÷ 최소 14㎡ = 2세대 (14.76㎡씩, 주차 0.5대씩 1.0대)
     expect(o.addGfaM2).toBeCloseTo(29.529, 3)
     expect(o.addFloors).toBe(1)
     expect(o.newHeightM).toBeCloseTo(18.95)
@@ -111,7 +111,7 @@ describe('T2 당산동6가 110-19 (설계서 12-3)', () => {
     }
   })
 
-  it('C·ALL(다세대 5개층): 5개층 ≤ 5 → 증축 가능 — C는 용적률 24.18㎡, ALL은 주차 36.25㎡', () => {
+  it('C·ALL(다세대 5개층): 5개층 ≤ 5 → 증축 가능 — C는 용적률 24.18㎡, ALL은 주차 30㎡ (옥탑세대: 연면적 = 전용)', () => {
     const c = run(T2, 'C').plan
     const all = run(T2, 'ALL').plan
     for (const p of [c, all]) {
@@ -122,7 +122,7 @@ describe('T2 당산동6가 110-19 (설계서 12-3)', () => {
     }
     expect(c.addGfaM2).toBeCloseTo(24.18, 2)
     expect(c.limitingFactor).toBe('far')
-    expect(all.addGfaM2).toBeCloseTo(36.25, 2)
+    expect(all.addGfaM2).toBeCloseTo(30, 2)
     expect(all.limitingFactor).toBe('parking')
   })
 

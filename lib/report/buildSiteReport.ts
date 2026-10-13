@@ -446,7 +446,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       `근생 ${pk.neighborhoodM2PerSpace}㎡당, 업무 ${pk.officeM2PerSpace}㎡당 1대, 단독·다중 ${pk.detached.minM2}~${pk.detached.baseM2}㎡ ${pk.detached.baseSpaces}대 + 초과 ${pk.detached.extraM2PerSpace}㎡당 1대`,
       '서울시 주차장 조례 별표2, 비고4(복합용도 절사)',
     ],
-    ['추가 세대 최소 전용면적', `${pk.minUnitNetM2}㎡`, '기준 엑셀 가정'],
+    ['증축 세대 최소 면적 (옥탑세대, 연면적 = 전용)', `${pk.addedUnitMinNetM2}㎡`, '프로젝트 가정 — 연면적 ÷ 14㎡ = 최대 세대 수 (재건축 신축은 기준 엑셀 15㎡)'],
     ['다가구 가구별 전용면적', `연면적 × ${pk.multiFamilyNetRatio} ÷ 가구수`, '기준 엑셀 가정'],
     ['증축 층고', `${f(base.floorHeightM, 1)}m`, '프로젝트 가정'],
     [

@@ -188,6 +188,8 @@
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
             "minUnitNetM2": 15,
+            "addedUnitMinNetM2": 14,
+            "addedUnitNetRatio": 1,
             "detached": {
               "minM2": 50,
               "baseM2": 150,
@@ -278,6 +280,8 @@
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
             "minUnitNetM2": 15,
+            "addedUnitMinNetM2": 14,
+            "addedUnitNetRatio": 1,
             "detached": {
               "minM2": 50,
               "baseM2": 150,
@@ -371,6 +375,8 @@
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
             "minUnitNetM2": 15,
+            "addedUnitMinNetM2": 14,
+            "addedUnitNetRatio": 1,
             "detached": {
               "minM2": 50,
               "baseM2": 150,
@@ -461,6 +467,8 @@
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
             "minUnitNetM2": 15,
+            "addedUnitMinNetM2": 14,
+            "addedUnitNetRatio": 1,
             "detached": {
               "minM2": 50,
               "baseM2": 150,
@@ -551,6 +559,8 @@
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
             "minUnitNetM2": 15,
+            "addedUnitMinNetM2": 14,
+            "addedUnitNetRatio": 1,
             "detached": {
               "minM2": 50,
               "baseM2": 150,
@@ -641,6 +651,8 @@
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
             "minUnitNetM2": 15,
+            "addedUnitMinNetM2": 14,
+            "addedUnitNetRatio": 1,
             "detached": {
               "minM2": 50,
               "baseM2": 150,
@@ -732,6 +744,8 @@
             "officeM2PerSpace": 100,
             "nonHousingDecimals": 1,
             "minUnitNetM2": 15,
+            "addedUnitMinNetM2": 14,
+            "addedUnitNetRatio": 1,
             "detached": {
               "minM2": 50,
               "baseM2": 150,

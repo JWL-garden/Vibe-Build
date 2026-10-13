@@ -30,6 +30,9 @@ export const baseRules: Rules = {
     officeM2PerSpace: 100,
     nonHousingDecimals: 1,
     minUnitNetM2: 15,
+    // 증축분은 옥탑세대 — 연면적 = 전용면적(전용률 1), 세대당 최소 14㎡로 나눠 최대 세대 수 산정 (2026-10-13 결정). minUnitNetM2(15)는 기준 엑셀 대조·재건축에 유지
+    addedUnitMinNetM2: 14,
+    addedUnitNetRatio: 1,
     // 제4호 단독·다중: 50㎡ 초과 150㎡ 이하 1대, 150㎡ 초과분 100㎡당 1대
     detached: { minM2: 50, baseM2: 150, baseSpaces: 1, extraM2PerSpace: 100 },
     // 제5호 비교용 주택법 기준: 전용 85㎡ 이하 75㎡당 1대, 초과 65㎡당 1대

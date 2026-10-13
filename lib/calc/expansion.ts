@@ -9,6 +9,7 @@ import { formatNumber } from '@/lib/format'
 import { getZoneRule } from '@/lib/rules/zoningTable'
 import type {
   AddUnitPlan,
+  AddUnitType,
   ExcelSite,
   ExcelUnit,
   ExpansionCheck,
@@ -23,7 +24,7 @@ import { calcFar } from './far'
 import { calcFloorPlate } from './floorPlate'
 import { calcHousingLimit, summarizeHousing } from './housingLimit'
 import { LIMIT_LABEL } from './labels'
-import { buildParkingUnits, calcParking } from './parking'
+import { bestAddUnits, buildParkingUnits, calcParking } from './parking'
 import { maxHeightAtDistance, requiredSetback, sunlightRuleFor } from './sunlight'
 
 export interface ExpansionInput {
@@ -54,7 +55,15 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
   if (site.siteAreaM2 === null) throw new Error(`대지면적 없음: ${site.pnu}`)
   if (site.zone === null) throw new Error(`용도지역 없음: ${site.pnu}`)
   const siteAreaM2 = site.siteAreaM2
-  const minUnitNet = rules.parking.minUnitNetM2
+  // 증축분은 옥탑세대: 연면적 = 전용면적, 세대당 최소 14㎡ (rules.parking.addedUnit*, 2026-10-13)
+  const minUnitNet = rules.parking.addedUnitMinNetM2
+  const addedRatio = rules.parking.addedUnitNetRatio
+  const stepOf = (net: number) =>
+    rules.parking.perUnit.find((s) => s.maxNetM2 === null || net <= s.maxNetM2) ?? rules.parking.perUnit[rules.parking.perUnit.length - 1]
+  const typeOf = (net: number): AddUnitType => {
+    const i = rules.parking.perUnit.indexOf(stepOf(net))
+    return (['S', 'M', 'L'] as const)[Math.min(i, 2)]
+  }
 
   const far = calcFar(
     { siteAreaM2, farFloorAreaM2: site.farFloorAreaM2, zone: site.zone, netRatio },
@@ -83,26 +92,38 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
   const allowedHeightM = sunlightApplies && setback !== null ? maxHeightAtDistance(setback, sun) : null
   const fh = rules.floorHeightM
 
-  /** 연면적에 맞게 세대 수·면적을 줄인다 (세대당 전용이 최소면적 미만이면 세대를 뺀다) */
-  function fitUnits(plan: AddUnitPlan, gfa: number) {
-    let net = gfa * netRatio
-    let n = plan.units.length
-    while (n > 0 && net / n < minUnitNet - EPS) n--
-    if (n === 0) return { gfa: 0, net: 0, units: [] }
-    const kept = plan.units.slice(0, n)
-    const raw = kept.reduce((s, u) => s + u.netAreaM2, 0)
-    net = Math.min(net, raw)
-    return { gfa: net / netRatio, net, units: kept.map((u) => ({ ...u, netAreaM2: (u.netAreaM2 * net) / raw })) }
+  /**
+   * 옥탑세대 배치: 연면적을 전용면적과 구분하지 않고(전용률 1) 세대당 최소 14㎡로 나눈 최대 세대 수를 구한다.
+   *  - 세대 면적 합 = min(연면적, 주차로 설치 가능한 면적 plan.gfaM2) — 넘는 면적은 세대로 못 쓰는 기존 세대 확장분(sideGfa)
+   *  - 세대는 같은 크기로 나누고, 세대 수 × 세대당 주차(≤30㎡ 0.5대 등)가 주차 여유(budget) 안에서 최대가 되는 수를 고른다
+   */
+  function fitUnits(plan: AddUnitPlan, gfa: number, budget: number) {
+    const total = Math.min(gfa * addedRatio, plan.netM2)
+    if (total + EPS < minUnitNet) return { gfa: 0, net: 0, units: [] as ReturnType<typeof makeUnits> }
+    const maxByArea = Math.floor(total / minUnitNet + EPS)
+    for (let n = maxByArea; n >= 1; n--) {
+      const each = total / n
+      if (n * stepOf(each).spaces <= budget + EPS) return { gfa: total / addedRatio, net: total, units: makeUnits(n, each) }
+    }
+    // 같은 크기로 나눠 맞지 않으면 소형(≤30㎡) 세대로 가능한 만큼만 넣고 나머지는 확장분으로 본다
+    const small = rules.parking.perUnit[0]
+    const n = Math.min(maxByArea, Math.floor(budget / small.spaces + EPS))
+    if (n < 1) return { gfa: 0, net: 0, units: [] as ReturnType<typeof makeUnits> }
+    const each = Math.min(total / n, small.maxNetM2 ?? total / n)
+    return { gfa: (each * n) / addedRatio, net: each * n, units: makeUnits(n, each) }
+  }
+  function makeUnits(n: number, each: number) {
+    return Array.from({ length: n }, () => ({ type: typeOf(each), netAreaM2: each, spaces: stepOf(each).spaces }))
   }
 
-  function applyLimits(plan: AddUnitPlan, parkingLabel: string): ExpansionPlan {
+  function applyLimits(plan: AddUnitPlan, parkingLabel: string, budget: number): ExpansionPlan {
     const checks: ExpansionCheck[] = []
     const reasons: string[] = []
     const housingGfa = housingLimit.applies ? housingLimit.areaGfaM2! : Infinity
 
     // 1)~3) 최솟값. 같으면 용적률 → 주택 연면적 → 주차 순으로 제한요인을 정한다
     // 잔여 전용면적이 최소 세대면적(15㎡)보다 작으면 용적률로는 사실상 증축 불가
-    const farUsable = far.remainingNetM2 + EPS >= minUnitNet
+    const farUsable = far.remainingGfaM2 * addedRatio + EPS >= minUnitNet
     const candidates: [LimitingFactor, number][] = [
       ['far', farUsable ? far.remainingGfaM2 : 0],
       ['housingArea', housingGfa],
@@ -110,7 +131,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     ]
     const minGfa = Math.max(0, Math.min(...candidates.map(([, v]) => v)))
     let limitingFactor = candidates.find(([, v]) => v <= minGfa + EPS)![0]
-    let fitted = fitUnits(plan, minGfa)
+    let fitted = fitUnits(plan, minGfa, budget)
 
     checks.push({
       item: 'parking',
@@ -125,7 +146,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
       status: farUsable ? 'pass' : 'fail',
       detail:
         `용적률 ${f(far.farLimitPercent)}% → 잔여 연면적 ${f(far.remainingGfaM2)}㎡` +
-        (farUsable ? '' : ` (전용 ${f(far.remainingNetM2)}㎡ < 최소 세대 ${f(minUnitNet)}㎡ → 사실상 불가)`),
+        (farUsable ? '' : ` (잔여 ${f(far.remainingGfaM2)}㎡ < 최소 세대 ${f(minUnitNet)}㎡ → 사실상 불가)`),
     })
     checks.push(
       housingLimit.applies
@@ -178,7 +199,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
         limitingFactor = 'housingFloors'
       } else {
         addFloors = allowedAdd
-        fitted = fitUnits(plan, Math.min(fitted.gfa, addFloors * plateM2))
+        fitted = fitUnits(plan, Math.min(fitted.gfa, addFloors * plateM2), budget)
         if (fitted.gfa <= EPS) addFloors = 0
         limitingFactor = 'housingFloors'
         checks.push({
@@ -221,7 +242,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
       } else {
         const floorsBySun = Math.max(0, Math.floor((allowedHeightM - height) / fh + EPS))
         addFloors = Math.min(addFloors, floorsBySun)
-        fitted = fitUnits(plan, Math.min(fitted.gfa, addFloors * plateM2))
+        fitted = fitUnits(plan, Math.min(fitted.gfa, addFloors * plateM2), budget)
         if (fitted.gfa <= EPS) addFloors = 0
         limitingFactor = 'sunlight'
         if (housingFloorsAfter !== null) housingFloorsAfter = housingSummary.housingFloors + addFloors
@@ -244,7 +265,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
       const room = Math.min(far.remainingGfaM2, housingGfa)
       const target = Math.min(planned, room)
       // 세대는 계획 면적 안에서 다시 맞추고(주차 세대 수·최소 세대 면적), 세대로 못 쓰는 나머지는 기존 세대 확장분으로 본다
-      fitted = fitUnits(plan, target)
+      fitted = fitUnits(plan, target, budget)
       if (fitted.gfa <= EPS) addFloors = 0
       sideGfa = Math.max(0, target - fitted.gfa)
       reasons.push(
@@ -273,7 +294,7 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
       addNetM2: fitted.net,
       addGfaM2: totalGfa,
       sideGfaM2: sideGfa,
-      sideNetM2: sideGfa * netRatio,
+      sideNetM2: sideGfa * addedRatio,
       addFloors,
       newTotalFloors: site.floorsAbove + addFloors,
       newHeightM: height === null ? null : height + addFloors * fh,
@@ -288,9 +309,25 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     }
   }
 
-  const plan = applyLimits(parking.plan, '기존 주차 여유로')
-  const parkingOption = parking.option
-    ? { ...applyLimits(parking.option, `주차 ${parking.option.addSpaces}대 추가 확보 시`), addSpaces: parking.option.addSpaces }
+  // 옥탑세대 기준 주차 세대 조합: 용적률 잔여 '연면적'(= 전용)을 한도로, 세대당 최소 14㎡, 전용률 1
+  const rooftopRules: Rules = { ...rules, parking: { ...rules.parking, minUnitNetM2: minUnitNet } }
+  const usable = Math.max(0, parking.spare)
+  const rooftop = bestAddUnits(parking.spare, far.remainingGfaM2 * addedRatio, addedRatio, rooftopRules)
+  let rooftopOption: { plan: AddUnitPlan; addSpaces: number; spareAfter: number } | null = null
+  if (rooftop.units.length === 0 && far.remainingGfaM2 * addedRatio >= minUnitNet) {
+    const unitSpaces = rules.parking.perUnit[0].spaces
+    const addSpaces = Math.ceil(Math.round((unitSpaces - usable) * 1e6) / 1e6 - 1e-9)
+    const spareAfter = Math.round((usable + addSpaces) * 1e6) / 1e6
+    const optionPlan = bestAddUnits(spareAfter, far.remainingGfaM2 * addedRatio, addedRatio, rooftopRules)
+    if (optionPlan.units.length > 0) rooftopOption = { plan: optionPlan, addSpaces, spareAfter }
+  }
+
+  const plan = applyLimits(rooftop, '기존 주차 여유로', usable)
+  const parkingOption = rooftopOption
+    ? {
+        ...applyLimits(rooftopOption.plan, `주차 ${rooftopOption.addSpaces}대 추가 확보 시`, rooftopOption.spareAfter),
+        addSpaces: rooftopOption.addSpaces,
+      }
     : null
 
   return {
