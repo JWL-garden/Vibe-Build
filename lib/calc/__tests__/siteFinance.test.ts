@@ -89,7 +89,8 @@ describe('T1 ALL 증축 (증축계획안 엑셀 29.8㎡, 옥탑 2세대 14.9㎡)
   it('측면 보강부는 일조 완화 시나리오(A·ALL)에서만 포함: C·B에서는 0', async () => {
     const data = (await getSiteData(T2))!
     const a = runAll(data, 'ALL').byScenario
-    expect(a.ALL.plan.sideGfaM2).toBeCloseTo(69.3 - 30, 3) // 증축계획안 69.3㎡ − 세대분 30㎡(주차 0.5대 = 1세대, 연면적 = 전용) (T1은 전부 세대분이라 0)
+    expect(a.ALL.plan.sideGfaM2).toBe(0) // 확장분은 증축 연면적·계산에서 제외 (2026-10-13)
+    expect(a.ALL.plan.addGfaM2).toBeCloseTo(30, 6) // 증축계획안 69.3㎡ 중 세대 면적만 (주차 0.5대 = 1세대 30㎡)
     expect(a.A.plan.sideGfaM2).toBe(0) // A는 증축안 자체가 없음 (BASE와 같음)
     for (const id of ['BASE', 'B', 'C'] as const) expect(a[id].plan.sideGfaM2).toBe(0)
   })

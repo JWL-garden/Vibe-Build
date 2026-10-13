@@ -255,37 +255,27 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     }
     checks.push(sunCheck)
 
-    // 7) 측면 보강부 — 일조 완화로 기존 층 옆을 채우는 면적(3D 모델 형상). 새 층이 있을 때만, 용적률·주택 연면적 잔여 범위 안에서 더한다
-    //    세대 수를 늘리지 않는 기존 세대 확장분이라 addUnits 는 그대로 둔다
-    //    증축계획안 엑셀 값(plannedGfaM2)이 있으면 그 값이 증축 연면적 합계다 (2026-10-13 결정)
-    let sideGfa = 0
+    // 7) 증축계획안 증축 가능 연면적(plannedGfaM2) — 일조 완화 시나리오에서 증축이 가능할 때, 이 값 안에서 세대를 다시 맞춘다.
+    //    세대로 확보되지 않는 면적(기존 세대 확장분·3D 모델 측면 보강부)은 증축 연면적·사업비·수익 계산에 넣지 않는다 (2026-10-13 결정)
+    const sideGfa = 0
     const planned = input.plannedGfaM2 ?? null
-    const sideModel = input.massSideAreaM2 ?? 0
     if (planned !== null && rules.massSide.includeInGfa && fitted.gfa > EPS && addFloors >= 1) {
       const room = Math.min(far.remainingGfaM2, housingGfa)
       const target = Math.min(planned, room)
-      // 세대는 계획 면적 안에서 다시 맞추고(주차 세대 수·최소 세대 면적), 세대로 못 쓰는 나머지는 기존 세대 확장분으로 본다
       fitted = fitUnits(plan, target, budget)
       if (fitted.gfa <= EPS) addFloors = 0
-      sideGfa = Math.max(0, target - fitted.gfa)
+      const excluded = Math.max(0, target - fitted.gfa)
       reasons.push(
-        `증축계획안 증축 가능 연면적 ${f(planned)}㎡ 적용` +
+        `증축계획안 증축 가능 연면적 ${f(planned)}㎡` +
           (target + EPS < planned ? ` — 용적률·주택 연면적 잔여 한도로 ${f(target)}㎡로 축소` : '') +
-          ` (세대 ${f(fitted.gfa)}㎡ + 측면·확장분 ${f(sideGfa)}㎡)`,
-      )
-    } else if (rules.massSide.includeInGfa && sideModel > EPS && fitted.gfa > EPS && addFloors >= 1) {
-      const room = Math.min(far.remainingGfaM2 - fitted.gfa, housingGfa - fitted.gfa)
-      sideGfa = Math.max(0, Math.min(sideModel, room))
-      reasons.push(
-        `측면 보강부 ${f(sideModel)}㎡(3D 모델) 중 ${f(sideGfa)}㎡ 포함` +
-          (sideGfa + EPS < sideModel ? ' — 용적률·주택 연면적 잔여 한도로 축소' : ''),
+          ` 중 세대로 확보되는 면적 ${f(fitted.gfa)}㎡만 적용${excluded > EPS ? ` (확장분 ${f(excluded)}㎡ 제외)` : ''}`,
       )
     }
-    const totalGfa = fitted.gfa + sideGfa
+    const totalGfa = fitted.gfa
 
     reasons.push(
       fitted.gfa > EPS
-        ? `최종 증축 ${fitted.units.length}세대(전용 ${f(fitted.net)}㎡), 연면적 ${f(totalGfa)}㎡${sideGfa > 0 ? `(측면 보강 ${f(sideGfa)}㎡ 포함)` : ''}, +${addFloors}개층 — 제한요인: ${LIMIT_LABEL[limitingFactor]}`
+        ? `최종 증축 ${fitted.units.length}세대(전용 ${f(fitted.net)}㎡), 연면적 ${f(totalGfa)}㎡, +${addFloors}개층 — 제한요인: ${LIMIT_LABEL[limitingFactor]}`
         : `증축 불가 — 제한요인: ${LIMIT_LABEL[limitingFactor]}`,
     )
 

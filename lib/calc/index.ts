@@ -108,8 +108,7 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
     approvalDate: data.site.approvalDate,
     // 경과연수 기준일 = 기준 데이터 기준일 (같은 데이터면 언제 열어도 같은 결과)
     baseDate: data.source.date,
-    // 증축은 세대로 확보되는 면적만 계산한다 — 기존 세대 확장분(sideGfaM2)은 공사비·임대수입·자산가치에서 제외 (2026-10-13 결정)
-    addGfaM2: isRebuild ? (rebuild.verdict === 'impossible' ? 0 : rebuild.gfaM2) : (adopted?.addGfaM2 ?? 0) - (adopted?.sideGfaM2 ?? 0),
+    addGfaM2: isRebuild ? (rebuild.verdict === 'impossible' ? 0 : rebuild.gfaM2) : (adopted?.addGfaM2 ?? 0),
     demolishExisting: isRebuild && rebuild.verdict !== 'impossible',
   }
   const assetBefore = calcAssetValue({ ...assetInput, addConstructionCostWon: null }, buildingValueRule)
@@ -126,10 +125,8 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
       }
     : {
         kind: 'expansion' as const,
-        gfaM2: (adopted?.addGfaM2 ?? 0) - (adopted?.sideGfaM2 ?? 0),
-        // 공사비·임대수입은 세대로 확보되는 면적만 — 기존 세대 확장분(측면·확장)은 계산에서 제외 (2026-10-13 결정)
-        constructionAreaM2: (adopted?.addGfaM2 ?? 0) - (adopted?.sideGfaM2 ?? 0),
-        excludedExtensionGfaM2: adopted?.sideGfaM2 ?? 0,
+        gfaM2: adopted?.addGfaM2 ?? 0,
+        constructionAreaM2: adopted?.addGfaM2 ?? 0,
         newUnitNets: adopted?.addUnits.map((u) => u.netAreaM2) ?? [],
       }
   // 공사비 실적(기준 엑셀) → 신축 단가 가정값이 비어 있으면 채움 (사용자 입력 > 가정값 입력 엑셀 > 실적)
@@ -168,10 +165,9 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
     landBasis: assetGrowthRule.landBasis,
   }
   const assetModel: Omit<AssetModelInput, 'newBuildingValueWon'> | null =
-    assetBefore.land.valueWon === null || assetBefore.existingBuilding.unitCostWon === null
+    assetBefore.existingBuilding.unitCostWon === null
       ? null
       : {
-          landWon: assetBefore.land.valueWon,
           existingConstructionAreaM2: assetBefore.existingBuilding.constructionAreaM2,
           existingAgeYears: assetBefore.existingBuilding.ageYears,
           depreciationRatePerYear: buildingValueRule.depreciationRatePerYear,
@@ -189,7 +185,9 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
         assumptionRows,
         rentComps: data.rentComps,
         scenario: fs,
-        assetBeforeWon: assetBefore.beforeWon,
+        // 토지 포함 수익률(보유 자산 전체 기준 참고 지표)에는 토지가액을 더한 값을 쓴다 — 자산가치 표시 금액(beforeWon)은 건물만
+        assetBeforeWon:
+          assetBefore.beforeWon !== null && assetBefore.land.valueWon !== null ? assetBefore.beforeWon + assetBefore.land.valueWon : null,
         assetModel,
       }),
     ]),
@@ -221,7 +219,8 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
         existingUnitNets: existingHousingUnitNets(data),
         assumptionRows,
         rentComps: data.rentComps,
-        assetBeforeWon: assetBefore.beforeWon,
+        assetBeforeWon:
+          assetBefore.beforeWon !== null && assetBefore.land.valueWon !== null ? assetBefore.beforeWon + assetBefore.land.valueWon : null,
         assetModel,
       }),
     },

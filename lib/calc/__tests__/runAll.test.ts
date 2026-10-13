@@ -196,11 +196,11 @@ describe('judgeSite 증축 가능 여부 배지', () => {
     expect(base.reason).toContain('용적률')
   })
 
-  it('T2: ALL = 증축 가능 +1개층(+69.3㎡, 1세대: 증축계획안 엑셀 값), BASE = 확인 필요 (주택 1개층 증축 시 5개층 > 4)', async () => {
+  it('T2: ALL = 증축 가능 +1개층(+30㎡, 1세대: 증축계획안 69.3㎡ 중 세대 면적만), BASE = 확인 필요 (주택 1개층 증축 시 5개층 > 4)', async () => {
     const data = (await getSiteData(T2))!
     const all = judgeSite(runAll(data, 'ALL'))
     expect(all.status).toBe('possible')
-    expect(all.reason).toContain('+1개층(+69.3㎡, 1세대)')
+    expect(all.reason).toContain('+1개층(+30㎡, 1세대)')
     const base = judgeSite(runAll(data, 'BASE'))
     expect(base.status).toBe('check')
     expect(base.reason).toContain('주택 1개층 증축 시 주택 층수가 5개층으로 한도(4개층)')

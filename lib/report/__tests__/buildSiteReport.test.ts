@@ -138,10 +138,10 @@ describe('T2 보고서', () => {
     expect(byLabel['여유 주차대수']).toBe('0.5대')
   })
 
-  it('3장 ALL: 기존 주차 증축안 +1층 · 증축계획안 엑셀 69.3㎡(세대 30 + 확장 39.3) · 1세대, 표지 증축 가능', async () => {
+  it('3장 ALL: 기존 주차 증축안 +1층 · 증축계획안 엑셀 69.3㎡ 중 세대 면적 30㎡ · 1세대(확장분 제외), 표지 증축 가능', async () => {
     const r = await build(T2)
     expect(r.plan.kind).toBe('existing')
-    expect(r.plan.plan!.addGfaM2).toBeCloseTo(69.3, 2)
+    expect(r.plan.plan!.addGfaM2).toBeCloseTo(30, 2)
     expect(r.summary.kpis[3].caption).toBeNull() // 투자회수기간 하단 작은 글자 삭제
   })
 
@@ -218,14 +218,14 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     expect(r.verification.todoRows.some((row) => row[0] === '토지가액 구성 필지' && row[2] === '추정 (참고, 문제 아님)')).toBe(true)
   })
 
-  it('3장 자산가치 표: 토지가액 행에 공시 기준, 합계 = runAll asset 값', async () => {
+  it('3장 자산가치 표: 토지가액 행 없음(건물가치만), 합계 = runAll asset 값', async () => {
     const r = await build(T1)
-    const [landRow, , addRow, totalRow] = r.asset.rows
-    expect(landRow[3]).toContain('시세 아님')
-    expect(landRow[3]).toContain('[면적 확인 필요]')
+    const [existingRow, addRow, totalRow] = r.asset.rows
+    expect(r.asset.rows.map((row) => row[0])).not.toContain('토지가액')
+    expect(existingRow[0]).toBe('기존 건물가치')
     expect(addRow[2]).toBe('72,116,003원') // 증축 공사비 전액 = 29.8㎡ ÷ 3.305785 × 800만원
     expect(addRow[3]).toContain('증축 공사비 전액')
-    expect(totalRow.slice(1, 3)).toEqual(['1,867,535,499원', '1,939,651,502원']) // 표는 원 단위 정확값 (항목 합 = 합계)
+    expect(totalRow.slice(1, 3)).toEqual(['805,163,499원', '877,279,502원']) // 건물가치만, 표는 원 단위 정확값 (항목 합 = 합계)
     expect(r.asset.yieldNote).toContain('토지 포함 수익률')
   })
 })
@@ -233,9 +233,9 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
 describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', () => {
   it('T1·T2 5장 KPI = runAll asset 값', async () => {
     const t1 = (await build(T1)).asset.kpis.map((k) => k.value)
-    expect(t1).toEqual(['10.6억원', '18.7억원', '19.4억원', '7,212만원'])
+    expect(t1).toEqual(['8.1억원', '8.8억원', '7,212만원'])
     const t2 = (await build(T2)).asset.kpis.map((k) => k.value)
-    expect(t2).toEqual(['17.8억원', '35.5억원', '36.2억원', '7,260만원'])
+    expect(t2).toEqual(['17.7억원', '18.5억원', '7,260만원'])
   })
 
   it('부록 데이터 출처: 개별공시지가_2단계 + 기준연월·공시일·시세 아님', async () => {
@@ -247,14 +247,14 @@ describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', 
 describe('5장 표시 점검 (2026-10-07 숫자 점검 반영)', () => {
   it('증축안이 없으면 증가 "없음", 증축 건물가치 "–"', async () => {
     const r = await build(T1, 'BASE')
-    expect(r.asset.kpis[3].value).toBe('없음')
-    expect(r.asset.rows[2][2]).toBe('–')
+    expect(r.asset.kpis[2].value).toBe('없음')
+    expect(r.asset.rows[1][2]).toBe('–')
   })
 
-  it('T2 0장은 증축 가능 연면적 69.3㎡, 5장 자산가치·사업비는 세대 면적 30㎡만 (확장분 제외)', async () => {
+  it('T2 0장·5장 모두 세대 면적 30㎡ 기준 (확장분 제외)', async () => {
     const r = await build(T2)
-    expect(r.asset.kpis[3].caption).toBe('증축 30㎡')
-    expect(r.summary.kpis[0].value).toContain('69.3㎡')
+    expect(r.asset.kpis[2].caption).toBe('증축 30㎡')
+    expect(r.summary.kpis[0].value).toContain('30㎡')
   })
 })
 

@@ -47,16 +47,16 @@ describe('T1 104-10 렉스빌 전체 재건축', () => {
     expect(r.checks.find((c) => c.item === 'parking')!.status).toBe('check')
   })
 
-  it('자산가치: 후 = 토지 1,062,372,000 + 신축 공사비 전액 (기존 건물 철거), 전 = 토지 + 기존 건물(필로티 포함, 지수 감가)', async () => {
+  it('자산가치(토지 제외): 후 = 신축 공사비 전액 (기존 건물 철거), 전 = 기존 건물(필로티 포함, 지수 감가)', async () => {
     const analysis = await load(T1)
     const a = analysis.asset
     const construction = analysis.finance.byScenario.BASE.costs.find((c) => c.key === 'construction')!.amountWon!
     expect(a.demolished).toBe(true)
-    expect(a.beforeWon).toBe(1_062_372_000 + a.existingBuilding.valueWon)
+    expect(a.beforeWon).toBe(a.existingBuilding.valueWon)
     expect(a.existingBuilding.constructionAreaM2).toBeCloseTo(378.24 + 99.27, 2)
     expect(a.addBuilding.valueWon).toBe(construction) // 618.45㎡(필로티 포함) × 2,055,379원/㎡
     expect(construction).toBe(Math.round(618.45 * 2_055_379))
-    expect(a.afterWon).toBe(1_062_372_000 + construction)
+    expect(a.afterWon).toBe(construction)
   })
 })
 
@@ -131,6 +131,6 @@ describe('REBUILD 판정·보고서', () => {
     expect(r.plan.rebuild).toBe(r.analysis.rebuild)
     expect(r.regulation.scenarioRows.map((row) => row[0])).toEqual(['현행법규', '복합 완화 + 전체 재건축']) // 현행법규 + 이 보고서의 시나리오만
     expect(r.regulation.selectedRow).toBe(1)
-    expect(r.asset.rows[1][2]).toBe('– (철거)')
+    expect(r.asset.rows[0][2]).toBe('– (철거)') // 토지가액 행 삭제 → 기존 건물가치가 첫 행
   })
 })

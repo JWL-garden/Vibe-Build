@@ -290,7 +290,6 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
       : `${rebuild ? '재건축' : '증축'} ${f(a.addBuilding.gfaM2, 1)}㎡ × ${unitText} (공사비 미산정)`
   // 표는 원 단위 정확값 (억 단위 반올림이면 항목 합과 합계가 어긋나 보임), 억 단위 요약은 KPI 카드에만
   const rows: ReportRow[] = [
-    ['토지가액', formatWonExact(a.land.valueWon), formatWonExact(a.land.valueWon), `${landBasisNote(a.land)} [${LAND_BADGE[a.land.basis].badge}]`],
     [
       '기존 건물가치',
       formatWonExact(b.valueWon),
@@ -303,11 +302,10 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
       hasAdd ? formatWonExact(a.addBuilding.valueWon) : '–',
       addNote,
     ],
-    ['자산가치 합계', formatWonExact(a.beforeWon), formatWonExact(a.afterWon), '토지가액 + 건물가치 (원가 기준 참고값)'],
+    ['자산가치 합계', formatWonExact(a.beforeWon), formatWonExact(a.afterWon), '건물가치 합계 (원가 기준 참고값, 토지가액은 전·후 동일하여 제외)'],
   ]
   const kpis: Kpi[] = [
-    { label: '토지가액', value: formatWon(a.land.valueWon), caption: `${LAND_BADGE[a.land.basis].badge} · 공시지가 기준` },
-    { label: rebuild ? '자산가치 (재건축 전)' : '자산가치 (증축 전)', value: formatWon(a.beforeWon), caption: '토지 + 기존 건물' },
+    { label: rebuild ? '자산가치 (재건축 전)' : '자산가치 (증축 전)', value: formatWon(a.beforeWon), caption: '기존 건물 (토지가액 제외)' },
     {
       label: rebuild ? '자산가치 (재건축 후)' : '자산가치 (증축 후)',
       value: formatWon(a.afterWon),
@@ -331,7 +329,7 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
     yieldNote: financeSection(analysis).yieldText,
     notes: [
       ...a.reasons,
-      `${buildingValueRule.note}. 수익 기준 가치(NOI ÷ 환원율)와 더하면 토지를 두 번 세게 되므로 따로 봅니다.`,
+      `${buildingValueRule.note}. 토지가액은 증축·재건축 전후로 변하지 않아 자산가치 금액에서 제외했습니다(1장 토지가액 참고).`,
       `기존 건물 면적은 신축 공사비와 같은 기준(실공사면적: 연면적 + 필로티)입니다. 연 ${formatRate(buildingValueRule.depreciationRatePerYear, 1)} 감가는 서울 연립다세대 헤도닉 모형의 건물연식 계수(−0.011, 국토연구 125호, 2025)로, 토지 + 건물 합산 매매가의 연식 효과라 건물만의 감가율보다 낮을 수 있습니다.`,
       `경과연수 기준일: ${a.baseDate} (기준 데이터 기준일)`,
     ],

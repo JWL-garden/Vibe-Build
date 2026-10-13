@@ -100,7 +100,7 @@ describe('자산가치 — 원가 기준 (신축단가표 2,055,379원/㎡ · �
     expect(b.valueWon).toBe(Math.round(Math.round(477.51 * UNIT) * Math.exp(-0.011 * 18)))
     expect(b.valueWon).toBeGreaterThan(8.0e8)
     expect(b.valueWon).toBeLessThan(8.1e8)
-    expect(a.beforeWon).toBe(1_062_372_000 + b.valueWon)
+    expect(a.beforeWon).toBe(b.valueWon) // 토지가액 제외 (2026-10-13) — land.valueWon 1,062,372,000은 따로
     // 증축 연면적 29.8㎡(증축계획안 엑셀, 2026-10-13) → 증축 공사비 = 29.8 ÷ 3.305785 × 800만원
     expect(a.addBuilding.gfaM2).toBeCloseTo(29.8, 6)
     expect(a.addBuilding.basis).toBe('construction')
@@ -117,7 +117,7 @@ describe('자산가치 — 원가 기준 (신축단가표 2,055,379원/㎡ · �
     expect(a.demolished).toBe(true)
     expect(a.addBuilding.basis).toBe('construction')
     expect(a.addBuilding.valueWon).toBe(construction)
-    expect(a.afterWon).toBe(1_062_372_000 + construction)
+    expect(a.afterWon).toBe(construction) // 재건축: 신축 건물가치만
   })
 
   it('T2: 기존 = (722.02 + 필로티 220.09) × 2,055,379 × exp(−0.011×8) ≈ 17.7억, 전 = 토지 1,777,075,300 + 기존', async () => {
@@ -125,7 +125,7 @@ describe('자산가치 — 원가 기준 (신축단가표 2,055,379원/㎡ · �
     expect(a.existingBuilding.ageYears).toBe(8)
     expect(a.existingBuilding.constructionAreaM2).toBeCloseTo(942.11, 2)
     expect(a.existingBuilding.valueWon).toBe(Math.round(Math.round(942.11 * UNIT) * Math.exp(-0.011 * 8)))
-    expect(a.beforeWon).toBe(1_777_075_300 + a.existingBuilding.valueWon)
+    expect(a.beforeWon).toBe(a.existingBuilding.valueWon)
     expect(a.addBuilding.gfaM2).toBeCloseTo(30, 4) // 증축계획안 69.3㎡ 중 세대 면적만 (확장분 39.3㎡ 제외)
   })
 
@@ -136,7 +136,7 @@ describe('자산가치 — 원가 기준 (신축단가표 2,055,379원/㎡ · �
     expect(a.afterWon).toBe(a.beforeWon)
   })
 
-  it('토지가액이 없으면 자산가치를 합산하지 않고, 공사비를 모르면 연면적 × 단가로 본다', () => {
+  it('토지가액이 없어도 건물가치만 계산하고, 공사비를 모르면 연면적 × 단가로 본다', () => {
     const land: LandValueResult = {
       basis: 'none', valueWon: null, lots: [], areaUsedM2: 0, siteAreaM2: null, areaDiffM2: null, priceBasis: null, reasons: [],
     }
@@ -145,7 +145,7 @@ describe('자산가치 — 원가 기준 (신축단가표 2,055,379원/㎡ · �
       buildingValueRule,
     )
     expect(a.existingBuilding.residualRate).toBe(0.1) // 사용승인일 없음 → 최저 잔가율
-    expect(a.beforeWon).toBeNull()
+    expect(a.beforeWon).toBe(a.existingBuilding.valueWon) // 건물가치만 (토지 불필요)
     expect(a.addBuilding.basis).toBe('unitCost')
     expect(a.addBuilding.valueWon).toBe(10 * UNIT)
   })
@@ -169,7 +169,6 @@ describe('calcCashflow — 자산가치 반영 (2026-10-12)', async () => {
   const growth = { buildingRate: 0.03, buildingBasis: '테스트', landRate: 0, landBasis: '테스트' }
   // 토지 10억, 기존 건물 공사면적 100㎡(경과 10년), 신축 단가 200만원/㎡, 감가 연 1.1%(지수형), 신축 건물가치 2억(재건축)
   const model = {
-    landWon: 1_000_000_000,
     existingConstructionAreaM2: 100,
     existingAgeYears: 10,
     depreciationRatePerYear: 0.011,
@@ -180,14 +179,14 @@ describe('calcCashflow — 자산가치 반영 (2026-10-12)', async () => {
     growth,
   }
 
-  it('자산가치 경로: 0년차 = 토지 + 기존 건물(전) / 토지 + 신축 건물(후), 연차별 상승·지수 감가', () => {
+  it('자산가치 경로: 0년차 = 기존 건물(전) / 신축 건물(후) — 토지 제외, 연차별 상승·지수 감가', () => {
     const p0 = calcAssetPathAt(model, 0)
-    expect(p0.withoutWon).toBeCloseTo(1_000_000_000 + 100 * 2_000_000 * Math.exp(-0.11), 0)
-    expect(p0.withWon).toBeCloseTo(1_000_000_000 + 200_000_000, 0)
+    expect(p0.withoutWon).toBeCloseTo(100 * 2_000_000 * Math.exp(-0.11), 0)
+    expect(p0.withWon).toBeCloseTo(200_000_000, 0)
     const p10 = calcAssetPathAt(model, 10)
     const idx = Math.pow(1.03, 10)
-    expect(p10.withoutWon).toBeCloseTo(1_000_000_000 + 100 * 2_000_000 * idx * Math.exp(-0.011 * 20), 0) // 경과 20년
-    expect(p10.withWon).toBeCloseTo(1_000_000_000 + 200_000_000 * idx * Math.exp(-0.011 * 10), 0) // 신축 10년차
+    expect(p10.withoutWon).toBeCloseTo(100 * 2_000_000 * idx * Math.exp(-0.011 * 20), 0) // 경과 20년
+    expect(p10.withWon).toBeCloseTo(200_000_000 * idx * Math.exp(-0.011 * 10), 0) // 신축 10년차
   })
 
   it('자산가치 반영 회수: 총사업비 3억, NOI 증가 연 1천만원이면 임대수익만으로는 20년 안에 회수 불가, 신축 가치 8억이면 착공 직후부터 0 이상', () => {
@@ -210,7 +209,7 @@ describe('calcCashflow — 자산가치 반영 (2026-10-12)', async () => {
     }
   })
 
-  it('회수 시점은 해 사이를 선형 보간하고, 토지가액이 없으면 자산가치 반영 지표는 null', () => {
+  it('회수 시점은 해 사이를 선형 보간하고, 자산가치 모델이 없으면 자산가치 반영 지표는 null', () => {
     const c = calcCashflow({
       totalCostWon: 300_000_000,
       noiIncreaseWon: 50_000_000,
@@ -225,6 +224,6 @@ describe('calcCashflow — 자산가치 반영 (2026-10-12)', async () => {
     expect(a.paybackYear).toBe(6)
     expect(a.paybackYearsExact).toBeCloseTo(6, 6)
     expect(a.npvWon).toBeNull()
-    expect(calcCashflow({ totalCostWon: 1, noiIncreaseWon: 1, existingNoiWon: 0, growthRate: 0, discountRate: 0, assetModel: { ...model, landWon: null } }).assetAdjusted).toBeNull()
+    expect(calcCashflow({ totalCostWon: 1, noiIncreaseWon: 1, existingNoiWon: 0, growthRate: 0, discountRate: 0, assetModel: null }).assetAdjusted).toBeNull()
   })
 })
