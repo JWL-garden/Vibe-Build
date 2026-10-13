@@ -332,6 +332,8 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     requiredSetbackM:
       sunlightApplies && site.heightM !== null ? requiredSetback(site.heightM + fh, sun) : null,
     floorPlate,
+    rooftop,
+    rooftopOption: rooftopOption ? { ...rooftopOption.plan, addSpaces: rooftopOption.addSpaces, spareAfter: rooftopOption.spareAfter } : null,
     plan,
     parkingOption,
   }

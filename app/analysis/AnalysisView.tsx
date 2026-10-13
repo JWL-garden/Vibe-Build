@@ -116,7 +116,7 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
               },
               {
                 title: '⑧ 수익성',
-                caption: `${analysis.scenarioId} 시나리오 · 토지가액(공시지가 기준) · 자산가치(예시 가정값)`,
+                caption: `${analysis.scenarioId} 시나리오 · 건물 자산가치(예시 가정값, 토지가액은 참고)`,
                 content: <Step8Finance analysis={analysis} />,
               },
             ]

@@ -185,9 +185,7 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
         assumptionRows,
         rentComps: data.rentComps,
         scenario: fs,
-        // 토지 포함 수익률(보유 자산 전체 기준 참고 지표)에는 토지가액을 더한 값을 쓴다 — 자산가치 표시 금액(beforeWon)은 건물만
-        assetBeforeWon:
-          assetBefore.beforeWon !== null && assetBefore.land.valueWon !== null ? assetBefore.beforeWon + assetBefore.land.valueWon : null,
+        assetBeforeWon: assetBefore.beforeWon,
         assetModel,
       }),
     ]),
@@ -219,8 +217,7 @@ export function runAll(data: SiteData, scenarioId: ViewScenarioId): SiteAnalysis
         existingUnitNets: existingHousingUnitNets(data),
         assumptionRows,
         rentComps: data.rentComps,
-        assetBeforeWon:
-          assetBefore.beforeWon !== null && assetBefore.land.valueWon !== null ? assetBefore.beforeWon + assetBefore.land.valueWon : null,
+        assetBeforeWon: assetBefore.beforeWon,
         assetModel,
       }),
     },
@@ -282,7 +279,7 @@ export function judgeSite(analysis: SiteAnalysis): Expandability {
   if (plan.verdict === 'check') {
     return {
       status: 'check',
-      reason: `${name} 기준 주차·용적률로는 ${e.parking.plan.units.length}세대 여유가 있으나, 주택 ${plan.attemptedFloors}개층 증축 시 주택 층수가 ${plan.housingFloorsAfter}개층으로 한도(${e.housing.limit.floorLimit}개층)를 넘어 신규 층 주택은 불가합니다. 부분 증축·용도변경 대안 확인이 필요합니다.`,
+      reason: `${name} 기준 주차·용적률로는 ${e.rooftop.units.length}세대 여유가 있으나, 주택 ${plan.attemptedFloors}개층 증축 시 주택 층수가 ${plan.housingFloorsAfter}개층으로 한도(${e.housing.limit.floorLimit}개층)를 넘어 신규 층 주택은 불가합니다. 부분 증축·용도변경 대안 확인이 필요합니다.`,
     }
   }
   return {

@@ -62,33 +62,33 @@ export default function Step6Expansion({ analysis, scenarios }: Props) {
           },
           {
             label: '추가 세대',
-            value: `${p.plan.units.length}세대`,
-            sub: unitsText(p.plan.units),
+            value: `${e.rooftop.units.length}세대`,
+            sub: unitsText(e.rooftop.units),
           },
           {
             label: '주차 기준 최대 연면적',
-            value: `${f(p.plan.gfaM2)}㎡`,
-            sub: p.plan.netM2 > 0 ? `전용 ${f(p.plan.netM2)}㎡ ÷ 전용률 ${formatNumber(e.netRatio, 4)}` : '추가 세대 없음',
+            value: `${f(e.rooftop.gfaM2)}㎡`,
+            sub: e.rooftop.netM2 > 0 ? `연면적 = 전용 ${f(e.rooftop.netM2)}㎡ (옥탑세대, 세대당 최소 ${e.rules.parking.addedUnitMinNetM2}㎡)` : '추가 세대 없음',
           },
         ]}
         plan={e.plan}
       />
 
-      {p.option && e.parkingOption && (
+      {e.rooftopOption && e.parkingOption && (
         <FlowBlock
-          title={`주차 ${p.option.addSpaces}대 추가 확보 시`}
+          title={`주차 ${e.rooftopOption.addSpaces}대 추가 확보 시`}
           note="대지 안에 주차를 추가로 배치할 수 있는지는 별도 확인이 필요합니다."
           steps={[
             {
               label: '주차 여유',
-              value: `${f(p.option.spareAfter)}대`,
-              sub: `기존 여유 ${f(Math.max(0, p.spare))}대 + 추가 ${p.option.addSpaces}대`,
+              value: `${f(e.rooftopOption.spareAfter)}대`,
+              sub: `기존 여유 ${f(Math.max(0, p.spare))}대 + 추가 ${e.rooftopOption.addSpaces}대`,
             },
-            { label: '추가 세대', value: `${p.option.units.length}세대`, sub: unitsText(p.option.units) },
+            { label: '추가 세대', value: `${e.rooftopOption.units.length}세대`, sub: unitsText(e.rooftopOption.units) },
             {
               label: '주차 기준 최대 연면적',
-              value: `${f(p.option.gfaM2)}㎡`,
-              sub: `전용 ${f(p.option.netM2)}㎡ ÷ 전용률 ${formatNumber(e.netRatio, 4)}`,
+              value: `${f(e.rooftopOption.gfaM2)}㎡`,
+              sub: `연면적 = 전용 ${f(e.rooftopOption.netM2)}㎡ (옥탑세대)`,
             },
           ]}
           plan={e.parkingOption}

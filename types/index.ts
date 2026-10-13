@@ -1087,6 +1087,10 @@ export interface SiteExpansionResult {
   requiredSetbackM: number | null
   /** 증축층 바닥면적 상한 (㎡)과 출처 */
   floorPlate: FloorPlateResult
+  /** 옥탑세대 기준 주차 세대 조합 (연면적 = 전용, 세대당 최소 14㎡) — 화면·보고서 '주차 기준 최대 연면적' 표시용. parking.plan 은 기준 엑셀 대조용 */
+  rooftop: AddUnitPlan
+  /** 옥탑세대 기준, 주차 추가 확보 안 (0세대일 때) */
+  rooftopOption: (AddUnitPlan & { addSpaces: number; spareAfter: number }) | null
   /** 기존 주차로 가능한 증축 */
   plan: ExpansionPlan
   /** 기존 주차로 0세대일 때: 주차 addSpaces대 추가 확보 시 증축 */

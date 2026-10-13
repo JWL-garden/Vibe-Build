@@ -76,7 +76,7 @@ export default function SiteCh05Return({ report }: { report: SiteReport }) {
         <DataTable head={['항목', `${work} 전`, `${work} 후`, '근거']} numeric={[1, 2]} rows={asset.rows} />
       </div>
 
-      <SubTitle>토지 포함 수익률</SubTitle>
+      <SubTitle>자산가치(건물) 대비 수익률</SubTitle>
       <p className="text-sm text-ink-soft">{asset.yieldNote}</p>
 
       <ul className="mt-6 space-y-1 text-xs text-ink-faint">

@@ -152,8 +152,8 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
       yearsOrDash(x.metrics.paybackYears),
     ]),
     yieldText: ly
-      ? `토지 포함 수익률(보유 자산 전체 기준, 참고): 전 ${formatRate(ly.beforeRate, 2)} → 후 ${formatRate(ly.afterRate, 2)} — 기존 NOI는 임대 사례로 추정한 값입니다. 증축 판단의 핵심 지표는 단순 ROI입니다.`
-      : '토지 포함 수익률: 증축 전 자산가치 또는 기존 NOI 추정이 없어 계산하지 않았습니다.',
+      ? `자산가치(건물) 대비 수익률(원가 기준 참고, 토지가액 제외): 전 ${formatRate(ly.beforeRate, 2)} → 후 ${formatRate(ly.afterRate, 2)} — 기존 NOI는 임대 사례로 추정한 값입니다. 증축 판단의 핵심 지표는 단순 ROI입니다.`
+      : '자산가치(건물) 대비 수익률: 증축 전 건물가치 또는 기존 NOI 추정이 없어 계산하지 않았습니다.',
   }
 }
 

@@ -226,7 +226,7 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
     expect(addRow[2]).toBe('72,116,003원') // 증축 공사비 전액 = 29.8㎡ ÷ 3.305785 × 800만원
     expect(addRow[3]).toContain('증축 공사비 전액')
     expect(totalRow.slice(1, 3)).toEqual(['805,163,499원', '877,279,502원']) // 건물가치만, 표는 원 단위 정확값 (항목 합 = 합계)
-    expect(r.asset.yieldNote).toContain('토지 포함 수익률')
+    expect(r.asset.yieldNote).toContain('자산가치(건물) 대비 수익률')
   })
 })
 

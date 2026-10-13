@@ -1,4 +1,5 @@
-import { formatNumber, formatRate, formatWon, formatWonExact } from '@/lib/format'
+import { formatNumber, formatWon, formatWonExact } from '@/lib/format'
+import { assetSection } from '@/lib/report/buildSiteReport'
 import { financeSection } from '@/lib/report/financeSection'
 import { LAND_BADGE, landAreaSource, landBasisNote } from '@/lib/report/landText'
 import type { SiteAnalysis } from '@/types'
@@ -20,6 +21,7 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
   const b = asset.existingBuilding
   const unitCost = b.unitCostWon === null ? '입력 대기' : `${formatNumber(b.unitCostWon / 1e4, 1)}만원/㎡`
   const work = asset.demolished ? '재건축' : '증축'
+  const assetReport = assetSection(analysis) // 보고서 5장과 같은 표·KPI·문구
 
   return (
     <div className="space-y-8">
@@ -59,8 +61,17 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
       <section>
         <h3 className="font-serif text-lg font-bold text-ink">{work} 전·후 자산가치 (원가 기준 참고)</h3>
         <p className="mt-1 text-xs text-ink-faint">
-          건물가치만 (토지가액은 전·후 동일해 제외) · {analysis.scenarioId} 시나리오 · 재조달단가 {unitCost} 등 예시 가정값 (감정평가 아님)
+          건물가치만 (토지가액은 전·후 동일해 합계에서 제외, 참고 행으로 표시) · {analysis.scenarioId} 시나리오 · 재조달단가 {unitCost} 등 예시 가정값 (감정평가 아님)
         </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {assetReport.kpis.map((k) => (
+            <div key={k.label} className="rounded-card border border-line px-4 py-3">
+              <p className="text-xs text-ink-faint">{k.label}</p>
+              <p className="mt-1 font-serif text-xl font-bold text-ink">{k.value}</p>
+              {k.caption && <p className="mt-1 text-xs text-ink-soft">{k.caption}</p>}
+            </div>
+          ))}
+        </div>
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[28rem] text-sm">
             <thead>
@@ -68,23 +79,26 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
                 <th className="py-2 font-normal">항목</th>
                 <th className="py-2 text-right font-normal">{work} 전</th>
                 <th className="py-2 text-right font-normal">{work} 후</th>
+                <th className="py-2 pl-4 font-normal">근거</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              <Row
-                label={`기존 건물 (잔가율 ${formatRate(b.residualRate)}, 경과 ${b.ageYears ?? '–'}년)`}
-                before={formatWonExact(b.valueWon)}
-                after={asset.demolished ? '– (철거)' : formatWonExact(b.valueWon)}
-              />
-              <Row
-                label={asset.addBuilding.gfaM2 > 0 ? `${work} ${formatNumber(asset.addBuilding.gfaM2, 1)}㎡ (신축)` : '증축 (증축안 없음)'}
-                before="–"
-                after={asset.addBuilding.gfaM2 > 0 ? formatWonExact(asset.addBuilding.valueWon) : '–'}
-              />
-              <Row label="합계" before={formatWonExact(asset.beforeWon)} after={formatWonExact(asset.afterWon)} strong />
+              {assetReport.rows.map((row) => {
+                const strong = row[0] === '자산가치 합계'
+                const ref = row[0].startsWith('참고')
+                return (
+                  <tr key={row[0]} className={ref ? 'text-ink-faint' : ''}>
+                    <td className={`py-2 ${strong ? 'font-bold text-ink' : ref ? '' : 'text-ink-soft'}`}>{row[0]}</td>
+                    <td className={`py-2 text-right ${strong ? 'font-bold text-ink' : ref ? '' : 'text-ink'}`}>{row[1]}</td>
+                    <td className={`py-2 text-right ${strong ? 'font-bold text-ink' : ref ? '' : 'text-ink'}`}>{row[2]}</td>
+                    <td className="py-2 pl-4 text-xs text-ink-faint">{row[3]}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
+        <p className="mt-2 text-sm text-ink-soft">{assetReport.yieldNote}</p>
       </section>
 
       <FinanceSummary analysis={analysis} />
@@ -139,16 +153,5 @@ function FinanceSummary({ analysis }: { analysis: SiteAnalysis }) {
         </tbody>
       </table>
     </section>
-  )
-}
-
-function Row({ label, before, after, strong }: { label: string; before: string; after: string; strong?: boolean }) {
-  const cls = strong ? 'font-bold text-ink' : 'text-ink'
-  return (
-    <tr>
-      <td className={`py-2 ${strong ? 'font-bold text-ink' : 'text-ink-soft'}`}>{label}</td>
-      <td className={`py-2 text-right ${cls}`}>{before}</td>
-      <td className={`py-2 text-right ${cls}`}>{after}</td>
-    </tr>
   )
 }

@@ -276,7 +276,7 @@ function landSection(land: LandValueResult, siteAddress: string): SiteLandSectio
 }
 
 /** 5장 증축 전·후 자산가치 (원가 기준 참고값, runAll의 analysis.asset) */
-function assetSection(analysis: SiteAnalysis): SiteAssetSection {
+export function assetSection(analysis: SiteAnalysis): SiteAssetSection {
   const a = analysis.asset
   const b = a.existingBuilding
   const unitText = b.unitCostWon === null ? '신축 단가 입력 대기' : `신축단가표 ${f(b.unitCostWon / 1e4, 1)}만원/㎡`
@@ -302,7 +302,9 @@ function assetSection(analysis: SiteAnalysis): SiteAssetSection {
       hasAdd ? formatWonExact(a.addBuilding.valueWon) : '–',
       addNote,
     ],
-    ['자산가치 합계', formatWonExact(a.beforeWon), formatWonExact(a.afterWon), '건물가치 합계 (원가 기준 참고값, 토지가액은 전·후 동일하여 제외)'],
+    ['자산가치 합계', formatWonExact(a.beforeWon), formatWonExact(a.afterWon), '건물가치 합계 (원가 기준 참고값, 토지가액은 전·후 동일하여 합계에서 제외)'],
+    // 토지가액은 합계에 넣지 않고 참고로만 보여 준다 (증축·재건축 전후 동일)
+    ['참고: 토지가액 (합계 제외)', formatWonExact(a.land.valueWon), formatWonExact(a.land.valueWon), `${landBasisNote(a.land)} [${LAND_BADGE[a.land.basis].badge}]`],
   ]
   const kpis: Kpi[] = [
     { label: rebuild ? '자산가치 (재건축 전)' : '자산가치 (증축 전)', value: formatWon(a.beforeWon), caption: '기존 건물 (토지가액 제외)' },
@@ -532,7 +534,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       '현재 법정 주차 = 주택(세대기준·주택법 중 큰 값) + 비주택(용도별 시설면적 ÷ 기준면적, 복합용도는 소수 첫째자리 절사)',
       '기존 여유 = 실제 − 법정 (이미 부족한 대수는 증축 산정에서 제외, 비고5)',
       `주차 기준 최대 연면적 = 여유 주차 안에서 추가 전용이 최대가 되는 세대 조합(${s1.maxNetM2}㎡ ${s1.spaces}대 / ${s2.maxNetM2}㎡ ${s2.spaces}대 / 그 이상 ${s3.spaces}대)의 전용 합 ÷ 전용률`,
-      '증축 연면적 = min(주차 기준, 용적률 잔여, 주택 연면적 잔여) → 증축 층수 = 올림(연면적 ÷ 증축층 바닥면적) → 일조 높이·주택 층수 검토 → (일조 완화 시) 측면 보강부 면적(3D 모델 형상)을 용적률·주택 연면적 잔여 안에서 더함',
+      '증축 연면적 = min(주차 기준, 용적률 잔여, 주택 연면적 잔여) → 증축 층수 = 올림(연면적 ÷ 증축층 바닥면적) → 일조 높이·주택 층수 검토 → (일조 완화 시) 증축계획안 증축 가능 연면적 안에서 세대로 확보되는 면적만 적용(기존 세대 확장분·측면 보강부 제외)',
       `정북 필요 이격 = 높이 ${sun.lowHeightM}m 이하 ${sun.lowSetbackM}m, 초과 시 높이 × 사선 비율`,
       '토지가액 = Σ(구성 필지 면적 × 개별공시지가) — 외필지 자료가 없으면 대표 필지 공시지가 × 대장 대지면적 (추정)',
       '자산가치(원가 기준) = 토지가액 + 연면적 × 재조달단가 × 잔가율, 잔가율 = max(최저 잔가율, 1 − 경과연수 ÷ 내용연수), 증축분 = 증축 연면적 × 재조달단가',
@@ -638,7 +640,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     },
     {
       label: '추가 세대',
-      value: p ? `${p.addUnits.length}세대` : `${e.parking.plan.units.length}세대 여유`,
+      value: p ? `${p.addUnits.length}세대` : `${e.rooftop.units.length}세대 여유`,
       caption: p ? `전용 ${f(p.addNetM2, 1)}㎡` : '주차·용적률 기준',
     },
     { label: '주차', value: `여유 ${f(e.parking.spare)}대`, caption: `실제 ${f(e.parking.actual)} / 법정 ${f(e.parking.required.total)}` },
@@ -749,7 +751,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     return [
       sc.id === 'BASE' ? '현행법규' : sc.name,
       `${f(x.far.farLimitPercent, 0)}% / ${f(x.far.remainingGfaM2)}㎡`,
-      `${f(x.parking.plan.gfaM2)}㎡`,
+      `${f(x.rooftop.gfaM2)}㎡`,
       x.housing.limit.applies ? `${f(x.housing.limit.areaGfaM2!)}㎡` : '미적용',
       x.housing.limit.applies
         ? `${x.plan.housingFloorsAfter ?? x.housing.housingFloors}/${x.housing.limit.floorLimit}개층${x.plan.attemptedFloors > 0 ? ` (+${x.plan.attemptedFloors}층 시)` : ''}`

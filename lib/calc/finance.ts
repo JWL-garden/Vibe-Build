@@ -1,5 +1,5 @@
 // 수익성 계산 모듈 (순수 함수, 설계서 5-4)
-// 구현: [0] 토지가액(공시지가 기준), [C'] 증축 전·후 자산가치(원가 기준), [C''] 토지 포함 수익률,
+// 구현: [0] 토지가액(공시지가 기준), [C'] 증축 전·후 자산가치(원가 기준), [C''] 자산가치(건물) 대비 수익률,
 //       [A] 사업비·[B] 임대수익·[C] 지표 (calcSiteFinance, 2026-10-08 결정 1·2·6·12)
 //       [D] 현금흐름·NPV·IRR (calcCashflow, 20년 기준 — cashflowRule, 2026-10-12) — 민감도는 sensitivity.ts
 
@@ -210,7 +210,7 @@ export function calcAssetValue(input: AssetValueInput, rule: BuildingValueRule):
 }
 
 /**
- * 토지 포함(보유 자산 전체) 수익률 — 참고 지표.
+ * 자산가치(건물가치) 대비 수익률 — 참고 지표 (2026-10-13: 토지가액 제외, 건물가치만 기준).
  * 증축 판단의 핵심 지표는 ROI(= NOI 증가 ÷ 총사업비)이고, 이 값은 보조로만 쓴다.
  * NOI·총사업비는 수익성 엔진([3-2])에서 받는다.
  */
@@ -242,7 +242,7 @@ export interface SiteFinanceInput {
   assumptionRows: AssumptionRow[]
   rentComps: RentComp[]
   scenario: FinanceScenarioId
-  /** 증축 전 자산가치 (원, 토지 포함 수익률용). 없으면 null */
+  /** 증축 전 자산가치 (원, 건물가치만 — 자산가치 대비 수익률용). 없으면 null */
   assetBeforeWon: number | null
   userInput?: Partial<Record<AssumptionKey, number>>
   /** 임대료 배수 (민감도용, 기본 1) — 모든 세대 월 환산 임대료에 곱한다 */
