@@ -189,7 +189,7 @@ function tableChunk(atom: Atom, rows: [number, number]): ReactNode {
 
 /* ───────────── 본체 ───────────── */
 
-export default function SiteReportPages({ report }: { report: SiteReport }) {
+export default function SiteReportPages({ report, staticLayout = false }: { report: SiteReport; staticLayout?: boolean }) {
   const { meta, summary } = report
   const [layout, setLayout] = useState<Layout | null>(null)
   const [prevReport, setPrevReport] = useState(report)
@@ -208,7 +208,7 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
 
   // 1단계: 숨긴 영역에 모든 블록을 그려 높이를 잰다 (글꼴이 준비된 뒤)
   useEffect(() => {
-    if (layout) return
+    if (layout || staticLayout) return
     let cancelled = false
     const run = () => {
       const root = measureRef.current
@@ -273,9 +273,52 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
     }
     // chapterUnits 는 report 로 만들어지므로 report·layout 이 바뀔 때만 다시 잰다
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [report, layout])
+  }, [report, layout, staticLayout])
 
   const pageProps = { address: meta.address, sourceLabel: meta.sourceLabel }
+
+  // 정적 HTML(검토본) — 브라우저에서 높이를 잴 수 없으므로 쪽 나눔 없이 장마다 한 장(높이 자동)으로 그린다
+  if (staticLayout) {
+    const toc: TocEntry[] = [
+      { no: '표지', title: '표지·한 장 요약', note: '핵심 숫자·결론·3D 전후', page: 2 },
+      ...chapters.map((c, i) => ({ no: c.no, title: c.title, note: c.note, page: FIRST_CHAPTER_PAGE + i })),
+    ]
+    return (
+      <>
+        <ReportPage {...pageProps} chapter={{ no: '목차', title: '목차' }} page={1}>
+          <SiteToc entries={toc} />
+        </ReportPage>
+        <ReportPage {...pageProps} chapter={null} page={2}>
+          <Ch00Summary
+            title={meta.title}
+            address={meta.address}
+            createdAt={meta.createdAt}
+            author="(주)바이브빌드 건축사사무소"
+            scenarioName={meta.scenarioLabel}
+            floorsAbove={summary.floorsAbove}
+            addFloors={summary.addFloors}
+            kpis={summary.kpis}
+            conclusion={summary.conclusion}
+            nextStep={null}
+            massPnu={report.analysis.pnu}
+            massSideAreaM2={report.plan.plan?.sideGfaM2 ?? 0}
+            massRebuildFloors={
+              report.analysis.scenarioId === 'REBUILD'
+                ? report.analysis.rebuild.verdict === 'impossible'
+                  ? 0
+                  : report.analysis.rebuild.totalFloors
+                : null
+            }
+          />
+        </ReportPage>
+        {chapters.map((c, i) => (
+          <ReportPage key={c.no} {...pageProps} chapter={{ no: c.no, title: c.title }} page={FIRST_CHAPTER_PAGE + i}>
+            {c.root}
+          </ReportPage>
+        ))}
+      </>
+    )
+  }
 
   if (!layout) {
     return (

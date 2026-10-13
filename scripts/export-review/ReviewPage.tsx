@@ -229,7 +229,7 @@ function ParcelBlock({
         </div>
         <div className="overflow-x-auto px-4">
           <div className="flex flex-col gap-8">
-            <SiteReportPages report={report} />
+            <SiteReportPages report={report} staticLayout />
           </div>
         </div>
       </section>
