@@ -11,7 +11,6 @@
     "data:buildings": "node scripts/build-buildings.mjs",
     "data:excel": "node scripts/build-excel-data.mjs && node scripts/check-data.mjs",
     "data:check": "node scripts/check-data.mjs",
-    "export:review": "next build && vitest run --config vitest.export.config.mts",
     "data:template": "node scripts/make-input-template.mjs",
     "data:rent": "node scripts/fetch-rent-comps.mjs",
     "model:trim": "node scripts/trim-mass-model.mjs"
