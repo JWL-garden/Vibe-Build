@@ -7,7 +7,7 @@ import { compareWithExcel, PARITY_TOLERANCE } from '@/lib/calc/excelParity'
 import { formatNumber, formatRate, formatWon, formatWonExact, textOrEmpty, withUnit } from '@/lib/format'
 import { buildingValueRule, landValueRule } from '@/lib/rules/financeDefaults'
 import { policyNotes } from '@/lib/rules/policies'
-import { getScenario, getViewScenario, viewScenarios } from '@/lib/rules/scenarios'
+import { getScenario, getViewScenario, HOME_SCENARIO_NAME, viewScenarios } from '@/lib/rules/scenarios'
 import { describeOverrides } from './describeOverrides'
 import { FINANCE_SCENARIO_LABEL, assetPaybackValue, assumptionRows, conversionRows, financeSection } from './financeSection'
 import { buildSiteNextStep } from './nextStep'
@@ -197,7 +197,7 @@ const ALTERNATIVES: Record<LimitingFactor, string[]> = {
   parking: ['대지 내 주차 추가 배치(기계식 포함) 또는 인근 부설주차장 확보 방안 검토'],
   far: ['용적률 상향(B·ALL) 시나리오가 시행될 경우 재검토'],
   sunlight: ['확인된 정북 이격거리 기준으로 증축 층수·형태 재검토', '상부를 북쪽에서 물려 짓는 계단식(셋백) 증축안 검토'],
-  roof: ['현장·도면으로 지붕 형태와 계단실 위치 확인 후 재검토', '기존 건물 위 증축 대신 전체 재건축(REBUILD) 검토'],
+  roof: ['현장·도면으로 지붕 형태와 계단실 위치 확인 후 재검토', '기존 건물 위 증축 대신 전체 재건축(재건축 계획안) 검토'],
   other: [],
 }
 const ALWAYS_ALTERNATIVE = '증축 대신 리모델링·용도변경으로 임대 수익을 높이는 방안'
@@ -309,7 +309,7 @@ export function assetSection(analysis: SiteAnalysis): SiteAssetSection {
     {
       label: rebuild ? '자산가치 (재건축 후)' : '자산가치 (증축 후)',
       value: formatWon(a.afterWon),
-      caption: `${analysis.scenarioId} 시나리오 ${rebuild ? '재건축안' : '증축안'}`,
+      caption: HOME_SCENARIO_NAME[analysis.scenarioId],
     },
     rebuild
       ? {
@@ -472,7 +472,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ['전용률, 완화 후 허용연면적·주차 검토 (엑셀 대조 정답표)', sheet('용적률완화_주차검토'), '계산 엔진과 자동 대조 (±0.01)'],
     [
       '신축 공사비 실적 (㎡당 연면적 기준, 건설공사비지수 2026 환산) — 재건축 신축 단가·공사기간 근거',
-      sheet('하우빌드 공사비'),
+      sheet('공사비 실적'),
       `기준 엑셀 · ${analysis.finance.construction.applied?.label ?? '표본 없음'} ${analysis.finance.construction.applied?.count ?? 0}건 중앙값 · VAT 포함 도급 공사비`,
     ],
     [
@@ -557,7 +557,7 @@ const REBUILD_CHECK_ITEMS = [
 ]
 
 /** 재건축 표지 KPI */
-function rebuildKpis(r: RebuildResult, verdictText: string, scenarioId: string): Kpi[] {
+function rebuildKpis(r: RebuildResult, verdictText: string, scenarioId: ViewScenarioId): Kpi[] {
   const diff = r.gfaM2 - r.existing.gfaM2
   return [
     {
@@ -566,8 +566,8 @@ function rebuildKpis(r: RebuildResult, verdictText: string, scenarioId: string):
       caption: `기존 ${r.existing.floorsAbove}층 · ${f(r.existing.gfaM2, 1)}㎡ (${diff >= 0 ? '+' : '−'}${f(Math.abs(diff), 1)}㎡)`,
     },
     { label: '세대', value: `${r.households}세대`, caption: `기존 ${r.existing.households}세대 · 세대당 전용 ${f(r.netPerUnitM2, 1)}㎡` },
-    { label: '법정 주차', value: `${f(r.parking.required, 1)}대`, caption: `현재 ${f(r.parking.currentActual)}대 · 확보 확인 필요` },
-    { label: '판정', value: verdictText, caption: `${scenarioId} 시나리오` },
+    { label: '법정 주차', value: `${f(r.parking.required, 1)}대`, caption: `계획안 ${r.parking.planned}대` },
+    { label: '판정', value: verdictText, caption: HOME_SCENARIO_NAME[scenarioId] },
   ]
 }
 
@@ -578,7 +578,7 @@ function rebuildScenarioRow(r: RebuildResult, name: string): ReportRow {
   return [
     name,
     `${f(r.farLimitPercent, 0)}% / 신축 한도 ${f(r.farGfaM2)}㎡`,
-    `법정 ${f(r.parking.required)}대 (${r.households}세대, 확보 확인 필요)`,
+    `법정 ${f(r.parking.required)}대 (${r.households}세대, 계획안 ${r.parking.planned}대)`,
     `한도 ${f(r.rules.housing.maxAreaM2[r.housingType], 0)}㎡ ${r.rules.housing.areaExclusive[r.housingType] ? '미만' : '이하'}`,
     `${r.housingFloors}/${r.floorLimit}개층${r.rules.rebuild.pilotiFloor1 ? ' + 필로티' : ''}`,
     `신축 ${f(r.gfaM2)}㎡ (${diff >= 0 ? '+' : '−'}${f(Math.abs(diff))}㎡) · ${verdict}`,
@@ -613,7 +613,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
   /** 표지 결론 한 문장 — 시나리오 코드(ALL·REBUILD)와 '프로젝트 가정'은 쓰지 않는다 */
   const reportConclusion = () => {
     const label = REPORT_SCENARIO_LABEL[analysis.scenarioId]
-    const prefix = `${scenario.name}(${analysis.scenarioId})`
+    const prefix = HOME_SCENARIO_NAME[analysis.scenarioId]
     if (plan.kind !== 'rebuild' && judge.status === 'possible' && p) {
       return `${label} 적용 시 +${p.addFloors}층(${f(p.addGfaM2, 1)}㎡) 증축이 가능합니다. 제한요인: ${LIMIT_LABEL[p.limitingFactor]}`
     }
@@ -642,7 +642,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
     {
       label: '판정',
       value: verdictText,
-      caption: `${analysis.scenarioId} 시나리오`,
+      caption: HOME_SCENARIO_NAME[analysis.scenarioId],
     },
   ]
 
@@ -727,11 +727,16 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
   }
   if (req.neighborhood > 0) parkingRows.push(['근린생활시설(제3호)', `시설면적 ${pr.neighborhoodM2PerSpace}㎡당 1대`, `${f(req.neighborhood)}대`])
   if (req.office > 0) parkingRows.push(['업무시설(제2-1호)', `시설면적 ${pr.officeM2PerSpace}㎡당 1대`, `${f(req.office)}대`])
-  parkingRows.push(
-    ['현재 법정 대수', '주택은 세대기준·주택법 중 큰 값 + 비주택 합산', `${f(req.total)}대`],
-    ['실제 주차 (대장)', '', `${f(e.parking.actual)}대`],
-    ['여유 주차대수', '실제 − 법정', `${f(e.parking.spare)}대`],
-  )
+  // 재건축 보고서는 '현재 법정 대수'·'여유 주차대수' 행을 두지 않는다 (2026-10-13)
+  if (analysis.scenarioId === 'REBUILD') {
+    parkingRows.push(['실제 주차 (대장)', '', `${f(e.parking.actual)}대`])
+  } else {
+    parkingRows.push(
+      ['현재 법정 대수', '주택은 세대기준·주택법 중 큰 값 + 비주택 합산', `${f(req.total)}대`],
+      ['실제 주차 (대장)', '', `${f(e.parking.actual)}대`],
+      ['여유 주차대수', '실제 − 법정', `${f(e.parking.spare)}대`],
+    )
+  }
   const parkingNote = req.mixedUse
     ? '복합용도 건축물: 비주택 용도별로 소수 첫째자리까지 산정(둘째자리 이하 절사) 후 합산, 주택(제5호)은 별도 합산 (서울시 주차장 조례 별표2 비고4)'
     : '서울시 주차장 조례 별표2 기준'

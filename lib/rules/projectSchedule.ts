@@ -1,5 +1,5 @@
 // 추진 절차·기간 (보고서 8장, 설계서 11장) — 2026-10-12 사용자 결정
-// 단계별 기간은 아래 값으로 정했고, 공사 기간만 층별·면적별 실적(하우빌드 공사 기간)으로 갈음한다 (runAll 가정값 constructionMonths /
+// 단계별 기간은 아래 값으로 정했고, 공사 기간만 층별·면적별 실적(준공 현장 공사 기간)으로 갈음한다 (runAll 가정값 constructionMonths /
 // rebuildConstructionMonths). 실제 기간은 인허가·시공사 일정에 따라 달라진다.
 
 export interface ScheduleStageRule {

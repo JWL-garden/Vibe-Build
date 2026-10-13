@@ -19,7 +19,7 @@ interface Props {
   floorsAbove: number
   /** 증축 층수 (모르면 null → 그림에 '?') */
   addFloors: number | null
-  /** 증축 후 패널 설명 (예: '복합 완화(ALL) 적용 시 +4층') */
+  /** 증축 후 패널 설명 (예: '증축 계획안 · +4층') */
   afterCaption: string
   /** 3D 매스 모델(GLB)에서 찾을 필지 PNU — 없으면(샘플 등) 일러스트 */
   massPnu?: string | null
@@ -31,7 +31,13 @@ interface Props {
   massSideAreaM2?: number
   expandability: Expandability
   reportHref: string
-  /** 아래쪽 상세 분석 단계 (⑤ 완화, ⑥ 증축 산정 …). 없으면 표시 안 함 */
+  /** 3D 위쪽에 놓는 첫 단계 — 건축 시나리오 선택. 없으면 표시 안 함 */
+  scenarioStep?: { title: string; caption: string; content: React.ReactNode }
+  /** 3D 섹션 제목 (예: '증축 기본 계획안' / '재건축 기본 계획안'). 생략하면 '3D 매스' */
+  planTitle?: string
+  /** 증축 / 재건축 — 3D 전·후 패널 이름에 쓴다 (생략하면 증축) */
+  workName?: '증축' | '재건축'
+  /** 3D 아래쪽 상세 분석 단계 (건축개요, 수익성 분석). 없으면 표시 안 함 */
   steps?: { title: string; caption: string; content: React.ReactNode }[]
 }
 
@@ -54,20 +60,27 @@ export default function AnalysisLayout(p: Props) {
         <Step1Target items={p.infoRows} />
       </section>
 
+      {p.scenarioStep && (
+        <section className="mt-14">
+          <SectionTitle title={p.scenarioStep.title} caption={p.scenarioStep.caption} />
+          {p.scenarioStep.content}
+        </section>
+      )}
+
       <section className="mt-14">
         <SectionTitle
-          title="3D 매스"
-          caption={p.massPnu && p.massUseModel !== false ? '드래그: 회전 · 휠: 확대 · 북서쪽 45° 조감' : '모델이 없으면 일러스트로 표시'}
+          title={p.planTitle ?? '3D 매스'}
+          caption={p.massPnu && p.massUseModel !== false ? '드래그 = 회전  ·  휠 = 확대' : '모델이 없으면 일러스트로 표시'}
         />
         <div className="grid gap-5 md:grid-cols-2">
-          <ViewPanel label="증축 전" description="현재 건물">
+          <ViewPanel label={`${p.workName ?? '증축'} 전`} description="현재 건물">
             {p.massPnu ? (
               <MassView pnu={p.massPnu} mode="before" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
             ) : (
               <BuildingIllustration floors={p.floorsAbove} className="h-56 w-full" />
             )}
           </ViewPanel>
-          <ViewPanel label="증축 후" description={p.afterCaption} accent>
+          <ViewPanel label={`${p.workName ?? '증축'} 후`} description={p.afterCaption} accent>
             {p.massPnu ? (
               <MassView pnu={p.massPnu} mode="after" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
             ) : (
@@ -77,14 +90,14 @@ export default function AnalysisLayout(p: Props) {
         </div>
       </section>
 
-      <ReportCta expandability={p.expandability} reportHref={p.reportHref} />
-
       {p.steps?.map((step) => (
         <section key={step.title} className="mt-14">
           <SectionTitle title={step.title} caption={step.caption} />
           {step.content}
         </section>
       ))}
+
+      <ReportCta expandability={p.expandability} reportHref={p.reportHref} />
     </main>
   )
 }

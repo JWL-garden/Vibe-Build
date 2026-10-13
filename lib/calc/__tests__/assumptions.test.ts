@@ -47,10 +47,14 @@ describe('가정값 레지스트리 검사', () => {
 })
 
 describe('시나리오 값', () => {
-  it('보수 = low, 기준 = base, 낙관 = high — 공실률 10% / 5% / 3%, 대출금리 6.5% / 6.0% / 6.0% (2026-10-12 사용자 결정)', () => {
+  it('보수 = low, 기준 = base, 낙관 = high — 공실률 10% / 5% / 3%, 대출금리 6.5% / 6.0% / 5.5%, 대출비율 90% / 80% / 60% (2026-10-13 사용자 결정)', () => {
     expect(resolveAssumptions(rows, 'CONSERVATIVE').vacancyRate.value).toBe(0.1)
     expect(resolveAssumptions(rows, 'BASE').vacancyRate.value).toBe(0.05)
-    expect(resolveAssumptions(rows, 'OPTIMISTIC').loanInterestRate.value).toBe(0.06)
+    expect(resolveAssumptions(rows, 'CONSERVATIVE').loanInterestRate.value).toBe(0.065)
+    expect(resolveAssumptions(rows, 'OPTIMISTIC').loanInterestRate.value).toBe(0.055)
+    expect(resolveAssumptions(rows, 'CONSERVATIVE').loanRatio.value).toBe(0.9)
+    expect(resolveAssumptions(rows, 'BASE').loanRatio.value).toBe(0.8)
+    expect(resolveAssumptions(rows, 'OPTIMISTIC').loanRatio.value).toBe(0.6)
     expect(resolveAssumptions(rows, 'BASE').loanInterestRate.grade).toBe('C')
   })
 

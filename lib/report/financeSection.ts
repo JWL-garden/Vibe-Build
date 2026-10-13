@@ -157,7 +157,7 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
   }
 }
 
-/** 4장 공사비 실적 근거 — 기준 엑셀 '하우빌드 공사비'(저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산) */
+/** 4장 공사비 실적 근거 — 기준 엑셀 '공사비 실적'(저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산) */
 function constructionSection(analysis: SiteAnalysis): SiteFinanceSection['construction'] {
   const c = analysis.finance.construction
   const base = analysis.finance.byScenario.BASE
@@ -187,10 +187,9 @@ function constructionSection(analysis: SiteAnalysis): SiteFinanceSection['constr
   if (a && a.monthsMedian !== null && months !== null) {
     notes.push(`재건축 공사 기간 가정 ${formatNumber(months, 0)}개월 — 같은 집단 실적 중앙값 ${formatNumber(a.monthsMedian, 1)}개월.`)
   }
-  notes.push('하우빌드 공사비는 시공사 도급 공사비(VAT 포함)로 감리비·부담금 등 간접비가 빠져 있습니다. 건설공사비지수는 직접공사비 물가 기준이라 시공사 이윤·인력 수급 변동은 반영하지 못합니다.')
+  notes.push('준공 현장 공사비는 시공사 도급 공사비(VAT 포함)로 감리비·부담금 등 간접비가 빠져 있습니다. 건설공사비지수는 직접공사비 물가 기준이라 시공사 이윤·인력 수급 변동은 반영하지 못합니다.')
   const floorRows: ReportRow[] = analysis.finance.floorWorkCostTable.map((s) => [
     `지상 ${s.floors}층${s.fewSamples ? ' (표본 적음)' : ''}`,
-    s.siteCount === s.count ? `${s.siteCount}건` : `${s.siteCount}건 (평당 ${s.count}건)`,
     `${formatNumber(s.meanManwon, 1)}만원`,
     `${formatNumber(s.medianManwon, 1)}만원`,
     `${formatNumber(s.minManwon, 0)} ~ ${formatNumber(s.maxManwon, 0)}만원`,

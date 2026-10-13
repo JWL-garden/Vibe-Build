@@ -365,11 +365,17 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
   const construction = costs[0].amountWon!
   // 인허가 등 제반비용 = 공사비의 5% (증축·재건축 공통, 2026-10-13 결정)
   const permitRate = costRule.permitRateOfConstruction
+  // 공사비 × 5%가 1천만원 이하이면 세대당 500만원으로 산정한다 (2026-10-13 결정, costRule.permitPerUnitThresholdWon)
+  const permitByRate = wonR(construction * permitRate)
+  const permitPerUnit = v('expansionCostPerUnit')!
+  const perUnitBasis = permitByRate <= costRule.permitPerUnitThresholdWon
   costs.push({
     key: 'permit',
     label: '인허가 등 제반비용',
-    amountWon: wonR(construction * permitRate),
-    basis: `${kind === 'rebuild' ? '신축' : '증축'} 공사비 × ${fmtPct(permitRate, 1)}`,
+    amountWon: perUnitBasis ? wonR(newUnitNets.length * permitPerUnit) : permitByRate,
+    basis: perUnitBasis
+      ? `${newUnitNets.length}세대 × ${fmtWon(permitPerUnit)} (공사비 × ${fmtPct(permitRate, 1)}가 ${fmtWon(costRule.permitPerUnitThresholdWon)} 이하이면 세대당 적용)`
+      : `${kind === 'rebuild' ? '신축' : '증축'} 공사비 × ${fmtPct(permitRate, 1)}`,
     grade: 'C',
   })
   const taxRate = v('acquisitionTaxRate')!

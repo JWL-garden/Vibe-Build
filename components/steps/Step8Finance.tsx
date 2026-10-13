@@ -2,6 +2,7 @@ import { formatNumber, formatWon, formatWonExact } from '@/lib/format'
 import { assetSection } from '@/lib/report/buildSiteReport'
 import { financeSection } from '@/lib/report/financeSection'
 import { LAND_BADGE, landAreaSource, landBasisNote } from '@/lib/report/landText'
+import { HOME_SCENARIO_NAME } from '@/lib/rules/scenarios'
 import type { SiteAnalysis } from '@/types'
 
 const TONE_CLASS = {
@@ -61,7 +62,7 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
       <section>
         <h3 className="font-serif text-lg font-bold text-ink">{work} 전·후 자산가치 (원가 기준 참고)</h3>
         <p className="mt-1 text-xs text-ink-faint">
-          {analysis.scenarioId} 시나리오 · 재조달단가 {unitCost} 등 예시 가정값 (감정평가 아님)
+          {HOME_SCENARIO_NAME[analysis.scenarioId]} · 재조달단가 {unitCost} 등 예시 가정값 (감정평가 아님)
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {assetReport.kpis.map((k) => (

@@ -34,6 +34,8 @@ export type BuildingValueRule = typeof buildingValueRule
  */
 export const costRule = {
   permitRateOfConstruction: 0.05,
+  /** 공사비 × 비율이 이 금액 이하이면 세대당 expansionCostPerUnit(500만원)으로 산정 */
+  permitPerUnitThresholdWon: 10_000_000,
   contingencyIncluded: false,
 } as const
 
@@ -50,7 +52,7 @@ export const ASSUMPTION_SPEC = {
   marketConversionHousing: { unit: '%', direction: 'higher', required: true },
   marketConversionCommercial: { unit: '%', direction: 'higher', required: false },
   expansionCostPerPyeong: { unit: '원/평', direction: 'lower', required: true },
-  expansionCostPerUnit: { unit: '원/세대', direction: 'lower', required: false },
+  expansionCostPerUnit: { unit: '원/세대', direction: 'lower', required: true },
   newBuildCostTable: { unit: '원/㎡', direction: 'lower', required: false },
   newBuildCostExcel: { unit: '원/㎡', direction: 'lower', required: false },
   acquisitionTaxRate: { unit: '비율', direction: 'lower', required: true },
@@ -105,7 +107,7 @@ export const rentCompRule = {
 } as const
 
 /**
- * 공사비 실적 산정 규칙 (2026-10-12) — 기준 엑셀 '하우빌드 공사비'(저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산)
+ * 공사비 실적 산정 규칙 (2026-10-12) — 기준 엑셀 '공사비 실적'(저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산)
  * 재건축 신축 단가(가정값 newBuildCostExcel)가 비어 있을 때 이 규칙으로 자동 산정한다. 우선순위: 사용자 입력 > 가정값 입력 엑셀 > 이 규칙
  */
 export const constructionCostRule = {
@@ -125,7 +127,7 @@ export const constructionCostRule = {
 
 /**
  * 재건축 신축 단가 — 지상 N층 현장의 공사면적 기준 평당 공사비 평균 (2026-10-12 결정)
- * 기준 엑셀 '하우빌드 2026환산' 4장 층수별 표 (예: 지상 6층 평균 564만원/평). 재건축 신축 단가는 이 값(공사면적 기준)과 건물신축단가표 중 높은 값.
+ * 기준 엑셀 '공사비 2026환산' 4장 층수별 표 (예: 지상 6층 평균 564만원/평). 재건축 신축 단가는 이 값(공사면적 기준)과 건물신축단가표 중 높은 값.
  * 보수 = 표본 최대(비싼 쪽), 낙관 = 표본 최소. 표본이 minSamples 미만이면 보고서에 대표성 낮음을 표기한다.
  */
 export const newBuildCostByFloorRule = {
@@ -136,7 +138,7 @@ export const newBuildCostByFloorRule = {
 
 /**
  * 자산가치 연차별 경로의 상승률 (2026-10-12 결정)
- *  - 건물: 건설공사비지수(주거용건물) 연평균 상승률 — 기준 엑셀 '하우빌드 공사비'의 착공연도별 보정계수에서 계산 (calcBuildingCostGrowth)
+ *  - 건물: 건설공사비지수(주거용건물) 연평균 상승률 — 기준 엑셀 '공사비 실적'의 착공연도별 보정계수에서 계산 (calcBuildingCostGrowth)
  *  - 토지: 영등포구 지가변동률 시계열을 받기 전까지 0% (보수적). 값이 들어오면 landAnnualRate만 바꾼다.
  */
 export const assetGrowthRule = {

@@ -13,7 +13,7 @@ export default function SiteCh08Schedule({ report }: { report: SiteReport }) {
       </Lead>
 
       <div className="break-inside-avoid">
-        <SubTitle>층별·면적별 공사 기간 (하우빌드 준공 실적)</SubTitle>
+        <SubTitle>층별·면적별 공사 기간 (준공 실적)</SubTitle>
         <div className="grid grid-cols-2 gap-4">
           <DataTable head={['지상 층수', '사례', '중위', '25~75%']} numeric={[1, 2, 3]} rows={s.durationFloorRows} />
           <DataTable head={['연면적', '사례', '중위', '25~75%']} numeric={[1, 2, 3]} rows={s.durationAreaRows} />

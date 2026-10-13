@@ -6,7 +6,7 @@ import Step5Relaxation from '@/components/steps/Step5Relaxation'
 import Step6Expansion from '@/components/steps/Step6Expansion'
 import Step8Finance from '@/components/steps/Step8Finance'
 import { rowsFromRecord } from '@/lib/report/buildingRows'
-import { viewScenarios } from '@/lib/rules/scenarios'
+import { HOME_SCENARIO_NAME, viewScenarios } from '@/lib/rules/scenarios'
 import { useAnalysisStore } from '@/store/analysisStore'
 import AnalysisLayout from './AnalysisLayout'
 
@@ -40,18 +40,18 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
 
   // 증축 후 그림: 기존 주차로 가능하면 그 안, 아니면 주차 추가 확보 안, 둘 다 아니면 0층
   const after = (() => {
-    if (!analysis) return { addFloors: null, sideAreaM2: undefined, caption: '법규 완화 적용 시 증축안' }
+    if (!analysis) return { addFloors: null, sideAreaM2: undefined, caption: '증축안' }
     const { plan, parkingOption: option } = analysis.selected
     const id = analysis.scenarioId
     // 재건축: 기존 층수 대비 늘어난 층만 강조 (신축 지상 층수는 캡션에)
     if (id === 'REBUILD') {
       const r = analysis.rebuild
-      return { addFloors: Math.max(0, r.totalFloors - building.floorsAbove), sideAreaM2: undefined, caption: `${id} 전체 재건축 시 지상 ${r.totalFloors}층` }
+      return { addFloors: Math.max(0, r.totalFloors - building.floorsAbove), sideAreaM2: undefined, caption: `재건축 시 지상 ${r.totalFloors}층` }
     }
-    if (plan.verdict === 'possible') return { addFloors: plan.addFloors, sideAreaM2: plan.sideGfaM2, caption: `${id} 적용 시 +${plan.addFloors}층` }
+    if (plan.verdict === 'possible') return { addFloors: plan.addFloors, sideAreaM2: plan.sideGfaM2, caption: `${HOME_SCENARIO_NAME[id]} · +${plan.addFloors}층` }
     if (option?.verdict === 'possible')
-      return { addFloors: option.addFloors, sideAreaM2: option.sideGfaM2, caption: `${id} + 주차 ${option.addSpaces}대 확보 시 +${option.addFloors}층` }
-    return { addFloors: 0, sideAreaM2: 0, caption: `${id} 기준 증축안 없음` }
+      return { addFloors: option.addFloors, sideAreaM2: option.sideGfaM2, caption: `${HOME_SCENARIO_NAME[id]} + 주차 ${option.addSpaces}대 확보 시 +${option.addFloors}층` }
+    return { addFloors: 0, sideAreaM2: 0, caption: `${HOME_SCENARIO_NAME[id]} 기준 증축안 없음` }
   })()
 
   const selector =
@@ -91,32 +91,35 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
       }
       expandability={expandability}
       reportHref={`/report?pnu=${pnu}&b=${building.id}${analysis ? `&s=${analysis.scenarioId}` : ''}`}
+      workName={analysis?.scenarioId === 'REBUILD' ? '재건축' : '증축'}
+      planTitle={analysis?.scenarioId === 'REBUILD' ? '재건축 기본 계획안' : '증축 기본 계획안'}
+      scenarioStep={
+        siteData && analysis
+          ? {
+              title: '건축 시나리오 선택',
+              caption: '건축법 개정안(26.11.12) 기준',
+              content: (
+                <Step5Relaxation
+                  analysis={analysis}
+                  zone={siteData.site.zone ?? '용도지역 정보 없음'}
+                  scenarios={viewScenarios}
+                  onSelect={setScenario}
+                />
+              ),
+            }
+          : undefined
+      }
       steps={
         siteData && analysis
           ? [
               {
-                title: '⑤ 법규 완화',
-                caption: `${siteData.sourceLabel} · 프로젝트 가정`,
-                content: (
-                  <Step5Relaxation
-                    analysis={analysis}
-                    zone={siteData.site.zone ?? '용도지역 정보 없음'}
-                    scenarios={viewScenarios}
-                    onSelect={setScenario}
-                  />
-                ),
-              },
-              {
-                title: analysis.scenarioId === 'REBUILD' ? '⑥ 재건축 산정' : '⑥ 증축 산정',
-                caption:
-                  analysis.scenarioId === 'REBUILD'
-                    ? 'REBUILD 시나리오 · 복합 완화 규칙으로 철거 후 신축'
-                    : `${analysis.scenarioId} 시나리오 · 주차 기준 최대 연면적`,
+                title: analysis.scenarioId === 'REBUILD' ? '재건축 건축개요' : '증축 건축개요',
+                caption: HOME_SCENARIO_NAME[analysis.scenarioId],
                 content: <Step6Expansion analysis={analysis} scenarios={viewScenarios} />,
               },
               {
-                title: '⑧ 수익성',
-                caption: `${analysis.scenarioId} 시나리오 · 건물 자산가치(예시 가정값, 토지가액은 참고)`,
+                title: '수익성 분석',
+                caption: `${HOME_SCENARIO_NAME[analysis.scenarioId]} · 건물 자산가치(예시 가정값, 토지가액은 참고)`,
                 content: <Step8Finance analysis={analysis} />,
               },
             ]

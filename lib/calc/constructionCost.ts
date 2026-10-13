@@ -1,5 +1,5 @@
-// 공사비 실적 요약 (순수 함수) — 기준 엑셀 '하우빌드 공사비' → 권역·기간별 ㎡당·평당 단가, 공사기간
-// 엑셀 '하우빌드 2026환산' 집계표와 같은 값이 나와야 한다 (constructionCost.test.ts)
+// 공사비 실적 요약 (순수 함수) — 기준 엑셀 '공사비 실적' → 권역·기간별 ㎡당·평당 단가, 공사기간
+// 엑셀 '공사비 2026환산' 집계표와 같은 값이 나와야 한다 (constructionCost.test.ts)
 
 import { PYEONG_M2, constructionCostRule } from '@/lib/rules/financeDefaults'
 import type {
@@ -86,8 +86,8 @@ export function withConstructionUnitCost(rows: AssumptionRow[], summary: Constru
     base: Math.round(s.perM2Median),
     high: Math.round(s.perM2Optimistic ?? s.perM2Median),
     grade: rule.grade,
-    sourceTitle: `하우빌드 공사비 실적 ${s.label} ${s.count}건, ㎡당(연면적 기준) 중앙값 · 건설공사비지수 2026 환산`,
-    publisher: '하우빌드 준공 현장 · 건설공사비지수(KOSIS, 한국건설기술연구원 주거용건물)',
+    sourceTitle: `준공 현장 공사비 실적 ${s.label} ${s.count}건, ㎡당(연면적 기준) 중앙값 · 건설공사비지수 2026 환산`,
+    publisher: '준공 현장 · 건설공사비지수(KOSIS, 한국건설기술연구원 주거용건물)',
     baseDate: '2026-08',
     url: null,
     memo: `${rule.note}. 보수 = 상위 사분위, 낙관 = 하위 사분위. ${summary.basisNote}`,
@@ -104,7 +104,7 @@ const floorsOfRow = (r: ConstructionCostRow) => {
 
 /**
  * 지상 N층 현장의 평당 공사비(공사면적 기준, 2026 환산, 만원) 평균·최소·최대.
- * 엑셀 '하우빌드 2026환산' 4장 층수별 표의 "평당공사비 공사면적 평균"과 같은 값이어야 한다. 사례가 없으면 null.
+ * 엑셀 '공사비 2026환산' 4장 층수별 표의 "평당공사비 공사면적 평균"과 같은 값이어야 한다. 사례가 없으면 null.
  */
 export function summarizeFloorWorkCost(all: ConstructionCostRow[], floors: number, minSamples = 5): FloorWorkCostStat | null {
   const sameFloor = all.filter((r) => (r.excluded === null || r.excluded === '') && floorsOfRow(r) === floors)
@@ -125,7 +125,7 @@ export function summarizeFloorWorkCost(all: ConstructionCostRow[], floors: numbe
   }
 }
 
-/** 층수별 표 — 자료가 있는 모든 지상 층수(오름차순). 엑셀 '하우빌드 2026환산' 4장 층수별 표(F43~F48)와 같은 값 */
+/** 층수별 표 — 자료가 있는 모든 지상 층수(오름차순). 엑셀 '공사비 2026환산' 4장 층수별 표(F43~F48)와 같은 값 */
 export function summarizeFloorWorkCostTable(all: ConstructionCostRow[], minSamples = 5): FloorWorkCostStat[] {
   const floorNos = [...new Set(all.map((r) => floorsOfRow(r)).filter((n): n is number => n !== null))].sort((a, b) => a - b)
   return floorNos.map((n) => summarizeFloorWorkCost(all, n, minSamples)).filter((s): s is FloorWorkCostStat => s !== null)
@@ -153,8 +153,8 @@ export function withFloorWorkUnitCost(
     base: Math.round(perM2(stat.meanManwon)),
     high: Math.round(perM2(stat.minManwon)),
     grade,
-    sourceTitle: `하우빌드 실적 지상 ${stat.floors}층 ${stat.count}건 공사면적 기준 평당 공사비 평균 ${stat.meanManwon.toFixed(1)}만원/평 (범위 ${stat.minManwon.toFixed(0)}~${stat.maxManwon.toFixed(0)}만원) · 건설공사비지수 2026 환산`,
-    publisher: '하우빌드 준공 현장 · 건설공사비지수(KOSIS, 한국건설기술연구원 주거용건물)',
+    sourceTitle: `준공 현장 실적 지상 ${stat.floors}층 ${stat.count}건 공사면적 기준 평당 공사비 평균 ${stat.meanManwon.toFixed(1)}만원/평 (범위 ${stat.minManwon.toFixed(0)}~${stat.maxManwon.toFixed(0)}만원) · 건설공사비지수 2026 환산`,
+    publisher: '준공 현장 · 건설공사비지수(KOSIS, 한국건설기술연구원 주거용건물)',
     baseDate: '2026-08',
     url: null,
     memo: `${note}. 보수 = 표본 최대, 낙관 = 표본 최소. 사례: ${stat.sites.join(', ')}${stat.fewSamples ? ' — 표본 5건 미만, 대표성 낮음' : ''}`,
@@ -249,7 +249,7 @@ export function estimateNewBuildMonths(all: ConstructionCostRow[], totalFloors: 
     conservative: percentile(v, 0.75)!,
     optimistic: percentile(v, 0.25)!,
     count: used.length,
-    basis: `하우빌드 실적 ${floorText}${used === inBin ? ' · 같은 연면적대' : ''} ${used.length}건 중앙값`,
+    basis: `준공 현장 실적 ${floorText}${used === inBin ? ' · 같은 연면적대' : ''} ${used.length}건 중앙값`,
   }
 }
 
@@ -264,7 +264,7 @@ export function estimateAddFloorsMonths(all: ConstructionCostRow[], addFloors: n
     conservative: at(s.p75),
     optimistic: at(s.p25),
     count: s.count,
-    basis: `하우빌드 실적 ${s.count}건의 층당 공사 기간 중앙값 ${s.median.toFixed(2)}개월 × 증축 ${addFloors}개층`,
+    basis: `준공 현장 실적 ${s.count}건의 층당 공사 기간 중앙값 ${s.median.toFixed(2)}개월 × 증축 ${addFloors}개층`,
   }
 }
 
@@ -285,7 +285,7 @@ export function withConstructionMonths(
     high: est.optimistic,
     grade: 'B',
     sourceTitle: est.basis,
-    publisher: '하우빌드 준공 현장 (층별·면적별 공사 기간)',
+    publisher: '준공 현장 (층별·면적별 공사 기간)',
     baseDate: '2026-08',
     url: null,
     memo: '공사 기간은 층별·면적별 실적으로 갈음 (2026-10-12 결정). 보수 = 상위 사분위, 낙관 = 하위 사분위',

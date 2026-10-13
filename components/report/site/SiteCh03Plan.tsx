@@ -1,6 +1,7 @@
 import MassView from '@/components/three/MassView'
 import { LIMIT_LABEL } from '@/lib/calc'
 import { formatNumber } from '@/lib/format'
+import { HOME_SCENARIO_NAME } from '@/lib/rules/scenarios'
 import type { SiteReport } from '@/types'
 import { DataTable, Lead, StatCard, SubTitle } from '../ReportParts'
 
@@ -56,7 +57,7 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
           <StatCard label="세대" value={`${r.households}세대`} caption={`세대당 전용 ${f(r.netPerUnitM2)}㎡ (기존 ${r.existing.households}세대)`} />
           <StatCard label="높이" value={`${f(r.heightM)}m`} caption={`층고 ${f(r.rules.floorHeightM)}m 가정`} />
           <StatCard label="용적률" value={`${f(r.farPercent)}%`} caption={`상한 ${f(r.farLimitPercent)}% · 건폐율 ${f(r.bcrLimitPercent)}%`} />
-          <StatCard label="법정 주차" value={`${f(r.parking.required)}대`} caption={`현재 ${f(r.parking.currentActual)}대 · 확보 확인 필요`} />
+          <StatCard label="법정 주차" value={`${f(r.parking.required)}대`} caption={`계획안 ${r.parking.planned}대`} />
         </div>
 
         <SubTitle>산정 근거</SubTitle>
@@ -74,7 +75,7 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
     return (
       <div>
         <Lead>
-          {analysis.scenarioId} 시나리오 기준으로 신규 층 증축안을 만들 수 없습니다. 제한요인은{' '}
+          {HOME_SCENARIO_NAME[analysis.scenarioId]} 기준으로 신규 층 증축안을 만들 수 없습니다. 제한요인은{' '}
           <b className="text-ink">{LIMIT_LABEL[e.plan.limitingFactor]}</b>입니다.
         </Lead>
         <SubTitle>{plan.heading}</SubTitle>

@@ -1,5 +1,6 @@
 import { formatNumber } from '@/lib/format'
 import { relaxationRows } from '@/lib/report/buildSiteReport'
+import { HOME_SCENARIO_NAME } from '@/lib/rules/scenarios'
 import type { HousingType, Rules, SiteAnalysis, SiteExpansionResult, ViewScenario, ViewScenarioId } from '@/types'
 
 interface Props {
@@ -37,7 +38,7 @@ function ruleValues(e: SiteExpansionResult) {
   }
 }
 
-/** ⑤ 법규 완화: 시나리오 카드 3개(BASE·ALL·REBUILD) + 현행→완화 비교표 */
+/** 건축 시나리오 선택: 시나리오 카드 3개(현행법규·증축 계획안·재건축 계획안) + 시나리오 비교표 */
 export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }: Props) {
   const { byScenario, scenarioId } = analysis
   const base = ruleValues(byScenario.BASE)
@@ -45,12 +46,6 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
 
   return (
     <div>
-      <p className="mb-5 rounded-card bg-mist px-5 py-4 text-sm leading-relaxed text-ink-soft">
-        ALL·REBUILD는 이 프로젝트에서 가정한 <b className="text-ink">완화 정책안이며 현행법이 아닙니다.</b> ALL은 기존
-        건물 위 증축, REBUILD는 같은 완화 규칙으로 기존 건물을 철거하고 새로 짓는 경우입니다. 시나리오를 누르면 아래 산정
-        결과가 바뀝니다.
-      </p>
-
       <div className="grid gap-3 sm:grid-cols-3">
         {scenarios.map((s) => {
           const e = byScenario[s.rulesId]
@@ -70,17 +65,7 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
                 active ? 'border-accent bg-accent-soft/40 ring-1 ring-accent' : 'border-line bg-paper hover:border-ink/30'
               }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-serif text-lg font-bold text-ink">{s.id}</span>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                    s.isAssumption ? 'bg-accent-soft text-accent' : 'bg-mist text-ink-soft'
-                  }`}
-                >
-                  {s.isAssumption ? '프로젝트 가정' : '현행'}
-                </span>
-              </div>
-              <div className="mt-1 font-medium text-ink">{s.name}</div>
+              <div className="font-serif text-lg font-bold text-ink">{HOME_SCENARIO_NAME[s.id]}</div>
               <p className="mt-1 text-xs leading-relaxed text-ink-faint">{s.rationale}</p>
 
               <dl className="mt-3 space-y-1 border-t border-line pt-3 text-xs">
@@ -95,16 +80,11 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
                 <Value label="일조 수직" value={`${v.sunLowHeight}m`} changed={v.sunLowHeight !== base.sunLowHeight} />
               </dl>
 
+              {/* 판정 마크는 카드 맨 아래 같은 행에 맞춘다 (현행법규 카드는 판정을 표시하지 않음) */}
               <div className="mt-auto pt-3">
-                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${verdict.className}`}>{verdict.text}</span>
-                {rebuild && (
-                  <p className="mt-2 text-[11px] text-ink-soft">
-                    지상 {analysis.rebuild.totalFloors}층 · {formatNumber(analysis.rebuild.gfaM2, 1)}㎡ ·{' '}
-                    {analysis.rebuild.households}세대
-                  </p>
-                )}
-                {option && (
-                  <p className="mt-2 text-[11px] text-accent">주차 +{option.addSpaces}대 확보 시 증축 가능</p>
+                {option && <p className="mb-2 text-[11px] text-accent">주차 +{option.addSpaces}대 확보 시 증축 가능</p>}
+                {s.id !== 'BASE' && (
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${verdict.className}`}>{verdict.text}</span>
                 )}
               </div>
             </button>
@@ -112,7 +92,7 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
         })}
       </div>
 
-      <h3 className="mb-3 mt-8 font-medium text-ink">현행 → 완화 비교</h3>
+      <h3 className="mb-3 mt-8 font-medium text-ink">시나리오 비교</h3>
       <div className="overflow-x-auto rounded-card border border-line">
         <table className="w-full min-w-[560px] text-sm">
           <thead className="bg-mist text-left text-xs text-ink-faint">
@@ -120,8 +100,7 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
               <th className="px-4 py-3 font-medium">항목</th>
               <th className="px-4 py-3 font-medium">현행</th>
               <th className="px-4 py-3 font-medium">완화</th>
-              <th className="px-4 py-3 font-medium">완화 시나리오</th>
-              <th className="px-4 py-3 font-medium">선택한 {scenarioId}</th>
+              <th className="px-4 py-3 font-medium">선택한 시나리오 ({HOME_SCENARIO_NAME[scenarioId]})</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -133,7 +112,6 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
                 </td>
                 <td className="px-4 py-3 text-ink-soft">{r.base}</td>
                 <td className="px-4 py-3 font-medium text-accent">{r.relaxed}</td>
-                <td className="px-4 py-3 text-ink-soft">{r.by}</td>
                 <td className={`px-4 py-3 font-medium ${r.changed ? 'text-accent' : 'text-ink'}`}>{r.selected}</td>
               </tr>
             ))}

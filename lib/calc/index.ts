@@ -3,7 +3,7 @@
 
 import { formatNumber } from '@/lib/format'
 import { assetGrowthRule, buildingValueRule, constructionCostRule, landValueRule, newBuildCostByFloorRule } from '@/lib/rules/financeDefaults'
-import { getEffectiveRules, getViewScenario, scenarios } from '@/lib/rules/scenarios'
+import { getEffectiveRules, getViewScenario, HOME_SCENARIO_NAME, scenarios } from '@/lib/rules/scenarios'
 import { getZoneRule } from '@/lib/rules/zoningTable'
 import type {
   BuildingRecord,
@@ -238,7 +238,7 @@ function existingHousingUnitNets(data: SiteData): number[] {
 /** runAll 결과(선택 시나리오)로 증축 가능 여부 판정 — 화면 배지·보고서 버튼에 사용 */
 export function judgeSite(analysis: SiteAnalysis): Expandability {
   const e = analysis.selected
-  const name = `${getViewScenario(analysis.scenarioId).name}(${analysis.scenarioId})`
+  const name = HOME_SCENARIO_NAME[analysis.scenarioId]
   const area = (v: number) => `${formatNumber(v, 1)}㎡`
   const { plan, parkingOption: option } = e
 
@@ -249,7 +249,7 @@ export function judgeSite(analysis: SiteAnalysis): Expandability {
     if (r.verdict === 'possible') {
       return {
         status: 'possible',
-        reason: `${name} 시 ${size}로 신축할 수 있습니다. 제한요인: ${LIMIT_LABEL[r.limitingFactor]}. 법정 주차 ${formatNumber(r.parking.required, 1)}대 확보 확인이 필요합니다.`,
+        reason: `${name} 시 ${size}로 신축할 수 있습니다. 제한요인: ${LIMIT_LABEL[r.limitingFactor]}. 법정 주차 ${formatNumber(r.parking.required, 1)}대, 계획안 ${r.parking.planned}대입니다.`,
       }
     }
     if (r.verdict === 'check') {

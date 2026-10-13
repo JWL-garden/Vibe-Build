@@ -73,12 +73,19 @@ export const viewScenarios: ViewScenario[] = [
   {
     id: 'REBUILD',
     name: '복합 완화 + 전체 재건축',
-    rationale: '복합 완화(ALL) 규칙으로 기존 건물을 철거하고 1층 필로티 주차 + 2층부터 주택으로 신축 (기준 엑셀 빈땅_신축시나리오 산식)',
+    rationale: '증축 계획안과 같은 완화 규칙으로 기존 건물을 철거하고 1층 필로티 주차 + 2층부터 주택으로 신축',
     isAssumption: true,
     rulesId: 'ALL',
     kind: 'rebuild',
   },
 ]
+
+/** 홈페이지(분석 화면)에서 시나리오를 부르는 이름 — 코드 ID(BASE·ALL·REBUILD)는 화면에 쓰지 않는다 (2026-10-13) */
+export const HOME_SCENARIO_NAME: Record<ViewScenarioId, string> = {
+  BASE: '현행법규',
+  ALL: '증축 계획안',
+  REBUILD: '재건축 계획안',
+}
 
 export const VIEW_SCENARIO_IDS = viewScenarios.map((s) => s.id)
 

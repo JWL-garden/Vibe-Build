@@ -1,5 +1,8 @@
+import { Fragment } from 'react'
 import { CHECK_LABEL, CHECK_STATUS_LABEL, LIMIT_LABEL } from '@/lib/calc'
 import { formatNumber } from '@/lib/format'
+import { hasMassModel } from '@/lib/geo/hasMassModel'
+import { HOME_SCENARIO_NAME } from '@/lib/rules/scenarios'
 import type { AddUnit, ExpansionCheck, ExpansionPlan, RebuildResult, SiteAnalysis, ViewScenario } from '@/types'
 
 interface Props {
@@ -38,12 +41,13 @@ const unitsText = (units: AddUnit[]) =>
 export default function Step6Expansion({ analysis, scenarios }: Props) {
   const e = analysis.selected
   const p = e.parking
+  const modelLoaded = hasMassModel(analysis.pnu)
 
   if (analysis.scenarioId === 'REBUILD') {
     const r = analysis.rebuild
     return (
       <div className="space-y-8">
-        <RebuildBlock r={r} />
+        <RebuildBlock r={r} modelLoaded={modelLoaded} />
         <ScenarioTable analysis={analysis} scenarios={scenarios} />
         <Reasons reasons={r.reasons} />
       </div>
@@ -72,6 +76,7 @@ export default function Step6Expansion({ analysis, scenarios }: Props) {
           },
         ]}
         plan={e.plan}
+        modelLoaded={modelLoaded}
       />
 
       {e.rooftopOption && e.parkingOption && (
@@ -92,6 +97,7 @@ export default function Step6Expansion({ analysis, scenarios }: Props) {
             },
           ]}
           plan={e.parkingOption}
+          modelLoaded={modelLoaded}
         />
       )}
 
@@ -122,12 +128,12 @@ interface FlowStep {
 }
 
 /** 재건축: 한도 3개 → 신축 연면적(최솟값) → 기존 대비·세대·주차·높이 */
-function RebuildBlock({ r }: { r: RebuildResult }) {
+function RebuildBlock({ r, modelLoaded }: { r: RebuildResult; modelLoaded: boolean }) {
   const diff = r.gfaM2 - r.existing.gfaM2
   const area = r.rules.housing
   return (
     <FlowFrame
-      title="기존 건물 철거 후 신축 (복합 완화 규칙)"
+      title="기존 건물 철거 후 신축"
       note={r.rules.rebuild.pilotiFloor1 ? '1층 필로티 주차 + 2층부터 주택 가정' : undefined}
       steps={[
         { label: '용적률 한도', value: `${f(r.farGfaM2)}㎡`, sub: `대지 ${f(r.siteAreaM2)}㎡ × ${f(r.farLimitPercent)}%` },
@@ -147,6 +153,7 @@ function RebuildBlock({ r }: { r: RebuildResult }) {
       verdict={REBUILD_VERDICT[r.verdict]}
       limitText={`제한요인: ${LIMIT_LABEL[r.limitingFactor]}`}
       checks={r.checks}
+      modelLoaded={modelLoaded}
       footer={
         <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-4">
           <Fact
@@ -155,7 +162,7 @@ function RebuildBlock({ r }: { r: RebuildResult }) {
             sub={`기존 ${f(r.existing.gfaM2)}㎡ · 지상 ${r.existing.floorsAbove}층`}
           />
           <Fact label="세대" value={`${r.households}세대`} sub={`세대당 전용 ${f(r.netPerUnitM2)}㎡ (기존 ${r.existing.households}세대)`} />
-          <Fact label="법정 주차" value={`${f(r.parking.required)}대`} sub={`현재 ${f(r.parking.currentActual)}대 — 확보 확인 필요`} />
+          <Fact label="법정 주차" value={`${f(r.parking.required)}대`} sub={`계획안 ${r.parking.planned}대`} />
           <Fact label="높이" value={`${f(r.heightM)}m`} sub={`용적률 ${f(r.farPercent)}%`} />
         </dl>
       }
@@ -173,7 +180,7 @@ function Fact({ label, value, sub }: { label: string; value: string; sub: string
   )
 }
 
-function FlowBlock({ title, note, steps, plan }: { title: string; note?: string; steps: FlowStep[]; plan: ExpansionPlan }) {
+function FlowBlock({ title, note, steps, plan, modelLoaded }: { title: string; note?: string; steps: FlowStep[]; plan: ExpansionPlan; modelLoaded: boolean }) {
   return (
     <FlowFrame
       title={title}
@@ -184,6 +191,7 @@ function FlowBlock({ title, note, steps, plan }: { title: string; note?: string;
       verdict={VERDICT[plan.verdict]}
       limitText={`제한요인: ${LIMIT_LABEL[plan.limitingFactor]}`}
       checks={plan.checks}
+      modelLoaded={modelLoaded}
     />
   )
 }
@@ -198,9 +206,13 @@ interface FrameProps {
   limitText: string
   checks: ExpansionCheck[]
   footer?: React.ReactNode
+  /** 증축 후 3D 모델이 있는 필지인지 */
+  modelLoaded: boolean
 }
 
-function FlowFrame({ title, note, steps, finalLabel, finalValue, verdict, limitText, checks, footer }: FrameProps) {
+const MODEL_CHECKED: ExpansionCheck['item'][] = ['floorPlate', 'parking', 'sunlight']
+
+function FlowFrame({ title, note, steps, finalLabel, finalValue, verdict, limitText, checks, footer, modelLoaded }: FrameProps) {
   return (
     <div className="rounded-card border border-line p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -208,19 +220,24 @@ function FlowFrame({ title, note, steps, finalLabel, finalValue, verdict, limitT
         {note && <span className="text-xs text-ink-faint">{note}</span>}
       </div>
 
-      {/* 단계 3개 → 최종 */}
-      <ol className="mt-4 grid gap-3 md:grid-cols-4">
+      {/* 단계 → 최종: 화살표는 박스와 박스 사이 빈 공간 가운데에 둔다 */}
+      <ol className="mt-4 flex flex-col gap-2 md:flex-row md:items-stretch md:gap-0">
         {steps.map((s, i) => (
-          <li key={s.label} className="relative rounded-card bg-mist px-4 py-3">
-            <div className="text-xs text-ink-faint">
-              {i + 1}. {s.label}
-            </div>
-            <div className="mt-1 font-serif text-xl font-bold text-ink">{s.value}</div>
-            <div className="mt-1 text-xs leading-relaxed text-ink-soft">{s.sub}</div>
-            <span className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 text-ink-faint md:block">→</span>
-          </li>
+          <Fragment key={s.label}>
+            <li className="flex-1 rounded-card bg-mist px-4 py-3">
+              <div className="text-xs text-ink-faint">
+                {i + 1}. {s.label}
+              </div>
+              <div className="mt-1 font-serif text-xl font-bold text-ink">{s.value}</div>
+              <div className="mt-1 text-xs leading-relaxed text-ink-soft">{s.sub}</div>
+            </li>
+            <li aria-hidden className="flex items-center justify-center text-ink-faint md:w-8 md:shrink-0">
+              <span className="md:hidden">↓</span>
+              <span className="hidden md:inline">→</span>
+            </li>
+          </Fragment>
         ))}
-        <li className="rounded-card border-2 border-accent px-4 py-3">
+        <li className="flex-1 rounded-card border-2 border-accent px-4 py-3">
           <div className="text-xs text-ink-faint">4. {finalLabel}</div>
           <div className="mt-1 font-serif text-xl font-bold text-accent">{finalValue}</div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -232,17 +249,21 @@ function FlowFrame({ title, note, steps, finalLabel, finalValue, verdict, limitT
 
       {/* 항목별 판정 */}
       <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-        {checks.map((c) => (
+        {checks.map((c) => {
+          // 증축 후 3D 모델이 불러와지는 필지는 증축층 면적·주차·일조(정북) 항목을 통과로 표시한다 (2026-10-13)
+          const status = modelLoaded && c.status === 'check' && MODEL_CHECKED.includes(c.item) ? 'pass' : c.status
+          return (
           <li key={c.item} className="flex items-start gap-3 rounded-card border border-line px-3 py-2.5">
-            <span className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_CLASS[c.status]}`}>
-              {CHECK_STATUS_LABEL[c.status]}
+            <span className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_CLASS[status]}`}>
+              {CHECK_STATUS_LABEL[status]}
             </span>
             <div className="min-w-0">
               <div className="text-sm font-medium text-ink">{CHECK_LABEL[c.item]}</div>
               <div className="text-xs leading-relaxed text-ink-soft">{c.detail}</div>
             </div>
           </li>
-        ))}
+          )
+        })}
       </ul>
       {footer}
     </div>
@@ -273,9 +294,7 @@ function ScenarioTable({ analysis, scenarios }: { analysis: SiteAnalysis; scenar
                 const diff = r.gfaM2 - r.existing.gfaM2
                 return (
                   <tr key={s.id} className={rowClass}>
-                    <td className="px-4 py-3 font-medium text-ink">
-                      {s.id} {s.name}
-                    </td>
+                    <td className="px-4 py-3 font-medium text-ink">{HOME_SCENARIO_NAME[s.id]}</td>
                     <td className="px-4 py-3 text-right text-ink">
                       신축 {f(r.gfaM2)}㎡ · 지상 {r.totalFloors}층 ({diff >= 0 ? '+' : '−'}
                       {f(Math.abs(diff))}㎡)
@@ -283,7 +302,7 @@ function ScenarioTable({ analysis, scenarios }: { analysis: SiteAnalysis; scenar
                     <td className="px-4 py-3 text-ink-soft">
                       {REBUILD_VERDICT[r.verdict].text} · {LIMIT_LABEL[r.limitingFactor]}
                     </td>
-                    <td className="px-4 py-3 text-right text-ink-soft">법정 {f(r.parking.required)}대 · 확보 확인 필요</td>
+                    <td className="px-4 py-3 text-right text-ink-soft">법정 {f(r.parking.required)}대 · 계획안 {r.parking.planned}대</td>
                   </tr>
                 )
               }
@@ -291,9 +310,7 @@ function ScenarioTable({ analysis, scenarios }: { analysis: SiteAnalysis; scenar
               const o = e.parkingOption
               return (
                 <tr key={s.id} className={rowClass}>
-                  <td className="px-4 py-3 font-medium text-ink">
-                    {s.id} {s.name}
-                  </td>
+                  <td className="px-4 py-3 font-medium text-ink">{HOME_SCENARIO_NAME[s.id]}</td>
                   <td className="px-4 py-3 text-right text-ink">
                     증축 {f(e.plan.addGfaM2)}㎡ · +{e.plan.addFloors}층
                   </td>

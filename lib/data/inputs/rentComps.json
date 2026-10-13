@@ -2,10 +2,10 @@
   "meta": {
     "source": "input",
     "file": "261012_가정값 입력.xlsx",
-    "version": "261012-b",
-    "sourceDate": "2026-10-12",
-    "fileHash": "f6d0cb6d338094cb",
-    "convertedAt": "2026-10-12T03:00:21.923Z",
+    "version": "261013-a",
+    "sourceDate": "2026-10-13",
+    "fileHash": "6bf95a6783134428",
+    "convertedAt": "2026-10-13T03:39:26.151Z",
     "sheets": [
       {
         "name": "임대사례",

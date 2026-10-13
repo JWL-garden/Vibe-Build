@@ -132,20 +132,18 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
   }))
   const aa = cf?.assetAdjusted ?? null
   const cashflowHead = aa
-    ? ['연차', 'NOI 증가', '누적 순증 (임대수익만)', '자산가치 차이 (함−안 함)', '자산가치 반영 순증', '안 함 순자산', '함 순자산']
-    : ['연차', 'NOI 증가', '누적 순증', '안 함 누적', '함 누적']
+    ? ['연차', '누적 순증 (임대수익만)', '자산가치 반영 순증', '안 함 순자산', '함 순자산']
+    : ['연차', '누적 순증', '안 함 누적', '함 누적']
   const cashflowRows: ReportRow[] = (cf?.years ?? []).filter((y) => shownYear(y.year)).map((y) =>
     aa && y.assetWithWon !== null && y.assetWithoutWon !== null
       ? [
           `${y.year}년차`,
-          formatWonExact(y.noiIncreaseWon),
           formatWonExact(y.cumulativeNetWon),
-          formatWonExact(y.assetWithWon - y.assetWithoutWon),
           formatWonExact(y.assetAdjustedNetWon),
           formatWonExact(y.netWorthWithoutWon),
           formatWonExact(y.netWorthWithWon),
         ]
-      : [`${y.year}년차`, formatWonExact(y.noiIncreaseWon), formatWonExact(y.cumulativeNetWon), formatWonExact(y.withoutWon), formatWonExact(y.withWon)],
+      : [`${y.year}년차`, formatWonExact(y.cumulativeNetWon), formatWonExact(y.withoutWon), formatWonExact(y.withWon)],
   )
   const cashflowScenarioRows: ReportRow[] = IDS.map((id) => {
     const c = f[id].cashflow

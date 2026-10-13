@@ -8,6 +8,7 @@ import type { SiteSensitivityItem, SiteSensitivityResult } from '@/types'
 /** ROI에 영향을 주는 가정값 (환원율은 ROI에 영향이 없어 제외, 전환율은 시나리오 단위라 제외) */
 const SENSITIVITY_KEYS: AssumptionKey[] = [
   'expansionCostPerPyeong',
+  'expansionCostPerUnit',
   'newBuildCostTable',
   'newBuildCostExcel',
   'acquisitionTaxRate',

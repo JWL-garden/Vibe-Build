@@ -106,7 +106,7 @@ export function calcRebuild(input: RebuildInput, rules: Rules, rulesId: RebuildR
     facilityAreaM2: netPerUnitM2,
   }))
   const req = calcRequiredParking(units, rules)
-  const parking = { perUnit: req.perUnit, housingAct: req.housingAct, required: req.total, currentActual: site.parking.total }
+  const parking = { perUnit: req.perUnit, housingAct: req.housingAct, required: req.total, currentActual: site.parking.total, planned: Math.ceil(req.total - 1e-9) }
 
   const existing = { gfaM2: site.farFloorAreaM2, households: site.households, floorsAbove: site.floorsAbove }
   const increase = gfaM2 - existing.gfaM2
@@ -130,12 +130,12 @@ export function calcRebuild(input: RebuildInput, rules: Rules, rulesId: RebuildR
     {
       item: 'floorPlate',
       status: 'check',
-      detail: `기준층 = 최대 건축면적 ${f(maxBuildingAreaM2)}㎡ (대지 ${f(siteAreaM2)}㎡ × 건폐율 ${f(bcrLimitPercent)}%) 가정 — 대지 형태 확인 필요`,
+      detail: `기준층 = 최대 건축면적 ${f(maxBuildingAreaM2)}㎡ (대지 ${f(siteAreaM2)}㎡ × 건폐율 ${f(bcrLimitPercent)}%) 가정`,
     },
     {
       item: 'parking',
       status: 'check',
-      detail: `법정 ${f(parking.required)}대 (${households}세대) — 현재 ${f(parking.currentActual)}대, 1층 필로티 등 대지 안 확보 가능 대수 확인 필요`,
+      detail: `법정 ${f(parking.required)}대 (${households}세대) — 계획안 ${parking.planned}대 (1층 필로티 등 대지 안 확보)`,
     },
     sunCheck,
   ]

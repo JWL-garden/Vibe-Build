@@ -1124,7 +1124,7 @@ export interface SiteData {
   assumptionNotes: string[]
   /** 임대 사례 (가정값 입력 엑셀 '임대사례' → inputs/rentComps.json) */
   rentComps: RentComp[]
-  /** 기준 엑셀 '하우빌드 공사비' (없으면 빈 배열) */
+  /** 기준 엑셀 '공사비 실적' (없으면 빈 배열) */
   constructionCosts?: ConstructionCostRow[]
   /** 증축층 바닥면적 옵션2 값 (가정값 입력 엑셀 '증축층면적_옵션2' → inputs/floorPlate.json). 없으면 null */
   floorPlateOption2M2: number | null
@@ -1176,7 +1176,8 @@ export interface RebuildResult {
   /** 신축 용적률 (%) */
   farPercent: number
   /** 법정 주차 (대) — 세대기준·주택법 기준 중 큰 값 */
-  parking: { perUnit: number; housingAct: number; required: number; currentActual: number }
+  /** planned = 계획안 주차대수 (법정 대수 올림) — 대지 안 확보를 계획하는 대수 */
+  parking: { perUnit: number; housingAct: number; required: number; currentActual: number; planned: number }
   /** 기존 건물 연면적·세대수 (비교용) */
   existing: { gfaM2: number; households: number; floorsAbove: number }
   /** 신축 높이에 필요한 정북 이격 (m). 일조 미적용이면 null */
@@ -1209,11 +1210,11 @@ export interface SiteAnalysis {
     byScenario: Record<FinanceScenarioId, SiteFinanceResult>
     /** 6장 민감도 (기준 시나리오 중심, 수익성을 계산하지 못했으면 null) */
     sensitivity: SiteSensitivityResult | null
-    /** 공사비 실적 요약 (기준 엑셀 '하우빌드 공사비') */
+    /** 공사비 실적 요약 (기준 엑셀 '공사비 실적') */
     construction: ConstructionCostSummary
     /** 재건축 신축 단가에 적용한 지상 N층 공사면적 기준 평당 공사비 (실적이 없으면 null) */
     floorWorkCost: FloorWorkCostStat | null
-    /** 층수별 공사면적 기준 평당 공사비 표 (엑셀 '하우빌드 2026환산' 4장 층수별 표와 같은 값, 층수 오름차순) */
+    /** 층수별 공사면적 기준 평당 공사비 표 (엑셀 '공사비 2026환산' 4장 층수별 표와 같은 값, 층수 오름차순) */
     floorWorkCostTable: FloorWorkCostStat[]
     /** 자산가치 연차별 경로에 쓴 상승률과 근거 */
     assetGrowth: AssetGrowthBasis
@@ -1494,7 +1495,7 @@ export interface SiteScheduleSection {
   /** 층별·면적별 공사 기간 실적 — [구분, 사례, 중위, 빠름(25%) ~ 느림(75%)] 표 (공사 단계 기간의 근거) */
   durationFloorRows: ReportRow[]
   durationAreaRows: ReportRow[]
-  /** 이 사업에 적용한 공사 기간 설명 (예: '하우빌드 실적 지상 5~7층 … 중앙값 8.5개월') */
+  /** 이 사업에 적용한 공사 기간 설명 (예: '준공 현장 실적 지상 5~7층 … 중앙값 8.5개월') */
   durationNote: string
   notes: string[]
 }
@@ -1523,7 +1524,7 @@ export interface SiteRiskSection {
   rules: string[]
 }
 
-/** 기준 엑셀 '하우빌드 공사비' 한 현장 (lib/data/construction.json) — 저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산 */
+/** 기준 엑셀 '공사비 실적' 한 현장 (lib/data/construction.json) — 저층 주택 신축 도급 공사비, 건설공사비지수 2026 환산 */
 export interface ConstructionCostRow {
   id: string | null
   name: string | null
@@ -1572,7 +1573,7 @@ export interface DurationStat {
   p75: number | null
 }
 
-/** 층수별·연면적대별 공사 기간 (하우빌드 실적) */
+/** 층수별·연면적대별 공사 기간 (준공 현장 실적) */
 export interface ConstructionDurationSummary {
   byFloors: DurationStat[]
   byArea: DurationStat[]
@@ -1606,7 +1607,7 @@ export interface FloorWorkCostStat {
   count: number
   /** 그 층수의 전체 현장수 (통계제외 'Y' 제외, 엑셀 '현장수'와 같음) */
   siteCount: number
-  /** 평균 · 중앙값 · 최소 · 최대 (만원/평, 공사면적 기준) — 엑셀 '하우빌드 2026환산' 4장 층수별 표의 F·G열 */
+  /** 평균 · 중앙값 · 최소 · 최대 (만원/평, 공사면적 기준) — 엑셀 '공사비 2026환산' 4장 층수별 표의 F·G열 */
   meanManwon: number
   medianManwon: number
   minManwon: number
@@ -1681,7 +1682,7 @@ export interface SiteFinanceSection {
   notes: string[]
   /** 가정값 입력 엑셀 메모 (예: 층별 공사비 단가 안내) — 4장 아래 표시 */
   inputNotes: string[]
-  /** 공사비 실적 근거 (기준 엑셀 '하우빌드 공사비') — 4장 표시 */
+  /** 공사비 실적 근거 (기준 엑셀 '공사비 실적') — 4장 표시 */
   construction: {
     /** [집단, ㎡당(연면적, 2026 환산) 중앙값, 평당(연면적) 중앙값, 평당(공사면적) 중앙값, 공사기간 중앙값] */
     rows: ReportRow[]
