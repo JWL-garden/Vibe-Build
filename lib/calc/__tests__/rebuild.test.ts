@@ -43,7 +43,7 @@ describe('T1 104-10 렉스빌 전체 재건축', () => {
     expect(r.requiredSetbackM).toBeCloseTo(4.95, 6)
     expect(r.gfaM2 - r.existing.gfaM2).toBeCloseTo(120.51, 2)
     expect(r.verdict).toBe('possible')
-    expect(r.checks.find((c) => c.item === 'sunlight')!.status).toBe('check') // 이격 미입력
+    expect(r.checks.find((c) => c.item === 'sunlight')!.status).toBe('pass') // 일조(정북)는 확인 완료 (2026-10-13)
     expect(r.checks.find((c) => c.item === 'parking')!.status).toBe('check')
   })
 

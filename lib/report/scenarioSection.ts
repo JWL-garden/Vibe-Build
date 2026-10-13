@@ -183,7 +183,7 @@ export function scenarioSection(analysis: SiteAnalysis): SiteScenarioSection {
     '토네이도: 기준 시나리오에서 변수 하나만 불리한 값·유리한 값으로 바꾸고 나머지는 기준값 그대로 두었습니다. 임대료는 ±10%(설계서 5-5). 값이 하나뿐인 가정값(예: 취득세율)은 제외했습니다.',
     `${years}년 현금흐름: 총사업비는 0년차에 지출, NOI 증가는 1년차부터 연 ${g == null ? '0%(가정값 없음)' : formatRate(g, 1)} 상승, 할인율 ${d == null ? '없음' : formatRate(d, 1)}. 표는 1~5년과 5년 단위 연차만 보입니다.`,
     aa
-      ? `자산가치 반영: 순자산 = 자산가치(건물만, 원가 기준 — 토지가액은 전후 동일해 제외) + 누적 NOI (함은 총사업비 차감). 건물가치 = 연면적 × 재조달단가 × 잔가율에 연 ${formatRate(aa.growth.buildingRate, 2)} 상승(${aa.growth.buildingBasis})과 연차별 감가를 적용했습니다. NPV·IRR은 ${years}년 말 자산가치 차이 ${formatWon(aa.terminalAssetDiffWon)}를 회수하는 것으로 보았습니다. 원가 기준 참고값이며 시장 가격·감정평가가 아닙니다.`
+      ? `자산가치 반영: 순자산 = 자산가치(건물, 원가 기준) + 누적 NOI (함은 총사업비 차감). 건물가치 = 연면적 × 재조달단가 × 잔가율에 연 ${formatRate(aa.growth.buildingRate, 2)} 상승(${aa.growth.buildingBasis})과 연차별 감가를 적용했습니다. NPV·IRR은 ${years}년 말 자산가치 차이 ${formatWon(aa.terminalAssetDiffWon)}를 회수하는 것으로 보았습니다. 원가 기준 참고값이며 시장 가격·감정평가가 아닙니다.`
       : '건물가치(신축 단가)를 계산하지 못해 자산가치 반영 지표는 생략했습니다. 누적 순증·NPV·IRR은 기간 말 잔존가치를 반영하지 않은 값입니다.',
     kind === 'rebuild'
       ? '재건축은 이주·철거와 공사 기간 동안의 기존 임대수입 중단을 총사업비(공사 중 임대 손실)에 포함했습니다. "함"은 신축 NOI, "안 함"은 기존 NOI(추정)입니다.'

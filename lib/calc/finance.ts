@@ -183,7 +183,6 @@ export function calcAssetValue(input: AssetValueInput, rule: BuildingValueRule):
     '건물가치는 신축단가표 단가 기준 원가 추정(예시 가정값)이며 감정평가가 아닙니다.',
   ]
   if (unitCostWon === null) reasons.push('신축 단가(건물신축단가표)가 없어 기존 건물가치를 계산하지 못했습니다.')
-  reasons.push('토지가액은 증축(재건축) 전후로 변하지 않아 자산가치 금액에서 제외했습니다 (건물가치만 표시).')
   if (addBasis === 'unitCost') reasons.push('공사비를 계산하지 못해 증축(신축) 건물가치를 연면적 × 신축 단가로 보았습니다.')
   const demolished = input.demolishExisting ?? false
   if (demolished) reasons.push('재건축: 기존 건물을 철거하므로 후 자산가치 = 신축 건물가치입니다 (철거비는 신축 공사비에 포함).')

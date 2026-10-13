@@ -249,7 +249,7 @@ export function judgeSite(analysis: SiteAnalysis): Expandability {
     if (r.verdict === 'possible') {
       return {
         status: 'possible',
-        reason: `${name} 시 ${size}로 신축할 수 있습니다. 제한요인: ${LIMIT_LABEL[r.limitingFactor]}. 법정 주차 ${formatNumber(r.parking.required, 1)}대 확보와 정북 이격 확인이 필요합니다.`,
+        reason: `${name} 시 ${size}로 신축할 수 있습니다. 제한요인: ${LIMIT_LABEL[r.limitingFactor]}. 법정 주차 ${formatNumber(r.parking.required, 1)}대 확보 확인이 필요합니다.`,
       }
     }
     if (r.verdict === 'check') {

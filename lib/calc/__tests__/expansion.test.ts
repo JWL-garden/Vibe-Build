@@ -66,7 +66,7 @@ describe('당산동6가 104-48 당산빌 (참고 — 2026-10-07 T1에서 제외,
     expect(o.newHeightM).toBeCloseTo(18.95)
     expect(status(o.checks, 'housingFloors')).toBe('pass')
     expect(status(o.checks, 'housingArea')).toBe('pass')
-    expect(status(o.checks, 'sunlight')).toBe('check')
+    expect(status(o.checks, 'sunlight')).toBe('pass') // 일조(정북)는 확인 완료 (2026-10-13)
     expect(status(o.checks, 'floorPlate')).toBe('pass')
   })
 

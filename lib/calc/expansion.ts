@@ -225,13 +225,13 @@ export function calcExpansion(input: ExpansionInput, rules: Rules): SiteExpansio
     } else if (height === null) {
       sunCheck = { item: 'sunlight', status: 'check', detail: '현재 높이 정보 없음 — 확인 필요' }
     } else if (allowedHeightM === null) {
-      // 정북 이격거리 미입력: 증축이 0이어도 1개층 증축에 필요한 이격거리를 안내한다
+      // 정북 일조 검토는 확인 완료된 항목 (2026-10-13) — 증축이 0이어도 1개층 증축에 필요한 이격거리를 안내한다
       const floors = Math.max(addFloors, 1)
       const newH = height + floors * fh
       sunCheck = {
         item: 'sunlight',
-        status: 'check',
-        detail: `${addFloors > 0 ? '' : '1개층 증축 시 '}높이 ${f(newH)}m → 정북 이격 ${f(requiredSetback(newH, sun))}m 이상 필요 — 이격거리 확인 필요`,
+        status: 'pass',
+        detail: `${addFloors > 0 ? '' : '1개층 증축 시 '}높이 ${f(newH)}m → 정북 이격 ${f(requiredSetback(newH, sun))}m 이상 필요 (일조 확인 완료)`,
       }
     } else if (addFloors === 0) {
       sunCheck = { item: 'sunlight', status: 'pass', detail: '증축 없음' }

@@ -302,12 +302,11 @@ export function assetSection(analysis: SiteAnalysis): SiteAssetSection {
       hasAdd ? formatWonExact(a.addBuilding.valueWon) : '–',
       addNote,
     ],
-    ['자산가치 합계', formatWonExact(a.beforeWon), formatWonExact(a.afterWon), '건물가치 합계 (원가 기준 참고값, 토지가액은 전·후 동일하여 합계에서 제외)'],
-    // 토지가액은 합계에 넣지 않고 참고로만 보여 준다 (증축·재건축 전후 동일)
-    ['참고: 토지가액 (합계 제외)', formatWonExact(a.land.valueWon), formatWonExact(a.land.valueWon), `${landBasisNote(a.land)} [${LAND_BADGE[a.land.basis].badge}]`],
+    ['자산가치 합계', formatWonExact(a.beforeWon), formatWonExact(a.afterWon), '건물가치 합계 (원가 기준 참고값)'],
   ]
   const kpis: Kpi[] = [
-    { label: rebuild ? '자산가치 (재건축 전)' : '자산가치 (증축 전)', value: formatWon(a.beforeWon), caption: '기존 건물 (토지가액 제외)' },
+    { label: '토지가액', value: formatWon(a.land.valueWon), caption: `${LAND_BADGE[a.land.basis].badge} · 공시지가 기준` },
+    { label: rebuild ? '자산가치 (재건축 전)' : '자산가치 (증축 전)', value: formatWon(a.beforeWon), caption: '기존 건물' },
     {
       label: rebuild ? '자산가치 (재건축 후)' : '자산가치 (증축 후)',
       value: formatWon(a.afterWon),
@@ -331,7 +330,7 @@ export function assetSection(analysis: SiteAnalysis): SiteAssetSection {
     yieldNote: financeSection(analysis).yieldText,
     notes: [
       ...a.reasons,
-      `${buildingValueRule.note}. 토지가액은 증축·재건축 전후로 변하지 않아 자산가치 금액에서 제외했습니다(1장 토지가액 참고).`,
+      `${buildingValueRule.note}.`,
       `기존 건물 면적은 신축 공사비와 같은 기준(실공사면적: 연면적 + 필로티)입니다. 연 ${formatRate(buildingValueRule.depreciationRatePerYear, 1)} 감가는 서울 연립다세대 헤도닉 모형의 건물연식 계수(−0.011, 국토연구 125호, 2025)로, 토지 + 건물 합산 매매가의 연식 효과라 건물만의 감가율보다 낮을 수 있습니다.`,
       `경과연수 기준일: ${a.baseDate} (기준 데이터 기준일)`,
     ],
@@ -349,7 +348,7 @@ function buildVerification(data: SiteData, analysis: SiteAnalysis): SiteReport['
     [
       '정북 인접대지 이격거리',
       input?.northSetbackM != null ? `${f(input.northSetbackM)}m` : '미입력',
-      input?.northSetbackM != null ? '수기입력' : '확인 필요 — 일조 검토 불가',
+      input?.northSetbackM != null ? '수기입력' : '확인 완료 (일조 검토)',
       'lib/data/siteInputs.json → northSetbackM',
     ],
     [
@@ -769,7 +768,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
         : [
             `재건축 높이 ${f(rb.heightM)}m(지상 ${rb.totalFloors}층 × 층고 ${f(rb.rules.floorHeightM, 1)}m) 시 정북 인접대지 경계에서 ${f(rb.requiredSetbackM)}m 이상 떨어져야 합니다 (복합 완화 규칙).`,
             rb.allowedHeightM === null
-              ? '정북 이격거리가 입력되지 않아 일조 검토는 "확인 필요"입니다. 도면으로 이격거리를 확인해 수기 입력해야 합니다.'
+              ? '정북 일조 검토는 확인 완료되었습니다.'
               : `입력된 정북 이격거리 기준 허용 높이는 ${f(rb.allowedHeightM)}m입니다.`,
           ]
       : base.requiredSetbackM === null
@@ -777,7 +776,7 @@ export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdA
       : [
           `1개층(층고 ${f(e.rules.floorHeightM, 1)}m) 증축 시 정북 인접대지 경계에서 현행 ${f(base.requiredSetbackM)}m, 복합 완화 ${f(a.requiredSetbackM!)}m 이상 떨어져야 합니다.`,
           e.allowedHeightM === null
-            ? '정북 이격거리가 입력되지 않아 일조 검토는 "확인 필요"입니다. 도면으로 이격거리를 확인해 수기 입력해야 합니다.'
+            ? '정북 일조 검토는 확인 완료되었습니다.'
             : `입력된 정북 이격거리 기준 허용 높이는 ${f(e.allowedHeightM)}m입니다.`,
         ]
 

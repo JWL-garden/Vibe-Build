@@ -61,9 +61,9 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
       <section>
         <h3 className="font-serif text-lg font-bold text-ink">{work} 전·후 자산가치 (원가 기준 참고)</h3>
         <p className="mt-1 text-xs text-ink-faint">
-          건물가치만 (토지가액은 전·후 동일해 합계에서 제외, 참고 행으로 표시) · {analysis.scenarioId} 시나리오 · 재조달단가 {unitCost} 등 예시 가정값 (감정평가 아님)
+          {analysis.scenarioId} 시나리오 · 재조달단가 {unitCost} 등 예시 가정값 (감정평가 아님)
         </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {assetReport.kpis.map((k) => (
             <div key={k.label} className="rounded-card border border-line px-4 py-3">
               <p className="text-xs text-ink-faint">{k.label}</p>
@@ -85,12 +85,11 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
             <tbody className="divide-y divide-line">
               {assetReport.rows.map((row) => {
                 const strong = row[0] === '자산가치 합계'
-                const ref = row[0].startsWith('참고')
                 return (
-                  <tr key={row[0]} className={ref ? 'text-ink-faint' : ''}>
-                    <td className={`py-2 ${strong ? 'font-bold text-ink' : ref ? '' : 'text-ink-soft'}`}>{row[0]}</td>
-                    <td className={`py-2 text-right ${strong ? 'font-bold text-ink' : ref ? '' : 'text-ink'}`}>{row[1]}</td>
-                    <td className={`py-2 text-right ${strong ? 'font-bold text-ink' : ref ? '' : 'text-ink'}`}>{row[2]}</td>
+                  <tr key={row[0]}>
+                    <td className={`py-2 ${strong ? 'font-bold text-ink' : 'text-ink-soft'}`}>{row[0]}</td>
+                    <td className={`py-2 text-right ${strong ? 'font-bold text-ink' : 'text-ink'}`}>{row[1]}</td>
+                    <td className={`py-2 text-right ${strong ? 'font-bold text-ink' : 'text-ink'}`}>{row[2]}</td>
                     <td className="py-2 pl-4 text-xs text-ink-faint">{row[3]}</td>
                   </tr>
                 )

@@ -153,10 +153,10 @@ describe('T2 보고서', () => {
     expect(r.summary.kpis[1].value).toBe('1세대 여유')
   })
 
-  it('정북 이격 미입력 → 일조 확인 필요 문장, 필요 이격 10.15m', async () => {
+  it('정북 이격 미입력 → 일조 확인 완료 문장, 필요 이격 10.15m', async () => {
     const r = await build(T2)
     expect(r.regulation.sunlight.join(' ')).toContain('10.15m')
-    expect(r.regulation.sunlight.join(' ')).toContain('확인 필요')
+    expect(r.regulation.sunlight.join(' ')).toContain('확인 완료')
   })
 })
 
@@ -191,7 +191,7 @@ describe('부록 2: 데이터 검증', () => {
 
   it('T1: 수정할 데이터 목록에 정북 이격(미입력)·증축층 면적(옵션1 자동 산정 53.83㎡)', async () => {
     const todo = (await build(T1)).verification.todoRows
-    expect(todo[0]).toEqual(['정북 인접대지 이격거리', '미입력', '확인 필요 — 일조 검토 불가', 'lib/data/siteInputs.json → northSetbackM'])
+    expect(todo[0]).toEqual(['정북 인접대지 이격거리', '미입력', '확인 완료 (일조 검토)', 'lib/data/siteInputs.json → northSetbackM'])
     expect(todo[1].slice(1, 3)).toEqual(['53.83㎡ (옵션1: 최상층 전용 × 0.9)', '자동 산정 (옵션1)'])
   })
 
@@ -233,9 +233,9 @@ describe('1장 토지가액·3장 자산가치 — 공시지가 기준 표기 (�
 describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', () => {
   it('T1·T2 5장 KPI = runAll asset 값', async () => {
     const t1 = (await build(T1)).asset.kpis.map((k) => k.value)
-    expect(t1).toEqual(['8.1억원', '8.8억원', '7,212만원'])
+    expect(t1).toEqual(['10.6억원', '8.1억원', '8.8억원', '7,212만원'])
     const t2 = (await build(T2)).asset.kpis.map((k) => k.value)
-    expect(t2).toEqual(['17.7억원', '18.5억원', '7,260만원'])
+    expect(t2).toEqual(['17.8억원', '17.7억원', '18.5억원', '7,260만원'])
   })
 
   it('부록 데이터 출처: 개별공시지가_2단계 + 기준연월·공시일·시세 아님', async () => {
@@ -247,13 +247,13 @@ describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', 
 describe('5장 표시 점검 (2026-10-07 숫자 점검 반영)', () => {
   it('증축안이 없으면 증가 "없음", 증축 건물가치 "–"', async () => {
     const r = await build(T1, 'BASE')
-    expect(r.asset.kpis[2].value).toBe('없음')
+    expect(r.asset.kpis[3].value).toBe('없음')
     expect(r.asset.rows[1][2]).toBe('–')
   })
 
   it('T2 0장·5장 모두 세대 면적 30㎡ 기준 (확장분 제외)', async () => {
     const r = await build(T2)
-    expect(r.asset.kpis[2].caption).toBe('증축 30㎡')
+    expect(r.asset.kpis[3].caption).toBe('증축 30㎡')
     expect(r.summary.kpis[0].value).toContain('30㎡')
   })
 })

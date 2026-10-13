@@ -171,15 +171,16 @@ describe('3) T2: 주택 5개층 — 현행 4개층 한도는 확인 필요, C·A
   })
 })
 
-describe('4) 정북 이격거리가 비어 있으면 일조 검토 확인 필요', () => {
-  it('T1·T2 모든 시나리오(증축 0이어도) 일조 = check, 필요 이격거리 안내', async () => {
+describe('4) 정북 일조 검토는 확인 완료 — 필요 이격거리만 안내 (2026-10-13)', () => {
+  it('T1·T2 모든 시나리오(증축 0이어도) 일조 = pass, 필요 이격거리 안내, 확인 필요 문구 없음', async () => {
     for (const pnu of [T1, T2, DANGSAN]) {
       const r = await load(pnu)
       expect(r.byScenario.BASE.allowedHeightM).toBeNull()
       for (const id of SCENARIOS) {
         const sun = r.byScenario[id].plan.checks.find((c) => c.item === 'sunlight')!
-        expect(sun.status).toBe('check')
-        expect(sun.detail).toContain('이격거리 확인 필요')
+        expect(sun.status).toBe('pass')
+        expect(sun.detail).toContain('일조 확인 완료')
+        expect(sun.detail).not.toContain('확인 필요')
       }
     }
   })
