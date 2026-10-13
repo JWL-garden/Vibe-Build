@@ -234,7 +234,7 @@
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
             "ratio": 0.25,
-            "multiFamilyLowHeightM": 15
+            "multiFamilyLowHeightM": 17
           },
           "farLimitByZone": {
             "제2종일반주거지역": 250,
@@ -597,7 +597,7 @@
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
             "ratio": 0.5,
-            "multiFamilyLowHeightM": 15
+            "multiFamilyLowHeightM": 17
           },
           "farLimitByZone": {
             "제2종일반주거지역": 200,
@@ -688,7 +688,7 @@
             "lowHeightM": 10,
             "lowSetbackM": 1.5,
             "ratio": 0.25,
-            "multiFamilyLowHeightM": 15
+            "multiFamilyLowHeightM": 17
           },
           "farLimitByZone": {
             "제2종일반주거지역": 250,
@@ -1865,7 +1865,7 @@
             }
           },
           "sunlight": {
-            "multiFamilyLowHeightM": 15
+            "multiFamilyLowHeightM": 17
           }
         }
       },
@@ -1877,7 +1877,7 @@
         "overrides": {
           "sunlight": {
             "ratio": 0.25,
-            "multiFamilyLowHeightM": 15
+            "multiFamilyLowHeightM": 17
           },
           "farLimitByZone": {
             "제2종일반주거지역": 250,

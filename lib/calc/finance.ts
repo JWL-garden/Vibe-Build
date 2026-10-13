@@ -4,7 +4,7 @@
 //       [D] 현금흐름·NPV·IRR (calcCashflow, 20년 기준 — cashflowRule, 2026-10-12) — 민감도는 sensitivity.ts
 
 import { RELOCATION_MONTHS } from '@/lib/rules/projectSchedule'
-import { PYEONG_M2, cashflowRule, type AssumptionKey, type BuildingValueRule, type LandValueRule } from '@/lib/rules/financeDefaults'
+import { PYEONG_M2, cashflowRule, costRule, type AssumptionKey, type BuildingValueRule, type LandValueRule } from '@/lib/rules/financeDefaults'
 import type {
   AssetGrowthBasis,
   AssetValueResult,
@@ -259,8 +259,8 @@ const fmtPct = (v: number, d = 2) => `${(v * 100).toFixed(d)}%`
 
 /**
  * 임대 모델 수익성 (대표 1인 사업주체)
- * 증축 사업비 = 공사비(연면적 ÷ 3.305785 × 평당 단가) + 세대당 제반비용 + 취득세 등 + 예비비 + 금융비용
- * 재건축 사업비 = 공사비(공사 연면적 × max(신축단가표, 엑셀 신축비용)) + 세대당 제반비용(증축 기준 준용) + 취득세 등 + 예비비 + 금융비용
+ * 증축 사업비 = 공사비(연면적 ÷ 3.305785 × 평당 단가) + 세대당 제반비용(공사비 × 5%) + 취득세 등 + 금융비용 (예비비 미합산)
+ * 재건축 사업비 = 공사비(공사 연면적 × max(신축단가표, 엑셀 신축비용)) + 제반비용(공사비 × 5%) + 취득세 등 + 공사 중 임대 손실 + 금융비용 (예비비 미합산)
  * 임대수입 = Σ 세대 월 환산 임대료 × 12, 월 환산 = 고정분 + 평당 증가분 × 전용(평) (신규 월세 실거래 회귀, 보증금은 전환율로 월세 환산)
  * NOI = 임대수입 × (1 − 공실률) × (1 − 운영비율), 재건축은 기존 세대 NOI(추정)를 뺀 증가분
  */
@@ -364,15 +364,16 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
       grade: usedRow.grade,
     })
   }
-  const perUnit = v('expansionCostPerUnit')!
+  const construction = costs[0].amountWon!
+  // 인허가 등 제반비용 = 공사비의 5% (증축·재건축 공통, 2026-10-13 결정)
+  const permitRate = costRule.permitRateOfConstruction
   costs.push({
     key: 'permit',
     label: '인허가 등 제반비용',
-    amountWon: wonR(n * perUnit),
-    basis: `${n}세대 × ${fmtWon(perUnit)}${kind === 'rebuild' ? ' (증축 기준 준용)' : ''}`,
-    grade: a.expansionCostPerUnit.grade,
+    amountWon: wonR(construction * permitRate),
+    basis: `${kind === 'rebuild' ? '신축' : '증축'} 공사비 × ${fmtPct(permitRate, 1)}`,
+    grade: 'C',
   })
-  const construction = costs[0].amountWon!
   const taxRate = v('acquisitionTaxRate')!
   costs.push({
     key: 'tax',
@@ -405,16 +406,8 @@ export function calcSiteFinance(input: SiteFinanceInput): SiteFinanceResult {
     })
   }
   const subtotal = costs.reduce((s, c) => s + (c.amountWon ?? 0), 0)
-  const contingencyRate = v('contingencyRate')!
-  const contingency = wonR(subtotal * contingencyRate)
-  costs.push({
-    key: 'contingency',
-    label: '예비비',
-    amountWon: contingency,
-    basis: `소계 × ${fmtPct(contingencyRate, 1)}`,
-    grade: a.contingencyRate.grade,
-  })
-  const beforeFinance = subtotal + contingency
+  // 예비비는 총사업비에 합산하지 않는다 (2026-10-13 결정, costRule.contingencyIncluded)
+  const beforeFinance = subtotal
   const loan = wonR(beforeFinance * v('loanRatio')!)
   const rate = v('loanInterestRate')!
   const finance = wonR(loan * rate * (months / 12) * 0.5)

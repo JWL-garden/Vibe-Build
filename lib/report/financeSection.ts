@@ -121,7 +121,6 @@ export function financeSection(analysis: SiteAnalysis): SiteFinanceSection {
     fundingRows: [
       ['자기자본', formatWonExact(f.equityWon), '총사업비 − 대출'],
       ['대출', formatWonExact(f.loanWon), `금융비용 전 소계 × 대출 비율 ${formatRate(f.assumptions.find((a) => a.key === 'loanRatio')!.value, 0)}`],
-      ['참고: 새 세대 보증금 합계', formatWonExact(r.depositTotalWon), '회귀로 추정한 세대별 보증금 합 — 사업비 조달에 쓸 수 있으나 반환 의무가 있는 돈'],
     ],
     unitRows: f.project.units
       .map((u, i) => [

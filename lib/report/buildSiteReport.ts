@@ -102,12 +102,12 @@ export function relaxationRows(analysis: SiteAnalysis, zone: string): RelaxRow[]
       changed: sel.area !== base.area || sel.areaWord !== base.areaWord,
     },
     {
-      label: '일조 수직 허용 높이',
-      note: multiFamily ? `${type} — 8·13 대책 '4~5층 수직 건축 허용' (15m 가정)` : '다가구·다세대만 적용 (이 건물은 미적용)',
-      base: `${f(base.sunLowHeight)}m 이하`,
-      relaxed: `${f(relaxed.sunLowHeight)}m 이하`,
+      label: '일조 수직 허용 높이 (건축법 개정안 26.11.12 기준)',
+      note: multiFamily ? `${type} — 기준 높이 이상 부분은 높이의 1/2 이상 이격 (H/2)` : '다가구·다세대만 적용 (이 건물은 미적용)',
+      base: `현행 ${f(base.sunLowHeight)}m 이상 : H/2`,
+      relaxed: `완화 ${f(relaxed.sunLowHeight)}m 이상 : H/2`,
       by: RELAXED_BY,
-      selected: `${f(sel.sunLowHeight)}m 이하`,
+      selected: `${f(sel.sunLowHeight)}m 이상 : H/2`,
       changed: sel.sunLowHeight !== base.sunLowHeight,
     },
   ]
@@ -365,9 +365,9 @@ function buildVerification(data: SiteData, analysis: SiteAnalysis): SiteReport['
       'lib/data/siteInputs.json → pilotiFloor1',
     ],
     [
-      '일조 수직 허용 높이 (8·13 대책)',
+      '일조 수직 허용 높이 (건축법 개정안 26.11.12 기준)',
       `${f(C.sunlight.multiFamilyLowHeightM ?? C.sunlight.lowHeightM)}m`,
-      '프로젝트 가정 — 시행령 개정안 확인 필요',
+      '건축법 개정안 26.11.12 기준 (시행 전)',
       'lib/rules/scenarios.ts → C.sunlight.multiFamilyLowHeightM',
     ],
     ['건축물 숫자 (대지·연면적·호별 면적·주차)', data.sourceLabel, '기준 엑셀', '엑셀 수정 후 npm run data:excel 재실행'],
@@ -434,7 +434,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     [
       '일조 수직 허용 높이 (다가구·다세대)',
       `${sun.lowHeightM}m → ${all.sunlight.multiFamilyLowHeightM ?? sun.lowHeightM}m`,
-      '8·13 대책 "4~5층도 수직 건축 허용" — 15m는 프로젝트 가정',
+      '건축법 개정안 26.11.12 기준 — 17m 이상 부분 높이의 1/2 이상 이격 (H/2)',
     ],
     [
       '주차 — 주택(제5호)',
@@ -539,7 +539,7 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
       '토지가액 = Σ(구성 필지 면적 × 개별공시지가) — 외필지 자료가 없으면 대표 필지 공시지가 × 대장 대지면적 (추정)',
       '자산가치(원가 기준) = 토지가액 + 연면적 × 재조달단가 × 잔가율, 잔가율 = max(최저 잔가율, 1 − 경과연수 ÷ 내용연수), 증축분 = 증축 연면적 × 재조달단가',
       '재건축 연면적 = min(대지 × 용적률 상한, 대지 × 건폐율 × 주택 층수 한도, 주택 연면적 한도), 세대수 = 내림(연면적 × 전용률 ÷ 최소 세대 전용), 재건축 후 자산가치 = 토지가액 + 신축 연면적 × 재조달단가',
-      '사업비(증축) = 연면적 ÷ 3.305785 × 평당 단가 + 세대 × 제반비용 + 취득세 등 + 예비비 + 금융비용(대출 × 금리 × 공사기간 ÷ 12 × 0.5) / 재건축 공사비 = 공사 연면적(필로티 포함) × max(건물신축단가표, 엑셀 신축비용)',
+      '사업비(증축) = 연면적 ÷ 3.305785 × 평당 단가 + 제반비용(공사비 × 5%) + 취득세 등 + 금융비용(대출 × 금리 × 공사기간 ÷ 12 × 0.5) / 재건축 공사비 = 공사 연면적(필로티 포함) × max(건물신축단가표, 엑셀 신축비용)',
       '연 임대수입 = Σ 세대 월 환산 임대료 × 12, 월 환산 임대료 = 고정분 + 평당 증가분 × 전용(평) (신규 월세 실거래의 전용면적 회귀, 월세 + 보증금 × 전환율 ÷ 12, 구간 구분 없음), NOI = 임대수입 × (1 − 공실률) × (1 − 운영비율)',
       '전환율: 주택은 모든 시나리오 연 6.0% 고정(보증금 1,000만원당 월 5만원, 사용자 지정, 법정 상한 5.0%는 참고), 상가 = 보수는 min(시장, 법정 상한 12%·기준금리 × 4.5), 기준·낙관은 시장 전환율',
       'ROI = 연 NOI 증가 ÷ 총사업비, 회수기간 = 총사업비 ÷ 연 NOI 증가, ROE = (NOI 증가 − 대출 × 금리) ÷ 자기자본, 자산가치 증가 = NOI 증가 ÷ 환원율',

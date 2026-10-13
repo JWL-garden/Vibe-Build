@@ -27,6 +27,16 @@ export const buildingValueRule = {
 export type LandValueRule = typeof landValueRule
 export type BuildingValueRule = typeof buildingValueRule
 
+/**
+ * 사업비 산정 규칙 (2026-10-13 결정)
+ *  - 인허가 등 제반비용 = 공사비 × permitRateOfConstruction (증축·재건축 공통)
+ *  - 총사업비에 예비비를 합산하지 않는다 (contingencyIncluded = false)
+ */
+export const costRule = {
+  permitRateOfConstruction: 0.05,
+  contingencyIncluded: false,
+} as const
+
 /** 1평 = 3.305785㎡ */
 export const PYEONG_M2 = 3.305785
 
@@ -40,7 +50,7 @@ export const ASSUMPTION_SPEC = {
   marketConversionHousing: { unit: '%', direction: 'higher', required: true },
   marketConversionCommercial: { unit: '%', direction: 'higher', required: false },
   expansionCostPerPyeong: { unit: '원/평', direction: 'lower', required: true },
-  expansionCostPerUnit: { unit: '원/세대', direction: 'lower', required: true },
+  expansionCostPerUnit: { unit: '원/세대', direction: 'lower', required: false },
   newBuildCostTable: { unit: '원/㎡', direction: 'lower', required: false },
   newBuildCostExcel: { unit: '원/㎡', direction: 'lower', required: false },
   acquisitionTaxRate: { unit: '비율', direction: 'lower', required: true },

@@ -20,7 +20,6 @@ const COMPARE_KEYS: AssumptionKey[] = [
   'rebuildConstructionMonths',
   'vacancyRate',
   'opexRate',
-  'contingencyRate',
   'capRate',
 ]
 

@@ -74,17 +74,17 @@ describe('T2 110-19 전체 재건축', () => {
 })
 
 describe('재건축 계산 규칙', () => {
-  it('정북 이격 4m 입력 → 허용 max(15, 4 ÷ 1/4) = 16m → 지상 4층(주택 3개층) 359.1㎡로 축소, 제한요인 일조', async () => {
+  it('정북 이격 4m 입력 → 허용 max(17, 4 ÷ 1/4) = 17m → 지상 5층(주택 4개층) 478.8㎡로 축소, 제한요인 일조', async () => {
     const data = (await getSiteData(T1))!
     const r = calcRebuild(
       { site: data.site, housingType: '다세대', bcrLimitPercent: 60, zoneSunlightApplies: true, northSetbackM: 4 },
       ALL,
       'ALL',
     )
-    expect(r.allowedHeightM).toBe(16)
-    expect(r.housingFloors).toBe(3)
-    expect(r.totalFloors).toBe(4)
-    expect(r.gfaM2).toBeCloseTo(359.1, 6)
+    expect(r.allowedHeightM).toBe(17)
+    expect(r.housingFloors).toBe(4)
+    expect(r.totalFloors).toBe(5)
+    expect(r.gfaM2).toBeCloseTo(478.8, 6)
     expect(r.limitingFactor).toBe('sunlight')
   })
 
@@ -125,7 +125,7 @@ describe('REBUILD 판정·보고서', () => {
     // 표지: 규모 · 총사업비 · 자산가치(재건축 후, 전 금액은 작은 글자) · 투자회수기간(자산가치 반영) — 2026-10-12
     expect(r.summary.kpis.map((k) => k.label)).toEqual(['재건축 규모', '총사업비', '자산가치 (재건축 후)', '투자회수기간 (자산가치 반영)'])
     expect(r.summary.kpis[2].caption).toContain('재건축 전')
-    expect(r.summary.kpis[1].value).toBe('31.2억원') // 신축 단가 = max(신축단가표 205.5만원/㎡, 지상 6층 하우빌드 실적 564.2만원/평 환산 170.7만원/㎡) = 단가표, 대출 금리 6.0%, 공사 중 임대 손실 포함(철거비는 공사비에 포함), 2026-10-12
+    expect(r.summary.kpis[1].value).toBe('28.4억원') // 신축 단가 = max(신축단가표 205.5만원/㎡, 지상 6층 하우빌드 실적 564.2만원/평 환산 170.7만원/㎡) = 단가표, 대출 금리 6.0%, 공사 중 임대 손실 포함(철거비는 공사비에 포함), 제반비용 = 신축 공사비 5%, 예비비 미합산, 2026-10-13
     expect(r.summary.addFloors).toBe(0) // 기존도 지상 6층
     expect(r.plan.kind).toBe('rebuild')
     expect(r.plan.rebuild).toBe(r.analysis.rebuild)

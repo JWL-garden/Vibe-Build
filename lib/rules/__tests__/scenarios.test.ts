@@ -25,18 +25,18 @@ describe('법규 시나리오 (설계서 6-1 v3)', () => {
     expect(r).not.toHaveProperty('farMultiplier')
   })
 
-  it('C (8·13 대책): 다가구 4·다세대 5개층(프로젝트 해석), 다가구·다세대 1,000㎡ 미만, 일조 수직 15m — 다중주택은 그대로', () => {
+  it('C (8·13 대책): 다가구 4·다세대 5개층(프로젝트 해석), 다가구·다세대 1,000㎡ 미만, 일조 수직 17m — 다중주택은 그대로', () => {
     const r = getEffectiveRules('C')
     expect(r.housing.maxFloors).toEqual({ 다세대: 5, 다가구: 4, 다중주택: 3 })
     expect(r.housing.maxAreaM2).toEqual({ 다세대: 1000, 다가구: 1000, 다중주택: 660 })
     expect(r.housing.areaExclusive).toEqual({ 다세대: true, 다가구: true, 다중주택: false })
-    expect(r.sunlight.multiFamilyLowHeightM).toBe(15)
+    expect(r.sunlight.multiFamilyLowHeightM).toBe(17)
     expect(r.housing.excludePilotiFloor).toBe(true)
   })
 
   it('ALL = A + B + C', () => {
     const r = getEffectiveRules('ALL')
-    expect(r.sunlight).toEqual({ ...baseRules.sunlight, ratio: 0.25, multiFamilyLowHeightM: 15 })
+    expect(r.sunlight).toEqual({ ...baseRules.sunlight, ratio: 0.25, multiFamilyLowHeightM: 17 })
     expect(r.farLimitByZone['제2종일반주거지역']).toBe(250)
     expect(r.housing.maxFloors.다가구).toBe(4)
     expect(r.housing.maxFloors.다중주택).toBe(3)

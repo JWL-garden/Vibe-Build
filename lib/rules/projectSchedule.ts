@@ -12,7 +12,7 @@ export interface ScheduleStageRule {
   /** 이 단계에서 나가는 비용 설명 (금액은 4장 사업비 항목에서 채운다) */
   costNote: string | null
   /** 사업비 항목 키 (SiteCostItem.key) — 있으면 그 항목의 금액을 붙인다 */
-  costKeys?: ('construction' | 'permit' | 'tax' | 'contingency' | 'finance' | 'constructionLoss')[]
+  costKeys?: ('construction' | 'permit' | 'tax' | 'finance' | 'constructionLoss')[]
   /** true면 재건축에만 넣는다 / expansionOnly = 증축에만 넣는다 / 생략 = 둘 다 */
   rebuildOnly?: boolean
   expansionOnly?: boolean
@@ -71,7 +71,7 @@ export const scheduleStages: ScheduleStageRule[] = [
     months: 1,
     ownerDecision: '사용승인 후 세무 신고·임대 조건 확정',
     costNote: '준공 시 비용 정산',
-    costKeys: ['tax', 'contingency'],
+    costKeys: ['tax'],
   },
 ]
 

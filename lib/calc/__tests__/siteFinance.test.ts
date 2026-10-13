@@ -1,5 +1,5 @@
 // 수익성 (설계서 5-4 [A][B][C], 2026-10-08 결정 1·2·6·12) — 손계산·합계 검산
-// 증축: 공사비 = 연면적 ÷ 3.305785 × 800만원/평, 제반비용 = 세대 × 500만원, 취득세 등 3.16%, 예비비, 금융비용
+// 증축: 공사비 = 연면적 ÷ 3.305785 × 800만원/평, 제반비용 = 공사비 × 5%, 취득세 등 3.16%, 예비비, 금융비용
 // 수입: 세대 전용 × ㎡당 월 환산 임대료(신규 실거래 중위) × 12 × (1 + 관리비 비율) × (1 − 공실) × (1 − 운영비)
 // 가정값: 261008-b 사용자 입력 (대출 비율 기준 80%, 공사 기간 증축 2·재건축 10개월, 관리비 기준 2%)
 import { describe, expect, it } from 'vitest'
@@ -15,24 +15,23 @@ const load = async (pnu: string, view: 'BASE' | 'ALL' | 'REBUILD') => runAll((aw
 const sumCosts = (f: SiteFinanceResult) => f.costs.reduce((s, c) => s + (c.amountWon ?? 0), 0)
 
 describe('T1 ALL 증축 (+1층 53.829㎡ + 측면 보강 36.52㎡ = 90.349㎡, 3세대) — 기준 시나리오 손계산', () => {
-  it('사업비: 공사비(90.349㎡ ÷ 3.305785 × 800만원/평) + 제반 1,500만원 + 취득세 3.16% + 예비비 5% + 금융(대출 80%, 금리 6.0%, 2개월)', async () => {
+  it('사업비: 공사비(90.349㎡ ÷ 3.305785 × 800만원/평) + 제반 공사비 5% + 취득세 3.16% + 금융(예비비 미합산)(대출 80%, 금리 6.0%, 2개월)', async () => {
     const f = (await load(T1, 'ALL')).finance.byScenario.BASE
     expect(f.status).toBe('ok')
     const by = Object.fromEntries(f.costs.map((c) => [c.key, c.amountWon]))
     const construction = Math.round((90.349 / PYEONG_M2) * 8_000_000)
     expect(by.construction).toBe(construction)
     expect(by.construction).toBe(218_644_588)
-    expect(by.permit).toBe(15_000_000)
+    expect(by.permit).toBe(Math.round(construction * 0.05))
     const tax = Math.round(construction * 0.0316)
     expect(by.tax).toBe(tax)
     expect(by.constructionLoss).toBeNull() // 기존 임대 조건 입력 대기
-    const contingency = Math.round((construction + 15_000_000 + tax) * 0.05)
-    expect(by.contingency).toBe(contingency)
-    const beforeFinance = construction + 15_000_000 + tax + contingency
+    expect(by.contingency).toBeUndefined() // 예비비는 총사업비에 합산하지 않음 (2026-10-13)
+    const beforeFinance = construction + Math.round(construction * 0.05) + tax
     expect(f.loanWon).toBe(Math.round(beforeFinance * 0.8))
     expect(by.finance).toBe(Math.round(Math.round(beforeFinance * 0.8) * 0.06 * (2 / 12) * 0.5))
     expect(f.totalCostWon).toBe(beforeFinance + (by.finance as number))
-    expect(f.totalCostWon).toBe(253_591_771)
+    expect(f.totalCostWon).toBe(237_431_930)
   })
 
   it('합계 검산: 항목 합 = 총사업비, 자기자본 + 대출 = 총사업비, 대출 = (금융비용 전 소계) × 대출 비율', async () => {
@@ -75,8 +74,8 @@ describe('T1 ALL 증축 (+1층 53.829㎡ + 측면 보강 36.52㎡ = 90.349㎡, 3
     expect(f.revenue.noiWon).toBe(41_303_051)
     expect(f.revenue.noiIncreaseWon).toBe(f.revenue.noiWon) // 증축은 새 세대 NOI가 곧 증가분
     expect(f.metrics.roi).toBeCloseTo(f.revenue.noiIncreaseWon! / f.totalCostWon!, 8)
-    expect(f.metrics.roi!).toBeCloseTo(0.1629, 3)
-    expect(f.metrics.paybackYears!).toBeCloseTo(6.14, 1)
+    expect(f.metrics.roi!).toBeCloseTo(0.174, 3)
+    expect(f.metrics.paybackYears!).toBeCloseTo(5.75, 1)
     expect(f.metrics.roi! * f.metrics.paybackYears!).toBeCloseTo(1, 10)
   })
 
@@ -107,7 +106,7 @@ describe('T1 ALL 증축 (+1층 53.829㎡ + 측면 보강 36.52㎡ = 90.349㎡, 3
 })
 
 describe('재건축 (REBUILD)', () => {
-  it('T1: 공사 연면적 = 498.75 + 필로티 119.7 = 618.45㎡ × max(신축단가표 2,055,379원, 지상 6층 실적 환산 1,706,762원) = 신축단가표, 26세대 × 500만원, 철거비는 공사비에 포함', async () => {
+  it('T1: 공사 연면적 = 498.75 + 필로티 119.7 = 618.45㎡ × max(신축단가표 2,055,379원, 지상 6층 실적 환산 1,706,762원) = 신축단가표, 제반비용 공사비 5%, 철거비는 공사비에 포함', async () => {
     const a = await load(T1, 'REBUILD')
     const f = a.finance.byScenario.BASE
     expect(f.project.kind).toBe('rebuild')
@@ -119,7 +118,7 @@ describe('재건축 (REBUILD)', () => {
     expect(by.construction.amountWon).toBe(Math.round(618.45 * 2_055_379)) // 신축단가표가 더 높아 적용
     expect(by.construction.basis).toContain('건물신축단가표 2,055,379원/㎡ vs 엑셀 신축비용 1,706,762원/㎡ 중 높은 값')
     expect(by.construction.grade).toBe('B')
-    expect(by.permit.amountWon).toBe(130_000_000)
+    expect(by.permit.amountWon).toBe(Math.round(by.construction.amountWon! * 0.05)) // 신축 공사비의 5% (2026-10-13)
     expect(by.demolition).toBeUndefined() // 철거비는 신축 공사비에 포함 (2026-10-12)
     expect(by.construction.basis).toContain('철거비 포함')
     const months = f.assumptions.find((x) => x.key === 'rebuildConstructionMonths')!.value!

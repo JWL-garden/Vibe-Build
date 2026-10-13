@@ -1,6 +1,6 @@
 import { formatNumber } from '@/lib/format'
 import type { SiteReport } from '@/types'
-import { Badge, DataTable, Lead, StatCard, SubTitle } from '../ReportParts'
+import { DataTable, Lead, StatCard, SubTitle } from '../ReportParts'
 
 /** 1장: 대상 건축물 현황 — 건축물대장 값, 층별 용도·호별 면적, 추가확보 가능면적 */
 export default function SiteCh01Status({ report }: { report: SiteReport }) {
@@ -63,7 +63,6 @@ function LandValue({ land }: { land: SiteReport['status']['land'] }) {
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-serif text-xl font-bold text-ink">{land.valueText}</span>
         <span className="text-sm text-ink-soft">{land.exactText}</span>
-        <Badge tone={land.tone}>{land.badge}</Badge>
       </div>
       <p className="mt-1 text-xs text-ink-faint">{land.basisNote}</p>
       {land.rows.length > 0 && (
