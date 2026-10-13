@@ -14,8 +14,8 @@ import { ALL_EXTENSIONS } from '@gltf-transform/extensions'
 import { prune, dedup, joinPrimitives } from '@gltf-transform/functions'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const INPUT = resolve(ROOT, process.argv[2] ?? '../261012_dangsan_sunlight_v4.glb')
-const OUTPUT = resolve(ROOT, process.argv[3] ?? 'public/models/261012_dangsan_sunlight_v4_T1T2.glb')
+const INPUT = resolve(ROOT, process.argv[2] ?? '../261012_dangsan_sunlight_v5.glb')
+const OUTPUT = resolve(ROOT, process.argv[3] ?? 'public/models/261012_dangsan_sunlight_v5_T1T2.glb')
 const AREAS_JSON = resolve(ROOT, 'lib/data/massAreas.json')
 
 /** lib/geo/massModel.ts 의 CONTEXT_RADIUS_M 과 같게 둔다 (테스트가 일치 여부를 확인) + 카메라 여유 */
