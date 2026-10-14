@@ -31,6 +31,10 @@ interface Props {
   interactive?: boolean
   /** 높이 등 크기 (예: 'h-56') */
   className?: string
+  /** true면 부모(flex 열)의 남는 높이를 3D 뷰가 모두 채운다 (className 높이 무시) */
+  fill?: boolean
+  /** 값이 바뀌면 3D 카메라를 처음 조감 화면으로 되돌린다 (view 버튼) */
+  resetKey?: number
 }
 
 /** 범례 색 — ParcelMassView 의 COLORS 와 맞춘다 */
@@ -64,6 +68,8 @@ export default function MassView({
   useModel = true,
   interactive = true,
   className = 'h-56',
+  fill = false,
+  resetKey = 0,
 }: Props) {
   const [info, setInfo] = useState<MassInfo | null>(null)
   const rebuild = rebuildFloors !== null
@@ -110,8 +116,8 @@ export default function MassView({
           ]
 
   return (
-    <div className="w-full">
-      <div className={`${className} w-full`}>
+    <div className={fill ? 'flex min-h-0 w-full flex-1 flex-col' : 'w-full'}>
+      <div className={fill ? 'min-h-0 w-full flex-1' : `${className} w-full`}>
         <ParcelMassView
           pnu={pnu}
           mode={mode}
@@ -119,16 +125,20 @@ export default function MassView({
           rebuildFloors={rebuildFloors}
           sideIncluded={sideAreaM2 === undefined ? undefined : sideAreaM2 > 0}
           interactive={interactive}
+          resetKey={resetKey}
           fallback={illustration}
           onInfo={setInfo}
         />
       </div>
-      <Legend items={legend} />
-      {notes.map((n) => (
-        <p key={n} className="mt-1 text-center text-[11px] text-ink-faint">
-          {n}
-        </p>
-      ))}
+      {/* fill(분석 화면 패널): 3D 아래 여백 칸(최소 44px) 안에서 범례·안내를 위아래 가운데에 놓는다 */}
+      <div className={fill ? 'flex min-h-11 shrink-0 flex-col items-center justify-center py-1 [&>ul]:mt-0' : undefined}>
+        <Legend items={legend} />
+        {notes.map((n) => (
+          <p key={n} className="mt-1 text-center text-[11px] text-ink-faint">
+            {n}
+          </p>
+        ))}
+      </div>
     </div>
   )
 }

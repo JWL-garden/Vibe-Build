@@ -53,6 +53,9 @@ export default function AnalysisLayout(p: Props) {
   // 첫 화면 숫자 모션이 끊기지 않도록, 3D 모델(무거움)은 모션이 끝난 뒤 불러온다
   const hasMotion = !!p.motionGroups
   const [show3d, setShow3d] = useState(!hasMotion)
+  // view 버튼: 누를 때마다 +1 → 해당 3D 뷰 카메라를 처음 화면으로 되돌린다
+  const [resetBefore, setResetBefore] = useState(0)
+  const [resetAfter, setResetAfter] = useState(0)
   useEffect(() => {
     if (!hasMotion) return
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -96,20 +99,20 @@ export default function AnalysisLayout(p: Props) {
           caption={p.massPnu && p.massUseModel !== false ? '드래그 = 회전  ·  휠 = 확대' : '모델이 없으면 일러스트로 표시'}
         />
         <div className="grid gap-5 md:grid-cols-2">
-          <ViewPanel label={`${p.workName ?? '증축'} 전`} description="현재 건물">
+          <ViewPanel label={`${p.workName ?? '증축'} 전`} description="현재 건물" onReset={p.massPnu ? () => setResetBefore((n) => n + 1) : undefined}>
             {p.massPnu && !show3d ? (
               <div className="h-56 w-full" />
             ) : p.massPnu ? (
-              <MassView pnu={p.massPnu} mode="before" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
+              <MassView fill resetKey={resetBefore} pnu={p.massPnu} mode="before" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
             ) : (
               <BuildingIllustration floors={p.floorsAbove} className="h-56 w-full" />
             )}
           </ViewPanel>
-          <ViewPanel label={`${p.workName ?? '증축'} 후`} description={p.afterCaption} accent>
+          <ViewPanel label={`${p.workName ?? '증축'} 후`} description={p.afterCaption} accent onReset={p.massPnu ? () => setResetAfter((n) => n + 1) : undefined}>
             {p.massPnu && !show3d ? (
               <div className="h-56 w-full" />
             ) : p.massPnu ? (
-              <MassView pnu={p.massPnu} mode="after" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
+              <MassView fill resetKey={resetAfter} pnu={p.massPnu} mode="after" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
             ) : (
               <BuildingIllustration floors={p.floorsAbove} addFloors={p.addFloors} showAddition className="h-56 w-full" />
             )}
@@ -143,11 +146,14 @@ function ViewPanel({
   label,
   description,
   accent = false,
+  onReset,
   children,
 }: {
   label: string
   description: string
   accent?: boolean
+  /** 있으면 라벨 옆에 작은 view 버튼을 둔다 (3D 카메라 초기화) */
+  onReset?: () => void
   children: React.ReactNode
 }) {
   return (
@@ -156,10 +162,20 @@ function ViewPanel({
         <div className="flex items-center gap-2">
           <span className={`h-2.5 w-2.5 rounded-full ${accent ? 'bg-accent' : 'bg-existing'}`} />
           <span className="font-medium text-ink">{label}</span>
+          {onReset && (
+            <button
+              type="button"
+              onClick={onReset}
+              title="처음 3D 화면으로 되돌리기"
+              className="rounded-full border border-line px-2 py-0.5 text-[11px] leading-none text-ink-soft transition hover:border-ink/30 hover:text-ink"
+            >
+              view
+            </button>
+          )}
         </div>
         <span className="text-right text-sm text-ink-faint">{description}</span>
       </div>
-      <div className="flex aspect-[4/3] flex-col items-center justify-end bg-mist px-8 pb-6">
+      <div className="flex aspect-[4/3] flex-col items-stretch justify-end bg-mist px-[11px] pb-0 pt-[11px]">
         {children}
       </div>
     </div>

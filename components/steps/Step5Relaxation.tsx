@@ -46,7 +46,8 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
 
   return (
     <div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      {/* 카드는 3개 행(머리·규칙·판정)을 가로로 공유(subgrid)해서, 설명이 가장 긴 카드에 맞춰 규칙 구분선이 같은 높이에 놓인다 */}
+      <div className="grid gap-y-3 sm:grid-cols-3 sm:gap-x-3 sm:gap-y-0">
         {scenarios.map((s) => {
           const e = byScenario[s.rulesId]
           const v = ruleValues(e)
@@ -61,12 +62,14 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
               onClick={() => onSelect(s.id)}
               aria-pressed={active}
               data-scenario={s.id}
-              className={`flex flex-col rounded-card border p-4 text-left transition ${
+              className={`flex flex-col rounded-card border p-4 text-left transition sm:row-span-3 sm:grid sm:grid-rows-subgrid ${
                 active ? 'border-action bg-action-soft/60 ring-1 ring-action' : 'border-line bg-paper hover:border-ink/30'
               }`}
             >
-              <div className="font-serif text-lg font-bold text-ink">{HOME_SCENARIO_NAME[s.id]}</div>
-              <p className="mt-1 text-xs leading-relaxed text-ink-faint">{s.rationale}</p>
+              <div>
+                <div className="font-serif text-lg font-bold text-ink">{HOME_SCENARIO_NAME[s.id]}</div>
+                <p className="mt-1 text-xs leading-relaxed text-ink-faint">{s.rationale}</p>
+              </div>
 
               <dl className="mt-3 space-y-1 border-t border-line pt-3 text-xs">
                 <Value label="용적률" value={`${formatNumber(v.far, 0)}%`} changed={v.far !== base.far} />

@@ -13,7 +13,7 @@
 // - 증축 전/후 두 뷰는 같은 카메라(북서쪽 위 45° 조감, 건물이 화면 가득 — lib/geo/cameraFit.ts)라 나란히 놓으면 바로 비교된다
 // - 인쇄(PDF)용: 렌더가 끝나면 PNG 스냅샷을 만들어 인쇄 시 캔버스 대신 이미지로 출력한다
 
-import { Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentRef } from 'react'
 import * as THREE from 'three'
 import { Canvas, useThree } from '@react-three/fiber'
 import { MASS_VIEW, fitCamera, type Vec3 } from '@/lib/geo/cameraFit'
@@ -68,6 +68,8 @@ interface Props {
   className?: string
   /** false면 회전·확대 잠금 (보고서용) */
   interactive?: boolean
+  /** 값이 바뀌면(버튼 클릭마다 +1) 카메라를 처음 조감 화면으로 되돌린다 */
+  resetKey?: number
   /** 이 필지가 모델에 없을 때 대신 보여줄 것 (예: BuildingIllustration) */
   fallback?: React.ReactNode
   /** 스냅샷(PNG dataURL)이 만들어지면 호출 — store 에 저장해 보고서에서 재사용할 때 */
@@ -100,6 +102,7 @@ export default function ParcelMassView({
   url = DEFAULT_MASS_MODEL_URL,
   className,
   interactive = true,
+  resetKey = 0,
   fallback = null,
   onSnapshot,
   onInfo,
@@ -130,6 +133,7 @@ export default function ParcelMassView({
               rebuildFloors={rebuildFloors}
               sideIncluded={sideIncluded}
               interactive={interactive}
+              resetKey={resetKey}
               onStatus={setStatus}
               onInfo={onInfo}
               onSnapshot={(d) => {
@@ -337,6 +341,7 @@ function MassModel({
   rebuildFloors,
   sideIncluded,
   interactive,
+  resetKey,
   onStatus,
   onInfo,
   onSnapshot,
@@ -348,6 +353,7 @@ function MassModel({
   rebuildFloors: number | null
   sideIncluded: boolean | undefined
   interactive: boolean
+  resetKey: number
   onStatus: (s: Status) => void
   onInfo?: (info: MassInfo) => void
   onSnapshot: (dataUrl: string) => void
@@ -359,6 +365,7 @@ function MassModel({
     [source, pnu, mode, addFloors, rebuildFloors, sideIncluded],
   )
   useEffect(() => () => built.dispose(), [built])
+  const controls = useRef<ComponentRef<typeof OrbitControls>>(null)
 
   // 북서쪽 위 45° 조감 — 대상 건물(증축 후 매스) 상자가 화면 비율에 맞게 가득 차도록 (lib/geo/cameraFit.ts)
   // 대상 건물은 buildMass에서 중심 (0,0)·바닥 y=0으로 옮겨져 있다
@@ -380,6 +387,19 @@ function MassModel({
     camera.updateMatrixWorld()
     invalidate()
   }, [camera, position, target, invalidate])
+
+  // view 버튼: 드래그·휠로 바뀐 카메라를 처음 조감 화면(fitCamera)으로 되돌린다
+  useEffect(() => {
+    if (resetKey === 0) return
+    controls.current?.target.copy(target)
+    camera.position.copy(position)
+    camera.lookAt(target)
+    controls.current?.update()
+    camera.updateMatrixWorld()
+    invalidate()
+    // 버튼을 눌렀을 때만 동작한다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetKey])
 
   // 상태 알림 + 인쇄용 스냅샷 (카메라 세팅 후 한 번 직접 렌더해서 캡처)
   useEffect(() => {
@@ -404,6 +424,7 @@ function MassModel({
       )}
 
       <OrbitControls
+        ref={controls}
         target={target}
         enabled={interactive}
         enableDamping={false}
