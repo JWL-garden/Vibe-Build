@@ -2,7 +2,7 @@
 
 // 화면·보고서가 쓰는 3D 매스 뷰 (증축 전 또는 증축 후 한 장)
 // - GLB 모델(public/models)에 이 필지가 있으면 ParcelMassView, 없으면 BuildingIllustration
-// - 재건축(rebuildFloors 지정): 증축 후 = 기존 + 증축 전체를 신축 매스(옅은 청록)로 표시
+// - 재건축(rebuildFloors 지정): 증축 후 = 기존 + 증축 전체를 신축 매스(파랑 #0071e3)로 표시
 // - three.js는 브라우저에서만 동작하므로 next/dynamic(ssr: false)으로 불러온다. 불러오는 동안·서버 렌더에서는 일러스트
 // - 숫자(증축·신축 층수)는 runAll 결과를 받아 쓰고 여기서 계산하지 않는다
 
@@ -36,8 +36,8 @@ interface Props {
 /** 범례 색 — ParcelMassView 의 COLORS 와 맞춘다 */
 const SWATCH = {
   existing: '#a9a9a9',
-  addition: '#f07828',
-  rebuilt: '#7fcfc4',
+  addition: '#0066cc',
+  rebuilt: '#0071e3',
   context: '#8f8f8f',
 }
 

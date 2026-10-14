@@ -6,7 +6,7 @@
 //   노드 이름 규칙은 lib/geo/massModel.ts 참고
 // - 증축 전: 대상 필지 EXIST 층만 / 증축 후: EXIST + REV (REV는 계산 엔진의 증축 층수만큼 — addFloors)
 //   · REV_F{n}_TOP = 기존 최상층 위의 새 층, REV_F{n}_SIDE = 일조 사선으로 물러난 기존 층의 측면 보강부
-// - 재건축(rebuildFloors 지정) 증축 후: 기존 + 증축 전체를 "재건축 신축 매스"(옅은 청록)로 그린다. 계산된 지상 층수까지만
+// - 재건축(rebuildFloors 지정) 증축 후: 기존 + 증축 전체를 "재건축 신축 매스"(파랑 #0071e3)로 그린다. 계산된 지상 층수까지만
 // - 주변 건물은 회색 반투명(반경 CONTEXT_RADIUS_M 안), 주변 증축안(REV)은 숨김. 지형(TERRAIN)이 있으면 지면으로 쓴다
 // - GLB 좌표가 TM 절대좌표(약 191,000 / -548,000)라서 대상 필지 중심을 (0,0), 대상 건물 바닥을 y=0 으로 옮긴다
 //   (설계서 7-3 좌표 규칙: x=동, -z=북, y=높이)
@@ -36,9 +36,10 @@ export const DEFAULT_MASS_MODEL_URL = '/models/261012_dangsan_sunlight_v5_T1T2.g
 // 색은 globals.css 의 --color-existing / --color-accent 와 맞춰 둔다
 const COLORS = {
   targetExisting: '#a9a9a9',
-  targetAddition: '#f07828',
-  /** 재건축 신축 매스 — 옅은 청록 */
-  targetRebuilt: '#7fcfc4',
+  /** 증축분 — 파랑 #0066cc */
+  targetAddition: '#0066cc',
+  /** 재건축 신축 매스 — 파랑 #0071e3 */
+  targetRebuilt: '#0071e3',
   /** 주변 건물 — 회색 반투명 */
   context: '#8f8f8f',
   edge: '#4a4a4a',

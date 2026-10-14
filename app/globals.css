@@ -5,7 +5,7 @@
 @source not "./fonts";
 
 /* 디자인 토큰 — 애플 코리아 메인 화면 톤 (docs/moodboard.md): 흰색·옅은 회색 구획 + 잉크 글자 + 파란 상호작용색.
-   주황(accent)은 증축분 표시에만 쓴다. */
+   포인트 색은 파랑 한 가지. 증축분은 accent(#0066cc), 재건축분은 action(#0071e3)으로 구분한다. */
 @theme {
   --color-ink: #1d1d1f;        /* 본문·제목 글자 */
   --color-ink-soft: #6e6e73;   /* 보조 글자 */
@@ -17,8 +17,8 @@
   --color-action-hover: #0077ed;
   --color-action-soft: #e8f1fc;
   --color-link: #0066cc;       /* 텍스트 링크 */
-  --color-accent: #e0621b;     /* 증축분 표시 전용 (3D·증축 후 값) */
-  --color-accent-soft: #fdf0e8;
+  --color-accent: #0066cc;     /* 증축분 표시 전용 (3D 증축 층·증축 후 값·증축 선). 재건축분은 action */
+  --color-accent-soft: #e8f1fc;
   --color-existing: #8d9494;   /* 기존 건물 */
   --color-deep: #424245;       /* 짙은 보조색: 표 머리글·아이콘·도면 선 */
 

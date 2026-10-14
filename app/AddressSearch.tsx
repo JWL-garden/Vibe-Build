@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import BuildingIllustration from '@/components/layout/BuildingIllustration'
 import { getExampleAddresses, searchSites } from '@/lib/services/dataService'
 import type { ExampleAddress, SiteCandidate } from '@/types'
 
-/** 메인 페이지의 주소 검색창. 입력칸을 누르면 T1·T2 예시 주소가 목록으로 나온다 (사용자 입력을 받으므로 클라이언트 컴포넌트) */
+/** 메인 페이지의 주소 검색창 (아래 예시 카드 목록은 ExampleGrid). 입력칸을 누르면 T1·T2 예시 주소가 목록으로 나온다 (사용자 입력을 받으므로 클라이언트 컴포넌트) */
 export default function AddressSearch() {
   const router = useRouter()
   const [query, setQuery] = useState('')
@@ -16,7 +17,7 @@ export default function AddressSearch() {
   const boxRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    getExampleAddresses().then((list) => setExamples(list.filter((ex) => ex.tag)))
+    getExampleAddresses().then(setExamples)
   }, [])
 
   // 입력칸 바깥을 누르거나 Esc 를 누르면 예시 목록을 닫는다
@@ -34,6 +35,9 @@ export default function AddressSearch() {
       document.removeEventListener('keydown', onKey)
     }
   }, [])
+
+  // 입력칸을 눌렀을 때는 우선 분석 대상(T1·T2, tag 있음)만 보여 준다. 아래 카드 그리드는 전체
+  const dropdownExamples = examples.filter((ex) => ex.tag)
 
   const goToAnalysis = (pnu: string) => router.push(`/analysis?pnu=${pnu}`)
 
@@ -85,13 +89,13 @@ export default function AddressSearch() {
             </button>
           </form>
 
-          {open && examples.length > 0 && (
+          {open && dropdownExamples.length > 0 && (
             <ul
               role="listbox"
               aria-label="예시 주소"
               className="absolute left-0 right-0 top-full z-10 mt-2 divide-y divide-line overflow-hidden rounded-card border border-line bg-paper shadow-[0_8px_30px_rgba(21,23,23,0.08)]"
             >
-              {examples.map((ex) => (
+              {dropdownExamples.map((ex) => (
                 <li key={ex.pnu} role="option" aria-selected={false}>
                   <button
                     type="button"
@@ -129,5 +133,52 @@ export default function AddressSearch() {
         )}
       </section>
     </>
+  )
+}
+
+/** 메인 아래쪽 예시 주소 카드 (첫 화면 아래로 스크롤했을 때만 보인다). 카드는 전체 예시 10개 */
+export function ExampleGrid() {
+  const router = useRouter()
+  const [examples, setExamples] = useState<ExampleAddress[]>([])
+
+  useEffect(() => {
+    getExampleAddresses().then(setExamples)
+  }, [])
+
+  const goToAnalysis = (pnu: string) => router.push(`/analysis?pnu=${pnu}`)
+
+  return (
+      <section className="mx-auto max-w-[1024px] px-4 pb-8 pt-6 sm:px-6">
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="text-[17px] font-semibold leading-snug text-ink-faint">예시 주소로 바로 보기</h2>
+          <span className="shrink-0 text-xs text-ink-faint">샘플 데이터 · {examples.length}개</span>
+        </div>
+        <div className="mt-6 grid gap-[14px] md:grid-cols-2">
+          {examples.map((ex) => (
+            <button
+              key={ex.pnu}
+              type="button"
+              onClick={() => goToAnalysis(ex.pnu)}
+              className="group flex flex-col overflow-hidden rounded-[28px] bg-mist text-left transition duration-300 hover:-translate-y-1"
+            >
+              <div className="relative flex h-48 items-end justify-center px-6 pt-6">
+                {ex.tag && (
+                  <span className="absolute left-6 top-6 rounded-full bg-action/10 px-3 py-1 text-xs font-semibold text-action">
+                    {ex.tag}
+                  </span>
+                )}
+                <BuildingIllustration floors={ex.floorsAbove} showAddition className="h-40 w-full" />
+              </div>
+              <div className="flex items-center justify-between gap-3 px-7 py-6">
+                <div className="min-w-0">
+                  <div className="text-xl font-semibold leading-snug tracking-[-0.01em] text-ink">{ex.label}</div>
+                  <div className="mt-1 text-sm text-ink-soft">{ex.note}</div>
+                </div>
+                <span className="shrink-0 text-sm font-medium text-link">살펴보기 ›</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
   )
 }

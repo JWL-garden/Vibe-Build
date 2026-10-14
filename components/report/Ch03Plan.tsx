@@ -18,7 +18,7 @@ export default function Ch03Plan({ data }: { data: ReportData }) {
       <div className="mt-6 grid grid-cols-[1fr_1.4fr] gap-5">
         <div className="rounded-card bg-mist px-6 pb-4 pt-6">
           <BuildingIllustration floors={b.floorsAbove} addFloors={after.addFloors} showAddition className="h-56 w-full" />
-          <p className="mt-2 text-center text-xs text-ink-faint">회색 기존 {b.floorsAbove}층 · 주황 증축 {after.addFloors}층</p>
+          <p className="mt-2 text-center text-xs text-ink-faint">회색 기존 {b.floorsAbove}층 · 파랑 증축 {after.addFloors}층</p>
         </div>
         <div className="grid grid-cols-2 content-start gap-3">
           <StatCard label="증축 층수" value={`+${after.addFloors}층`} caption={`${b.floorsAbove}층 → ${after.newTotalFloors}층`} />

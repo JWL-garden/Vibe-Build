@@ -51,8 +51,8 @@ export type MassViewMode = 'before' | 'after'
 
 export type MassRole =
   | 'targetExisting' //  대상 필지 기존 층 (회색)
-  | 'targetAddition' //  대상 필지 증축 부분 (주황) — 증축 후 뷰에서만
-  | 'targetRebuilt' //   재건축 신축 매스 (옅은 청록) — 재건축 증축 후 뷰: 기존 + 증축분 전체
+  | 'targetAddition' //  대상 필지 증축 부분 (파랑 #0066cc) — 증축 후 뷰에서만
+  | 'targetRebuilt' //   재건축 신축 매스 (파랑 #0071e3) — 재건축 증축 후 뷰: 기존 + 증축분 전체
   | 'context' //         주변 필지 기존 층 (회색 반투명)
   | 'hidden' //          표시 안 함 (주변 필지의 증축안, 증축 전 뷰의 증축 부분, 계산 층수를 넘는 층)
 

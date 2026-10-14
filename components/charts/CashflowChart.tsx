@@ -33,7 +33,7 @@ export default function CashflowChart({ cashflow, label = '증축' }: { cashflow
           <Line
             name={withAsset ? `${label}함 (순자산)` : `${label}함`}
             dataKey="with"
-            stroke="#e0621b"
+            stroke="#0066cc"
             strokeWidth={2.5}
             dot={false}
             isAnimationActive={false}
