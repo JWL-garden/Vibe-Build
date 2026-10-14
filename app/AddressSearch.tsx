@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import BuildingIllustration from '@/components/layout/BuildingIllustration'
-import { getExampleAddresses, searchSites } from '@/lib/services/dataService'
+import { runAll } from '@/lib/calc'
+import { formatRate } from '@/lib/format'
+import { getExampleAddresses, getSiteData, searchSites } from '@/lib/services/dataService'
 import type { ExampleAddress, SiteCandidate } from '@/types'
 
 /** 메인 페이지의 주소 검색창 (아래 예시 카드 목록은 ExampleGrid). 입력칸을 누르면 T1·T2 예시 주소가 목록으로 나온다 (사용자 입력을 받으므로 클라이언트 컴포넌트) */
@@ -140,10 +142,26 @@ export default function AddressSearch() {
 export function ExampleGrid() {
   const router = useRouter()
   const [examples, setExamples] = useState<ExampleAddress[]>([])
+  /** 카드별 ROI: 복합 완화(증축) 시나리오 · 수익 기준 시나리오의 runAll 결과. undefined = 계산 전, null = 증축 불가 등 계산 없음 */
+  const [roiByPnu, setRoiByPnu] = useState<Record<string, number | null>>({})
 
   useEffect(() => {
     getExampleAddresses().then(setExamples)
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    examples.forEach((ex) => {
+      void getSiteData(ex.pnu).then((data) => {
+        if (cancelled) return
+        const roi = data ? runAll(data, 'ALL').finance.byScenario.BASE.metrics.roi : null
+        setRoiByPnu((prev) => ({ ...prev, [ex.pnu]: roi }))
+      })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [examples])
 
   const goToAnalysis = (pnu: string) => router.push(`/analysis?pnu=${pnu}`)
 
@@ -169,12 +187,18 @@ export function ExampleGrid() {
                 )}
                 <BuildingIllustration floors={ex.floorsAbove} showAddition className="h-40 w-full" />
               </div>
-              <div className="flex items-center justify-between gap-3 px-7 py-6">
-                <div className="min-w-0">
-                  <div className="text-xl font-semibold leading-snug tracking-[-0.01em] text-ink">{ex.label}</div>
-                  <div className="mt-1 text-sm text-ink-soft">{ex.note}</div>
+              <div className="px-7 py-6">
+                <div className="text-xl font-semibold leading-snug tracking-[-0.01em] text-ink">{ex.label}</div>
+                {/* 세대수 줄: 왼쪽 세대수 + [ROI], 오른쪽 살펴보기 (같은 행·같은 높이) */}
+                <div className="mt-1 flex items-baseline justify-between gap-3 text-sm leading-6">
+                  <span className="min-w-0 text-ink-soft">
+                    {ex.note}
+                    {roiByPnu[ex.pnu] !== undefined && roiByPnu[ex.pnu] !== null && (
+                      <span className="ml-1.5 font-medium text-ink">[ROI {formatRate(roiByPnu[ex.pnu])}]</span>
+                    )}
+                  </span>
+                  <span className="shrink-0 font-medium text-link">살펴보기 ›</span>
                 </div>
-                <span className="shrink-0 text-sm font-medium text-link">살펴보기 ›</span>
               </div>
             </button>
           ))}

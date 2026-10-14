@@ -29,7 +29,10 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
       <section>
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="font-serif text-lg font-bold text-ink">토지가액</h3>
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${TONE_CLASS[badge.tone]}`}>{badge.badge}</span>
+          {/* '면적 확인 필요'(mismatch)는 화면에서 표시하지 않는다 (2026-10-14). 다른 상태는 그대로 */}
+          {land.basis !== 'mismatch' && (
+            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${TONE_CLASS[badge.tone]}`}>{badge.badge}</span>
+          )}
         </div>
         <p className="mt-1 text-xs text-ink-faint">{landBasisNote(land)}</p>
         <p className="mt-3 font-serif text-3xl font-bold text-ink">{formatWon(land.valueWon)}</p>
@@ -49,7 +52,9 @@ export default function Step8Finance({ analysis }: { analysis: SiteAnalysis }) {
           </ul>
         )}
         <ul className="mt-3 space-y-1 text-xs text-ink-faint">
-          {land.reasons.map((r) => (
+          {land.reasons
+            .filter((r) => !r.includes('면적 확인 필요'))
+            .map((r) => (
             <li key={r}>· {r}</li>
           ))}
           {land.siteAreaM2 !== null && land.basis !== 'estimated' && (
