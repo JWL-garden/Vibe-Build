@@ -16,6 +16,8 @@ export default function AddressSearch() {
   const [message, setMessage] = useState<string | null>(null)
   const [examples, setExamples] = useState<ExampleAddress[]>([])
   const [open, setOpen] = useState(false)
+  /** 목록에서 고른 예시 주소의 PNU. 있으면 [분석하기]를 눌렀을 때 바로 그 필지로 이동 */
+  const [selectedPnu, setSelectedPnu] = useState<string | null>(null)
   const boxRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -49,6 +51,10 @@ export default function AddressSearch() {
     setMessage(null)
     setOpen(false)
 
+    if (selectedPnu) {
+      goToAnalysis(selectedPnu)
+      return
+    }
     if (query.trim() === '') {
       setMessage('주소를 입력해 주세요.')
       return
@@ -75,7 +81,10 @@ export default function AddressSearch() {
             <input
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+              setQuery(e.target.value)
+              setSelectedPnu(null)
+            }}
               onFocus={() => setOpen(true)}
               onClick={() => setOpen(true)}
               autoComplete="off"
@@ -101,7 +110,14 @@ export default function AddressSearch() {
                 <li key={ex.pnu} role="option" aria-selected={false}>
                   <button
                     type="button"
-                    onClick={() => goToAnalysis(ex.pnu)}
+                    onClick={() => {
+                      // 선택만 한다: 입력칸에 주소를 채우고, 이동은 [분석하기]를 눌렀을 때
+                      setQuery(ex.label)
+                      setSelectedPnu(ex.pnu)
+                      setMessage(null)
+                      setCandidates([])
+                      setOpen(false)
+                    }}
                     className="w-full px-5 py-4 text-left transition hover:bg-mist"
                   >
                     <div className="font-medium text-ink">{ex.label}</div>
