@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import BuildingIllustration from '@/components/layout/BuildingIllustration'
 import MassView from '@/components/three/MassView'
 import type { Kpi } from '@/types'
@@ -38,7 +39,10 @@ const PENDING_KPIS = ['증축 규모', '총사업비', 'ROI', '투자회수기�
 export default function Ch00Summary(p: Props) {
   return (
     <div className="flex h-full flex-col">
-      <p className="mt-4 font-serif text-lg font-bold text-ink">Vibe Build</p>
+      <p className="mt-4 flex items-center gap-2 font-serif text-lg font-bold text-ink">
+        <Image src="/logo.png" alt="" width={115} height={96} className="h-[22px] w-auto" />
+        Vibe Build
+      </p>
 
       <div className="mt-16">
         <p className="text-sm font-medium text-ink-soft">건축주 제출용 검토 보고서</p>

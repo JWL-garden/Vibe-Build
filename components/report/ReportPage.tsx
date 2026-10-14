@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 interface Props {
   /** 대상 주소 (머리글에는 현재 장 목차를 표시하므로 쓰지 않음) */
   address: string
@@ -31,7 +33,10 @@ export default function ReportPage({ chapter, page, sourceLabel, children, fixed
     >
       {chapter && (
         <header className="flex items-center justify-between border-b border-line pb-2 text-xs text-ink-faint">
-          <span className="font-serif font-bold text-ink">Vibe Build</span>
+          <span className="flex items-center gap-1.5 font-serif font-bold text-ink">
+            <Image src="/logo.png" alt="" width={115} height={96} className="h-[14px] w-auto" />
+            Vibe Build
+          </span>
           <span>{chapter.no === chapter.title ? chapter.title : `${chapter.no} ${chapter.title}`}</span>
         </header>
       )}

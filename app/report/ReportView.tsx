@@ -5,7 +5,6 @@ import Link from 'next/link'
 import Ch00Summary from '@/components/report/Ch00Summary'
 import { Lead } from '@/components/report/ReportParts'
 import ReportPage from '@/components/report/ReportPage'
-import ReportToolbar from '@/components/report/ReportToolbar'
 import SiteReportPages from '@/components/report/site/SiteReportPages'
 import { buildSiteReport } from '@/lib/report/buildSiteReport'
 import Step1Target from '@/components/steps/Step1Target'
@@ -84,9 +83,8 @@ export default function ReportView({
 
   if (siteReport) {
     return (
-      <main className="bg-mist pb-16 print:bg-paper print:pb-0">
-        <ReportToolbar backHref={backHref} backLabel="분석으로 돌아가기" info={`법규 시나리오: ${siteReport.meta.scenarioLabel}`} />
-        <div className="mt-6 flex flex-col gap-8 px-4 print:mt-0 print:gap-0 print:px-0">
+      <main className="flow-root bg-mist pb-16 print:bg-paper print:pb-0">
+        <div className="mt-4 flex flex-col gap-8 px-4 print:mt-0 print:gap-0 print:px-0">
           <SiteReportPages report={siteReport} />
         </div>
       </main>
@@ -97,9 +95,7 @@ export default function ReportView({
   const name = building.buildingName ?? building.address.replace(/^서울특별시\s*/, '')
 
   return (
-    <main className="bg-mist pb-16 print:bg-paper print:pb-0">
-      <ReportToolbar backHref={backHref} backLabel="분석으로 돌아가기" />
-
+    <main className="flow-root bg-mist pb-16 print:bg-paper print:pb-0">
       {expandability?.status === 'pending' && (
         <p className="mx-auto mt-6 max-w-[210mm] rounded-card border border-line bg-paper px-5 py-3 text-sm text-ink-soft print:hidden">
           증축 가능 여부 <b className="text-ink">판정 대기</b> 상태의 미리보기입니다. 계산 엔진 연결 후 숫자와 결론이
