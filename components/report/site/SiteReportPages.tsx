@@ -32,6 +32,7 @@ import SiteCh07Risk from './SiteCh07Risk'
 import SiteCh08Schedule from './SiteCh08Schedule'
 import SiteCh09Partners from './SiteCh09Partners'
 import SiteCh10NextStep from './SiteCh10NextStep'
+import SiteChapterNav, { type ChapterNavItem } from './SiteChapterNav'
 import SiteToc, { type TocEntry } from './SiteToc'
 import SiteVerification from './SiteVerification'
 
@@ -320,13 +321,21 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
     ...chapters.map((c, i) => ({ no: c.no, title: c.title, note: c.note, page: layout.startPage[i] })),
   ]
 
+  // 오른쪽 스티키 목차: id 는 각 장 첫 쪽의 anchorId 와 같다
+  const navItems: ChapterNavItem[] = [
+    { id: 'sec-toc', no: '목차', title: '목차' },
+    { id: 'sec-cover', no: '0장', title: '표지·요약' },
+    ...chapters.map((c, i) => ({ id: `sec-${i}`, no: c.no, title: c.title })),
+  ]
+
   return (
     <>
-      <ReportPage {...pageProps} chapter={{ no: '목차', title: '목차' }} page={1} fixedHeight>
+      <SiteChapterNav items={navItems} />
+      <ReportPage {...pageProps} chapter={{ no: '목차', title: '목차' }} page={1} fixedHeight anchorId="sec-toc" spyId="sec-toc">
         <SiteToc entries={tocEntries} />
       </ReportPage>
 
-      <ReportPage {...pageProps} chapter={null} page={2} fixedHeight>
+      <ReportPage {...pageProps} chapter={null} page={2} fixedHeight anchorId="sec-cover" spyId="sec-cover">
         <Ch00Summary
           title={meta.title}
           address={meta.address}
@@ -358,6 +367,8 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
           continued={pg.part > 1}
           page={FIRST_CHAPTER_PAGE + i}
           fixedHeight
+          anchorId={pg.part === 1 ? `sec-${pg.chapter}` : undefined}
+          spyId={`sec-${pg.chapter}`}
         >
           {pg.nodes}
         </ReportPage>

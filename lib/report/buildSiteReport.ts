@@ -15,7 +15,7 @@ import { sitePartners } from './partners'
 import { buildSiteRisks } from './risks'
 import { buildSiteSchedule } from './schedule'
 import { scenarioSection } from './scenarioSection'
-import { LAND_BADGE, landAreaSource, landBaseMonthText, landBasisNote } from './landText'
+import { LAND_BADGE, landAreaSource, landBasisNote } from './landText'
 import type {
   ExcelSite,
   ExcelUnit,
@@ -399,7 +399,6 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
   const [s1, s2, s3] = pk.perUnit
   const zone2 = '제2종일반주거지역'
   const zone3 = '제3종일반주거지역'
-  const input = data.siteInput
   const inputText = (v: number | null, unit: string) => (v === null ? '미입력 — 확인 필요' : `${f(v)}${unit} (수기입력)`)
 
   const ruleRows: ReportRow[] = [
@@ -463,49 +462,44 @@ function buildAppendix(data: SiteData, analysis: SiteAnalysis): SiteReport['appe
     ],
   ]
 
-  const sheet = (name: string) => `'${name}' 시트`
+  // 항목·출처 문구는 261014_부록1_데이터 출처.xlsx 기준 (2026-10-14). 출처 줄 끝 "(도메인)"은 화면에서 링크가 된다. 비고는 기존 값 유지(확정 대기)
+  const isRebuild = getViewScenario(analysis.scenarioId).kind === 'rebuild'
   const sourceRows: ReportRow[] = [
-    ['대상 건축물 표제부 (대지·건축·연면적, 용적률, 높이, 층수, 구조, 사용승인일, 승강기, 주차대수)', sheet('건축물대장_2단계'), '기준 엑셀'],
-    ['용도지역', sheet('지역지구구역_2단계'), '기준 엑셀'],
-    ['층별·호별 전용/공용 면적, 주택 층수·면적', sheet('전유공용면적_2단계'), '기준 엑셀'],
-    ['호별 주차 산정 기준 (제5호·제4호·제3호·제2-1호)', sheet('주차대수_세대별'), '기준 엑셀'],
-    ['전용률, 완화 후 허용연면적·주차 검토 (엑셀 대조 정답표)', sheet('용적률완화_주차검토'), '계산 엔진과 자동 대조 (±0.01)'],
-    [
-      '신축 공사비 실적 (㎡당 연면적 기준, 건설공사비지수 2026 환산) — 재건축 신축 단가·공사기간 근거',
-      sheet('공사비 실적'),
-      `기준 엑셀 · ${analysis.finance.construction.applied?.label ?? '표본 없음'} ${analysis.finance.construction.applied?.count ?? 0}건 중앙값 · VAT 포함 도급 공사비`,
-    ],
-    [
-      '개별공시지가 (원/㎡) — 토지가액',
-      `${sheet('개별공시지가_2단계')} (브이월드 개별공시지가)`,
-      analysis.land.priceBasis
-        ? `기준연월 ${analysis.land.priceBasis.baseYear}.${analysis.land.priceBasis.baseMonth ?? '01'} (${landBaseMonthText(analysis.land)} 기준) · 공시일 ${analysis.land.priceBasis.announcedDate} · 시세 아님`
-        : '공시지가 없음 — 토지가액 계산 불가',
-    ],
-    ['토지대장 지목·면적·소유구분', sheet('토지임야목록_2단계'), '필지 면적 검증·토지가액'],
+    ['대상 건축물 표제부', '건축물대장 표제부, 건축HUB (hub.go.kr)', 'PNU 생성 → 가비지 열 17개 삭제 → 2·3종 필지만 남김, 대지면적 공란은 토지대장으로 보완'],
+    ['용도지역', '건축인허가 지역지구구역, 건축HUB (hub.go.kr)\n토지이용계획속성조회, 브이월드 (vworld.kr)', '2·3종 행만 남김 → 두 자료가 다르면 최신 날짜 적용, 걸침 필지는 2종 적용'],
+    ['층별·호별 전용/공용 면적', '건축물대장 전유공용면적, 건축HUB (hub.go.kr)', 'PNU 생성 → 대상 필지만 남김 → 호별 전용·공용 합계와 전용률 산출'],
+    ['호별 주차 산정 기준', '서울특별시 주차장 조례 별표 2, 주택건설기준 등에 관한 규정, 국가법령정보센터 (law.go.kr)', '세대기준·주택법 중 큰 값, 근생 134㎡당 1대, 반올림 없음'],
+    ['전용률·허용연면적·주차 검토', '서울특별시 도시계획 조례, 국가법령정보센터 (law.go.kr)', '대지 × 완화 용적률 상한 − 현재 연면적 → 기존 여유 주차 내 추가 세대 수 산출'],
+    ...(isRebuild
+      ? [
+          [
+            '신축 공사비 실적',
+            '준공 현장 공사비, 하우빌드 (howbuild.com)\n건설공사비지수, 한국건설기술연구원 (kict.re.kr)',
+            '217개 현장 수집 → 2026년 기준 환산과 2025년도 건물신축단가표 (용도별 건물표준단가+부대설비단가 평균) · 한국부동산원 · 2025-11-25 · 철거비 포함 중 높은 값',
+          ],
+        ]
+      : []),
+    ['개별공시지가', '개별공시지가속성조회, 브이월드 (vworld.kr)', 'PNU 11번째 자리 보정 후 매칭, 2026.1.1 기준'],
+    ['토지대장 지목·면적', '토지임야목록, 브이월드 (vworld.kr)', 'PNU 매칭 → 건축물대장 대지면적과 대조'],
     [
       '토지가액 구성 필지',
-      'lib/data/siteInputs.json → lots',
-      input?.lots?.length ? `${input.lots.length}필지 (수기입력)` : '미입력 — 외필지 없으면 대표 필지',
+      '건축물대장 부속지번, 건축HUB (hub.go.kr)',
+      '대표 + 부속 지번 면적 × 공시지가 합산',
     ],
     [
       '정북 이격거리',
-      'lib/data/siteInputs.json',
-      input?.northSetbackM != null ? `${f(input.northSetbackM)}m (수기입력)` : '확인 완료 (일조 사선·높이)',
+      '연속지적도, 브이월드 (vworld.kr)\n건축법 시행령 제86조, 국가법령정보센터 (law.go.kr)',
+      '필지 경계로 정북 이격 확인',
     ],
+    ['증축층 바닥면적', '건축물대장 전유공용면적·표제부, 건축HUB (hub.go.kr)', '최상층 전용 × 0.9'],
+    ['1층 필로티 여부', '건축물대장 층별개요, 건축HUB (hub.go.kr)', '필로티 가정, 도면 확인 필요'],
     [
-      '증축층 바닥면적',
-      `${sheet('전유공용면적_2단계')}·${sheet('건축물대장_2단계')}(지붕) / 옵션2: 가정값 입력 엑셀 '증축층면적_옵션2'`,
-      analysis.selected.floorPlate.detail,
+      '법규 기준',
+      '건축법 시행령·서울시 조례, 국가법령정보센터 (law.go.kr)\n「수도권 23만호+α 추가 공급」, 국토교통부 (molit.go.kr)',
+      '현행 기준과 완화 시나리오 비교',
     ],
-    ['1층 필로티 여부', 'lib/data/siteInputs.json', input?.pilotiFloor1 ? '필로티(가정)' : '필로티 아님'],
-    ['법규 기준', 'lib/rules (건축법 시행령·서울시 조례 + 8·13 대책 완화 기준)', '현행 법규와 완화 기준을 비교'],
-    ['수익성 가정값 (값·범위·등급·출처)', "가정값 입력 엑셀 '가정값' 시트", '출처표: docs/assumption-sources.md'],
-    [
-      '임대 사례 (연립·다세대 전월세 실거래)',
-      "가정값 입력 엑셀 '임대사례' 시트 (서울 열린데이터광장 tbLnOpendataRentV)",
-      `신규 계약 ${analysis.finance.byScenario.BASE.rentBands.map((b) => `${b.label} 신규 월세 ${b.count}건`).join(' · ')} — 최근 12개월`,
-    ],
+    ['수익성 가정값', '기준금리, 한국은행 (bok.or.kr)\n지방세법, 국가법령정보센터 (law.go.kr)', '공식값(A)과 사용자 결정값(C) 구분'],
+    ['임대 사례', '연립다세대 전월세 실거래가, 공공데이터포털 (data.go.kr)', '전세 제외 → 평형 구간별 평당 중앙값 × 세대 전용평수'],
   ]
 
   return {

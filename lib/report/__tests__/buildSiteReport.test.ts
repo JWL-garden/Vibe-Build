@@ -161,13 +161,23 @@ describe('T2 보고서', () => {
 })
 
 describe('부록: 데이터 출처 (기준 엑셀 시트명)', () => {
-  it('엑셀 시트 5개와 수기입력 항목, 엑셀 파일명이 나온다', async () => {
+  it('출처표: 엑셀 261014 항목명·기관 URL, 엑셀 파일명이 나온다', async () => {
     const r = await build(T1)
-    const sources = r.appendix.sourceRows.map((row) => row[1]).join(' ')
-    for (const sheet of ['건축물대장_2단계', '지역지구구역_2단계', '전유공용면적_2단계', '주차대수_세대별', '용적률완화_주차검토']) {
-      expect(sources).toContain(`'${sheet}' 시트`)
+    const items = r.appendix.sourceRows.map((row) => row[0])
+    for (const item of ['대상 건축물 표제부', '용도지역', '개별공시지가', '토지대장 지목·면적', '임대 사례']) {
+      expect(items).toContain(item)
     }
-    expect(r.appendix.sourceRows.find((row) => row[0] === '정북 이격거리')![2]).toBe('확인 완료 (일조 사선·높이)')
+    const sources = r.appendix.sourceRows.map((row) => row[1]).join(' ')
+    for (const url of ['hub.go.kr', 'vworld.kr', 'law.go.kr', 'bok.or.kr', 'data.go.kr']) {
+      expect(sources).toContain(`(${url})`)
+    }
+    // 신축 공사비 실적은 재건축 보고서에만
+    expect(items).not.toContain('신축 공사비 실적')
+    const rb = (await build(T1, 'REBUILD')).appendix.sourceRows.find((row) => row[0] === '신축 공사비 실적')!
+    expect(rb[1]).toContain('(howbuild.com)')
+    expect(rb[1]).toContain('(kict.re.kr)')
+    expect(rb[2]).toContain('2025-11-25 · 철거비 포함 중 높은 값')
+    expect(r.appendix.sourceRows.find((row) => row[0] === '정북 이격거리')![2]).toBe('필지 경계로 정북 이격 확인')
     expect(r.appendix.sourceFile).toContain('261012_데이터 통합')
     expect(r.appendix.excelNotes).toHaveLength(4)
   })
@@ -239,8 +249,8 @@ describe('5장 수익(토지·자산가치) KPI · 부록 공시지가 출처', 
   })
 
   it('부록 데이터 출처: 개별공시지가_2단계 + 기준연월·공시일·시세 아님', async () => {
-    const row = (await build(T2)).appendix.sourceRows.find((r) => r[1].includes('개별공시지가_2단계'))!
-    expect(row[2]).toBe('기준연월 2026.01 (2026년 1월 1일 기준) · 공시일 2026-04-30 · 시세 아님')
+    const row = (await build(T2)).appendix.sourceRows.find((r) => r[0] === '개별공시지가')!
+    expect(row[2]).toBe('PNU 11번째 자리 보정 후 매칭, 2026.1.1 기준')
   })
 })
 

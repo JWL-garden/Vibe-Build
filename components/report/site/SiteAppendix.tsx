@@ -1,16 +1,39 @@
 import type { SiteReport } from '@/types'
 import { DataTable, SubTitle } from '../ReportParts'
 
+/** 출처 칸: 줄마다 "자료명, 기관 (도메인)" — 괄호 안 도메인을 링크로 */
+function SourceCell({ text }: { text: string }) {
+  return (
+    <>
+      {text.split('\n').map((line, i) => {
+        const m = line.match(/^(.*)\(([a-z0-9.-]+\.[a-z]{2,})\)$/)
+        return (
+          <div key={i}>
+            {m ? (
+              <>
+                {m[1]}(
+                <a href={`https://${m[2]}`} target="_blank" rel="noreferrer" className="text-accent underline">
+                  {m[2]}
+                </a>
+                )
+              </>
+            ) : (
+              line
+            )}
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
 /** 부록: 법규·완화 가정, 적용 기준값, 데이터 출처(기준 엑셀 시트명), 엑셀 산정 근거, 계산식, 면책 */
 export default function SiteAppendix({ report }: { report: SiteReport }) {
   const a = report.appendix
   return (
     <div>
       <SubTitle>데이터 출처</SubTitle>
-      <p className="mb-3 text-sm text-ink-soft">
-        기준 엑셀: <b className="text-ink">{a.sourceFile}</b>
-      </p>
-      <DataTable head={['항목', '출처 (시트·파일)', '비고']} rows={a.sourceRows} />
+      <DataTable head={['항목', '출처 (자료명, 기관 (공식 URL))', '비고']} rows={a.sourceRows.map(([item, src, note]) => [item, <SourceCell key="s" text={src} />, note])} />
 
       <SubTitle>관련 정책</SubTitle>
       <DataTable head={['정책', '내용', '반영 방식']} rows={a.policyRows} />
