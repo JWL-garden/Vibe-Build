@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -17,7 +18,8 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-black/10 bg-paper/80 backdrop-blur-xl backdrop-saturate-150 print:hidden">
       <div className="mx-auto grid h-12 max-w-[1024px] grid-cols-[1fr_auto_1fr] items-center px-4 text-xs sm:px-[22px]">
-        <Link href="/" className="justify-self-start text-[15px] font-semibold tracking-tight text-ink">
+        <Link href="/" className="flex items-center gap-2 justify-self-start text-[15px] font-semibold tracking-tight text-ink">
+          <Image src="/logo.png" alt="" width={115} height={96} className="h-[20px] w-auto" priority />
           Vibe Build
         </Link>
         {isHome ? (

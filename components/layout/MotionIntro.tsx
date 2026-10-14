@@ -4,14 +4,15 @@ import { useEffect, useRef } from 'react'
 
 export interface MotionStat {
   label: string
-  /** 카운트업 목표값. null이면 '–' 로 표시 */
+  /** 카운트업 목표값. null이면 '-' 로 표시 */
   value: number | null
   /** 소수 자릿수 */
   digits?: number
   unit?: string
 }
 
-const COUNT_MS = 1200
+/** 숫자가 올라가는 시간. 3D 모델 불러오기는 이 시간이 끝난 뒤 시작해 모션이 끊기지 않게 한다 (AnalysisLayout) */
+export const MOTION_COUNT_MS = 1600
 
 export interface MotionGroup {
   /** 구역 이름 (예: '증축', '재건축') */
@@ -47,8 +48,9 @@ export default function MotionIntro({ groups }: { groups: MotionGroup[] }) {
       let t0: number | null = null
       const step = (t: number) => {
         if (t0 === null) t0 = t
-        const p = Math.min((t - t0) / COUNT_MS, 1)
-        node.textContent = (to * (1 - Math.pow(1 - p, 3))).toFixed(d)
+        const p = Math.min((t - t0) / MOTION_COUNT_MS, 1)
+        // easeOutQuart: 처음엔 빠르고 끝에서 천천히 멈춘다
+        node.textContent = (to * (1 - Math.pow(1 - p, 4))).toFixed(d)
         if (p < 1) frames.push(requestAnimationFrame(step))
       }
       frames.push(requestAnimationFrame(step))
@@ -68,9 +70,9 @@ export default function MotionIntro({ groups }: { groups: MotionGroup[] }) {
           <dl className="mt-3 flex flex-wrap gap-x-9 gap-y-4">
             {g.stats.map((s, i) => (
               <div key={s.label} className="motion-rise" style={{ animationDelay: `${gi * 360 + 120 + i * 120}ms` }}>
-                <dd className="text-[36px] font-semibold leading-none tracking-[-0.025em] tabular-nums" style={{ color: g.color }}>
+                <dd className="text-[36px] font-semibold leading-none tracking-[-0.025em] tabular-nums" style={{ color: s.value === null ? 'var(--color-ink-faint)' : g.color }}>
                   {s.value === null ? (
-                    '–'
+                    '-'
                   ) : (
                     <>
                       <span data-to={s.value} data-d={s.digits ?? 0}>

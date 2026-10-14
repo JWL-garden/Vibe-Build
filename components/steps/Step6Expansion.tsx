@@ -66,12 +66,12 @@ export default function Step6Expansion({ analysis, scenarios }: Props) {
           },
           {
             label: '추가 세대',
-            value: `${e.rooftop.units.length}세대`,
+            value: e.rooftop.units.length > 0 ? `${e.rooftop.units.length}세대` : '-',
             sub: unitsText(e.rooftop.units),
           },
           {
             label: '주차 기준 최대 연면적',
-            value: `${f(e.rooftop.gfaM2)}㎡`,
+            value: e.rooftop.gfaM2 > 0 ? `${f(e.rooftop.gfaM2)}㎡` : '-',
             sub: e.rooftop.netM2 > 0 ? `연면적 = 전용 ${f(e.rooftop.netM2)}㎡ (옥탑세대, 세대당 최소 ${e.rules.parking.addedUnitMinNetM2}㎡)` : '추가 세대 없음',
           },
         ]}
@@ -89,10 +89,10 @@ export default function Step6Expansion({ analysis, scenarios }: Props) {
               value: `${f(e.rooftopOption.spareAfter)}대`,
               sub: `기존 여유 ${f(Math.max(0, p.spare))}대 + 추가 ${e.rooftopOption.addSpaces}대`,
             },
-            { label: '추가 세대', value: `${e.rooftopOption.units.length}세대`, sub: unitsText(e.rooftopOption.units) },
+            { label: '추가 세대', value: e.rooftopOption.units.length > 0 ? `${e.rooftopOption.units.length}세대` : '-', sub: unitsText(e.rooftopOption.units) },
             {
               label: '주차 기준 최대 연면적',
-              value: `${f(e.rooftopOption.gfaM2)}㎡`,
+              value: e.rooftopOption.gfaM2 > 0 ? `${f(e.rooftopOption.gfaM2)}㎡` : '-',
               sub: `연면적 = 전용 ${f(e.rooftopOption.netM2)}㎡ (옥탑세대)`,
             },
           ]}
@@ -187,7 +187,7 @@ function FlowBlock({ title, note, steps, plan, modelLoaded }: { title: string; n
       note={note}
       steps={steps}
       finalLabel="다른 제한 반영 후 최종"
-      finalValue={`${f(plan.addGfaM2)}㎡ · +${plan.addFloors}개층`}
+      finalValue={plan.addGfaM2 > 0 ? `${f(plan.addGfaM2)}㎡ · +${plan.addFloors}개층` : '-'}
       verdict={VERDICT[plan.verdict]}
       limitText={`제한요인: ${LIMIT_LABEL[plan.limitingFactor]}`}
       checks={plan.checks}
@@ -312,13 +312,13 @@ function ScenarioTable({ analysis, scenarios }: { analysis: SiteAnalysis; scenar
                 <tr key={s.id} className={rowClass}>
                   <td className="px-4 py-3 font-medium text-ink">{HOME_SCENARIO_NAME[s.id]}</td>
                   <td className="px-4 py-3 text-right text-ink">
-                    증축 {f(e.plan.addGfaM2)}㎡ · +{e.plan.addFloors}층
+                    {e.plan.addGfaM2 > 0 ? `증축 ${f(e.plan.addGfaM2)}㎡ · +${e.plan.addFloors}층` : '-'}
                   </td>
                   <td className="px-4 py-3 text-ink-soft">
                     {VERDICT[e.plan.verdict].text} · {LIMIT_LABEL[e.plan.limitingFactor]}
                   </td>
                   <td className="px-4 py-3 text-right text-ink-soft">
-                    {o ? `+${o.addSpaces}대 확보 시 ${f(o.addGfaM2)}㎡ · ${VERDICT[o.verdict].text}` : '기존 주차'}
+                    {o ? `+${o.addSpaces}대 확보 시 ${o.addGfaM2 > 0 ? `${f(o.addGfaM2)}㎡` : '-'} · ${VERDICT[o.verdict].text}` : '기존 주차'}
                   </td>
                 </tr>
               )

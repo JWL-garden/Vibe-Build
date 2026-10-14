@@ -43,11 +43,13 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
           units = p.addUnits.length
         }
       }
+      // 증축·재건축이 안 되면(규모 0) 숫자는 모두 '-' (value null)
+      const none = gfaM2 <= 0
       const roi = a.finance.byScenario.BASE.metrics.roi
       return [
-        { label: `${name}면적 (평)`, value: gfaM2 / PYEONG_M2, digits: 1, unit: '평' },
-        { label: `${name} 세대수`, value: units, digits: 0, unit: '세대' },
-        { label: 'ROI (연간수익률)', value: roi === null ? null : roi * 100, digits: 1, unit: '%' },
+        { label: `${name}면적 (평)`, value: none ? null : gfaM2 / PYEONG_M2, digits: 1, unit: '평' },
+        { label: `${name} 세대수`, value: none ? null : units, digits: 0, unit: '세대' },
+        { label: 'ROI (연간수익률)', value: none || roi === null ? null : roi * 100, digits: 1, unit: '%' },
       ]
     }
     return [

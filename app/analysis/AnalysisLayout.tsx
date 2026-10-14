@@ -1,7 +1,10 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import BuildingIllustration from '@/components/layout/BuildingIllustration'
 import MassView from '@/components/three/MassView'
-import MotionIntro, { type MotionGroup } from '@/components/layout/MotionIntro'
+import MotionIntro, { MOTION_COUNT_MS, type MotionGroup } from '@/components/layout/MotionIntro'
 import Step1Target from '@/components/steps/Step1Target'
 import type { InfoRow } from '@/lib/report/buildingRows'
 import type { Expandability } from '@/types'
@@ -47,6 +50,16 @@ interface Props {
 /** ② 분석 화면 공통 틀: 건축물 정보 + 3D 증축 전/후 자리 + 증축 가능 판정 + 보고서 이동 + 상세 분석 단계
  * TODO [4-3]: 일조권·용적률·수익성 단계 추가 */
 export default function AnalysisLayout(p: Props) {
+  // 첫 화면 숫자 모션이 끊기지 않도록, 3D 모델(무거움)은 모션이 끝난 뒤 불러온다
+  const hasMotion = !!p.motionGroups
+  const [show3d, setShow3d] = useState(!hasMotion)
+  useEffect(() => {
+    if (!hasMotion) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const t = setTimeout(() => setShow3d(true), reduce ? 0 : MOTION_COUNT_MS + 500)
+    return () => clearTimeout(t)
+  }, [hasMotion])
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <header>
@@ -84,14 +97,18 @@ export default function AnalysisLayout(p: Props) {
         />
         <div className="grid gap-5 md:grid-cols-2">
           <ViewPanel label={`${p.workName ?? '증축'} 전`} description="현재 건물">
-            {p.massPnu ? (
+            {p.massPnu && !show3d ? (
+              <div className="h-56 w-full" />
+            ) : p.massPnu ? (
               <MassView pnu={p.massPnu} mode="before" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
             ) : (
               <BuildingIllustration floors={p.floorsAbove} className="h-56 w-full" />
             )}
           </ViewPanel>
           <ViewPanel label={`${p.workName ?? '증축'} 후`} description={p.afterCaption} accent>
-            {p.massPnu ? (
+            {p.massPnu && !show3d ? (
+              <div className="h-56 w-full" />
+            ) : p.massPnu ? (
               <MassView pnu={p.massPnu} mode="after" floorsAbove={p.floorsAbove} addFloors={p.addFloors} rebuildFloors={p.massRebuildFloors ?? null} sideAreaM2={p.massSideAreaM2} useModel={p.massUseModel} />
             ) : (
               <BuildingIllustration floors={p.floorsAbove} addFloors={p.addFloors} showAddition className="h-56 w-full" />
