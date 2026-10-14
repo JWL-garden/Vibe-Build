@@ -23,7 +23,7 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
     loadSite(pnu)
   }, [pnu, loadSite])
 
-  // 첫 화면 모션 숫자: 증축(복합 완화)과 재건축(복합 완화 + 전체 재건축)을 선택한 시나리오와 관계없이 둘 다 runAll로 계산해 표시
+  // 첫 화면 모션 숫자: 증축(복합 완화, 기존 주차로 증축)과 재건축(복합 완화 + 전체 재건축)을 선택한 시나리오와 관계없이 둘 다 runAll로 계산해 표시
   const motionGroups = useMemo<MotionGroup[] | undefined>(() => {
     if (!siteData) return undefined
     const stats = (a: SiteAnalysis, name: string): MotionStat[] => {
@@ -36,12 +36,11 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
           units = Math.max(0, r.households - r.existing.households)
         }
       } else {
-        const { plan, parkingOption: option } = a.selected
-        const p = plan.verdict === 'possible' ? plan : option?.verdict === 'possible' ? option : null
-        if (p) {
-          gfaM2 = p.addGfaM2
-          units = p.addUnits.length
-        }
+        // 증축 건축개요의 '기존 주차로 증축' 값: 추가 세대(옥탑세대) · 다른 제한 반영 후 최종 연면적
+        // (주차 추가 확보 안은 쓰지 않는다)
+        const { plan, rooftop } = a.selected
+        gfaM2 = plan.addGfaM2
+        units = rooftop.units.length
       }
       // 증축·재건축이 안 되면(규모 0) 숫자는 모두 '-' (value null)
       const none = gfaM2 <= 0
