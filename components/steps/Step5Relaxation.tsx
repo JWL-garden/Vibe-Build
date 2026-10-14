@@ -62,7 +62,7 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
               aria-pressed={active}
               data-scenario={s.id}
               className={`flex flex-col rounded-card border p-4 text-left transition ${
-                active ? 'border-accent bg-accent-soft/40 ring-1 ring-accent' : 'border-line bg-paper hover:border-ink/30'
+                active ? 'border-action bg-action-soft/60 ring-1 ring-action' : 'border-line bg-paper hover:border-ink/30'
               }`}
             >
               <div className="font-serif text-lg font-bold text-ink">{HOME_SCENARIO_NAME[s.id]}</div>

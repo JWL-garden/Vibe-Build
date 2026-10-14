@@ -150,7 +150,7 @@ function Notice({ text, href, linkText }: { text: string; href: string; linkText
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div className="rounded-card border border-line bg-mist p-6">
         <p className="text-ink">{text}</p>
-        <Link href={href} className="mt-3 inline-block text-sm font-medium text-deep hover:underline">
+        <Link href={href} className="mt-3 inline-block text-sm font-medium text-link hover:underline">
           {linkText} →
         </Link>
       </div>

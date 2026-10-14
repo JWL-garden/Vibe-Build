@@ -1,19 +1,22 @@
-import Link from 'next/link'
+'use client'
 
-/** 모든 페이지 공통 상단 바: 왼쪽 서비스 이름(홈으로), 오른쪽 주소 검색 버튼. 인쇄 시 숨김 */
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+
+/** 모든 페이지 공통 상단 바 (애플 코리아식 44px 반투명 바). 메인(/)은 서비스 이름만, 다른 화면은 오른쪽에 주소 검색 버튼. 인쇄 시 숨김 */
 export default function SiteHeader() {
+  const isHome = usePathname() === '/'
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur print:hidden">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="font-serif text-xl font-bold tracking-tight text-ink">
+    <header className="sticky top-0 z-20 border-b border-line/60 bg-paper/80 backdrop-blur-xl backdrop-saturate-150 print:hidden">
+      <div className="mx-auto flex h-11 max-w-[1024px] items-center justify-between px-4 sm:px-6">
+        <Link href="/" className="text-[15px] font-semibold tracking-tight text-ink">
           Vibe Build
         </Link>
-        <Link
-          href="/#search"
-          className="rounded-full bg-ink px-5 py-2 text-sm font-medium text-paper transition hover:bg-ink/80"
-        >
-          주소 검색
-        </Link>
+        {!isHome && (
+          <Link href="/#search" className="text-xs text-ink-soft transition hover:text-ink">
+            주소 검색
+          </Link>
+        )}
       </div>
     </header>
   )

@@ -288,7 +288,7 @@ function ScenarioTable({ analysis, scenarios }: { analysis: SiteAnalysis; scenar
           <tbody className="divide-y divide-line">
             {scenarios.map((s) => {
               const active = s.id === analysis.scenarioId
-              const rowClass = active ? 'bg-accent-soft/40' : undefined
+              const rowClass = active ? 'bg-action-soft/60' : undefined
               if (s.kind === 'rebuild') {
                 const r = analysis.rebuild
                 const diff = r.gfaM2 - r.existing.gfaM2

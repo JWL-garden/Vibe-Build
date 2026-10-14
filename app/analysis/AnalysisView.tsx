@@ -30,7 +30,7 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="rounded-card border border-line bg-mist p-6">
           <p className="text-ink">해당 필지의 건축물대장 정보를 찾을 수 없습니다.</p>
-          <Link href="/#search" className="mt-3 inline-block text-sm font-medium text-deep hover:underline">
+          <Link href="/#search" className="mt-3 inline-block text-sm font-medium text-link hover:underline">
             다른 주소 검색하기 →
           </Link>
         </div>
@@ -63,7 +63,7 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
             type="button"
             onClick={() => selectBuilding(b.id)}
             className={`rounded-full border px-4 py-1.5 text-sm transition ${
-              b.id === building.id ? 'border-ink bg-ink text-paper' : 'border-line bg-paper text-ink-soft hover:border-ink/30'
+              b.id === building.id ? 'border-action bg-action text-paper' : 'border-line bg-paper text-ink-soft hover:border-ink/30'
             }`}
           >
             {b.dongName ?? b.buildingName ?? `건물 ${i + 1}`}

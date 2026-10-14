@@ -16,7 +16,7 @@ export default function ReportToolbar({ backHref, backLabel, info }: { backHref:
           <button
             type="button"
             onClick={() => window.print()}
-            className="rounded-full bg-ink px-5 py-2 text-sm font-medium text-paper transition hover:bg-ink/80"
+            className="rounded-full bg-action px-5 py-2 text-sm font-medium text-paper transition hover:bg-action-hover"
           >
             PDF로 저장
           </button>

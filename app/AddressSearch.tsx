@@ -60,11 +60,11 @@ export default function AddressSearch() {
 
   return (
     <>
-      <section id="search" className="mx-auto max-w-6xl scroll-mt-24 px-4 sm:px-6">
+      <section id="search" className="mx-auto max-w-[680px] scroll-mt-24 px-4 sm:px-6">
         <div ref={boxRef} className="relative">
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-2 rounded-full border border-line bg-paper p-2 shadow-[0_8px_30px_rgba(21,23,23,0.06)] sm:flex-row sm:items-center"
+            className="flex flex-col gap-2 rounded-full border border-line bg-paper p-2 sm:flex-row sm:items-center"
           >
             <input
               type="text"
@@ -79,7 +79,7 @@ export default function AddressSearch() {
             />
             <button
               type="submit"
-              className="rounded-full bg-ink px-8 py-3 font-medium text-paper transition hover:bg-ink/80"
+              className="rounded-full bg-action px-8 py-3 font-medium text-paper transition hover:bg-action-hover"
             >
               분석하기
             </button>
