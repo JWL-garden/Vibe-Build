@@ -3,7 +3,7 @@ import type { ReportData } from '@/types'
 import { DataTable, Lead, StatCard, SubTitle } from './ReportParts'
 
 // 구성 막대 색 (항목 순서대로)
-const COLORS = ['#e0621b', '#f08a4b', '#f6b083', '#8d9494', '#b3b8b8', '#d0d4d4', '#e6e8e8']
+const COLORS = ['#1e2a32', '#4a5a64', '#7a8890', '#8d9494', '#b3b8b8', '#d0d4d4', '#e6e8e8']
 
 /** 4장: 사업비 추정 — 항목별 표, 구성 비율 막대, 자기자본/대출 */
 export default function Ch04Cost({ data }: { data: ReportData }) {

@@ -13,13 +13,13 @@ interface Props {
 }
 
 const VERDICT = {
-  possible: { text: '증축 가능', className: 'bg-accent-soft text-accent' },
+  possible: { text: '증축 가능', className: 'bg-mist text-deep' },
   check: { text: '확인 필요', className: 'bg-mist text-ink' },
   impossible: { text: '증축 불가', className: 'bg-mist text-ink-faint' },
 } as const
 
 const REBUILD_VERDICT = {
-  possible: { text: '재건축 가능', className: 'bg-accent-soft text-accent' },
+  possible: { text: '재건축 가능', className: 'bg-mist text-deep' },
   check: { text: '확인 필요', className: 'bg-mist text-ink' },
   impossible: { text: '재건축 불가', className: 'bg-mist text-ink-faint' },
 } as const
@@ -82,7 +82,7 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
 
               {/* 판정 마크는 카드 맨 아래 같은 행에 맞춘다 (현행법규 카드는 판정을 표시하지 않음) */}
               <div className="mt-auto pt-3">
-                {option && <p className="mb-2 text-[11px] text-accent">주차 +{option.addSpaces}대 확보 시 증축 가능</p>}
+                {option && <p className="mb-2 text-[11px] text-ink-soft">주차 +{option.addSpaces}대 확보 시 증축 가능</p>}
                 {s.id !== 'BASE' && (
                   <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${verdict.className}`}>{verdict.text}</span>
                 )}
@@ -111,8 +111,8 @@ export default function Step5Relaxation({ analysis, zone, scenarios, onSelect }:
                   <div className="text-xs text-ink-faint">{r.note}</div>
                 </td>
                 <td className="px-4 py-3 text-ink-soft">{r.base}</td>
-                <td className="px-4 py-3 font-medium text-accent">{r.relaxed}</td>
-                <td className={`px-4 py-3 font-medium ${r.changed ? 'text-accent' : 'text-ink'}`}>{r.selected}</td>
+                <td className="px-4 py-3 font-medium text-ink">{r.relaxed}</td>
+                <td className={`px-4 py-3 font-medium ${r.changed ? 'text-deep' : 'text-ink'}`}>{r.selected}</td>
               </tr>
             ))}
           </tbody>
@@ -126,7 +126,7 @@ function Value({ label, value, changed }: { label: string; value: string; change
   return (
     <div className="flex justify-between gap-2">
       <dt className="text-ink-faint">{label}</dt>
-      <dd className={changed ? 'font-medium text-accent' : 'text-ink-soft'}>{value}</dd>
+      <dd className={changed ? 'font-medium text-deep' : 'text-ink-soft'}>{value}</dd>
     </div>
   )
 }

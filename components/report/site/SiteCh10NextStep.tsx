@@ -11,7 +11,7 @@ export default function SiteCh10NextStep({ report }: { report: SiteReport }) {
       <ol className="mt-8 grid grid-cols-3 gap-4">
         {n.steps.map((s) => (
           <li key={s.step} className="rounded-card border border-line p-5 break-inside-avoid">
-            <span className="font-serif text-3xl font-bold text-accent">{s.step}</span>
+            <span className="font-serif text-3xl font-bold text-deep">{s.step}</span>
             <h3 className="mt-2 font-serif text-lg font-bold text-ink">{s.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">{s.description}</p>
           </li>

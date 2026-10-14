@@ -12,7 +12,7 @@ function SourceCell({ text }: { text: string }) {
             {m ? (
               <>
                 {m[1]}(
-                <a href={`https://${m[2]}`} target="_blank" rel="noreferrer" className="text-accent underline">
+                <a href={`https://${m[2]}`} target="_blank" rel="noreferrer" className="text-deep underline">
                   {m[2]}
                 </a>
                 )

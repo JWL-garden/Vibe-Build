@@ -27,7 +27,7 @@ export default function ScheduleChart({ steps }: { steps: ScheduleStep[] }) {
             <span className="text-ink">{s.name}</span>
             <div className="relative h-6 rounded bg-mist">
               <div
-                className="absolute inset-y-1 rounded bg-accent/80"
+                className="absolute inset-y-1 rounded bg-deep/80"
                 style={{
                   left: `${(s.startMonth / totalMonths) * 100}%`,
                   width: `${(s.durationMonths / totalMonths) * 100}%`,

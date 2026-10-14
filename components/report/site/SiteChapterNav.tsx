@@ -62,7 +62,7 @@ export default function SiteChapterNav({ items }: { items: ChapterNavItem[] }) {
                   setActive(it.id)
                 }}
                 className={`flex items-baseline gap-2 rounded-md px-2 py-1.5 text-xs leading-snug transition-colors ${
-                  on ? 'bg-accent-soft font-medium text-accent' : 'text-ink-soft hover:bg-mist hover:text-ink'
+                  on ? 'bg-mist font-semibold text-ink' : 'text-ink-soft hover:bg-mist hover:text-ink'
                 }`}
               >
                 <span className="w-10 shrink-0 tabular-nums">{it.no}</span>

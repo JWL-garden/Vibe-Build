@@ -26,7 +26,7 @@ export default function SampleReportView({ sampleId }: { sampleId: string }) {
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="rounded-card border border-line bg-mist p-6">
           <p className="text-ink">샘플 보고서 &lsquo;{sampleId}&rsquo;를 찾을 수 없습니다.</p>
-          <Link href="/" className="mt-3 inline-block text-sm font-medium text-accent hover:underline">
+          <Link href="/" className="mt-3 inline-block text-sm font-medium text-deep hover:underline">
             메인으로 →
           </Link>
         </div>

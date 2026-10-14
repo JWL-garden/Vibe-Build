@@ -24,9 +24,9 @@ export function DataTable({ head, rows, numeric = [], highlightRow }: DataTableP
   return (
     <table className="w-full border-collapse text-sm break-inside-avoid">
       <thead>
-        <tr className="border-y border-ink/70">
+        <tr className="border-y border-deep/70">
           {head.map((h, i) => (
-            <th key={h} className={`whitespace-nowrap px-2 py-2 font-medium text-ink-soft ${numeric.includes(i) ? 'text-right' : 'text-left'}`}>
+            <th key={h} className={`whitespace-nowrap px-2 py-2 font-medium text-deep ${numeric.includes(i) ? 'text-right' : 'text-left'}`}>
               {h}
             </th>
           ))}
@@ -34,7 +34,7 @@ export function DataTable({ head, rows, numeric = [], highlightRow }: DataTableP
       </thead>
       <tbody>
         {rows.map((row, r) => (
-          <tr key={r} className={`border-b border-line ${r === highlightRow ? 'bg-accent-soft font-medium' : ''}`}>
+          <tr key={r} className={`border-b border-line ${r === highlightRow ? 'bg-mist font-medium' : ''}`}>
             {row.map((cell, i) => (
               <td key={i} className={`px-2 py-2 text-ink ${numeric.includes(i) ? 'whitespace-nowrap text-right tabular-nums' : ''}`}>
                 {cell}
@@ -62,7 +62,7 @@ export function StatCard({ label, value, caption }: { label: string; value: stri
 export function Badge({ children, tone = 'neutral' }: { children: React.ReactNode; tone?: 'neutral' | 'accent' | 'danger' }) {
   const cls = {
     neutral: 'bg-mist text-ink-soft',
-    accent: 'bg-accent-soft text-accent',
+    accent: 'bg-mist text-deep',
     danger: 'bg-[#fdecec] text-[#c0392b]',
   }[tone]
   return <span className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>{children}</span>

@@ -39,7 +39,7 @@ export default function ReportPage({ chapter, page, sourceLabel, children, fixed
       {chapter && !continued && (
         <div className={fixedHeight ? 'mt-5' : 'mt-10'}>
           <h2 className={`font-serif font-bold text-ink ${fixedHeight ? 'text-2xl' : 'text-3xl'}`}>
-            {chapter.no !== chapter.title && <span className="mr-2 text-accent">{chapter.no}</span>}
+            {chapter.no !== chapter.title && <span className="mr-2 text-deep">{chapter.no}</span>}
             {chapter.title}
           </h2>
         </div>

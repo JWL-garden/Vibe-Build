@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <main>
       <section className="mx-auto max-w-6xl px-4 pb-10 pt-16 sm:px-6 sm:pt-24">
-        <p className="text-sm font-medium tracking-wide text-accent">법규 완화 · 일조권 · 용적률 · 증축 사업성</p>
+        <p className="text-sm font-medium tracking-wide text-ink-soft">법규 완화 · 일조권 · 용적률 · 증축 사업성</p>
         <h1 className="mt-4 max-w-3xl font-serif text-4xl font-bold leading-tight text-ink sm:text-6xl">
           내 건물, 몇 층 더 올릴 수 있을까?
         </h1>

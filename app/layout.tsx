@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { Noto_Sans_KR, Noto_Serif_KR } from 'next/font/google'
+import { Noto_Serif_KR } from 'next/font/google'
+import localFont from 'next/font/local'
 import SiteHeader from '@/components/layout/SiteHeader'
 import './globals.css'
 
-// 제목용 세리프, 본문용 산세리프 (한글 글꼴은 용량이 커서 미리 불러오기(preload)는 끈다)
+// 제목용 세리프(Noto Serif KR), 본문·UI·숫자용 산세리프(Pretendard 가변 폰트, OFL). 한글 글꼴은 용량이 커서 구글 글꼴은 미리 불러오기(preload)를 끈다
 const serif = Noto_Serif_KR({ weight: ['500', '700'], subsets: ['latin'], preload: false, variable: '--font-noto-serif' })
-const sans = Noto_Sans_KR({ weight: ['400', '500', '700'], subsets: ['latin'], preload: false, variable: '--font-noto-sans' })
+const sans = localFont({ src: './fonts/PretendardVariable.woff2', weight: '45 920', display: 'swap', variable: '--font-pretendard' })
 
 export const metadata: Metadata = {
   title: 'Vibe Build — 건축물 증축 가능성 분석',

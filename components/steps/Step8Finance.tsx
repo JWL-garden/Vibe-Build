@@ -6,7 +6,7 @@ import { HOME_SCENARIO_NAME } from '@/lib/rules/scenarios'
 import type { SiteAnalysis } from '@/types'
 
 const TONE_CLASS = {
-  accent: 'bg-accent-soft text-accent',
+  accent: 'bg-mist text-deep',
   danger: 'bg-ink text-paper',
   neutral: 'border border-ink/30 bg-paper text-ink',
 } as const

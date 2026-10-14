@@ -47,7 +47,7 @@ export default function AnalysisLayout(p: Props) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <header>
-        <p className="text-sm font-medium text-accent">{p.eyebrow}</p>
+        <p className="text-sm font-medium text-ink-soft">{p.eyebrow}</p>
         <h1 className="mt-2 font-serif text-3xl font-bold leading-snug text-ink sm:text-4xl">{p.title}</h1>
         <p className="mt-2 text-ink-soft">{p.subtitle}</p>
       </header>
@@ -141,8 +141,8 @@ function ViewPanel({
 
 const BADGE: Record<Expandability['status'], { text: string; className: string }> = {
   pending: { text: '판정 대기', className: 'bg-mist text-ink-soft' },
-  possible: { text: '증축 가능', className: 'bg-accent-soft text-accent' },
-  conditional: { text: '조건부 가능', className: 'bg-accent-soft text-accent' },
+  possible: { text: '증축 가능', className: 'bg-mist text-deep' },
+  conditional: { text: '조건부 가능', className: 'bg-mist text-deep' },
   check: { text: '확인 필요', className: 'bg-mist text-ink' },
   impossible: { text: '증축 불가', className: 'bg-mist text-ink-faint' },
 }

@@ -30,7 +30,7 @@ export default function TornadoChart({ items, baseRoiRate }: { items: Sensitivit
             <div className="relative h-6">
               <div className="absolute inset-y-0 left-1/2 w-px bg-ink/40" />
               <div className="absolute inset-y-1 rounded-l bg-existing/60" style={{ right: '50%', width: pct(i.lowRoiRate - baseRoiRate) }} />
-              <div className="absolute inset-y-1 rounded-r bg-accent/80" style={{ left: '50%', width: pct(i.highRoiRate - baseRoiRate) }} />
+              <div className="absolute inset-y-1 rounded-r bg-deep/80" style={{ left: '50%', width: pct(i.highRoiRate - baseRoiRate) }} />
             </div>
             <span className="text-xs tabular-nums text-ink-soft">{formatRate(i.highRoiRate)}</span>
           </div>

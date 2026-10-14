@@ -2,6 +2,7 @@
 
 /* 3D 모델(GLB, 바이너리 약 10MB)은 클래스 이름 검색 대상에서 뺀다 — 포함되면 빌드 중 메모리 오류가 난다 */
 @source not "../public/models";
+@source not "./fonts";
 
 /* 디자인 토큰 — 흰 배경 + 거의 검정 글자 + 얇은 연회색 선 + 포인트 주황 한 가지 */
 @theme {
@@ -14,9 +15,27 @@
   --color-accent: #e0621b;     /* 증축(포인트) */
   --color-accent-soft: #fdf0e8;
   --color-existing: #8d9494;   /* 기존 건물 */
+  --color-deep: #1e2a32;       /* 짙은 보조색: 표 머리글·아이콘·도면 선 (배경으로는 쓰지 않음) */
 
   --font-serif: var(--font-noto-serif), 'Noto Serif KR', serif;
-  --font-sans: var(--font-noto-sans), 'Pretendard', 'Malgun Gothic', system-ui, sans-serif;
+  --font-sans: var(--font-pretendard), 'Pretendard', 'Malgun Gothic', system-ui, sans-serif;
+
+  /* 크기·행간 스케일 (docs/moodboard.md 2장, 데스크톱 기준) — text-display, text-h2, text-h3, text-body, text-caption, text-kpi */
+  --text-display: 4.5rem;
+  --text-display--line-height: 1.15;
+  --text-h2: 2.25rem;
+  --text-h2--line-height: 1.3;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.4;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.7;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.6;
+  --text-kpi: 3.5rem;
+  --text-kpi--line-height: 1.1;
+
+  /* 모션 (무드보드 6장): 기본 이징·길이 */
+  --ease-calm: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   --radius-card: 1.25rem;
 }
@@ -26,6 +45,25 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   word-break: keep-all; /* 한글을 단어 단위로 줄바꿈 */
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums; /* 숫자 폭 고정 */
+}
+
+/* 기본 모션 길이(400ms)·이징 */
+:root {
+  --motion-duration: 400ms;
+}
+
+/* 접근성: 움직임 줄이기 설정이면 모든 모션 제거 (무드보드 6장) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* 보고서 인쇄: A4, 장마다 페이지 나눔 */
@@ -35,6 +73,13 @@ body {
 }
 
 @media print {
+  /* 보고서·인쇄 화면에는 모션 없음 */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
   body {
     background: #fff;
     -webkit-print-color-adjust: exact;

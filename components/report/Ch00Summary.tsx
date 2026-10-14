@@ -41,7 +41,7 @@ export default function Ch00Summary(p: Props) {
       <p className="mt-4 font-serif text-lg font-bold text-ink">Vibe Build</p>
 
       <div className="mt-16">
-        <p className="text-sm font-medium text-accent">건축주 제출용 검토 보고서</p>
+        <p className="text-sm font-medium text-ink-soft">건축주 제출용 검토 보고서</p>
         <h1 className="mt-3 font-serif text-4xl font-bold leading-tight text-ink">{p.title}</h1>
         <p className="mt-4 text-ink-soft">{p.address}</p>
         {p.scenarioName && <p className="mt-1 text-sm text-ink-faint">적용 시나리오: {p.scenarioName}</p>}
@@ -88,7 +88,7 @@ export default function Ch00Summary(p: Props) {
         ))}
       </div>
 
-      <p className="mt-6 rounded-card bg-accent-soft px-5 py-4 text-sm leading-relaxed text-ink">
+      <p className="mt-6 rounded-card bg-mist px-5 py-4 text-sm leading-relaxed text-ink">
         {p.conclusion ?? '결론 문장은 계산 엔진(규모·수익성) 연결 후 자동으로 작성됩니다.'}
       </p>
       {p.nextStep && (

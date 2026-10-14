@@ -14,19 +14,19 @@ interface Props {
 const f = (v: number) => formatNumber(v, 2)
 
 const STATUS_CLASS: Record<ExpansionCheck['status'], string> = {
-  pass: 'bg-accent-soft text-accent',
+  pass: 'bg-mist text-deep',
   fail: 'bg-ink text-paper',
   check: 'border border-ink/30 bg-paper text-ink',
 }
 
 const VERDICT = {
-  possible: { text: '증축 가능', className: 'bg-accent text-paper' },
+  possible: { text: '증축 가능', className: 'bg-deep text-paper' },
   check: { text: '확인 필요', className: 'border border-ink/30 bg-paper text-ink' },
   impossible: { text: '증축 불가', className: 'bg-mist text-ink-faint' },
 } as const
 
 const REBUILD_VERDICT = {
-  possible: { text: '재건축 가능', className: 'bg-accent text-paper' },
+  possible: { text: '재건축 가능', className: 'bg-deep text-paper' },
   check: { text: '확인 필요', className: 'border border-ink/30 bg-paper text-ink' },
   impossible: { text: '재건축 불가', className: 'bg-mist text-ink-faint' },
 } as const

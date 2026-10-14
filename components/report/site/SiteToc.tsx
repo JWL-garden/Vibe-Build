@@ -14,7 +14,7 @@ export default function SiteToc({ entries }: { entries: TocEntry[] }) {
     <ol className="mt-4 divide-y divide-line border-y border-line">
       {entries.map((e) => (
         <li key={e.no} className="flex items-baseline gap-4 py-2">
-          <span className="w-16 shrink-0 text-sm font-medium text-accent">{e.no}</span>
+          <span className="w-16 shrink-0 text-sm font-medium text-deep">{e.no}</span>
           <div className="min-w-0 flex-1">
             <p className={e.page === null ? 'text-ink-faint' : 'font-medium text-ink'}>{e.title}</p>
             <p className="mt-0.5 text-xs text-ink-faint">{e.note}</p>

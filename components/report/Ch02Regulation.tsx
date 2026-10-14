@@ -70,7 +70,7 @@ export default function Ch02Regulation({ data }: { data: ReportData }) {
       <ul className="space-y-1.5 text-sm text-ink">
         {data.checkItems.map((c) => (
           <li key={c} className="flex gap-2">
-            <span className="text-accent">□</span>
+            <span className="text-ink-soft">□</span>
             {c}
           </li>
         ))}

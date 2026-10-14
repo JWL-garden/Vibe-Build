@@ -82,7 +82,7 @@ export default function SiteCh03Plan({ report }: { report: SiteReport }) {
         <ul className="space-y-2 text-sm text-ink">
           {plan.alternatives.map((a) => (
             <li key={a} className="flex gap-2">
-              <span className="text-accent">→</span>
+              <span className="text-ink-soft">→</span>
               {a}
             </li>
           ))}
