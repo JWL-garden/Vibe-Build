@@ -1,13 +1,16 @@
 import Link from 'next/link'
 import BuildingIllustration from '@/components/layout/BuildingIllustration'
 import MassView from '@/components/three/MassView'
+import MotionIntro, { type MotionGroup } from '@/components/layout/MotionIntro'
 import Step1Target from '@/components/steps/Step1Target'
 import type { InfoRow } from '@/lib/report/buildingRows'
 import type { Expandability } from '@/types'
 
 interface Props {
-  /** 제목 위 작은 글씨 (예: '대상 건축물 분석') */
-  eyebrow: string
+  /** 제목 위 작은 글씨 (예: '샘플 분석 · 가상 건물 S1'). 없으면 표시 안 함 */
+  eyebrow?: string
+  /** 건축물 정보 왼쪽에 놓는 첫 화면 모션의 구역별 숫자 (증축분·재건축분, runAll 결과). 없으면 건축물 정보만 전체 폭으로 */
+  motionGroups?: MotionGroup[]
   title: string
   subtitle: string
   /** 제목 아래 안내 문구 (샘플 표기 등, 없으면 null) */
@@ -47,7 +50,7 @@ export default function AnalysisLayout(p: Props) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <header>
-        <p className="text-sm font-medium text-ink-soft">{p.eyebrow}</p>
+        {p.eyebrow && <p className="text-sm font-medium text-ink-soft">{p.eyebrow}</p>}
         <h1 className="mt-2 font-serif text-3xl font-bold leading-snug text-ink sm:text-4xl">{p.title}</h1>
         <p className="mt-2 text-ink-soft">{p.subtitle}</p>
       </header>
@@ -57,7 +60,14 @@ export default function AnalysisLayout(p: Props) {
 
       <section className="mt-10">
         <SectionTitle title="건축물 정보" caption={p.infoCaption} />
-        <Step1Target items={p.infoRows} />
+        {p.motionGroups ? (
+          <div className="grid gap-5 md:grid-cols-2">
+            <MotionIntro groups={p.motionGroups} />
+            <Step1Target items={p.infoRows} compact />
+          </div>
+        ) : (
+          <Step1Target items={p.infoRows} />
+        )}
       </section>
 
       {p.scenarioStep && (

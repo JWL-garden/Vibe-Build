@@ -1,12 +1,16 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import Step5Relaxation from '@/components/steps/Step5Relaxation'
 import Step6Expansion from '@/components/steps/Step6Expansion'
 import Step8Finance from '@/components/steps/Step8Finance'
 import { rowsFromRecord } from '@/lib/report/buildingRows'
+import { runAll } from '@/lib/calc'
+import type { MotionGroup, MotionStat } from '@/components/layout/MotionIntro'
+import { PYEONG_M2 } from '@/lib/rules/financeDefaults'
 import { HOME_SCENARIO_NAME, viewScenarios } from '@/lib/rules/scenarios'
+import type { SiteAnalysis } from '@/types'
 import { useAnalysisStore } from '@/store/analysisStore'
 import AnalysisLayout from './AnalysisLayout'
 
@@ -18,6 +22,39 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
   useEffect(() => {
     loadSite(pnu)
   }, [pnu, loadSite])
+
+  // 첫 화면 모션 숫자: 증축(복합 완화)과 재건축(복합 완화 + 전체 재건축)을 선택한 시나리오와 관계없이 둘 다 runAll로 계산해 표시
+  const motionGroups = useMemo<MotionGroup[] | undefined>(() => {
+    if (!siteData) return undefined
+    const stats = (a: SiteAnalysis, name: string): MotionStat[] => {
+      let gfaM2 = 0
+      let units = 0
+      if (a.scenarioId === 'REBUILD') {
+        const r = a.rebuild
+        if (r.verdict !== 'impossible') {
+          gfaM2 = Math.max(0, r.gfaM2 - r.existing.gfaM2)
+          units = Math.max(0, r.households - r.existing.households)
+        }
+      } else {
+        const { plan, parkingOption: option } = a.selected
+        const p = plan.verdict === 'possible' ? plan : option?.verdict === 'possible' ? option : null
+        if (p) {
+          gfaM2 = p.addGfaM2
+          units = p.addUnits.length
+        }
+      }
+      const roi = a.finance.byScenario.BASE.metrics.roi
+      return [
+        { label: `${name}면적 (평)`, value: gfaM2 / PYEONG_M2, digits: 1, unit: '평' },
+        { label: `${name} 세대수`, value: units, digits: 0, unit: '세대' },
+        { label: 'ROI (연간수익률)', value: roi === null ? null : roi * 100, digits: 1, unit: '%' },
+      ]
+    }
+    return [
+      { title: '증축', color: '#0066cc', stats: stats(runAll(siteData, 'ALL'), '증축') },
+      { title: '재건축', color: '#0071e3', stats: stats(runAll(siteData, 'REBUILD'), '재건축') },
+    ]
+  }, [siteData])
 
   const building = buildings.find((b) => b.id === selectedBuildingId) ?? buildings[0]
 
@@ -74,7 +111,7 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
 
   return (
     <AnalysisLayout
-      eyebrow="대상 건축물 분석"
+      motionGroups={motionGroups}
       title={building.address}
       subtitle={`${building.roadAddress ?? '도로명 주소 없음'}${building.buildingName ? ` · ${building.buildingName}` : ''}`}
       notice={null}

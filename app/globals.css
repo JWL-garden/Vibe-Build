@@ -55,6 +55,23 @@ body {
   font-variant-numeric: tabular-nums; /* 숫자 폭 고정 */
 }
 
+/* 분석 첫 화면 모션 (무드보드 2 · 07번): 아래에서 24px 떠오르며 나타난다, 1회 */
+@keyframes motion-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.motion-rise {
+  opacity: 0;
+  animation: motion-rise 1s cubic-bezier(0.28, 0.11, 0.32, 1) forwards;
+}
+
 /* 기본 모션 길이(400ms)·이징 */
 :root {
   --motion-duration: 400ms;
