@@ -206,7 +206,7 @@ function ReportCta({ expandability, reportHref }: { expandability: Expandability
       </div>
       {canReport ? (
         <Link
-          href={reportHref}
+          href={`/generating?next=${encodeURIComponent(reportHref)}`}
           className="shrink-0 rounded-full bg-action px-6 py-3 text-center font-medium text-paper transition hover:bg-action-hover"
         >
           보고서 보기 →
