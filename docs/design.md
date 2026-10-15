@@ -90,20 +90,20 @@ app/
     landuse/route.ts        # 용도지역 (선택)
     nearby/route.ts         # 주변 건물 (선택)
 components/
-  layout/Stepper.tsx
-  steps/ Step1Target ~ Step9Summary.tsx
-  three/ Scene.tsx, BuildingMass.tsx, SunlightEnvelope.tsx, NearbyBuildings.tsx, useSnapshot.ts
-  charts/ CompareChart.tsx, CashflowChart.tsx, TornadoChart.tsx, ScheduleChart.tsx
+  layout/Stepper.tsx  ← 삭제됨(2026-10-16, 미사용 정리)
+  steps/ Step1Target ~ Step9Summary.tsx  ← Step2Nearby·Step3Sunlight·Step4FAR·Step7ThreeD·Step9Summary 삭제됨(2026-10-16, 미사용 정리). Step1·5·6·8 유지
+  three/ Scene.tsx, BuildingMass.tsx, SunlightEnvelope.tsx, NearbyBuildings.tsx, useSnapshot.ts  ← 모두 삭제됨(2026-10-16, GLB 방식 ParcelMassView·MassView로 대체)
+  charts/ CompareChart.tsx, CashflowChart.tsx, TornadoChart.tsx, ScheduleChart.tsx  ← CompareChart.tsx 삭제됨(2026-10-16)
   report/ ReportPage.tsx(A4 한 장 틀), Ch00Summary.tsx ~ Ch10NextStep.tsx, Appendix.tsx
 lib/
   calc/ far.ts, sunlight.ts, parking.ts(v3), housingLimit.ts(v3), expansion.ts, finance.ts, sensitivity.ts, index.ts
   calc/__tests__/
-  rules/ baseRules.ts, zoningTable.ts, scenarios.ts, financeDefaults.ts, financeScenarios.ts
-  report/ buildReport.ts, narrative.ts, risks.ts, schedule.ts, partners.ts
+  rules/ baseRules.ts, zoningTable.ts, scenarios.ts, financeDefaults.ts, financeScenarios.ts  ← financeScenarios.ts 삭제됨(2026-10-16, 가정값 레지스트리로 대체)
+  report/ buildReport.ts, narrative.ts, risks.ts, schedule.ts, partners.ts  ← buildReport.ts·narrative.ts 삭제됨(2026-10-16, buildSiteReport.ts로 대체)
   services/ dataService.ts, mockService.ts, apiService.ts
-  mock/ buildings.json, nearby.json, market.json, owner.json
+  mock/ buildings.json, nearby.json, market.json, owner.json  ← 4개 모두 삭제됨(2026-10-16, S1~S3 가상 샘플용·미사용)
   data/ (v3) sites.json, units.json, parkingReview.json, siteInputs.json  ← 기준 엑셀에서 생성
-  geo/ coords.ts
+  geo/ coords.ts  ← 삭제됨(2026-10-16, 미사용)
 scripts/
   build-buildings.mjs       # (기존) 건축물대장 CSV → registry.json
   build-excel-data.mjs      # (v3) 기준 엑셀 → lib/data/*.json
@@ -656,7 +656,7 @@ financeScenarios = [
 | S2 | 제3종일반주거 | 5층 업무, 용적률 거의 소진 | 용적률 제한 → 완화 B 효과 큼 | 증축 규모 작아 수익성 보통 |
 | S3 | 일반상업 | 6층, 준공 35년 이상 | 일조 미적용, 용적률만 검토 | 임대료 높지만 구조보강비 큼 → 리스크 강조 사례 |
 
-Mock 파일:
+Mock 파일 (**2026-10-16: 아래 4개 JSON은 어떤 코드도 읽지 않아 삭제됨** — S1~S3 샘플은 `registry.json`·`sampleReport.S1.json`만 남음):
 - `buildings.json` — 건축물대장 표제부 형태 + 용도지역 + 정북 이격 + 외곽 좌표
 - `nearby.json` — 주변 건물 5~10동
 - `owner.json` — 샘플별 현재 월 임대료, 보증금, 공실률, 자기자본 (가상)

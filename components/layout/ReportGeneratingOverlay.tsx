@@ -16,7 +16,7 @@ const STAGES: { from: number; text: string }[] = [
 ]
 
 /**
- * 중앙 일러스트 5장 (public/images/generating, docs/reference/Infographics.png 에서 분리).
+ * 중앙 일러스트 5장 (public/images/generating, 원본 Infographics.png 한 장에서 분리해 원본은 삭제).
  * 전체 진행 시간 중 from(0~1) 이후가 되면 해당 그림으로 바뀐다 (진행률 %가 아니라 경과 시간 기준).
  * 앞의 4장이 시간을 고르게 나눠 갖고, 마지막 5장(보고서 완성)은 마지막 1초(= 90% 지점 이후)에만 나온다.
  * 같은 크기 캔버스라 위치가 흔들리지 않는다.
