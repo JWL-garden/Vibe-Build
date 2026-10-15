@@ -587,9 +587,9 @@ export const REPORT_SCENARIO_LABEL: Record<ViewScenarioId, string> = {
   REBUILD: '일조권 사선제한 및 층수제한 완화 + 전체 재건축',
 }
 
-/** 보고서 모든 쪽 바닥글 문구 (2026-10-12 결정) */
+/** 보고서 모든 쪽 바닥글 문구 (2026-10-12 결정, 2026-10-16: '단,' 이하는 줄을 바꿔 표시 — \n 은 바닥글에서 줄바꿈으로 그린다) */
 export const REPORT_FOOTER =
-  '본 보고서는 국가 공공데이터 및 공식 행정 공부(건축물·토지대장 등)를 기준으로 작성된 검토 자료입니다. 단, 현장 여건에 따라 실제와 차이가 발생할 수 있으며 투자 권유를 의미하지 않습니다.'
+  '본 보고서는 국가 공공데이터 및 공식 행정 공부(건축물·토지대장 등)를 기준으로 작성된 검토 자료입니다.\n단, 현장 여건에 따라 실제와 차이가 발생할 수 있으며 투자 권유를 의미하지 않습니다.'
 
 export function buildSiteReport(data: SiteData, analysis: SiteAnalysis, createdAt: string): SiteReport {
   const { site, units, siteInput } = data

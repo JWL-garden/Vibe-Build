@@ -86,7 +86,14 @@ export default function Ch00Summary(p: Props) {
         {(p.kpis ?? PENDING_KPIS.map((label) => ({ label, value: '산정 예정', caption: null }))).map((k) => (
           <div key={k.label} className="px-4 py-5">
             <p className="text-xs text-ink-faint">{k.label}</p>
-            <p className={`mt-2 font-serif text-xl font-bold ${p.kpis ? 'text-ink' : 'text-ink-faint'}`}>{k.value}</p>
+            {/* 값이 길면(예: "+1층 · +29.8㎡") 자간·글자 크기를 줄여 한 줄로 유지한다 */}
+            <p
+              className={`mt-2 whitespace-nowrap font-serif font-bold ${
+                k.value.length > 8 ? 'text-[18px] tracking-[-0.07em]' : 'text-xl'
+              } ${p.kpis ? 'text-ink' : 'text-ink-faint'}`}
+            >
+              {k.value}
+            </p>
             {k.caption && <p className="mt-1 text-xs text-ink-soft">{k.caption}</p>}
           </div>
         ))}

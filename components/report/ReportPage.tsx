@@ -56,7 +56,7 @@ export default function ReportPage({ chapter, page, sourceLabel, children, fixed
 
       {!bare && (
       <footer className={`flex items-center justify-between border-t border-line pt-2 text-[11px] text-ink-faint ${fixedHeight ? 'mt-4' : 'mt-10'}`}>
-        <span className="leading-snug">{sourceLabel}</span>
+        <span className="whitespace-pre-line leading-snug">{sourceLabel}</span>
         {page !== null && <span className="ml-6 shrink-0">{page}</span>}
       </footer>
       )}
