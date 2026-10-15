@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import BuildingIllustration from '@/components/layout/BuildingIllustration'
+import ReportGeneratingOverlay from '@/components/layout/ReportGeneratingOverlay'
 import MassView from '@/components/three/MassView'
 import MotionIntro, { MOTION_COUNT_MS, type MotionGroup } from '@/components/layout/MotionIntro'
 import Step1Target from '@/components/steps/Step1Target'
@@ -194,6 +194,8 @@ const BADGE: Record<Expandability['status'], { text: string; className: string }
 function ReportCta({ expandability, reportHref }: { expandability: Expandability; reportHref: string }) {
   const badge = BADGE[expandability.status]
   const canReport = expandability.status !== 'impossible'
+  // 보고서 버튼을 누르면 분석 화면 위에 "보고서 생성 중" 팝업을 띄우고, 끝나면 보고서로 이동한다
+  const [generating, setGenerating] = useState(false)
 
   return (
     <section className="mt-14 flex flex-col gap-5 rounded-card border border-line p-6 sm:flex-row sm:items-center sm:justify-between">
@@ -205,17 +207,20 @@ function ReportCta({ expandability, reportHref }: { expandability: Expandability
         <p className="mt-2 text-sm text-ink-soft">{expandability.reason}</p>
       </div>
       {canReport ? (
-        <Link
-          href={`/generating?next=${encodeURIComponent(reportHref)}`}
-          className="shrink-0 rounded-full bg-action px-6 py-3 text-center font-medium text-paper transition hover:bg-action-hover"
+        <button
+          type="button"
+          onClick={() => setGenerating(true)}
+          disabled={generating}
+          className="shrink-0 rounded-full bg-action px-6 py-3 text-center font-medium text-paper transition hover:bg-action-hover disabled:cursor-wait"
         >
           보고서 보기 →
-        </Link>
+        </button>
       ) : (
         <span className="shrink-0 cursor-not-allowed rounded-full bg-line px-6 py-3 text-center font-medium text-ink-faint">
           보고서 출력 불가
         </span>
       )}
+      {generating && <ReportGeneratingOverlay href={reportHref} />}
     </section>
   )
 }
