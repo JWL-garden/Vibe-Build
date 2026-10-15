@@ -1,6 +1,7 @@
 import type { ReportData } from '@/types'
 import Appendix from './Appendix'
 import Ch00Summary from './Ch00Summary'
+import ReportCover from './ReportCover'
 import Ch01Status from './Ch01Status'
 import Ch02Regulation from './Ch02Regulation'
 import Ch03Plan from './Ch03Plan'
@@ -34,6 +35,9 @@ export default function FullReport({ data, sourceLabel }: { data: ReportData; so
 
   return (
     <>
+      <ReportPage {...pageProps} chapter={null} page={null} bare fixedHeight>
+        <ReportCover title={meta.title} floorsAbove={building.floorsAbove} sample />
+      </ReportPage>
       <ReportPage {...pageProps} chapter={null} page={1}>
         <Ch00Summary
           title={meta.title}

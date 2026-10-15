@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>보고서 표지 — 증축 가능성 분석</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ink:#1d1d1f;--ink2:#6e6e73;--ink3:#86868b;--line:#d2d2d7;--blue:#0071e3}
+*{box-sizing:border-box;margin:0;padding:0}
+@page{size:210mm 297mm;margin:0}
+html,body{background:#fff}
+body{font-family:"SF Pro Display",-apple-system,"Pretendard Variable",Pretendard,"Noto Sans CJK KR","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;word-break:keep-all}
+.page{position:relative;width:794px;height:1123px;background:#fff;overflow:hidden}
+.tag{position:absolute;left:430px;top:112px;font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:-.01em}
+h1{position:absolute;left:430px;top:140px;font-size:46px;line-height:1.16;font-weight:600;letter-spacing:-.03em;color:var(--ink)}
+h1 em{font-style:normal;color:var(--blue)}
+.sub{position:absolute;left:432px;top:262px;font-size:14px;line-height:1.55;color:var(--ink2);letter-spacing:-.01em;width:300px}
+svg.art{position:absolute;inset:0;width:794px;height:1123px}
+.foot{position:absolute;left:0;right:0;bottom:84px;text-align:center}
+.foot .mark{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:10px}
+.foot .dot{width:10px;height:10px;border-radius:50%;background:var(--blue)}
+.foot b{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.foot .p{font-size:12px;color:var(--ink2);line-height:1.6}
+.foot .d{font-size:11px;color:var(--ink3);margin-top:6px;letter-spacing:.02em}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="tag">법규 완화로, 몇 층 더.</div>
+  <h1>증축 가능성<br>분석 <em>보고서</em></h1>
+  <p class="sub">법규 완화에 따른 일조권·용적률 검토 및<br>건축물 증축 가능성 분석</p>
+
+  <svg class="art" id="art" viewBox="0 0 794 1123" aria-hidden="true"></svg>
+
+  <div class="foot">
+    <div class="mark"><span class="dot"></span><b>BIM-IT 융합과정</b></div>
+    <div class="p">최종 프로젝트</div>
+    <div class="d">2026. 10.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var INK='#1d1d1f', GR='#86868b', LN='#d2d2d7', BL='#0071e3';
+  var s='';
+  function st(c,w){return ' fill="none" stroke="'+c+'" stroke-width="'+(w||1)+'" stroke-linejoin="round" stroke-linecap="round"'}
+  /* 맞배지붕 집: 지면선(gy) 위에 선다 */
+  function gable(x,gy,w,h,rh,c){
+    return '<path d="M'+x+' '+gy+'V'+(gy-h)+'L'+(x+w/2)+' '+(gy-h-rh)+'L'+(x+w)+' '+(gy-h)+'V'+gy+'" '+st(c||INK)+'/>'
+      +'<rect x="'+(x+w*.62)+'" y="'+(gy-h*.62)+'" width="'+(w*.18)+'" height="'+(h*.34)+'"'+st(c||INK,.8)+'/>';
+  }
+  /* 한쪽경사 지붕 집 */
+  function shed(x,gy,w,h,rh,c){
+    return '<path d="M'+x+' '+gy+'V'+(gy-h)+'L'+(x+w)+' '+(gy-h-rh)+'V'+gy+'" '+st(c||INK)+'/>'
+      +'<rect x="'+(x+w*.2)+'" y="'+(gy-h*.7)+'" width="'+(w*.2)+'" height="'+(h*.4)+'"'+st(c||INK,.8)+'/>';
+  }
+  /* 나무 */
+  function tree(x,gy,h,c){
+    var r=h*.3;
+    return '<line x1="'+x+'" y1="'+gy+'" x2="'+x+'" y2="'+(gy-h+r*2)+'"'+st(c||GR,1)+'/>'
+      +'<ellipse cx="'+x+'" cy="'+(gy-h+r)+'" rx="'+(r*.8)+'" ry="'+r+'"'+st(c||GR,1)+'/>';
+  }
+
+  /* ── 상단 좌측: 지붕선 스케치 (참조 표지의 윤곽 느낌) ── */
+  s+='<g>'
+   +'<path d="M64 214V152L112 112L160 152V214"'+st(GR,1)+'/>'
+   +'<path d="M168 214V132L214 112L214 214"'+st(GR,1)+'/>'
+   +'<path d="M222 214V170L246 150L270 170V214"'+st(GR,1)+'/>'
+   +'<path d="M280 214V164L322 134V214"'+st(GR,1)+'/>'
+   +'<line x1="64" y1="214" x2="330" y2="214"'+st(LN,1)+'/>'
+   +'</g>';
+
+  /* ── 흐르는 지면선 ── */
+  var path='M64 258V690Q64 750 124 750H570Q660 750 660 670V560Q660 510 720 510H794';
+  s+='<path d="'+path+'"'+st(GR,1.1)+'/>';
+
+  /* ── 하단 직선 구간(y=750)의 건물·나무 ── */
+  var gy=750;
+  s+=tree(150,gy,64);
+  s+=gable(176,gy,58,44,26);
+  s+=tree(262,gy,52);
+  s+=shed(286,gy,56,56,14);
+
+  /* 주인공: 기존 3층(회색 선) + 증축 2층(파랑 점선) */
+  var bx=372, bw=92, fh=34;
+  // 기존
+  s+='<rect x="'+bx+'" y="'+(gy-fh*3)+'" width="'+bw+'" height="'+(fh*3)+'"'+st(INK,1.2)+' />';
+  for(var i=1;i<3;i++) s+='<line x1="'+bx+'" y1="'+(gy-fh*i)+'" x2="'+(bx+bw)+'" y2="'+(gy-fh*i)+'" stroke="'+INK+'" stroke-width=".8"/>';
+  for(var f=0;f<3;f++){ for(var k=0;k<3;k++){
+    s+='<rect x="'+(bx+10+k*28)+'" y="'+(gy-fh*(f+1)+9)+'" width="16" height="16"'+st(GR,.8)+'/>'; } }
+  // 증축분
+  s+='<rect x="'+bx+'" y="'+(gy-fh*5)+'" width="'+bw+'" height="'+(fh*2)+'" fill="rgba(0,113,227,.08)" stroke="'+BL+'" stroke-width="1.2" stroke-dasharray="5 4" stroke-linejoin="round"/>';
+  s+='<line x1="'+bx+'" y1="'+(gy-fh*4)+'" x2="'+(bx+bw)+'" y2="'+(gy-fh*4)+'" stroke="'+BL+'" stroke-width=".8" stroke-dasharray="5 4"/>';
+  for(var f2=3;f2<5;f2++){ for(var k2=0;k2<3;k2++){
+    s+='<rect x="'+(bx+10+k2*28)+'" y="'+(gy-fh*(f2+1)+9)+'" width="16" height="16"'+st(BL,.8)+'/>'; } }
+  // 치수선 (증축 높이)
+  var dx=bx+bw+16;
+  s+='<g stroke="'+BL+'" stroke-width="1" fill="none"><line x1="'+dx+'" y1="'+(gy-fh*5)+'" x2="'+dx+'" y2="'+(gy-fh*3)+'"/>'
+    +'<line x1="'+(dx-5)+'" y1="'+(gy-fh*5)+'" x2="'+(dx+5)+'" y2="'+(gy-fh*5)+'"/>'
+    +'<line x1="'+(dx-5)+'" y1="'+(gy-fh*3)+'" x2="'+(dx+5)+'" y2="'+(gy-fh*3)+'"/></g>';
+  s+='<text x="'+(dx+10)+'" y="'+(gy-fh*4+4)+'" font-size="12" font-weight="600" fill="'+BL+'" font-family="Pretendard Variable,Pretendard,Noto Sans CJK KR,sans-serif">+2F</text>';
+
+  s+=tree(496,gy,58);
+  s+=gable(516,gy,50,38,22);
+
+  /* ── 우측 상단 구간(y=510)의 소품 ── */
+  s+=tree(716,510,56);
+  s+=gable(738,510,40,32,18);
+
+
+  document.getElementById('art').innerHTML=s;
+})();
+</script>
+</body>
+</html>

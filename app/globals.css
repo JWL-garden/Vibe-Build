@@ -20,6 +20,7 @@
   --color-accent: #0066cc;     /* 증축분 표시 전용 (3D 증축 층·증축 후 값·증축 선). 재건축분은 action */
   --color-accent-soft: #e8f1fc;
   --color-existing: #8d9494;   /* 기존 건물 */
+  --color-action-tint: rgba(0, 113, 227, 0.08); /* 표지 일러스트의 증축분 채우기 */
   --color-deep: #424245;       /* 짙은 보조색: 표 머리글·아이콘·도면 선 */
 
   /* 애플 기기에서는 시스템 글꼴(SF·Apple SD Gothic Neo), 그 밖에서는 Pretendard. 제목도 같은 산세리프 */

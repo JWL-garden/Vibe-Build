@@ -1,6 +1,6 @@
 'use client'
 
-// 기준 엑셀 필지 보고서 — 목차(1쪽) + 표지·요약(2쪽) + 1~10장 + 부록 1·2
+// 기준 엑셀 필지 보고서 — 표지(번호 없음) + 목차(번호 없음) + 요약(1쪽) + 1~10장 + 부록 1·2
 // A4 인쇄가 깔끔하게 나오도록 장마다 내용을 블록 단위로 측정해 쪽에 나눠 담는다 (lib/report/paginate.ts).
 //  - 쪽은 A4(297mm) 높이로 고정, 블록·표 행은 쪽 경계에서 잘리지 않고 표는 쪽마다 머리글을 다시 단다
 //  - 장 컴포넌트는 SiteReport만 읽고 계산하지 않는다 (여기서는 각 장 컴포넌트가 만든 블록을 쪽에 배치만 한다)
@@ -19,6 +19,8 @@ import {
 import { packUnits, type PackUnit } from '@/lib/report/paginate'
 import type { SiteReport } from '@/types'
 import Ch00Summary from '../Ch00Summary'
+import ReportCover from '../ReportCover'
+import { COVER_ORG } from '@/lib/report/constants'
 import { DataTable, SubTitle, type DataTableProps } from '../ReportParts'
 import ReportPage from '../ReportPage'
 import SiteAppendix from './SiteAppendix'
@@ -161,12 +163,12 @@ interface PageSpec {
 
 interface Layout {
   pages: PageSpec[]
-  /** 장별 시작 쪽 번호 (표지가 2쪽, 1장은 3쪽부터) */
+  /** 장별 시작 쪽 번호 (목차 다음 요약이 1쪽, 1장은 2쪽부터) */
   startPage: number[]
   overflow: boolean
 }
 
-const FIRST_CHAPTER_PAGE = 3
+const FIRST_CHAPTER_PAGE = 2
 
 /** 한 쪽에 들어가는 본문 높이에서 빼는 여유 (px) — 글꼴 렌더링 차이 대비 */
 const SAFETY_PX = 16
@@ -317,30 +319,35 @@ export default function SiteReportPages({ report }: { report: SiteReport }) {
   }
 
   const tocEntries: TocEntry[] = [
-    { no: '표지', title: '표지·한 장 요약', note: '핵심 숫자·결론·3D 전후', page: 2 },
+    { no: '요약', title: '한 장 요약', note: '핵심 숫자·결론·3D 전후', page: 1 },
     ...chapters.map((c, i) => ({ no: c.no, title: c.title, note: c.note, page: layout.startPage[i] })),
   ]
 
   // 오른쪽 스티키 목차: id 는 각 장 첫 쪽의 anchorId 와 같다
   const navItems: ChapterNavItem[] = [
+    { id: 'sec-title', no: '표지', title: '표지' },
     { id: 'sec-toc', no: '목차', title: '목차' },
-    { id: 'sec-cover', no: '0장', title: '표지·요약' },
+    { id: 'sec-cover', no: '요약', title: '한 장 요약' },
     ...chapters.map((c, i) => ({ id: `sec-${i}`, no: c.no, title: c.title })),
   ]
 
   return (
     <>
       <SiteChapterNav items={navItems} />
-      <ReportPage {...pageProps} chapter={{ no: '목차', title: '목차' }} page={1} fixedHeight anchorId="sec-toc" spyId="sec-toc">
+      <ReportPage {...pageProps} chapter={null} page={null} bare fixedHeight anchorId="sec-title" spyId="sec-title">
+        <ReportCover title={meta.title} floorsAbove={summary.floorsAbove} />
+      </ReportPage>
+
+      <ReportPage {...pageProps} chapter={{ no: '목차', title: '목차' }} page={null} fixedHeight anchorId="sec-toc" spyId="sec-toc">
         <SiteToc entries={tocEntries} />
       </ReportPage>
 
-      <ReportPage {...pageProps} chapter={null} page={2} fixedHeight anchorId="sec-cover" spyId="sec-cover">
+      <ReportPage {...pageProps} chapter={null} page={1} fixedHeight anchorId="sec-cover" spyId="sec-cover">
         <Ch00Summary
           title={meta.title}
           address={meta.address}
           createdAt={meta.createdAt}
-          author="(주)바이브빌드 건축사사무소"
+          author={COVER_ORG}
           scenarioName={meta.scenarioLabel}
           floorsAbove={summary.floorsAbove}
           addFloors={summary.addFloors}
