@@ -32,8 +32,9 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
       if (a.scenarioId === 'REBUILD') {
         const r = a.rebuild
         if (r.verdict !== 'impossible') {
-          gfaM2 = Math.max(0, r.gfaM2 - r.existing.gfaM2)
-          units = Math.max(0, r.households - r.existing.households)
+          // 재건축 건축개요 값: 신축 연면적('세 한도 중 최솟값')과 신축 세대수 (기존 대비 증감이 아님)
+          gfaM2 = r.gfaM2
+          units = r.households
         }
       } else {
         // 증축 건축개요의 '기존 주차로 증축' 값: 추가 세대(옥탑세대) · 다른 제한 반영 후 최종 연면적
