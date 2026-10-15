@@ -220,7 +220,7 @@ function ReportCta({ expandability, reportHref }: { expandability: Expandability
           보고서 출력 불가
         </span>
       )}
-      {generating && <ReportGeneratingOverlay href={reportHref} />}
+      {generating && <ReportGeneratingOverlay href={reportHref} onClose={() => setGenerating(false)} />}
     </section>
   )
 }
