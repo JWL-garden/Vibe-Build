@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 
-/** 메인 상단 메뉴 (나중에 이름·링크를 바꿔 끼운다). href 가 '#'이면 아직 이동하지 않는다 */
+/** 상단 메뉴 (보고서 제외 모든 페이지) (나중에 이름·링크를 바꿔 끼운다). href 가 '#'이면 아직 이동하지 않는다 */
 const HOME_MENU: { label: string; href: string }[] = [
   { label: '메뉴1', href: '#' },
   { label: '메뉴2', href: '#' },
@@ -35,7 +35,7 @@ function ReportActions() {
   )
 }
 
-/** 모든 페이지 공통 상단 바 (애플 코리아식 48px 반투명 바). 메인(/)은 왼쪽 서비스 이름 + 가운데 메뉴 4개, 보고서는 오른쪽에 돌아가기·PDF 저장, 그 밖은 오른쪽에 주소 검색 링크. 인쇄 시 숨김 */
+/** 모든 페이지 공통 상단 바 (애플 코리아식 48px 반투명 바). 보고서를 제외한 페이지(메인·분석 등)는 왼쪽 서비스 이름 + 가운데 메뉴 4개(분석 화면은 오른쪽에 주소 검색 링크), 보고서는 오른쪽에 돌아가기·PDF 저장. 인쇄 시 숨김 */
 export default function SiteHeader() {
   const pathname = usePathname()
   const isHome = pathname === '/'
@@ -47,23 +47,7 @@ export default function SiteHeader() {
           <Image src="/logo.png" alt="" width={115} height={96} className="h-[20px] w-auto" priority />
           Vibe Build
         </Link>
-        {isHome ? (
-          <nav aria-label="메인 메뉴">
-            <ul className="flex items-center gap-8 text-ink/80 sm:gap-[52px]">
-              {HOME_MENU.map((m) => (
-                <li key={m.label}>
-                  <a
-                    href={m.href}
-                    onClick={m.href === '#' ? (e) => e.preventDefault() : undefined}
-                    className="transition hover:text-ink"
-                  >
-                    {m.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ) : isReport ? (
+        {isReport ? (
           <>
             <span />
             <Suspense fallback={null}>
@@ -72,10 +56,28 @@ export default function SiteHeader() {
           </>
         ) : (
           <>
-            <span />
-            <Link href="/#search" className="justify-self-end text-ink-soft transition hover:text-ink">
-              주소 검색
-            </Link>
+            <nav aria-label="메인 메뉴">
+              <ul className="flex items-center gap-8 text-ink/80 sm:gap-[52px]">
+                {HOME_MENU.map((m) => (
+                  <li key={m.label}>
+                    <a
+                      href={m.href}
+                      onClick={m.href === '#' ? (e) => e.preventDefault() : undefined}
+                      className="transition hover:text-ink"
+                    >
+                      {m.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            {isHome ? (
+              <span />
+            ) : (
+              <Link href="/#search" className="justify-self-end text-ink-soft transition hover:text-ink">
+                주소 검색
+              </Link>
+            )}
           </>
         )}
       </div>
