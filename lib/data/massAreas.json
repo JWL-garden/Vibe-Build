@@ -1,8 +1,8 @@
 {
   "meta": {
     "note": "3D 매스 모델 형상에서 추출한 평면 면적(위를 향한 면 합). 측면 보강부(SIDE) 면적이 증축 연면적에 포함된다. 재생성: npm run model:trim",
-    "sourceModel": "261012_dangsan_sunlight_v5.glb",
-    "trimmedModel": "261012_dangsan_sunlight_v5_T1T2.glb",
+    "sourceModel": "261015_dangsan_sunlight_v6.glb",
+    "trimmedModel": "261015_dangsan_sunlight_v6_T1T2.glb",
     "contextRadiusM": 150
   },
   "items": [

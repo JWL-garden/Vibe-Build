@@ -17,7 +17,7 @@ const T1 = '1156011600001040010'
 const T2 = '1156011600001100019'
 const node = (name: string) => parseMassNodeName(name)!
 
-describe('GLB 매스 노드 이름 (v4·v5)', () => {
+describe('GLB 매스 노드 이름 (v4~v6)', () => {
   it('EXIST·REV·SIDE·TOP 이름을 해석한다', () => {
     expect(parseMassNodeName(`${T1}_EXIST_F03`)).toEqual({ pnu: T1, kind: 'EXIST', floor: 3, part: null })
     expect(parseMassNodeName(`${T1}_REV_F05_SIDE`)).toEqual({ pnu: T1, kind: 'REV', floor: 5, part: 'SIDE' })
@@ -125,9 +125,9 @@ describe('뷰별 표시 역할 — 재건축', () => {
   })
 })
 
-describe('실제 v5 모델 (public/models)', () => {
+describe('실제 v6 모델 (public/models)', () => {
   // GLB JSON 청크의 노드 이름만 읽는다 (three.js 불필요)
-  const glb = readFileSync(resolve(__dirname, '../../../public/models/261012_dangsan_sunlight_v5_T1T2.glb'))
+  const glb = readFileSync(resolve(__dirname, '../../../public/models/261015_dangsan_sunlight_v6_T1T2.glb'))
   const jsonLen = glb.readUInt32LE(12)
   const names: string[] = JSON.parse(glb.subarray(20, 20 + jsonLen).toString('utf8')).nodes.map((n: { name: string }) => n.name)
   const infos = (pnu: string) =>

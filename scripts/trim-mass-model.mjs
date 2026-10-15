@@ -1,6 +1,6 @@
 // 3D 매스 모델(GLB) 경량화 + 부분 면적 추출 (2026-10-12)
 //   npm run model:trim [원본.glb] [출력.glb]
-// - 분석 대상(lib/mock/examples.json 의 '기준 엑셀' 필지 = T1·T2)과 그 주변(반경 CONTEXT_RADIUS_M + 여유) 건물, 지형만 남긴다.
+// - 분석 대상(lib/mock/examples.json 의 tag '우선 분석' 필지 = T1·T2)과 그 주변(반경 CONTEXT_RADIUS_M + 여유) 건물, 지형만 남긴다.
 //   원본은 835동 · 약 9.6MB 라서 로딩이 느리고 저장소에 올리기에도 크다.
 // - 대상 필지 노드(EXIST·REV)의 평면 면적을 계산해 lib/data/massAreas.json 으로 저장한다.
 //   측면 보강부(REV_F{n}_SIDE) 면적이 증축 연면적에 들어가므로 계산 엔진이 이 값을 읽는다 (모델 형상에서 추출한 값).
@@ -14,8 +14,8 @@ import { ALL_EXTENSIONS } from '@gltf-transform/extensions'
 import { prune, dedup, joinPrimitives } from '@gltf-transform/functions'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const INPUT = resolve(ROOT, process.argv[2] ?? '../261012_dangsan_sunlight_v5.glb')
-const OUTPUT = resolve(ROOT, process.argv[3] ?? 'public/models/261012_dangsan_sunlight_v5_T1T2.glb')
+const INPUT = resolve(ROOT, process.argv[2] ?? '../261015_dangsan_sunlight_v6.glb')
+const OUTPUT = resolve(ROOT, process.argv[3] ?? 'public/models/261015_dangsan_sunlight_v6_T1T2.glb')
 const AREAS_JSON = resolve(ROOT, 'lib/data/massAreas.json')
 
 /** lib/geo/massModel.ts 의 CONTEXT_RADIUS_M 과 같게 둔다 (테스트가 일치 여부를 확인) + 카메라 여유 */
@@ -26,9 +26,9 @@ const NODE_NAME = /^(\d{19})_(EXIST|REV)_F(\d+)(?:_(SIDE|TOP))?$/
 const parcelKey = (pnu) => pnu.slice(0, 10) + pnu.slice(11)
 
 const targets = JSON.parse(readFileSync(resolve(ROOT, 'lib/mock/examples.json'), 'utf8'))
-  .filter((e) => String(e.tag ?? '').includes('기준 엑셀'))
-  .map((e) => ({ id: e.label.split(' ')[0], pnu: e.pnu, key: parcelKey(e.pnu) }))
-if (!targets.length) throw new Error('lib/mock/examples.json 에 기준 엑셀 대상(T1·T2)이 없습니다')
+  .filter((e) => String(e.tag ?? '').includes('우선 분석'))
+  .map((e, i) => ({ id: `T${i + 1}`, pnu: e.pnu, key: parcelKey(e.pnu) }))
+if (!targets.length) throw new Error("lib/mock/examples.json 에 '우선 분석' 대상(T1·T2)이 없습니다")
 
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS)
 const doc = await io.read(INPUT)

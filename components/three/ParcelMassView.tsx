@@ -2,7 +2,7 @@
 
 // 필지 PNU 하나를 받아 GLB 매스 모델에서 그 필지만 골라 "증축 전 / 증축 후"로 보여주는 3D 뷰
 //
-// - 모델: public/models/261012_dangsan_sunlight_v5_T1T2.glb — 원본 v5에서 T1·T2와 주변만 남긴 경량판 (npm run model:trim)
+// - 모델: public/models/261015_dangsan_sunlight_v6_T1T2.glb — 원본 v6에서 T1·T2와 주변만 남긴 경량판 (npm run model:trim)
 //   노드 이름 규칙은 lib/geo/massModel.ts 참고
 // - 증축 전: 대상 필지 EXIST 층만 / 증축 후: EXIST + REV (REV는 계산 엔진의 증축 층수만큼 — addFloors)
 //   · REV_F{n}_TOP = 기존 최상층 위의 새 층, REV_F{n}_SIDE = 일조 사선으로 물러난 기존 층의 측면 보강부
@@ -31,7 +31,7 @@ import {
   type MassViewOptions,
 } from '@/lib/geo/massModel'
 
-export const DEFAULT_MASS_MODEL_URL = '/models/261012_dangsan_sunlight_v5_T1T2.glb'
+export const DEFAULT_MASS_MODEL_URL = '/models/261015_dangsan_sunlight_v6_T1T2.glb'
 
 // 색은 globals.css 의 --color-existing / --color-accent 와 맞춰 둔다
 const COLORS = {

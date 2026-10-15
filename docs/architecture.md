@@ -104,7 +104,7 @@
 
 ### 3-1. 3D 모델 규칙
 
-- 파일: `public/models/261012_dangsan_sunlight_v5_T1T2.glb` (원본에서 T1·T2와 반경 165m 주변만 남긴 약 2MB 경량판)
+- 파일: `public/models/261015_dangsan_sunlight_v6_T1T2.glb` (원본에서 T1·T2와 반경 165m 주변만 남긴 약 2MB 경량판)
 - 노드 이름: `{PNU 19자리}_{EXIST|REV}_F{층}[_SIDE|_TOP]` + `TERRAIN`
 - 좌표: x=동쪽, -z=북쪽, y=높이, 대상 건물 중심 (0,0), 단위 m
 - Tailwind v4는 큰 바이너리 때문에 `@source not "../public/models"` 설정이 필요하다.

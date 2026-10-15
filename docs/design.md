@@ -624,9 +624,9 @@ financeScenarios = [
 ### 7-3. 좌표 규칙
 - 대상 건물 중심 (0,0), 미터 단위. x=동쪽, −z=북쪽, y=높이
 
-### 7-3b. (2026-10-12) GLB 매스 모델 사용 (2026-10-13: v4 → v5)
+### 7-3b. (2026-10-12) GLB 매스 모델 사용 (2026-10-15: v4 → v5 → v6)
 
-- 모델: `public/models/261012_dangsan_sunlight_v5_T1T2.glb` — 원본 `../261012_dangsan_sunlight_v5.glb`(약 10.2MB)에서 T1·T2와 반경 165m 안 주변·지형만 남기고 primitive를 합친 경량판(약 2.0MB). v4 → v5 교체 시 T1·T2 노드 이름과 SIDE·TOP 평면 면적(`massAreas.json`)은 v4와 같았다(2026-10-13 확인). 재생성: `npm run model:trim`(`scripts/trim-mass-model.mjs`, @gltf-transform 사용). 노드 이름 규칙 `{PNU 19자리}_{EXIST|REV}_F{층}[_SIDE|_TOP]` + `TERRAIN`. 필지 비교는 `lib/geo/massModel.ts parcelKey()`(11번째 자리 제외)
+- 모델: `public/models/261015_dangsan_sunlight_v6_T1T2.glb` — 원본 `../261015_dangsan_sunlight_v6.glb`(약 10.4MB)에서 T1·T2와 반경 165m 안 주변·지형만 남기고 primitive를 합친 경량판(약 2.0MB). v4 → v5(2026-10-13), v5 → v6(2026-10-15) 교체 시 T1·T2 노드 이름과 SIDE·TOP 평면 면적(`massAreas.json`)은 그대로였다(확인). 재생성: `npm run model:trim`(`scripts/trim-mass-model.mjs`, @gltf-transform 사용). 노드 이름 규칙 `{PNU 19자리}_{EXIST|REV}_F{층}[_SIDE|_TOP]` + `TERRAIN`. 필지 비교는 `lib/geo/massModel.ts parcelKey()`(11번째 자리 제외)
 - 모델에 든 대상 필지: 104-10(T1, EXIST 1~5 · REV F04·F05 SIDE + F06 TOP), 110-19(T2, EXIST 1~6 · REV F04~F06 SIDE + F07 TOP). 주변 EXIST 835동
   - **TOP** = 기존 최상층 위의 새 층(증축 층수에 해당) / **SIDE** = 일조 사선으로 물러난 기존 층의 측면 보강부(기존 층과 같은 높이)
   - (2026-10-12 결정) **SIDE 면적은 증축 연면적에 포함**한다 — 모델 형상에서 평면 면적을 추출(`lib/data/massAreas.json`: T1 36.52㎡, T2 83.98㎡)해 5-3 7)단계에서 일조 완화 시나리오(A·ALL)에만 더한다
