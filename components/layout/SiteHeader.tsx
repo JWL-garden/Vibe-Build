@@ -81,8 +81,9 @@ export default function SiteHeader() {
             {isHome ? (
               <span />
             ) : (
-              <Link href="/#search" className="justify-self-end text-ink-soft transition hover:text-ink">
-                주소 검색
+              // 메인 첫 화면(맨 위)으로 이동: #search 앵커를 쓰지 않아 살짝 아래로 스크롤된 채 열리지 않는다
+              <Link href="/" className="justify-self-end font-semibold text-action transition hover:text-action-hover">
+                HOME
               </Link>
             )}
           </>

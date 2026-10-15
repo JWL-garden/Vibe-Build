@@ -69,7 +69,7 @@ export default function AnalysisView({ pnu }: { pnu: string }) {
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="rounded-card border border-line bg-mist p-6">
           <p className="text-ink">해당 필지의 건축물대장 정보를 찾을 수 없습니다.</p>
-          <Link href="/#search" className="mt-3 inline-block text-sm font-medium text-link hover:underline">
+          <Link href="/" className="mt-3 inline-block text-sm font-medium text-link hover:underline">
             다른 주소 검색하기 →
           </Link>
         </div>

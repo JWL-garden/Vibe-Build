@@ -68,7 +68,7 @@ export default function ReportView({
   }
 
   if (status === 'notFound' || !building) {
-    return <Notice text="보고서를 만들 건축물 정보를 찾을 수 없습니다." href="/#search" linkText="주소 검색으로" />
+    return <Notice text="보고서를 만들 건축물 정보를 찾을 수 없습니다." href="/" linkText="주소 검색으로" />
   }
 
   if (expandability?.status === 'impossible') {
