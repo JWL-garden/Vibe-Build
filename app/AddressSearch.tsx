@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import BuildingIllustration from '@/components/layout/BuildingIllustration'
 import { runAll } from '@/lib/calc'
@@ -8,40 +8,12 @@ import { formatRate } from '@/lib/format'
 import { getExampleAddresses, getSiteData, searchSites } from '@/lib/services/dataService'
 import type { ExampleAddress, SiteCandidate } from '@/types'
 
-/** 메인 페이지의 주소 검색창 (아래 예시 카드 목록은 ExampleGrid). 입력칸을 누르면 T1·T2 예시 주소가 목록으로 나온다 (사용자 입력을 받으므로 클라이언트 컴포넌트) */
+/** 메인 페이지의 주소 검색창 (아래 예시 카드 목록은 ExampleGrid). 주소를 직접 입력해 검색한다 (사용자 입력을 받으므로 클라이언트 컴포넌트) */
 export default function AddressSearch() {
   const router = useRouter()
   const [query, setQuery] = useState('')
   const [candidates, setCandidates] = useState<SiteCandidate[]>([])
   const [message, setMessage] = useState<string | null>(null)
-  const [examples, setExamples] = useState<ExampleAddress[]>([])
-  const [open, setOpen] = useState(false)
-  /** 목록에서 고른 예시 주소의 PNU. 있으면 [분석하기]를 눌렀을 때 바로 그 필지로 이동 */
-  const [selectedPnu, setSelectedPnu] = useState<string | null>(null)
-  const boxRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    getExampleAddresses().then(setExamples)
-  }, [])
-
-  // 입력칸 바깥을 누르거나 Esc 를 누르면 예시 목록을 닫는다
-  useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false)
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [])
-
-  // 입력칸을 눌렀을 때는 우선 분석 대상(T1·T2, tag 있음)만 보여 준다. 아래 카드 그리드는 전체
-  const dropdownExamples = examples.filter((ex) => ex.tag)
 
   const goToAnalysis = (pnu: string) => router.push(`/analysis?pnu=${pnu}`)
 
@@ -49,12 +21,7 @@ export default function AddressSearch() {
     e.preventDefault()
     setCandidates([])
     setMessage(null)
-    setOpen(false)
 
-    if (selectedPnu) {
-      goToAnalysis(selectedPnu)
-      return
-    }
     if (query.trim() === '') {
       setMessage('주소를 입력해 주세요.')
       return
@@ -73,7 +40,7 @@ export default function AddressSearch() {
   return (
     <>
       <section id="search" className="mx-auto max-w-[680px] scroll-mt-24 px-4 sm:px-6">
-        <div ref={boxRef} className="relative">
+        <div className="relative">
           <form
             onSubmit={handleSubmit}
             className="flex flex-col gap-2 rounded-full border border-line bg-paper p-2 sm:flex-row sm:items-center"
@@ -81,12 +48,7 @@ export default function AddressSearch() {
             <input
               type="text"
               value={query}
-              onChange={(e) => {
-              setQuery(e.target.value)
-              setSelectedPnu(null)
-            }}
-              onFocus={() => setOpen(true)}
-              onClick={() => setOpen(true)}
+              onChange={(e) => setQuery(e.target.value)}
               autoComplete="off"
               placeholder="주소를 입력하세요 (예: 영등포구 당산동6가 3-1)"
               aria-label="주소"
@@ -99,33 +61,6 @@ export default function AddressSearch() {
               분석하기
             </button>
           </form>
-
-          {open && dropdownExamples.length > 0 && (
-            <ul
-              role="listbox"
-              aria-label="예시 주소"
-              className="absolute left-0 right-0 top-full z-10 mt-2 divide-y divide-line overflow-hidden rounded-card border border-line bg-paper shadow-[0_8px_30px_rgba(21,23,23,0.08)]"
-            >
-              {dropdownExamples.map((ex) => (
-                <li key={ex.pnu} role="option" aria-selected={false}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // 선택만 한다: 입력칸에 주소를 채우고, 이동은 [분석하기]를 눌렀을 때
-                      setQuery(ex.label)
-                      setSelectedPnu(ex.pnu)
-                      setMessage(null)
-                      setCandidates([])
-                      setOpen(false)
-                    }}
-                    className="w-full px-5 py-4 text-left transition hover:bg-mist"
-                  >
-                    <div className="font-medium text-ink">{ex.label}</div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
 
         {message && <p className="mt-4 px-2 text-sm text-ink-soft">{message}</p>}
