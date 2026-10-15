@@ -32,7 +32,7 @@ export default function PartnersPage() {
 
         {/* 기존 text-2xl/3xl(24·30px)의 1.5배 = 36·45px. 한 줄 유지를 위해 폭에 맞춰 줄어든다 */}
         <p
-          className="reveal-ltr mt-6 font-serif font-bold whitespace-nowrap text-stone-900"
+          className="reveal-ltr mt-6 text-center font-serif font-bold whitespace-nowrap text-stone-900"
           style={{ fontSize: "min(45px, 4.4cqw)" }}
         >
           다음 층도 두 분께 배운 대로 올리겠습니다.
