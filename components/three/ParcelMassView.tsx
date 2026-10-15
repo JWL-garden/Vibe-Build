@@ -7,6 +7,7 @@
 // - 증축 전: 대상 필지 EXIST 층만 / 증축 후: EXIST + REV (REV는 계산 엔진의 증축 층수만큼 — addFloors)
 //   · REV_F{n}_TOP = 기존 최상층 위의 새 층, REV_F{n}_SIDE = 일조 사선으로 물러난 기존 층의 측면 보강부
 // - 재건축(rebuildFloors 지정) 증축 후: 기존 + 증축 전체를 "재건축 신축 매스"(파랑 #0071e3)로 그린다. 계산된 지상 층수까지만
+//   · 단 대상 필지에 재건축 설계 모델 NEW 노드(v6, 현재 T1)가 있으면 기존·증축 대신 NEW 노드를 그대로 그린다 (계산 층수와 달라도)
 // - 주변 건물은 회색 반투명(반경 CONTEXT_RADIUS_M 안), 주변 증축안(REV)은 숨김. 지형(TERRAIN)이 있으면 지면으로 쓴다
 // - GLB 좌표가 TM 절대좌표(약 191,000 / -548,000)라서 대상 필지 중심을 (0,0), 대상 건물 바닥을 y=0 으로 옮긴다
 //   (설계서 7-3 좌표 규칙: x=동, -z=북, y=높이)
@@ -91,6 +92,8 @@ export interface MassInfo {
   shownTopFloor: number
   /** 증축 후 뷰에 측면 보강부(SIDE)가 표시되는지 */
   sideShown: boolean
+  /** 재건축 설계 모델(NEW 노드)의 지상 층수. 이 필지에 NEW 모델이 없으면 null */
+  rebuildModelFloors: number | null
 }
 
 export default function ParcelMassView({
@@ -202,7 +205,9 @@ function buildMass(
     if (info && isSameParcel(info.pnu, pnu)) targetInfos.push(info)
   })
   const floors = summarizeFloors(targetInfos)
-  const opts: MassViewOptions = { existTopFloor: floors.existTopFloor, addFloors, rebuildFloors, sideIncluded }
+  const newFloors = targetInfos.filter((i) => i.kind === 'NEW').map((i) => i.floor)
+  const hasNewModel = newFloors.length > 0
+  const opts: MassViewOptions = { existTopFloor: floors.existTopFloor, addFloors, rebuildFloors, sideIncluded, hasNewModel }
 
   // 1) 이름 규칙에 맞는 노드를 찾아 역할을 정하고, 그 아래 Mesh 를 모은다
   //    (GLTFLoader 는 primitive 가 여러 개인 노드를 Group + 자식 Mesh 로 만든다)
@@ -322,6 +327,7 @@ function buildMass(
       modelTopFloor: floors.modelTopFloor,
       shownTopFloor,
       sideShown,
+      rebuildModelFloors: hasNewModel ? Math.max(...newFloors) : null,
     },
     dispose: () => {
       geometries.forEach((g) => g.dispose())

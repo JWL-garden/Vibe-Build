@@ -46,6 +46,48 @@
           "planAreaM2": 50.47
         },
         {
+          "name": "1156011600001040010_NEW_F01_PARKING",
+          "kind": "NEW",
+          "floor": 1,
+          "part": "PARKING",
+          "planAreaM2": 59.03
+        },
+        {
+          "name": "1156011600001040010_NEW_F01_CORE",
+          "kind": "NEW",
+          "floor": 1,
+          "part": "CORE",
+          "planAreaM2": 15.75
+        },
+        {
+          "name": "1156011600001040010_NEW_F02_BODY",
+          "kind": "NEW",
+          "floor": 2,
+          "part": "BODY",
+          "planAreaM2": 98.63
+        },
+        {
+          "name": "1156011600001040010_NEW_F03_BODY",
+          "kind": "NEW",
+          "floor": 3,
+          "part": "BODY",
+          "planAreaM2": 98.63
+        },
+        {
+          "name": "1156011600001040010_NEW_F04_BODY",
+          "kind": "NEW",
+          "floor": 4,
+          "part": "BODY",
+          "planAreaM2": 92.13
+        },
+        {
+          "name": "1156011600001040010_NEW_F05_BODY",
+          "kind": "NEW",
+          "floor": 5,
+          "part": "BODY",
+          "planAreaM2": 44.81
+        },
+        {
           "name": "1156011600001040010_REV_F04_SIDE",
           "kind": "REV",
           "floor": 4,

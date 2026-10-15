@@ -4,26 +4,27 @@
 //   예) 1156011600001040010_EXIST_F03       → 104-10번지 기존 3층
 //       1156011600001040010_REV_F05_SIDE    → 기존 5층 높이에서 일조 사선으로 물러난 면을 채우는 측면 보강부
 //       1156011600001040010_REV_F06_TOP     → 기존 최상층 위에 새로 올리는 증축 층
+//   1156011600001040010_NEW_F02_BODY        → (v6) 재건축 신축 설계 모델. NEW 는 F01_PARKING(주차 바닥판)·F01_CORE(코어)·F{n}_BODY(층)
 //   TERRAIN                                  → 지형 (건물 아님)
 //
 // 주의: PNU 11번째 자리(대지/산 구분) 표기가 출처마다 다를 수 있다 (앱·v4 모델: 0 = 대지, 이전 모델: 1 = 대지).
 //   필지 비교는 parcelKey()로 그 자리를 빼고 한다.
 
-export type MassKind = 'EXIST' | 'REV'
-/** REV 노드의 종류 — SIDE = 측면 보강(기존 층과 같은 높이), TOP = 새 층. 규칙에 없으면 null */
-export type MassPart = 'SIDE' | 'TOP' | null
+export type MassKind = 'EXIST' | 'REV' | 'NEW'
+/** REV 노드의 종류 — SIDE = 측면 보강(기존 층과 같은 높이), TOP = 새 층. NEW 노드는 PARKING·CORE·BODY. 규칙에 없으면 null */
+export type MassPart = 'SIDE' | 'TOP' | 'PARKING' | 'CORE' | 'BODY' | null
 
 export interface MassNodeInfo {
   /** 노드 이름에 적힌 PNU 19자리 그대로 */
   pnu: string
-  /** EXIST = 기존 층, REV = 증축(계획) 부분 */
+  /** EXIST = 기존 층, REV = 증축(계획) 부분, NEW = 재건축 신축 설계 모델 */
   kind: MassKind
   /** 층 번호 (F03 → 3) */
   floor: number
   part: MassPart
 }
 
-const NODE_NAME = /^(\d{19})_(EXIST|REV)_F(\d+)(?:_(SIDE|TOP))?$/
+const NODE_NAME = /^(\d{19})_(EXIST|REV|NEW)_F(\d+)(?:_(SIDE|TOP|PARKING|CORE|BODY))?$/
 
 /** 지형 노드 이름 */
 export const TERRAIN_NODE_NAME = 'TERRAIN'
@@ -64,6 +65,8 @@ export interface MassViewOptions {
   addFloors: number | null
   /** 재건축: 계산 엔진의 신축 지상 층수. 있으면 "증축 후" 뷰는 이 층수까지의 기존 + 증축 전체를 신축 매스로 그린다 */
   rebuildFloors?: number | null
+  /** 대상 필지에 재건축 설계 모델(NEW 노드)이 있는지. 있으면 재건축 증축 후 뷰는 계산 층수와 관계없이 NEW 노드를 그대로 그린다 */
+  hasNewModel?: boolean
   /** 측면 보강부(SIDE)를 증축 연면적에 포함했는지 (계산 엔진 결과). false면 숨긴다. 생략(undefined)하면 증축 층이 있을 때 표시 */
   sideIncluded?: boolean
 }
@@ -85,6 +88,11 @@ export function massRole(info: MassNodeInfo, targetPnu: string, mode: MassViewMo
   if (!isTarget) return info.kind === 'EXIST' ? 'context' : 'hidden'
 
   if (mode === 'before') return info.kind === 'EXIST' ? 'targetExisting' : 'hidden'
+
+  // NEW(재건축 설계 모델)는 재건축 증축 후 뷰에서만 그대로 표시한다 (계산 층수와 달라도). NEW 가 있으면 기존·증축 모델 대신 쓴다
+  const rebuilding = opts.rebuildFloors !== undefined && opts.rebuildFloors !== null
+  if (info.kind === 'NEW') return rebuilding && opts.hasNewModel ? 'targetRebuilt' : 'hidden'
+  if (rebuilding && opts.hasNewModel) return 'hidden'
 
   // 재건축 증축 후: 기존 건물은 철거되고 기존 + 증축 전체가 신축 매스. 계산된 지상 층수까지만 표시
   if (opts.rebuildFloors !== undefined && opts.rebuildFloors !== null) {
@@ -108,14 +116,16 @@ export interface MassFloorSummary {
 }
 
 export function summarizeFloors(infos: MassNodeInfo[]): MassFloorSummary {
-  const exist = infos.filter((i) => i.kind === 'EXIST').map((i) => i.floor)
-  const all = infos.map((i) => i.floor)
+  // NEW(재건축 설계 모델)는 기존·증축 층 요약에 넣지 않는다
+  const base = infos.filter((i) => i.kind !== 'NEW')
+  const exist = base.filter((i) => i.kind === 'EXIST').map((i) => i.floor)
+  const all = base.map((i) => i.floor)
   const existTopFloor = exist.length ? Math.max(...exist) : 0
   const modelTopFloor = all.length ? Math.max(...all) : 0
   return {
     existTopFloor,
     modelTopFloor,
     modelAddFloors: Math.max(0, modelTopFloor - existTopFloor),
-    hasSide: infos.some((i) => i.part === 'SIDE'),
+    hasSide: base.some((i) => i.part === 'SIDE'),
   }
 }

@@ -22,7 +22,7 @@ const AREAS_JSON = resolve(ROOT, 'lib/data/massAreas.json')
 const CONTEXT_RADIUS_M = 150
 const MARGIN_M = 15
 
-const NODE_NAME = /^(\d{19})_(EXIST|REV)_F(\d+)(?:_(SIDE|TOP))?$/
+const NODE_NAME = /^(\d{19})_(EXIST|REV|NEW)_F(\d+)(?:_(SIDE|TOP|PARKING|CORE|BODY))?$/
 const parcelKey = (pnu) => pnu.slice(0, 10) + pnu.slice(11)
 
 const targets = JSON.parse(readFileSync(resolve(ROOT, 'lib/mock/examples.json'), 'utf8'))

@@ -157,3 +157,50 @@ describe('실제 v6 모델 (public/models)', () => {
     expect(summarizeFloors(infos(T2))).toEqual({ existTopFloor: 6, modelTopFloor: 7, modelAddFloors: 1, hasSide: true })
   })
 })
+
+describe('재건축 설계 모델 (NEW 노드, v6)', () => {
+  const newBody = node(`${T1}_NEW_F03_BODY`)
+  const newCore = node(`${T1}_NEW_F01_CORE`)
+  const exist = node(`${T1}_EXIST_F03`)
+  const rev = node(`${T1}_REV_F06_TOP`)
+  const withNew = { existTopFloor: 5, addFloors: 1, rebuildFloors: 6, hasNewModel: true }
+
+  it('NEW 이름(PARKING·CORE·BODY)을 해석한다', () => {
+    expect(newBody).toEqual({ pnu: T1, kind: 'NEW', floor: 3, part: 'BODY' })
+    expect(newCore).toEqual({ pnu: T1, kind: 'NEW', floor: 1, part: 'CORE' })
+    expect(parseMassNodeName(`${T1}_NEW_F01_PARKING`)?.part).toBe('PARKING')
+  })
+
+  it('재건축 증축 후: NEW 만 신축 매스, 기존·증축은 숨김 (계산 층수 6이어도 NEW 그대로)', () => {
+    expect(massRole(newBody, T1, 'after', withNew)).toBe('targetRebuilt')
+    expect(massRole(newCore, T1, 'after', withNew)).toBe('targetRebuilt')
+    expect(massRole(exist, T1, 'after', withNew)).toBe('hidden')
+    expect(massRole(rev, T1, 'after', withNew)).toBe('hidden')
+  })
+
+  it('NEW 는 증축 전 뷰·증축(재건축 아님) 후 뷰·주변 필지에서는 숨김', () => {
+    expect(massRole(newBody, T1, 'before', withNew)).toBe('hidden')
+    expect(massRole(newBody, T1, 'after', { existTopFloor: 5, addFloors: 1, hasNewModel: true })).toBe('hidden')
+    expect(massRole(newBody, T2, 'after', withNew)).toBe('hidden')
+  })
+
+  it('NEW 가 없는 필지(T2)는 기존 방식(기존 + 증축 전체를 계산 층수까지)', () => {
+    const t2 = { existTopFloor: 6, addFloors: 1, rebuildFloors: 6, hasNewModel: false }
+    expect(massRole(node(`${T2}_EXIST_F02`), T2, 'after', t2)).toBe('targetRebuilt')
+  })
+
+  it('층 요약에는 NEW 를 넣지 않는다', () => {
+    const infos = [node(`${T1}_EXIST_F05`), newBody, node(`${T1}_NEW_F05_BODY`)]
+    expect(summarizeFloors(infos)).toEqual({ existTopFloor: 5, modelTopFloor: 5, modelAddFloors: 0, hasSide: false })
+  })
+
+  it('실제 v6 경량 모델: T1 에 NEW 6개 노드(PARKING·CORE·F02~F05 BODY), T2 에는 없음', () => {
+    const glb = readFileSync(resolve(__dirname, '../../../public/models/261015_dangsan_sunlight_v6_T1T2.glb'))
+    const jsonLen = glb.readUInt32LE(12)
+    const names: string[] = JSON.parse(glb.subarray(20, 20 + jsonLen).toString('utf8')).nodes.map((n: { name: string }) => n.name)
+    const news = (pnu: string) => names.map((n) => parseMassNodeName(n)).filter((i) => i && i.kind === 'NEW' && isSameParcel(i.pnu, pnu))
+    expect(news(T1)).toHaveLength(6)
+    expect(Math.max(...news(T1).map((i) => i!.floor))).toBe(5)
+    expect(news(T2)).toHaveLength(0)
+  })
+})

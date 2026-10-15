@@ -87,7 +87,12 @@ export default function MassView({
   const notes: string[] = []
   if (mode === 'after' && info) {
     if (info.rebuild) {
-      if (info.modelTopFloor !== info.shownTopFloor) notes.push(`3D 모델 ${info.modelTopFloor}개층 중 계산 결과 ${info.shownTopFloor}개층 표시`)
+      if (info.rebuildModelFloors !== null) {
+        // 재건축 설계 모델(NEW)을 그대로 표시 — 계산 결과 층수와 다르면 알린다
+        if (rebuildFloors !== null && rebuildFloors > 0 && rebuildFloors !== info.rebuildModelFloors) {
+          notes.push(`3D는 재건축 설계 모델(지상 ${info.rebuildModelFloors}층)이며, 계산 결과는 지상 ${rebuildFloors}층입니다`)
+        }
+      } else if (info.modelTopFloor !== info.shownTopFloor) notes.push(`3D 모델 ${info.modelTopFloor}개층 중 계산 결과 ${info.shownTopFloor}개층 표시`)
     } else {
       if (addFloors !== null && info.modelAddFloors !== info.shownAddFloors) {
         notes.push(`3D 모델 증축 ${info.modelAddFloors}개층 중 계산 결과 ${info.shownAddFloors}개층 표시`)
