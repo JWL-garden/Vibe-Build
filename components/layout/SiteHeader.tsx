@@ -10,7 +10,7 @@ const HOME_MENU: { label: string; href: string }[] = [
   { label: '사업성 검토', href: '#' },
   { label: '설계안 작성', href: '#' },
   { label: '건축사례', href: '#' },
-  { label: '협력사', href: '#' },
+  { label: '협력사', href: '/partners' },
   { label: '고객지원', href: '#' },
 ]
 
@@ -61,13 +61,19 @@ export default function SiteHeader() {
               <ul className="flex items-center gap-8 text-ink/80 sm:gap-[52px]">
                 {HOME_MENU.map((m) => (
                   <li key={m.label}>
-                    <a
-                      href={m.href}
-                      onClick={m.href === '#' ? (e) => e.preventDefault() : undefined}
-                      className="transition hover:text-ink"
-                    >
-                      {m.label}
-                    </a>
+                    {m.href === '#' ? (
+                      <a href="#" onClick={(e) => e.preventDefault()} className="transition hover:text-ink">
+                        {m.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={m.href}
+                        aria-current={pathname === m.href ? 'page' : undefined}
+                        className={`transition hover:text-ink ${pathname === m.href ? 'font-semibold text-ink' : ''}`}
+                      >
+                        {m.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
