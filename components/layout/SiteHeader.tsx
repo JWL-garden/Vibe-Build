@@ -7,10 +7,11 @@ import { usePathname, useSearchParams } from 'next/navigation'
 
 /** 상단 메뉴 (보고서 제외 모든 페이지) (나중에 이름·링크를 바꿔 끼운다). href 가 '#'이면 아직 이동하지 않는다 */
 const HOME_MENU: { label: string; href: string }[] = [
-  { label: '메뉴1', href: '#' },
-  { label: '메뉴2', href: '#' },
-  { label: '메뉴3', href: '#' },
-  { label: '메뉴4', href: '#' },
+  { label: '사업성 검토', href: '#' },
+  { label: '설계안 작성', href: '#' },
+  { label: '건축사례', href: '#' },
+  { label: '협력사', href: '#' },
+  { label: '고객지원', href: '#' },
 ]
 
 /** 보고서 화면 상단 바 오른쪽: ← 분석으로 돌아가기 · PDF로 저장 (예전 보고서 툴바를 상단 바로 옮김) */
@@ -35,7 +36,7 @@ function ReportActions() {
   )
 }
 
-/** 모든 페이지 공통 상단 바 (애플 코리아식 48px 반투명 바). 보고서를 제외한 페이지(메인·분석 등)는 왼쪽 서비스 이름 + 가운데 메뉴 4개(분석 화면은 오른쪽에 주소 검색 링크), 보고서는 오른쪽에 돌아가기·PDF 저장. 인쇄 시 숨김 */
+/** 모든 페이지 공통 상단 바 (애플 코리아식 48px 반투명 바). 보고서를 제외한 페이지(메인·분석 등)는 왼쪽 서비스 이름 + 가운데 메뉴 5개(분석 화면은 오른쪽에 주소 검색 링크), 보고서는 오른쪽에 돌아가기·PDF 저장. 인쇄 시 숨김 */
 export default function SiteHeader() {
   const pathname = usePathname()
   const isHome = pathname === '/'
