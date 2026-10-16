@@ -127,7 +127,7 @@ describe('뷰별 표시 역할 — 재건축', () => {
 
 describe('실제 v6 모델 (public/models)', () => {
   // GLB JSON 청크의 노드 이름만 읽는다 (three.js 불필요)
-  const glb = readFileSync(resolve(__dirname, '../../../public/models/261015_dangsan_sunlight_v6_T1T2.glb'))
+  const glb = readFileSync(resolve(__dirname, '../../../public/models/261016_dangsan_sunlight_v7_T1T2.glb'))
   const jsonLen = glb.readUInt32LE(12)
   const names: string[] = JSON.parse(glb.subarray(20, 20 + jsonLen).toString('utf8')).nodes.map((n: { name: string }) => n.name)
   const infos = (pnu: string) =>
@@ -195,7 +195,7 @@ describe('재건축 설계 모델 (NEW 노드, v6)', () => {
   })
 
   it('실제 v6 경량 모델: T1 에 NEW 6개 노드(PARKING·CORE·F02~F05 BODY), T2 에는 없음', () => {
-    const glb = readFileSync(resolve(__dirname, '../../../public/models/261015_dangsan_sunlight_v6_T1T2.glb'))
+    const glb = readFileSync(resolve(__dirname, '../../../public/models/261016_dangsan_sunlight_v7_T1T2.glb'))
     const jsonLen = glb.readUInt32LE(12)
     const names: string[] = JSON.parse(glb.subarray(20, 20 + jsonLen).toString('utf8')).nodes.map((n: { name: string }) => n.name)
     const news = (pnu: string) => names.map((n) => parseMassNodeName(n)).filter((i) => i && i.kind === 'NEW' && isSameParcel(i.pnu, pnu))
